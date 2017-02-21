@@ -103,10 +103,8 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate a vector of values from normal distribution
     int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-    QList<qreal> samples;
-
-    QVector<double> X;
-    QVector<double> normalDistributionY;
+    QVector<qreal> X;
+    QVector<qreal> normalDistributionY;
 
     for(int x = -500; x < 500; ++x)
     {
@@ -117,7 +115,23 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate plot of normal distribution using QCustomPlot
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(0)->setData(X, normalDistributionY);
+    ui->widget_plot->graph(0)->setPen(QPen(Qt::gray));
+
+    // Generate a vector of values from selected KDE
+    QVector<qreal> KDEEstimationY;
+
+    foreach(qreal x, X) KDEEstimationY.append(countKDEEstimationValue(x));
+
+    // Generate a plot of KDE
+    ui->widget_plot->addGraph();
+    ui->widget_plot->graph(1)->setData(X, KDEEstimationY);
+    ui->widget_plot->graph(1)->setPen(QPen(Qt::red));
+
+    // Draw plots
     ui->widget_plot->replot();
+
+
+    QList<qreal> samples;
 
     for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
     {
@@ -130,6 +144,13 @@ qreal MainWindow::countNormalDistributionDensityValue(qreal x)
 {
     qreal result = exp(- pow((x - mean), 2) / (2 * pow(standardDeviation, 2)));
     result /= (standardDeviation * sqrt(2 * M_PI));
+
+    return result;
+}
+
+qreal MainWindow::countKDEEstimationValue(qreal x)
+{
+    qreal result = 0;
 
     return result;
 }

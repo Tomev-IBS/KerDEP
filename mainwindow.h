@@ -18,7 +18,8 @@ public:
 private slots:
     void on_pushButton_generate_clicked();
         qreal countNormalDistributionDensityValue(qreal x);
-        qreal countKernelDensityEstimatorEstimationValue(qreal x, QVector<qreal> samples);
+        qreal countKDEEstimationValue(qreal x);
+
 private:
     Ui::MainWindow *ui;
 
