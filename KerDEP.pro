@@ -14,10 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    QCustomPlot/qcustomplot.cpp
+    QCustomPlot/qcustomplot.cpp \
+    Functions/gaussianprobabilitydensityfunction.cpp
 
 HEADERS  += mainwindow.h \
-    QCustomPlot/qcustomplot.h
+    QCustomPlot/qcustomplot.h \
+    customfunction.h \
+    Functions/gaussianprobabilitydensityfunction.h \
+    Functions/function.h
 
 FORMS    += mainwindow.ui
 

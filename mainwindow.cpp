@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "math.h"
+#include "Functions/gaussianprobabilitydensityfunction.h"
 
 #include "random"
 #include "QDebug"
@@ -114,7 +115,7 @@ void MainWindow::on_pushButton_generate_clicked()
     std::normal_distribution<qreal> distribution(mean, standardDeviation);
 
     // Generate a vector of values from normal distribution
-    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+    function* gaussianProbabilityDensityFunc = new gaussianProbabilityDensityFunction(mean, standardDeviation);
 
     QVector<qreal> X;
     QVector<qreal> normalDistributionY;
@@ -122,7 +123,7 @@ void MainWindow::on_pushButton_generate_clicked()
     for(int x = minX*100; x < maxX*100; ++x)
     {
         X.append(x/100.0);
-        normalDistributionY.append(countNormalDistributionDensityValue(x/100.0));
+        normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(new QVector<qreal>{x/100.0}));
     }
 
     // Generate plot of normal distribution using QCustomPlot
@@ -131,6 +132,8 @@ void MainWindow::on_pushButton_generate_clicked()
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
     // Generate a vector of values from selected KDE
+    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+
     QVector<qreal> KDEEstimationY;
 
     foreach(qreal x, X) KDEEstimationY.append(countKDEEstimationValue(x));
@@ -158,14 +161,6 @@ void MainWindow::clearPlot()
         ui->widget_plot->removeGraph(0);
 
     ui->widget_plot->replot();
-}
-
-qreal MainWindow::countNormalDistributionDensityValue(qreal x)
-{
-    qreal result = exp(- pow((x - mean), 2) / (2 * pow(standardDeviation, 2)));
-    result /= (standardDeviation * sqrt(2 * M_PI));
-
-    return result;
 }
 
 QColor MainWindow::getRandomColor()
