@@ -110,9 +110,7 @@ void MainWindow::on_pushButton_generate_clicked()
     seed                = ui->lineEdit_seed->text().toInt();
     mean                = ui->lineEdit_mean->text().toDouble();
     standardDeviation   = ui->lineEdit_stdDeviation->text().toDouble();
-    std::default_random_engine generator(seed);
 
-    std::normal_distribution<qreal> distribution(mean, standardDeviation);
 
     // Generate a vector of values from normal distribution
     function* gaussianProbabilityDensityFunc = new gaussianProbabilityDensityFunction(mean, standardDeviation);
@@ -136,7 +134,7 @@ void MainWindow::on_pushButton_generate_clicked()
 
     QVector<qreal> KDEEstimationY;
 
-    foreach(qreal x, X) KDEEstimationY.append(countKDEEstimationValue(x));
+    foreach(qreal x, X) KDEEstimationY.append(x);
 
     // Generate a plot of KDE
     ui->widget_plot->addGraph();
@@ -145,14 +143,6 @@ void MainWindow::on_pushButton_generate_clicked()
 
     // Draw plots
     ui->widget_plot->replot();
-
-    QList<qreal> samples;
-
-    for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
-    {
-        qreal number = distribution(generator);
-        samples.append(number);
-    }
 }
 
 void MainWindow::clearPlot()
@@ -166,13 +156,6 @@ void MainWindow::clearPlot()
 QColor MainWindow::getRandomColor()
 {
     return QColor(rand()%110 + 50, rand()%110 + 50, rand()%110 + 50);
-}
-
-qreal MainWindow::countKDEEstimationValue(qreal x)
-{
-    qreal result = 0;
-
-    return result;
 }
 
 void MainWindow::on_pushButton_clear_clicked()

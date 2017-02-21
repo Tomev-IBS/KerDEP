@@ -15,15 +15,18 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     QCustomPlot/qcustomplot.cpp \
-    Functions/gaussianprobabilitydensityfunction.cpp
+    Functions/gaussianprobabilitydensityfunction.cpp \
+    KDE/kerneldensityestimator.cpp
 
 HEADERS  += mainwindow.h \
     QCustomPlot/qcustomplot.h \
-    customfunction.h \
     Functions/gaussianprobabilitydensityfunction.h \
-    Functions/function.h
+    Functions/function.h \
+    KDE/kerneldensityestimator.h
 
 FORMS    += mainwindow.ui
 
 DISTFILES += \
-    .gitignore
+    .gitignore \
+    QCustomPlot/changelog.txt \
+    QCustomPlot/GPL.txt
