@@ -19,9 +19,10 @@ private slots:
     void on_pushButton_generate_clicked();
         void clearPlot();
         qreal countNormalDistributionDensityValue(qreal x);
+        QColor getRandomColor();
         qreal countKDEEstimationValue(qreal x);
 
-        void on_pushButton_clicked();
+    void on_pushButton_clear_clicked();
 
 private:
     Ui::MainWindow *ui;

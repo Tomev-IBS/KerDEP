@@ -64,6 +64,13 @@ void MainWindow::on_pushButton_generate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
+    // Check if prior plots should be saved
+    if(!ui->checkBox_keepPriorPlots->isChecked())
+    {
+        // If not clear plot
+        clearPlot();
+    }
+
     // Resize plot
     qreal   minX = ui->lineEdit_minX->text().toDouble(),
             maxX = ui->lineEdit_maxX->text().toDouble(),
@@ -121,7 +128,7 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate plot of normal distribution using QCustomPlot
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, normalDistributionY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::gray));
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
     // Generate a vector of values from selected KDE
     QVector<qreal> KDEEstimationY;
@@ -131,7 +138,7 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate a plot of KDE
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, KDEEstimationY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::red));
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
     // Draw plots
     ui->widget_plot->replot();
@@ -161,6 +168,11 @@ qreal MainWindow::countNormalDistributionDensityValue(qreal x)
     return result;
 }
 
+QColor MainWindow::getRandomColor()
+{
+    return QColor(rand()%110 + 50, rand()%110 + 50, rand()%110 + 50);
+}
+
 qreal MainWindow::countKDEEstimationValue(qreal x)
 {
     qreal result = 0;
@@ -168,7 +180,7 @@ qreal MainWindow::countKDEEstimationValue(qreal x)
     return result;
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButton_clear_clicked()
 {
     clearPlot();
 }
