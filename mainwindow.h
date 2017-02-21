@@ -15,12 +15,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-
 private slots:
     void on_pushButton_generate_clicked();
-
+        qreal countNormalDistributionDensityValue(qreal x);
+        qreal countKernelDensityEstimatorEstimationValue(qreal x, QVector<qreal> samples);
 private:
     Ui::MainWindow *ui;
+
+    qreal   mean, standardDeviation;
+    int     sampleSize, seed;
 };
 
 #endif // MAINWINDOW_H
