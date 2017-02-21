@@ -120,8 +120,8 @@ void MainWindow::on_pushButton_generate_clicked()
 
     // Generate plot of normal distribution using QCustomPlot
     ui->widget_plot->addGraph();
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, normalDistributionY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::gray));
+    ui->widget_plot->graph(0)->setData(X, normalDistributionY);
+    ui->widget_plot->graph(0)->setPen(QPen(Qt::gray));
 
     // Generate a vector of values from selected KDE
     QVector<qreal> KDEEstimationY;
@@ -130,8 +130,8 @@ void MainWindow::on_pushButton_generate_clicked()
 
     // Generate a plot of KDE
     ui->widget_plot->addGraph();
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, KDEEstimationY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::red));
+    ui->widget_plot->graph(1)->setData(X, KDEEstimationY);
+    ui->widget_plot->graph(1)->setPen(QPen(Qt::red));
 
     // Draw plots
     ui->widget_plot->replot();

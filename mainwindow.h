@@ -17,8 +17,11 @@ public:
 
 private slots:
     void on_pushButton_generate_clicked();
+        void clearPlot();
         qreal countNormalDistributionDensityValue(qreal x);
         qreal countKDEEstimationValue(qreal x);
+
+        void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
