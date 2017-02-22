@@ -15,8 +15,14 @@ qreal kernelDensityEstimator::getValue(qreal x)
 {
     qreal result = 0.0;
 
+    QVector<qreal>* tempValueHolder = new QVector<qreal>();
+
     foreach(qreal sample, samples)
-        result += kernel->getValue(new QVector<qreal>{(x-sample)/smoothingParameter});
+    {
+        tempValueHolder->clear();
+        tempValueHolder->append((x-sample)/smoothingParameter);
+        result += kernel->getValue(tempValueHolder);
+    }
 
     result /= samples.size() * smoothingParameter;
 

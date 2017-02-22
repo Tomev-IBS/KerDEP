@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "math.h"
+
 #include "Functions/gaussianprobabilitydensityfunction.h"
+#include "KDE/kerneldensityestimator.h"
 
 #include "random"
 #include "QDebug"
@@ -107,7 +109,6 @@ void MainWindow::on_pushButton_generate_clicked()
 
 
     // Create random engine generator
-    seed                = ui->lineEdit_seed->text().toInt();
     mean                = ui->lineEdit_mean->text().toDouble();
     standardDeviation   = ui->lineEdit_stdDeviation->text().toDouble();
 
@@ -118,10 +119,14 @@ void MainWindow::on_pushButton_generate_clicked()
     QVector<qreal> X;
     QVector<qreal> normalDistributionY;
 
+    QVector<qreal>* tempValueHolder = new QVector<qreal>();
+
     for(int x = minX*100; x < maxX*100; ++x)
     {
         X.append(x/100.0);
-        normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(new QVector<qreal>{x/100.0}));
+        tempValueHolder->clear();
+        tempValueHolder->append(x/100.0);
+        normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(tempValueHolder));
     }
 
     // Generate plot of normal distribution using QCustomPlot
@@ -130,11 +135,18 @@ void MainWindow::on_pushButton_generate_clicked()
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
     // Generate a vector of values from selected KDE
-    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+    kernelDensityEstimator estimator(
+                ui->lineEdit_seed->text().toInt(),
+                ui->lineEdit_sampleSize->text().toInt(),
+                mean,
+                standardDeviation,
+                gaussianProbabilityDensityFunc,
+                ui->lineEdit_smoothingParam->text().toInt()
+    );
 
     QVector<qreal> KDEEstimationY;
 
-    foreach(qreal x, X) KDEEstimationY.append(x);
+    foreach(qreal x, X) KDEEstimationY.append(estimator.getValue(x));
 
     // Generate a plot of KDE
     ui->widget_plot->addGraph();
