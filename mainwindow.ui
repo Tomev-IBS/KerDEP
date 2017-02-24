@@ -103,6 +103,21 @@
           <string>Normal</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Triangle</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Epacznikow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Dull</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
