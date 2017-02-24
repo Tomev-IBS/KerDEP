@@ -1,11 +1,11 @@
-#include "trianglekernelfunction.h"
+#include "epanecznikowkernelfunction.h"
 
 #include "QDebug"
 
-triangleKernelFunction::triangleKernelFunction()
+epanecznikowKernelFunction::epanecznikowKernelFunction()
 {}
 
-qreal triangleKernelFunction::getValue(QVector<qreal> *arguments)
+qreal epanecznikowKernelFunction::getValue(QVector<qreal> *arguments)
 {
     // TODO: Consider using asserts of some sort
 
@@ -24,15 +24,13 @@ qreal triangleKernelFunction::getValue(QVector<qreal> *arguments)
         return -1;
     }
 
-    qreal x = qAbs(arguments->at(0));
+    qreal x = arguments->at(0);
 
-    // For |x| < 1 return 1 - |x|
-    if(x < 1)
+    // For |x| <= 1 return 3/4(1-x^2)
+    if(qAbs(x) <= 1)
     {
-        return 1.0 - x;
+        return 3.0/4.0 * (1 - pow(x,2));
     }
-
-    // Otherwise return 0
 
     return 0;
 }

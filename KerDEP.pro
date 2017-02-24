@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     QCustomPlot/qcustomplot.cpp \
     Functions/gaussianprobabilitydensityfunction.cpp \
     KDE/kerneldensityestimator.cpp \
-    Functions/trianglekernelfunction.cpp
+    Functions/trianglekernelfunction.cpp \
+    Functions/epanecznikowkernelfunction.cpp
 
 HEADERS  += mainwindow.h \
     QCustomPlot/qcustomplot.h \
@@ -25,7 +26,8 @@ HEADERS  += mainwindow.h \
     Functions/function.h \
     KDE/kerneldensityestimator.h \
     Functions/trianglekernelfunction.h \
-    Functions/functions.h
+    Functions/functions.h \
+    Functions/epanecznikowkernelfunction.h
 
 FORMS    += mainwindow.ui
 
