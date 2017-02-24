@@ -2,11 +2,8 @@
 
 #include "QDebug"
 
-
 gaussianProbabilityDensityFunction::gaussianProbabilityDensityFunction()
-{
-
-}
+{}
 
 gaussianProbabilityDensityFunction::gaussianProbabilityDensityFunction(qreal mean, qreal standardDeviation)
     : mean(mean), standardDeviation(standardDeviation)
@@ -14,6 +11,8 @@ gaussianProbabilityDensityFunction::gaussianProbabilityDensityFunction(qreal mea
 
 qreal gaussianProbabilityDensityFunction::getValue(QVector<qreal>* arguments)
 {
+    // TODO: Consider using asserts of some kind
+
     // Check for nullpointer
     if(!arguments)
     {
