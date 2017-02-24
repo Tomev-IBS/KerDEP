@@ -100,7 +100,7 @@
        <widget class="QComboBox" name="comboBox_kernel">
         <item>
          <property name="text">
-          <string>Gaussian</string>
+          <string>Normal</string>
          </property>
         </item>
        </widget>
