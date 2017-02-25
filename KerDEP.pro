@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     KDE/kerneldensityestimator.cpp \
     Functions/trianglekernelfunction.cpp \
     Functions/epanecznikowkernelfunction.cpp \
-    Functions/dullkernelfunction.cpp
+    Functions/dullkernelfunction.cpp \
+    Distributions/normaldistribution.cpp
 
 HEADERS  += mainwindow.h \
     QCustomPlot/qcustomplot.h \
@@ -29,7 +30,10 @@ HEADERS  += mainwindow.h \
     Functions/trianglekernelfunction.h \
     Functions/functions.h \
     Functions/epanecznikowkernelfunction.h \
-    Functions/dullkernelfunction.h
+    Functions/dullkernelfunction.h \
+    Distributions/distributions.h \
+    Distributions/distribution.h \
+    Distributions/normaldistribution.h
 
 FORMS    += mainwindow.ui
 

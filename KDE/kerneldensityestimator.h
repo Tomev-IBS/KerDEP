@@ -2,13 +2,14 @@
 #define KERNELDENSITYESTIMATOR_H
 
 #include "../Functions/gaussianprobabilitydensityfunction.h"
+#include "../Distributions/distribution.h"
 
 #include <QObject>
 
 class kernelDensityEstimator
 {
     public:
-        kernelDensityEstimator(int seed, int sampleSize, qreal mean, qreal standardDeviation, function* kernel, qreal smoothingParameter);
+        kernelDensityEstimator(int sampleSize, qreal smoothingParameter, function* kernel, distribution* targetDistribution);
 
         qreal getValue(qreal x);
 

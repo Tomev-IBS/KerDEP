@@ -2,10 +2,10 @@
 #include "ui_mainwindow.h"
 #include "math.h"
 
-#include "Functions/gaussianprobabilitydensityfunction.h"
+#include "Functions/functions.h"
+#include "Distributions/distributions.h"
 #include "KDE/kerneldensityestimator.h"
 
-#include "random"
 #include "QDebug"
 
 #include "climits"
@@ -107,11 +107,10 @@ void MainWindow::on_pushButton_generate_clicked()
         maxY = ui->widget_plot->yAxis->range().maxRange;
     }
 
-
     // Create random engine generator
     mean                = ui->lineEdit_mean->text().toDouble();
     standardDeviation   = ui->lineEdit_stdDeviation->text().toDouble();
-
+    seed                = ui->lineEdit_seed->text().toDouble();
 
     // Generate a vector of values from normal distribution
     function* gaussianProbabilityDensityFunc = new gaussianProbabilityDensityFunction(mean, standardDeviation);
@@ -135,18 +134,40 @@ void MainWindow::on_pushButton_generate_clicked()
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
     // Generate a vector of values from selected KDE
-    kernelDensityEstimator estimator(
-                ui->lineEdit_seed->text().toInt(),
+    int kernelFunctionID = ui->comboBox_kernel->currentIndex();
+    kernelDensityEstimator* estimator;
+    function* kernel;
+    distribution* targetDistribution = new normalDistribution(seed, mean, standardDeviation);
+
+    switch(kernelFunctionID)
+    {
+        case NORMAL:
+            kernel = new gaussianProbabilityDensityFunction(mean, standardDeviation);
+        break;
+
+        case TRIANGLE:
+            kernel = new triangleKernelFunction();
+        break;
+
+        case EPACZNIKOW:
+            kernel = new epanecznikowKernelFunction();
+        break;
+        case DULL:
+        default:
+            kernel = new dullKernelFunction();
+        break;
+    }
+
+    estimator = new kernelDensityEstimator(
                 ui->lineEdit_sampleSize->text().toInt(),
-                mean,
-                standardDeviation,
-                gaussianProbabilityDensityFunc,
-                ui->lineEdit_smoothingParam->text().toInt()
+                ui->lineEdit_smoothingParam->text().toDouble(),
+                kernel,
+                targetDistribution
     );
 
     QVector<qreal> KDEEstimationY;
 
-    foreach(qreal x, X) KDEEstimationY.append(estimator.getValue(x));
+    foreach(qreal x, X) KDEEstimationY.append(estimator->getValue(x));
 
     // Generate a plot of KDE
     ui->widget_plot->addGraph();
