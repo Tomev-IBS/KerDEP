@@ -167,6 +167,8 @@ void MainWindow::on_pushButton_generate_clicked()
 
     QVector<qreal> KDEEstimationY;
 
+    // TODO: Place counting in another thread
+
     foreach(qreal x, X) KDEEstimationY.append(estimator->getValue(x));
 
     // Generate a plot of KDE
