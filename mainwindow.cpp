@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "math.h"
 
 #include "Functions/Kernels/kernels.h"
@@ -9,6 +10,7 @@
 #include "QDebug"
 
 #include "climits"
+#include "memory"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -54,12 +56,15 @@ MainWindow::MainWindow(QWidget *parent) :
     // Setup kernels table
 
     ui->tableWidget_dimensionKernels->setRowCount(1);
-    ui->tableWidget_dimensionKernels->setColumnCount(2);
+    ui->tableWidget_dimensionKernels->horizontalHeader()->setStretchLastSection(true);
 
-    QStringList dimensionKernelsTableHeaders;
-    dimensionKernelsTableHeaders << "#" << "Kernel type";
+    QComboBox* combo = new QComboBox();
+    QStringList comboOptions;
+    comboOptions << "Normal" << "Triangle" << "Epanecznikow" << "Dull";
+    combo->insertItems(0, comboOptions);
+    ui->tableWidget_dimensionKernels->setCellWidget(0,0,combo);
 
-    ui->tableWidget_dimensionKernels->setHorizontalHeaderLabels(dimensionKernelsTableHeaders);
+
 }
 
 MainWindow::~MainWindow()
@@ -203,4 +208,36 @@ QColor MainWindow::getRandomColor()
 void MainWindow::on_pushButton_clear_clicked()
 {
     clearPlot();
+}
+
+void MainWindow::on_spinBox_dimensionsNumber_editingFinished()
+{
+    refreshKernelsTable();
+}
+
+void MainWindow::refreshKernelsTable()
+{
+    // Get new number of rows
+    int newNumberOfRows = ui->spinBox_dimensionsNumber->value();
+
+    // If new number of rows is equal to current number of rows do nothing
+    if(newNumberOfRows == ui->tableWidget_dimensionKernels->rowCount())
+    {
+        return;
+    }
+
+    // Set combo box options
+    QStringList comboBoxOptions;
+    comboBoxOptions << "Normal" << "Triangle" << "Epanecznikow" << "Dull";
+
+    // Set new row count
+    ui->tableWidget_dimensionKernels->setRowCount(newNumberOfRows);
+
+    for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber)
+    {
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, 0, new QComboBox());
+
+        ((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, 0)))->insertItems(0, comboBoxOptions);
+    }
 }

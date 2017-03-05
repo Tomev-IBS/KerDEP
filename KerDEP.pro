@@ -12,6 +12,8 @@ TARGET      =   KerDEP
 TEMPLATE    =   app
 CONFIG      +=  static
 
+QMAKE_CXXFLAGS += -std=c++11
+
 SOURCES     +=  main.cpp\
                 mainwindow.cpp \
                 QCustomPlot/qcustomplot.cpp \

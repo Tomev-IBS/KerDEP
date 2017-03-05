@@ -22,6 +22,9 @@ private slots:
 
     void on_pushButton_clear_clicked();
 
+    void on_spinBox_dimensionsNumber_editingFinished();
+        void refreshKernelsTable();
+
 private:
     Ui::MainWindow *ui;
 
