@@ -8,34 +8,34 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET = KerDEP
-TEMPLATE = app
-CONFIG += static
+TARGET      =   KerDEP
+TEMPLATE    =   app
+CONFIG      +=  static
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    QCustomPlot/qcustomplot.cpp \
-    Functions/gaussianprobabilitydensityfunction.cpp \
-    KDE/kerneldensityestimator.cpp \
-    Functions/trianglekernelfunction.cpp \
-    Functions/epanecznikowkernelfunction.cpp \
-    Functions/dullkernelfunction.cpp \
-    Distributions/normaldistribution.cpp
+SOURCES     +=  main.cpp\
+                mainwindow.cpp \
+                QCustomPlot/qcustomplot.cpp \
+                KDE/kerneldensityestimator.cpp \
+                Distributions/normaldistribution.cpp \
+                Functions/Kernels/dullkernel.cpp \
+                Functions/Kernels/normalkernel.cpp \
+                Functions/Kernels/trianglekernel.cpp \
+                Functions/Kernels/epanecznikowkernel.cpp
 
-HEADERS  += mainwindow.h \
-    QCustomPlot/qcustomplot.h \
-    Functions/gaussianprobabilitydensityfunction.h \
-    Functions/function.h \
-    KDE/kerneldensityestimator.h \
-    Functions/trianglekernelfunction.h \
-    Functions/functions.h \
-    Functions/epanecznikowkernelfunction.h \
-    Functions/dullkernelfunction.h \
-    Distributions/distributions.h \
-    Distributions/distribution.h \
-    Distributions/normaldistribution.h
+HEADERS     +=  mainwindow.h \
+                QCustomPlot/qcustomplot.h \
+                Functions/function.h \
+                KDE/kerneldensityestimator.h \
+                Distributions/distributions.h \
+                Distributions/distribution.h \
+                Distributions/normaldistribution.h \
+                Functions/Kernels/kernel.h \
+                Functions/Kernels/dullkernel.h \
+                Functions/Kernels/normalkernel.h \
+                Functions/Kernels/trianglekernel.h \
+                Functions/Kernels/epanecznikowkernel.h \
+    Functions/Kernels/kernels.h
 
-FORMS    += mainwindow.ui
+FORMS       +=  mainwindow.ui
 
-DISTFILES += \
-    .gitignore \
+DISTFILES   +=  .gitignore

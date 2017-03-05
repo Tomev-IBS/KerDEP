@@ -1,14 +1,16 @@
-#ifndef TRIANGLEKERNELFUNCTION_H
-#define TRIANGLEKERNELFUNCTION_H
+#ifndef TRIANGLEKERNEL_H
+#define TRIANGLEKERNEL_H
 
-#include "function.h"
+#include "kernel.h"
 
-class triangleKernelFunction : public function
+class triangleKernel : public kernel
 {
 public:
-    triangleKernelFunction();
+    triangleKernel();
 
     qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
+    qreal getW(){ return 2.0/3.0; }
+    qreal getU(){ return 1.0/6.0; }
 };
 
-#endif // TRIANGLEKERNELFUNCTION_H
+#endif // TRIANGLEKERNEL_H

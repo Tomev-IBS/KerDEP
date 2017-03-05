@@ -1,15 +1,15 @@
-#include "gaussianprobabilitydensityfunction.h"
+#include "normalkernel.h"
 
 #include "QDebug"
 
-gaussianProbabilityDensityFunction::gaussianProbabilityDensityFunction()
+normalKernel::normalKernel()
 {}
 
-gaussianProbabilityDensityFunction::gaussianProbabilityDensityFunction(qreal mean, qreal standardDeviation)
+normalKernel::normalKernel(qreal mean, qreal standardDeviation)
     : mean(mean), standardDeviation(standardDeviation)
 {}
 
-qreal gaussianProbabilityDensityFunction::getValue(QVector<qreal>* arguments)
+qreal normalKernel::getValue(QVector<qreal>* arguments)
 {
     // TODO: Consider using asserts of some kind
 

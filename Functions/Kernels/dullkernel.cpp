@@ -1,11 +1,11 @@
-#include "dullkernelfunction.h"
+#include "dullkernel.h"
 
 #include "QDebug"
 
-dullKernelFunction::dullKernelFunction()
+dullKernel::dullKernel()
 {}
 
-qreal dullKernelFunction::getValue(QVector<qreal> *arguments)
+qreal dullKernel::getValue(QVector<qreal> *arguments)
 {
     // TODO: Consider using asserts of some kind
 

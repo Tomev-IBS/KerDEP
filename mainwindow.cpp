@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "math.h"
 
-#include "Functions/functions.h"
+#include "Functions/Kernels/kernels.h"
 #include "Distributions/distributions.h"
 #include "KDE/kerneldensityestimator.h"
 
@@ -51,8 +51,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widget_plot->xAxis->setRange(-5, 5);
     ui->widget_plot->yAxis->setRange(-0.05, 0.8);
 
-    // Add
+    // Setup kernels table
 
+    ui->tableWidget_dimensionKernels->setRowCount(1);
+    ui->tableWidget_dimensionKernels->setColumnCount(2);
+
+    QStringList dimensionKernelsTableHeaders;
+    dimensionKernelsTableHeaders << "#" << "Kernel type";
+
+    ui->tableWidget_dimensionKernels->setHorizontalHeaderLabels(dimensionKernelsTableHeaders);
 }
 
 MainWindow::~MainWindow()
@@ -113,7 +120,7 @@ void MainWindow::on_pushButton_generate_clicked()
     seed                = ui->lineEdit_seed->text().toDouble();
 
     // Generate a vector of values from normal distribution
-    function* gaussianProbabilityDensityFunc = new gaussianProbabilityDensityFunction(mean, standardDeviation);
+    kernel* gaussianProbabilityDensityFunc = new normalKernel(mean, standardDeviation);
 
     QVector<qreal> X;
     QVector<qreal> normalDistributionY;
@@ -142,19 +149,19 @@ void MainWindow::on_pushButton_generate_clicked()
     switch(kernelFunctionID)
     {
         case NORMAL:
-            kernel = new gaussianProbabilityDensityFunction(mean, standardDeviation);
+            kernel = new normalKernel(mean, standardDeviation);
         break;
 
         case TRIANGLE:
-            kernel = new triangleKernelFunction();
+            kernel = new triangleKernel();
         break;
 
-        case EPACZNIKOW:
-            kernel = new epanecznikowKernelFunction();
+        case EPANECZNIKOW:
+            kernel = new epanecznikowKernel();
         break;
         case DULL:
         default:
-            kernel = new dullKernelFunction();
+            kernel = new dullKernel();
         break;
     }
 

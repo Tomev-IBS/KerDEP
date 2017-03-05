@@ -1,14 +1,16 @@
-#ifndef DULLKERNELFUNCTION_H
-#define DULLKERNELFUNCTION_H
+#ifndef DULLKERNEL_H
+#define DULLKERNEL_H
 
-#include "function.h"
+#include "kernel.h"
 
-class dullKernelFunction : public function
+class dullKernel : public kernel
 {
 public:
-    dullKernelFunction();
+    dullKernel();
 
     qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
+    qreal getW(){ return 1.0 / 3.0; }
+    qreal getU(){ return 0.5; }
 };
 
-#endif // DULLKERNELFUNCTION_H
+#endif // DULLKERNEL_H

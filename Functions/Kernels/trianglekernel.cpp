@@ -1,11 +1,11 @@
-#include "trianglekernelfunction.h"
+#include "trianglekernel.h"
 
 #include "QDebug"
 
-triangleKernelFunction::triangleKernelFunction()
+triangleKernel::triangleKernel()
 {}
 
-qreal triangleKernelFunction::getValue(QVector<qreal> *arguments)
+qreal triangleKernel::getValue(QVector<qreal> *arguments)
 {
     // TODO: Consider using asserts of some sort
 

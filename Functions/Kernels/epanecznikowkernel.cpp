@@ -1,11 +1,11 @@
-#include "epanecznikowkernelfunction.h"
+#include "epanecznikowkernel.h"
 
 #include "QDebug"
 
-epanecznikowKernelFunction::epanecznikowKernelFunction()
+epanecznikowKernel::epanecznikowKernel()
 {}
 
-qreal epanecznikowKernelFunction::getValue(QVector<qreal> *arguments)
+qreal epanecznikowKernel::getValue(QVector<qreal> *arguments)
 {
     // TODO: Consider using asserts of some sort
 

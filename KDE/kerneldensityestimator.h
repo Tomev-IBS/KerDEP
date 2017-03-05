@@ -1,7 +1,7 @@
 #ifndef KERNELDENSITYESTIMATOR_H
 #define KERNELDENSITYESTIMATOR_H
 
-#include "../Functions/gaussianprobabilitydensityfunction.h"
+#include "../Functions/Kernels/kernels.h"
 #include "../Distributions/distribution.h"
 
 #include <QObject>

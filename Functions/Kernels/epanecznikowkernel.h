@@ -1,14 +1,16 @@
-#ifndef EPANECZNIKOWKERNELFUNCTION_H
-#define EPANECZNIKOWKERNELFUNCTION_H
+#ifndef EPANECZNIKOWKERNEL_H
+#define EPANECZNIKOWKERNEL_H
 
-#include "function.h"
+#include "kernel.h"
 
-class epanecznikowKernelFunction : public function
+class epanecznikowKernel : public kernel
 {
 public:
-    epanecznikowKernelFunction();
+    epanecznikowKernel();
 
     qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
+    qreal getW(){ return 0.2; }
+    qreal getU(){ return 0.6; }
 };
 
-#endif // EPANECZNIKOWKERNELFUNCTION_H
+#endif // EPANECZNIKOWKERNEL_H

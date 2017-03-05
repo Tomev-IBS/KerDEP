@@ -1,15 +1,17 @@
-#ifndef GAUSSIANPROBABILITYDENSITYFUNCTION_H
-#define GAUSSIANPROBABILITYDENSITYFUNCTION_H
+#ifndef NORMALKERNEL_H
+#define NORMALKERNEL_H
 
-#include "function.h"
+#include "kernel.h"
 
-class gaussianProbabilityDensityFunction : public function
+class normalKernel : public kernel
 {
     public:
-        gaussianProbabilityDensityFunction();
-        gaussianProbabilityDensityFunction(qreal mean, qreal standardDeviation);
+        normalKernel();
+        normalKernel(qreal mean, qreal standardDeviation);
 
         qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
+        qreal getW(){ return 1.0 / (2.0 * M_PI); }
+        qreal getU(){ return 1.0; }
 
     private:
         qreal   mean = 0.0,
@@ -17,4 +19,4 @@ class gaussianProbabilityDensityFunction : public function
 
 };
 
-#endif // GAUSSIANPROBABILITYDENSITYFUNCTION_H
+#endif // NORMALKERNEL_H
