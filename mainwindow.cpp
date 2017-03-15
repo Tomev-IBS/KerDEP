@@ -10,7 +10,6 @@
 #include "QDebug"
 
 #include "climits"
-#include "memory"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -54,17 +53,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widget_plot->yAxis->setRange(-0.05, 0.8);
 
     // Setup kernels table
-
-    ui->tableWidget_dimensionKernels->setRowCount(1);
     ui->tableWidget_dimensionKernels->horizontalHeader()->setStretchLastSection(true);
 
-    QComboBox* combo = new QComboBox();
-    QStringList comboOptions;
-    comboOptions << "Normal" << "Triangle" << "Epanecznikow" << "Dull";
-    combo->insertItems(0, comboOptions);
-    ui->tableWidget_dimensionKernels->setCellWidget(0,0,combo);
-
-
+    refreshKernelsTable();
 }
 
 MainWindow::~MainWindow()

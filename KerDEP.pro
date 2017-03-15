@@ -22,7 +22,8 @@ SOURCES     +=  main.cpp\
                 Functions/Kernels/dullkernel.cpp \
                 Functions/Kernels/normalkernel.cpp \
                 Functions/Kernels/trianglekernel.cpp \
-                Functions/Kernels/epanecznikowkernel.cpp
+                Functions/Kernels/epanecznikowkernel.cpp \
+    Functions/Kernels/productkernel.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -36,7 +37,8 @@ HEADERS     +=  mainwindow.h \
                 Functions/Kernels/normalkernel.h \
                 Functions/Kernels/trianglekernel.h \
                 Functions/Kernels/epanecznikowkernel.h \
-    Functions/Kernels/kernels.h
+    Functions/Kernels/kernels.h \
+    Functions/Kernels/productkernel.h
 
 FORMS       +=  mainwindow.ui
 
