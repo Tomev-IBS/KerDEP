@@ -5,10 +5,6 @@
 normalKernel::normalKernel()
 {}
 
-normalKernel::normalKernel(qreal mean, qreal standardDeviation)
-    : mean(mean), standardDeviation(standardDeviation)
-{}
-
 qreal normalKernel::getValue(QVector<qreal>* arguments)
 {
     // TODO: Consider using asserts of some kind

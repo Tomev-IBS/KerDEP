@@ -7,7 +7,6 @@ class normalKernel : public kernel
 {
     public:
         normalKernel();
-        normalKernel(qreal mean, qreal standardDeviation);
 
         qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
         qreal getW(){ return 1.0 / (2.0 * M_PI); }

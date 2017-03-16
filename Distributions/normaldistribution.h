@@ -8,7 +8,7 @@
 class normalDistribution : public distribution
 {
     public:
-        normalDistribution(int seed, qreal mean = 0.0, qreal standardDeviation = 1.0);
+        normalDistribution(int seed);
 
         qreal getValue();
 

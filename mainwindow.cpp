@@ -22,9 +22,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Set validators for lineEdits
     const QIntValidator* seedAndSizeValidator = new QIntValidator(1, std::numeric_limits<int>::max(), this);
-    QDoubleValidator* meanAndDeviationValidator = new QDoubleValidator(-5.0, 5.0, 3, this);
-    meanAndDeviationValidator->setLocale(locale);
-    meanAndDeviationValidator->setNotation(QDoubleValidator::StandardNotation);
     QDoubleValidator* xAxisValidator = new QDoubleValidator(-10.0, 10.0, 3, this);
     xAxisValidator->setLocale(locale);
     xAxisValidator->setNotation(QDoubleValidator::StandardNotation);
@@ -34,9 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->lineEdit_sampleSize->setValidator(seedAndSizeValidator);
     ui->lineEdit_seed->setValidator(seedAndSizeValidator);
-
-    ui->lineEdit_mean->setValidator(meanAndDeviationValidator);
-    ui->lineEdit_stdDeviation->setValidator(meanAndDeviationValidator);
 
     ui->lineEdit_minX->setValidator(xAxisValidator);
     ui->lineEdit_maxX->setValidator(xAxisValidator);
@@ -110,13 +104,8 @@ void MainWindow::on_pushButton_generate_clicked()
         maxY = ui->widget_plot->yAxis->range().maxRange;
     }
 
-    // Create random engine generator
-    mean                = ui->lineEdit_mean->text().toDouble();
-    standardDeviation   = ui->lineEdit_stdDeviation->text().toDouble();
-    seed                = ui->lineEdit_seed->text().toDouble();
-
     // Generate a vector of values from normal distribution
-    kernel* gaussianProbabilityDensityFunc = new normalKernel(mean, standardDeviation);
+    kernel* gaussianProbabilityDensityFunc = new normalKernel();
 
     QVector<qreal> X;
     QVector<qreal> normalDistributionY;
@@ -125,9 +114,10 @@ void MainWindow::on_pushButton_generate_clicked()
 
     for(int x = minX*100; x < maxX*100; ++x)
     {
-        X.append(x/100.0);
         tempValueHolder->clear();
         tempValueHolder->append(x/100.0);
+        X.append(x/100.0);
+
         normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(tempValueHolder));
     }
 
@@ -136,43 +126,41 @@ void MainWindow::on_pushButton_generate_clicked()
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, normalDistributionY);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
-    // Generate a vector of values from selected KDE
-    int kernelFunctionID = ui->comboBox_kernel->currentIndex();
-    kernelDensityEstimator* estimator;
-    function* kernel;
-    distribution* targetDistribution = new normalDistribution(seed, mean, standardDeviation);
+    // Generate distribution
+    qreal seed = ui->lineEdit_seed->text().toDouble();
+    distribution* targetDistribution = new normalDistribution(seed);
 
-    switch(kernelFunctionID)
+    // Generate KDE
+    QVector<int> kernelsIDs;
+    QVector<qreal> smoothingParameters;
+
+    for(int rowNumber = 0; rowNumber < ui->tableWidget_dimensionKernels->rowCount(); ++rowNumber)
     {
-        case NORMAL:
-            kernel = new normalKernel(mean, standardDeviation);
-        break;
-
-        case TRIANGLE:
-            kernel = new triangleKernel();
-        break;
-
-        case EPANECZNIKOW:
-            kernel = new epanecznikowKernel();
-        break;
-        case DULL:
-        default:
-            kernel = new dullKernel();
-        break;
+        kernelsIDs.append(((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
+        smoothingParameters.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
     }
 
-    estimator = new kernelDensityEstimator(
-                ui->lineEdit_sampleSize->text().toInt(),
-                ui->lineEdit_smoothingParam->text().toDouble(),
-                kernel,
-                targetDistribution
+    kernelDensityEstimator* estimator = new kernelDensityEstimator(
+                                            ui->lineEdit_sampleSize->text().toInt(),
+                                            &smoothingParameters,
+                                            PRODUCT,
+                                            &kernelsIDs,
+                                            targetDistribution
     );
+
+    // Generate a vector of values from selected KDE
 
     QVector<qreal> KDEEstimationY;
 
     // TODO: Place counting in another thread
 
-    foreach(qreal x, X) KDEEstimationY.append(estimator->getValue(x));
+    foreach(qreal x, X)
+    {
+        tempValueHolder->clear();
+        tempValueHolder->append(x);
+
+        KDEEstimationY.append(estimator->getValue(tempValueHolder));
+    }
 
     // Generate a plot of KDE
     ui->widget_plot->addGraph();
@@ -224,11 +212,27 @@ void MainWindow::refreshKernelsTable()
     // Set new row count
     ui->tableWidget_dimensionKernels->setRowCount(newNumberOfRows);
 
+    QLocale locale = QLocale::English;
+    locale.setNumberOptions(QLocale::c().numberOptions());
+
+    QDoubleValidator* smoothingParameterValidator = new QDoubleValidator(-2.0, 2.0, 3, this);
+    smoothingParameterValidator->setLocale(locale);
+    smoothingParameterValidator->setNotation(QDoubleValidator::StandardNotation);
+
     for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber)
     {
-        // TODO TR: Ensure that this doesn't result in memory leaks
-        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, 0, new QComboBox());
+        // Add combobox with kernels
 
-        ((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, 0)))->insertItems(0, comboBoxOptions);
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, KERNEL_COLUMN_INDEX, new QComboBox());
+
+        ((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->insertItems(0, comboBoxOptions);
+
+        // Add input box with validator for smoothing parameters
+        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX, new QLineEdit());
+
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
+        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
     }
 }

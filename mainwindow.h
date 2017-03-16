@@ -27,9 +27,12 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+};
 
-    qreal   mean, standardDeviation;
-    int     sampleSize, seed;
+enum kernelSettingsColumns
+{
+    KERNEL_COLUMN_INDEX                = 0,
+    SMOOTHING_PARAMETER_COLUMN_INDEX   = 1
 };
 
 #endif // MAINWINDOW_H

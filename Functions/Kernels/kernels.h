@@ -6,6 +6,8 @@
 #include "epanecznikowkernel.h"
 #include "dullkernel.h"
 
+#include "productkernel.h"
+
 enum kernelsIDs
 {
     NORMAL          =   0,

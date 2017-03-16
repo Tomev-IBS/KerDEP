@@ -8,9 +8,7 @@ class kernel : public function
 {
     public:
         virtual qreal getU() = 0;
-        virtual qreal getW() = 0;
+        virtual qreal getW() = 0;     
 };
-
-typedef std::shared_ptr<kernel> kernelPtr;
 
 #endif // KERNEL_H

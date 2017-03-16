@@ -2,10 +2,10 @@
 
 #include "QDebug"
 
-normalDistribution::normalDistribution(int seed, qreal mean, qreal standardDeviation)
+normalDistribution::normalDistribution(int seed)
 {
     generator = std::default_random_engine(seed);
-    distribution = new std::normal_distribution<qreal>(mean, standardDeviation);
+    distribution = new std::normal_distribution<qreal>(0.0, 1.0);
 }
 
 qreal normalDistribution::getValue()
