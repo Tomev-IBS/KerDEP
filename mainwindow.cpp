@@ -126,9 +126,8 @@ void MainWindow::on_pushButton_generate_clicked()
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, normalDistributionY);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 
-    // Generate distribution
-    qreal seed = ui->lineEdit_seed->text().toDouble();
-    distribution* targetDistribution = new normalDistribution(seed);
+    // Generate samples
+    generateSamples();
 
     // Generate KDE
     QVector<int> kernelsIDs;
@@ -141,11 +140,10 @@ void MainWindow::on_pushButton_generate_clicked()
     }
 
     kernelDensityEstimator* estimator = new kernelDensityEstimator(
-                                            ui->lineEdit_sampleSize->text().toInt(),
+                                            &samples,
                                             &smoothingParameters,
                                             PRODUCT,
-                                            &kernelsIDs,
-                                            targetDistribution
+                                            &kernelsIDs
     );
 
     // Generate a vector of values from selected KDE
@@ -177,6 +175,22 @@ void MainWindow::clearPlot()
         ui->widget_plot->removeGraph(0);
 
     ui->widget_plot->replot();
+}
+
+void MainWindow::generateSamples()
+{
+    qreal seed = ui->lineEdit_seed->text().toDouble();
+    distribution* targetDistribution = new normalDistribution(seed);
+    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+
+    if(sampleSize < 1)
+    {
+        qDebug() << "Sample size < 1.";
+        return;
+    }
+
+    for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
+        samples.append(targetDistribution->getValue());
 }
 
 QColor MainWindow::getRandomColor()

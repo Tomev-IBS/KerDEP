@@ -2,23 +2,14 @@
 
 #include "QDebug"
 
-kernelDensityEstimator::kernelDensityEstimator(int sampleSize, QVector<qreal> *smoothingParameters, int kernelType, QVector<int> *kernelsIDs, distribution* targetDistribution)
-    : kernelType(kernelType), smoothingParameters(smoothingParameters)
+kernelDensityEstimator::kernelDensityEstimator(QVector<qreal>* samples, QVector<qreal>* smoothingParameters, int kernelType, QVector<int>* kernelsIDs)
+    : samples(samples), kernelType(kernelType), smoothingParameters(smoothingParameters)
 {
     if(kernelsIDs->size() != smoothingParameters->size())
     {
         qDebug() << "Smoothing parameters and kernels number aren't equal.";
         return;
     }
-
-    if(sampleSize < 1)
-    {
-        qDebug() << "Sample size < 1.";
-        return;
-    }
-
-    for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
-        samples.append(targetDistribution->getValue());
 
     fillKernelsList(kernelsIDs);
 }
@@ -65,7 +56,7 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
 
     QVector<qreal>* tempValueHolder = new QVector<qreal>();
 
-    foreach(qreal sample, samples)
+    foreach(qreal sample, *samples)
     {
         addend = 1.0;
 
@@ -84,7 +75,7 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
         result /= smoothingParameter;
     }
 
-    result /= samples.size();
+    result /= samples->size();
 
     return result;
 
