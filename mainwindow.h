@@ -26,6 +26,8 @@ private slots:
     void on_spinBox_dimensionsNumber_editingFinished();
         void refreshKernelsTable();
 
+        void on_pushButton_countSmoothingParameters_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -36,6 +38,12 @@ enum kernelSettingsColumns
 {
     KERNEL_COLUMN_INDEX                = 0,
     SMOOTHING_PARAMETER_COLUMN_INDEX   = 1
+};
+
+enum smoothingParameterCountingMethods
+{
+    RANK_2_PLUG_IN    = 0,
+    RANK_3_PLUG_IN    = 1
 };
 
 #endif // MAINWINDOW_H

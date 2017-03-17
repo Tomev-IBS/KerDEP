@@ -6,6 +6,7 @@
 #include "Functions/Kernels/kernels.h"
 #include "Distributions/distributions.h"
 #include "KDE/kerneldensityestimator.h"
+#include "KDE/pluginsmoothingparametercounter.h"
 
 #include "QDebug"
 
@@ -179,7 +180,11 @@ void MainWindow::clearPlot()
 
 void MainWindow::generateSamples()
 {
+    samples.clear();
+
     qreal seed = ui->lineEdit_seed->text().toDouble();
+
+    // TODO TR: May be selectable in the future.
     distribution* targetDistribution = new normalDistribution(seed);
     int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
@@ -249,4 +254,33 @@ void MainWindow::refreshKernelsTable()
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
     }
+}
+
+void MainWindow::on_pushButton_countSmoothingParameters_clicked()
+{
+    generateSamples();
+
+    pluginSmoothingParameterCounter counter(&samples);
+
+    qreal value;
+
+    switch(ui->comboBox_smoothingParameterCountingMethod->currentIndex())
+    {
+        case RANK_3_PLUG_IN:
+            value = counter.count3rdRankPluginSmoothingParameter();
+        break;
+        case RANK_2_PLUG_IN:
+        default:
+            value = counter.count2ndRankPluginSmoothingParameter();
+        break;
+    }
+
+    int numberOfRows = ui->tableWidget_dimensionKernels->rowCount();
+
+    for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)
+    {
+        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
+                ->setText(QString::number(value));
+    }
+
 }

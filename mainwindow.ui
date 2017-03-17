@@ -184,7 +184,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="comboBox_smoothingParameterCountingMethod">
            <item>
             <property name="text">
              <string>2nd Rank Plug-in</string>
