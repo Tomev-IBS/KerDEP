@@ -7,8 +7,10 @@
 class kernel : public function
 {
     public:
-        virtual qreal getU() = 0;
-        virtual qreal getW() = 0;     
+        static qreal getU(){return 0.0;}
+        static qreal getW(){return 0.0;}
 };
+
+typedef std::shared_ptr<kernel> kernelPtr;
 
 #endif // KERNEL_H

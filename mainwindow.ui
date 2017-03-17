@@ -154,7 +154,7 @@
        <widget class="QGroupBox" name="groupBox_3">
         <property name="geometry">
          <rect>
-          <x>350</x>
+          <x>180</x>
           <y>10</y>
           <width>187</width>
           <height>214</height>
@@ -187,21 +187,14 @@
           <widget class="QComboBox" name="comboBox">
            <item>
             <property name="text">
-             <string>Approximated</string>
+             <string>2nd Rank Plug-in</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Plug-in</string>
+             <string>3rd Rank Plug-in</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_smoothingParam">
-           <property name="text">
-            <string>Value</string>
-           </property>
           </widget>
          </item>
          <item>
@@ -212,14 +205,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_smoothingParam">
-           <property name="text">
-            <string>1</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="pushButton_countSmoothingParameters">
            <property name="text">
             <string>Count</string>
            </property>
@@ -243,7 +229,7 @@
        <widget class="QGroupBox" name="groupBox_2">
         <property name="geometry">
          <rect>
-          <x>180</x>
+          <x>10</x>
           <y>10</y>
           <width>150</width>
           <height>211</height>
@@ -339,7 +325,7 @@
        <widget class="QWidget" name="verticalLayoutWidget">
         <property name="geometry">
          <rect>
-          <x>540</x>
+          <x>390</x>
           <y>10</y>
           <width>381</width>
           <height>431</height>

@@ -9,8 +9,8 @@ public:
     epanecznikowKernel();
 
     qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
-    qreal getW(){ return 0.2; }
-    qreal getU(){ return 0.6; }
+    static qreal getW(){ return 0.2; }
+    static qreal getU(){ return 0.6; }
 };
 
 #endif // EPANECZNIKOWKERNEL_H

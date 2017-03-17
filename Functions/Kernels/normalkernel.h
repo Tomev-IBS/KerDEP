@@ -9,8 +9,8 @@ class normalKernel : public kernel
         normalKernel();
 
         qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
-        qreal getW(){ return 1.0 / (2.0 * M_PI); }
-        qreal getU(){ return 1.0; }
+        static qreal getW(){ return 1.0 / (2.0 * M_PI); }
+        static qreal getU(){ return 1.0; }
 
     private:
         qreal   mean = 0.0,
