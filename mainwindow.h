@@ -36,8 +36,9 @@ private:
 
 enum kernelSettingsColumns
 {
-    KERNEL_COLUMN_INDEX                = 0,
-    SMOOTHING_PARAMETER_COLUMN_INDEX   = 1
+    KERNEL_COLUMN_INDEX                 = 0,
+    SMOOTHING_PARAMETER_COLUMN_INDEX    = 1,
+    CARRIER_RESTRICTION_COLUMN_INDEX    = 2
 };
 
 enum smoothingParameterCountingMethods

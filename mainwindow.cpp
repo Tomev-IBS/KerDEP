@@ -253,6 +253,12 @@ void MainWindow::refreshKernelsTable()
         // TODO TR: Ensure that this doesn't result in memory leaks
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
+
+        // Add input box for carrier restriction value
+        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
+
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("0.0");
     }
 }
 

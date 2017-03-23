@@ -378,6 +378,11 @@
              <string>Smoothing Parameter</string>
             </property>
            </column>
+           <column>
+            <property name="text">
+             <string>Carrier restriction</string>
+            </property>
+           </column>
           </widget>
          </item>
         </layout>

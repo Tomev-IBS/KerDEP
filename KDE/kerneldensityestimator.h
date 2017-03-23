@@ -34,6 +34,8 @@ class kernelDensityEstimator
             void addProductKernelsToTheList(QVector<int>* kernelsIDs);
             void addRadialKernelsToTheList(QVector<int>* kernelsIDs);
 
+        int partitionCharacteristicFunction(qreal carrier, qreal restriction);
+
 
 
 };

@@ -130,3 +130,8 @@ void kernelDensityEstimator::addRadialKernelsToTheList(QVector<int> *kernelsIDs)
 {
     // TR TODO: Fill when radial kernel will be used
 }
+
+int kernelDensityEstimator::partitionCharacteristicFunction(qreal carrier, qreal restriction)
+{
+    return carrier >= restriction ? 1 : 0;
+}
