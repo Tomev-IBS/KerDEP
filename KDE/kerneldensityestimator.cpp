@@ -2,8 +2,8 @@
 
 #include "QDebug"
 
-kernelDensityEstimator::kernelDensityEstimator(QVector<qreal>* samples, QVector<qreal>* smoothingParameters, int kernelType, QVector<int>* kernelsIDs)
-    : samples(samples), kernelType(kernelType), smoothingParameters(smoothingParameters)
+kernelDensityEstimator::kernelDensityEstimator(QVector<qreal>* samples, QVector<qreal>* smoothingParameters, QVector<QString> *carriersRestrictions, int kernelType, QVector<int>* kernelsIDs)
+    : samples(samples), kernelType(kernelType), smoothingParameters(smoothingParameters), carriersRestrictions(carriersRestrictions)
 {
     if(kernelsIDs->size() != smoothingParameters->size())
     {
@@ -52,7 +52,8 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
         return -1.0;
     }
 
-    qreal result = 0.0, addend;
+    qreal result = 0.0, addend, restriction, component;
+    bool hasRestriction;
 
     QVector<qreal>* tempValueHolder = new QVector<qreal>();
 
@@ -64,7 +65,21 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
         {
             tempValueHolder->clear();
             tempValueHolder->append((x->at(i)-sample)/smoothingParameters->at(i));
-            addend *= kernels.at(i)->getValue(tempValueHolder);
+
+            component = kernels.at(i)->getValue(tempValueHolder);
+
+            restriction = carriersRestrictions->at(i).toDouble(&hasRestriction);
+
+            if(hasRestriction)
+            {
+                tempValueHolder->clear();
+                tempValueHolder->append((x->at(i)+sample-2*restriction)/smoothingParameters->at(i));
+                component += kernels.at(i)->getValue(tempValueHolder);
+
+                component *= partitionCharacteristicFunction(x->at(i), carriersRestrictions->at(i).toDouble());
+            }
+
+            addend *= component;
         }
 
         result += addend;

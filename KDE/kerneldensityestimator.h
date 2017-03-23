@@ -15,7 +15,7 @@ enum estimatorsKernelsType
 class kernelDensityEstimator
 {
     public:
-        kernelDensityEstimator(QVector<qreal>* samples, QVector<qreal>* smoothingParameter, int kernelType, QVector<int>* kernelsIDs);
+        kernelDensityEstimator(QVector<qreal>* samples, QVector<qreal>* smoothingParameter, QVector<QString>* carriersRestrictions, int kernelType, QVector<int>* kernelsIDs);
 
         qreal getValue(QVector<qreal>* x);
 
@@ -26,6 +26,7 @@ class kernelDensityEstimator
         QVector<qreal>* samples;
         QVector<kernelPtr> kernels;
         QVector<qreal>* smoothingParameters;
+        QVector<QString>* carriersRestrictions;
 
         qreal getProductKernelValue(QVector<qreal>* x);
         qreal getRadialKernelValue(QVector<qreal>* x);

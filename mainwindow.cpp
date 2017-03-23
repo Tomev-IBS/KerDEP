@@ -133,16 +133,19 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate KDE
     QVector<int> kernelsIDs;
     QVector<qreal> smoothingParameters;
+    QVector<QString> carriersRestrictions;
 
     for(int rowNumber = 0; rowNumber < ui->tableWidget_dimensionKernels->rowCount(); ++rowNumber)
     {
         kernelsIDs.append(((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
         smoothingParameters.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
+        carriersRestrictions.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text());
     }
 
     kernelDensityEstimator* estimator = new kernelDensityEstimator(
                                             &samples,
                                             &smoothingParameters,
+                                            &carriersRestrictions,
                                             PRODUCT,
                                             &kernelsIDs
     );
