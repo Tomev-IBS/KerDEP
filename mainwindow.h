@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "Functions/Kernels/kernels.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,6 +19,8 @@ public:
 private slots:
     void on_pushButton_generate_clicked();
         void clearPlot();
+        void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+        void fillDomain(QVector<point *> *domain, point* prototypePoint);
         void generateSamples();
         QColor getRandomColor();
 

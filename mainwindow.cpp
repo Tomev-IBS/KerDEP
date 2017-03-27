@@ -3,7 +3,6 @@
 
 #include "math.h"
 
-#include "Functions/Kernels/kernels.h"
 #include "Distributions/distributions.h"
 #include "KDE/kerneldensityestimator.h"
 #include "KDE/pluginsmoothingparametercounter.h"
@@ -108,24 +107,27 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate a vector of values from normal distribution
     kernel* gaussianProbabilityDensityFunc = new normalKernel();
 
+    // TODO TR: Need a multidimensional vector of attributes
+    // To keep things simple let's consider only these domains wherein each dimension has equal size
+    QVector<point*> domain;
+    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
     QVector<qreal> X;
     QVector<qreal> normalDistributionY;
 
-    QVector<qreal>* tempValueHolder = new QVector<qreal>();
+    // Fill domain with points
+    fillDomain(&domain, NULL);
 
-    for(int x = minX*100; x < maxX*100; ++x)
+    foreach(auto x, domain)
     {
-        tempValueHolder->clear();
-        tempValueHolder->append(x/100.0);
-        X.append(x/100.0);
-
-        normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(tempValueHolder));
+        normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(x));
+        X.append(x->at(0));
     }
 
     // Generate plot of normal distribution using QCustomPlot
-    ui->widget_plot->addGraph();
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, normalDistributionY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
+    if(dimensionsNumber == 1)
+    {
+        addPlot(&X, &normalDistributionY);
+    }
 
     // Generate samples
     generateSamples();
@@ -135,7 +137,7 @@ void MainWindow::on_pushButton_generate_clicked()
     QVector<qreal> smoothingParameters;
     QVector<QString> carriersRestrictions;
 
-    for(int rowNumber = 0; rowNumber < ui->tableWidget_dimensionKernels->rowCount(); ++rowNumber)
+    for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber)
     {
         kernelsIDs.append(((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
         smoothingParameters.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
@@ -156,21 +158,19 @@ void MainWindow::on_pushButton_generate_clicked()
 
     // TODO: Place counting in another thread
 
-    foreach(qreal x, X)
+    foreach(QVector<qreal>* x, domain)
     {
-        tempValueHolder->clear();
-        tempValueHolder->append(x);
-
-        KDEEstimationY.append(estimator->getValue(tempValueHolder));
+        KDEEstimationY.append(estimator->getValue(x));
     }
 
     // Generate a plot of KDE
-    ui->widget_plot->addGraph();
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, KDEEstimationY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
+    if(dimensionsNumber == 1)
+    {
+        addPlot(&X, &KDEEstimationY);
 
-    // Draw plots
-    ui->widget_plot->replot();
+        // Draw plots
+        ui->widget_plot->replot();
+    }
 }
 
 void MainWindow::clearPlot()
@@ -179,6 +179,51 @@ void MainWindow::clearPlot()
         ui->widget_plot->removeGraph(0);
 
     ui->widget_plot->replot();
+}
+
+void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
+{
+    ui->widget_plot->addGraph();
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
+}
+
+void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
+{
+    // Check if domain is nullpointer
+    if(domain == NULL) return;
+
+   // Check if prototype is a null pointer
+    if(prototypePoint == NULL)
+    {
+        // If so make it a point pointer
+        prototypePoint = new point();
+    }
+
+    qreal val = ui->lineEdit_minX->text().toDouble();
+
+    while(val <= ui->lineEdit_maxX->text().toDouble())
+    {
+        prototypePoint->append(val);
+
+        if(prototypePoint->size() == ui->spinBox_dimensionsNumber->value())
+        {
+            domain->append(new point());
+
+            foreach(qreal dimensionVal, *prototypePoint)
+            {
+                domain->last()->append(dimensionVal);
+            }
+        }
+        else
+        {
+            fillDomain(domain, prototypePoint);
+        }
+
+        prototypePoint->removeLast();
+
+        val += ui->lineEdit_domainDensity->text().toDouble();
+    }
 }
 
 void MainWindow::generateSamples()
@@ -291,5 +336,4 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
                 ->setText(QString::number(value));
     }
-
 }

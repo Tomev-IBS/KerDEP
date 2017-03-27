@@ -4,10 +4,12 @@
 #include <QObject>
 #include <QVector>
 
+typedef QVector<qreal> point;
+
 class function
 {
     public:
-        virtual qreal getValue(QVector<qreal>* arguments) = 0;
+        virtual qreal getValue(point* arguments) = 0;
 };
 
 #endif // FUNCTION_H

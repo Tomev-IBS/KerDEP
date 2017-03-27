@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -232,7 +232,7 @@
           <x>10</x>
           <y>10</y>
           <width>150</width>
-          <height>211</height>
+          <height>300</height>
          </rect>
         </property>
         <property name="minimumSize">
@@ -304,6 +304,20 @@
           <widget class="QLineEdit" name="lineEdit_maxY">
            <property name="text">
             <string>0.8</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_domainDensity">
+           <property name="text">
+            <string>Domain density</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_domainDensity">
+           <property name="text">
+            <string>0.1</string>
            </property>
           </widget>
          </item>
@@ -398,7 +412,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
