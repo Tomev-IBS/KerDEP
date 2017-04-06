@@ -132,6 +132,8 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate samples
     generateSamples();
 
+    qSort(samples);
+
     // Generate KDE
     QVector<int> kernelsIDs;
     QVector<qreal> smoothingParameters;
@@ -234,6 +236,12 @@ void MainWindow::generateSamples()
 
     // TODO TR: May be selectable in the future.
     distribution* targetDistribution = new normalDistribution(seed);
+
+    QVector<qreal> means = {0,0,0,0};
+    QVector<qreal> stDevs = {1,1,1,1};
+
+    distribution* test = new normalDistribution(seed, &means, &stDevs);
+
     int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
     if(sampleSize < 1)
@@ -243,7 +251,10 @@ void MainWindow::generateSamples()
     }
 
     for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
-        samples.append(targetDistribution->getValue());
+    {
+        samples.append(new QVector<qreal>());
+        targetDistribution->getValue(samples.last());
+    }
 }
 
 QColor MainWindow::getRandomColor()
@@ -314,26 +325,41 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 {
     generateSamples();
 
-    pluginSmoothingParameterCounter counter(&samples);
+    // Check which method was selected
 
-    qreal value;
+    qreal(pluginSmoothingParameterCounter::*(methodFunctionPointer))(void);
 
     switch(ui->comboBox_smoothingParameterCountingMethod->currentIndex())
     {
         case RANK_3_PLUG_IN:
-            value = counter.count3rdRankPluginSmoothingParameter();
+            methodFunctionPointer = &pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter;
         break;
         case RANK_2_PLUG_IN:
         default:
-            value = counter.count2ndRankPluginSmoothingParameter();
+            methodFunctionPointer = &pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter;
         break;
     }
 
+    // Count smoothing parameter for each dimension
+
     int numberOfRows = ui->tableWidget_dimensionKernels->rowCount();
+    QVector<qreal> samplesColumn;
+    pluginSmoothingParameterCounter counter(&samplesColumn);
+    qreal value;
 
     for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)
     {
+        // Create vector that consists of variables inside this dimension
+
+        samplesColumn.clear();
+
+        foreach(QVector<qreal>* sample, samples)
+            samplesColumn.append(sample->at(rowNumber));
+
+        value = (counter.*methodFunctionPointer)();
+
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
                 ->setText(QString::number(value));
     }
 }
+

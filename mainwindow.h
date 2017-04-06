@@ -34,7 +34,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    QVector<qreal> samples;
+    QVector<QVector<qreal>*> samples;
 };
 
 enum kernelSettingsColumns

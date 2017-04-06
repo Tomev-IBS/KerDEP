@@ -6,7 +6,7 @@
 class distribution
 {
     public:
-        virtual qreal getValue() = 0;
+        virtual void getValue(QVector<qreal>* result) = 0;
 
     protected:
         std::default_random_engine generator;

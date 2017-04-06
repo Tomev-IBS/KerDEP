@@ -2,8 +2,15 @@
 
 #include <QDebug>
 
-pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(QVector<qreal>* samples)
+pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(){}
+
+pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(QVector<qreal> *samples)
     : samples(samples){}
+
+void pluginSmoothingParameterCounter::setSamples(QVector<qreal>* samples)
+{
+    this->samples = samples;
+}
 
 qreal pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter()
 {
