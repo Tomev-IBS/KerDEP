@@ -98,7 +98,28 @@ qreal countMatrixDeterminantRecursively(matrixPtr baseMatrix)
 
 void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix)
 {
+    matrix cofactorMatrix, transposedCofactorMatrix;
+    qreal determinant;
 
+    fillCofactorMatrix(baseMatrix, &cofactorMatrix);
+    fillTransposedMatrix(&cofactorMatrix, &transposedCofactorMatrix);
+
+    determinant = countMatrixDeterminantRecursively(baseMatrix);
+
+    if(determinant == 0)
+        return;
+
+    inverseMatrix->clear();
+
+    foreach(auto row, transposedCofactorMatrix)
+    {
+        inverseMatrix->append(new QVector<qreal>());
+
+        foreach(qreal value, *row)
+        {
+            inverseMatrix->last()->append(value/determinant);
+        }
+    }
 }
 
 void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix)

@@ -1,5 +1,4 @@
 #include "multivariatenormalprobabilitydensityfunction.h"
-#include <QDebug>
 
 multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(QVector<qreal> *means, QVector<qreal> *stDevs)
     : means(means)
@@ -16,5 +15,7 @@ multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensi
 
 qreal multivariateNormalProbabilityDensityFunction::getValue(point *arguments)
 {
+
+
     return 0;
 }
