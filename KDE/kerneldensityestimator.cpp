@@ -49,6 +49,7 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
     if(x->size() != kernels.size())
     {
         qDebug() << "Kernel size and argument dimension doesn't match.";
+        qDebug() << "Argument dimension: " << x->size() << " Kernels dimension: " << kernels.size();
         return -1.0;
     }
 

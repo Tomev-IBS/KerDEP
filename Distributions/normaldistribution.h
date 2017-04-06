@@ -9,14 +9,15 @@
 class normalDistribution : public distribution
 {
     public:
-        normalDistribution(int seed);
-        normalDistribution(int seed, QVector<qreal>* mean, QVector<qreal>* stDev);
+        normalDistribution(int seed, QVector<qreal>* means, QVector<qreal>* stDevs);
 
         void getValue(QVector<qreal>* result);
 
     private:
+        QVector<qreal>* means;
         QVector<std::normal_distribution<qreal>*> distributions;
         qreal correlationCoefficient = 0.5;
+
 
         QVector<QVector<qreal>*> A;
 

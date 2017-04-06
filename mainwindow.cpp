@@ -132,7 +132,10 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate samples
     generateSamples();
 
-    qSort(samples);
+    foreach(QVector<qreal>* sample, samples)
+    {
+        qDebug() << *sample;
+    }
 
     // Generate KDE
     QVector<int> kernelsIDs;
@@ -235,12 +238,17 @@ void MainWindow::generateSamples()
     qreal seed = ui->lineEdit_seed->text().toDouble();
 
     // TODO TR: May be selectable in the future.
-    distribution* targetDistribution = new normalDistribution(seed);
+    int dimensionsNum = ui->spinBox_dimensionsNumber->value();
+    QVector<qreal> means;
+    QVector<qreal> stDevs;
 
-    QVector<qreal> means = {0,0,0,0};
-    QVector<qreal> stDevs = {1,1,1,1};
+    while(means.size() != dimensionsNum)
+    {
+        means.append(0);
+        stDevs.append(1);
+    }
 
-    distribution* test = new normalDistribution(seed, &means, &stDevs);
+    distribution* targetDistribution = new normalDistribution(seed, &means, &stDevs);
 
     int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
