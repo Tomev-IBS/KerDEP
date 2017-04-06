@@ -120,7 +120,28 @@ void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix)
 
 void fillCofactorMatrix(matrixPtr baseMatrix, matrixPtr cofactorMatrix)
 {
+    // According to https://pl.wikipedia.org/wiki/Macierz_do%C5%82%C4%85czona
 
+    if(baseMatrix->size() != baseMatrix->at(0)->size())
+        return;
+
+    cofactorMatrix->clear();
+
+    matrix submatrix;
+
+    for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)
+    {
+        cofactorMatrix->append(new QVector<qreal>());
+
+        for(int columnIndex = 0; columnIndex < baseMatrix->at(rowIndex)->size(); ++columnIndex)
+        {
+            fillCopiedMatrix(baseMatrix, &submatrix);
+            removeMatrixRow(&submatrix, rowIndex);
+            removeMatrixColumn(&submatrix, columnIndex);
+
+            cofactorMatrix->last()->append(qPow(-1, rowIndex + columnIndex) * countMatrixDeterminantRecursively(&submatrix));
+        }
+    }
 }
 
 void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy)
