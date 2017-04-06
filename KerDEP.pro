@@ -23,7 +23,9 @@ SOURCES     +=  main.cpp\
                 Functions/Kernels/normalkernel.cpp \
                 Functions/Kernels/trianglekernel.cpp \
                 Functions/Kernels/epanecznikowkernel.cpp \
-    KDE/pluginsmoothingparametercounter.cpp
+    KDE/pluginsmoothingparametercounter.cpp \
+    Functions/multivariatenormalprobabilitydensityfunction.cpp \
+    Libraries/matrixoperationslibrary.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -38,7 +40,9 @@ HEADERS     +=  mainwindow.h \
                 Functions/Kernels/trianglekernel.h \
                 Functions/Kernels/epanecznikowkernel.h \
     Functions/Kernels/kernels.h \
-    KDE/pluginsmoothingparametercounter.h
+    KDE/pluginsmoothingparametercounter.h \
+    Functions/multivariatenormalprobabilitydensityfunction.h \
+    Libraries/matrixoperationslibrary.h
 
 FORMS       +=  mainwindow.ui
 
