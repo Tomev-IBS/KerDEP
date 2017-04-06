@@ -18,7 +18,6 @@ class normalDistribution : public distribution
         QVector<std::normal_distribution<qreal>*> distributions;
         qreal correlationCoefficient = 0.5;
 
-
         QVector<QVector<qreal>*> A;
 
         void fillCovarianceMatrix(QVector<QVector<qreal> *> *covarianceMatrix, QVector<qreal>* stDev);

@@ -21,6 +21,7 @@ qreal normalKernel::getValue(QVector<qreal>* arguments)
     {
         // If not return -1 with wrong arguments size.
         qDebug() << "Wrong arguments size.";
+        qDebug() << "Got: " << arguments->size() << " Expected: " << 1;
         return -1;
     }
 
