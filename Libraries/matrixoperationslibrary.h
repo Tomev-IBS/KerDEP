@@ -23,5 +23,9 @@ void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix);
 
 void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy);
 
+void removeMatrixColumn(matrixPtr baseMatrix, int columnIndex);
+
+void removeMatrixRow(matrixPtr baseMatrix, int rowIndex);
+
 
 #endif // MATRIXOPERATIONSLIBRARY_H

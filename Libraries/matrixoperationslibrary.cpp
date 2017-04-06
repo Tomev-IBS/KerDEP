@@ -77,15 +77,14 @@ qreal countMatrixDeterminantRecursively(matrixPtr baseMatrix)
     fillCopiedMatrix(baseMatrix, &matrixWithoutJthColumn);
 
     // Remove first value of each row (first column)
-    foreach (QVector<qreal>* row, matrixWithoutJthColumn)
-        row->pop_front();
+    removeMatrixColumn(&matrixWithoutJthColumn, columnIndex);
 
     for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)
     {
         fillCopiedMatrix(&matrixWithoutJthColumn, &copiedMatrixWithoutJthColumn);
 
         // Remove i-th row
-        copiedMatrixWithoutJthColumn.remove(rowIndex);
+        removeMatrixRow(&copiedMatrixWithoutJthColumn, rowIndex);
 
         addend = qPow(-1.0, rowIndex + columnIndex);
         addend *= baseMatrix->at(rowIndex)->at(columnIndex);
@@ -104,7 +103,19 @@ void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix)
 
 void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix)
 {
+    transposedMatrix->clear();
 
+    // Insert row for each column
+    foreach(auto column, *(baseMatrix->at(0)))
+        transposedMatrix->append(new QVector<qreal>());
+
+    for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)
+    {
+        for(int columnIndex = 0; columnIndex < baseMatrix->at(rowIndex)->size(); ++columnIndex)
+        {
+            transposedMatrix->at(columnIndex)->append(baseMatrix->at(rowIndex)->at(columnIndex));
+        }
+    }
 }
 
 void fillCofactorMatrix(matrixPtr baseMatrix, matrixPtr cofactorMatrix)
@@ -123,4 +134,16 @@ void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy)
         foreach (qreal position, *row)
             copy->last()->append(position);
     }
+}
+
+void removeMatrixColumn(matrixPtr baseMatrix, int columnIndex)
+{
+    // Remove first value of each row (first column)
+    foreach (QVector<qreal>* row, *baseMatrix)
+        row->removeAt(columnIndex);
+}
+
+void removeMatrixRow(matrixPtr baseMatrix, int rowIndex)
+{
+    baseMatrix->removeAt(rowIndex);
 }
