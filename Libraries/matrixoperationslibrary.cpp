@@ -1,8 +1,6 @@
 #include "matrixoperationslibrary.h"
 #include "QtMath"
 
-
-
 void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal> *stDevs, QVector<QVector<qreal> *> *covarianceMatrix)
 {
     for(int i = 0; i < stDevs->size(); ++i)
@@ -19,7 +17,7 @@ void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal> *stDevs, 
     }
 }
 
-void fillCholeskyDecompositionMatrix(matrixPtr matrix, matrixPtr decomposedMatrix)
+void fillCholeskyDecompositionMatrix(matrixPtr baseMatrix, matrixPtr decomposedMatrix)
 {
     // Decomposing covariance matrix using Cholesky decomposition
     // Note that it was used only for normal distributions covariance matrices.
@@ -28,11 +26,11 @@ void fillCholeskyDecompositionMatrix(matrixPtr matrix, matrixPtr decomposedMatri
     qreal value;
     decomposedMatrix->clear();
 
-    for(int rowNum = 0; rowNum < matrix->size(); ++rowNum)
+    for(int rowNum = 0; rowNum < baseMatrix->size(); ++rowNum)
     {
         decomposedMatrix->append(new QVector<qreal>());
 
-        for(int columnNum = 0; columnNum < matrix->size(); ++columnNum)
+        for(int columnNum = 0; columnNum < baseMatrix->size(); ++columnNum)
         {
             if(columnNum > rowNum)
             {
@@ -40,7 +38,7 @@ void fillCholeskyDecompositionMatrix(matrixPtr matrix, matrixPtr decomposedMatri
             }
             else if(rowNum == columnNum)
             {
-                value = matrix->at(columnNum)->at(rowNum);
+                value = baseMatrix->at(columnNum)->at(rowNum);
 
                 for(int k = 0; k < rowNum -1; ++k)
                     value -= qPow(decomposedMatrix->at(k)->at(rowNum), 2);
@@ -49,7 +47,7 @@ void fillCholeskyDecompositionMatrix(matrixPtr matrix, matrixPtr decomposedMatri
             }
             else
             {
-                value = matrix->at(rowNum)->at(columnNum);
+                value = baseMatrix->at(rowNum)->at(columnNum);
 
                 for(int k = 0; k < rowNum; ++k)
                     value -= decomposedMatrix->at(k)->at(rowNum) * decomposedMatrix->at(k)->at(columnNum);
@@ -62,17 +60,67 @@ void fillCholeskyDecompositionMatrix(matrixPtr matrix, matrixPtr decomposedMatri
     }
 }
 
-qreal countMatrixDeterminantRecursively(matrixPtr matrix)
+qreal countMatrixDeterminantRecursively(matrixPtr baseMatrix)
 {
-    return 0;
+    // Recursive definition from https://pl.wikipedia.org/wiki/Wyznacznik
+    // Column index is always = 0
+
+    // Warning: not checking if matrix is N x N
+
+    if(baseMatrix->size() == 1)
+        return baseMatrix->at(0)->at(0);
+
+    matrix copiedMatrixWithoutJthColumn, matrixWithoutJthColumn;
+    qreal determinant = 0, addend;
+    int columnIndex = 0;
+
+    fillCopiedMatrix(baseMatrix, &matrixWithoutJthColumn);
+
+    // Remove first value of each row (first column)
+    foreach (QVector<qreal>* row, matrixWithoutJthColumn)
+        row->pop_front();
+
+    for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)
+    {
+        fillCopiedMatrix(&matrixWithoutJthColumn, &copiedMatrixWithoutJthColumn);
+
+        // Remove i-th row
+        copiedMatrixWithoutJthColumn.remove(rowIndex);
+
+        addend = qPow(-1.0, rowIndex + columnIndex);
+        addend *= baseMatrix->at(rowIndex)->at(columnIndex);
+        addend *= countMatrixDeterminantRecursively(&copiedMatrixWithoutJthColumn);
+
+        determinant += addend;
+    }
+
+    return determinant;
 }
 
-void fillInverseMatrix(matrixPtr matrix, matrixPtr inverseMatrix)
+void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix)
 {
 
 }
 
-void fillTransposedMatrix(matrixPtr matrix, matrixPtr transposedMatrix)
+void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix)
 {
 
+}
+
+void fillCofactorMatrix(matrixPtr baseMatrix, matrixPtr cofactorMatrix)
+{
+
+}
+
+void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy)
+{
+    copy->clear();
+
+    foreach(QVector<qreal>* row, *baseMatrix)
+    {
+        copy->append(new QVector<qreal>());
+
+        foreach (qreal position, *row)
+            copy->last()->append(position);
+    }
 }

@@ -19,6 +19,22 @@ normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
 
     fillCholeskyDecompositionMatrix(&covarianceMatrix, &A);
+
+
+    matrix test0    = {
+                        new QVector<qreal>({1,-1,2}),
+                        new QVector<qreal>({3,0,4}),
+                        new QVector<qreal>({2,3,5})
+                      };
+    matrix test1    = {
+                        new QVector<qreal>({1,0,0}),
+                        new QVector<qreal>({0,1,0}),
+                        new QVector<qreal>({0,0,1})
+                      };
+    matrix test2   =  {
+                        new QVector<qreal>({6,2}),
+                        new QVector<qreal>({3,5})
+                      };
 }
 
 void normalDistribution::getValue(QVector<qreal> *result)
@@ -45,9 +61,4 @@ void normalDistribution::getValue(QVector<qreal> *result)
 
         result->append(value);
     }
-}
-
-void normalDistribution::fillA(QVector<QVector<qreal>* > *covarianceMatrix)
-{
-
 }

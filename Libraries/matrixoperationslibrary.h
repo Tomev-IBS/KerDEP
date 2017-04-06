@@ -11,13 +11,17 @@ typedef QVector<QVector<qreal>*> matrix;
 
 void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal>* stDevs, matrixPtr covarianceMatrix);
 
-qreal countMatrixDeterminantRecursively(matrixPtr matrix);
+qreal countMatrixDeterminantRecursively(matrixPtr baseMatrix);
 
-void fillCholeskyDecompositionMatrix(matrixPtr matrix, matrixPtr decomposedMatrix);
+void fillCholeskyDecompositionMatrix(matrixPtr baseMatrix, matrixPtr decomposedMatrix);
 
-void fillTransposedMatrix(matrixPtr matrix, matrixPtr transposedMatrix);
+void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix);
 
-void fillInverseMatrix(matrixPtr matrix, matrixPtr inverseMatrix);
+void fillCofactorMatrix(matrixPtr baseMatrix, matrixPtr cofactorMatrix);
+
+void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix);
+
+void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy);
 
 
 #endif // MATRIXOPERATIONSLIBRARY_H
