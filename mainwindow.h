@@ -21,6 +21,7 @@ private slots:
     void refreshKernelsTable();
     void refreshTargetFunctionTable();
         void uniformContributions();
+            qreal countLastContribution();
 
     void on_pushButton_generate_clicked();
         void clearPlot();

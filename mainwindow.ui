@@ -427,7 +427,7 @@
         </column>
         <column>
          <property name="text">
-          <string>Contribution</string>
+          <string>Contribution [%]</string>
          </property>
         </column>
        </widget>
@@ -468,7 +468,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

@@ -395,7 +395,7 @@ void MainWindow::refreshTargetFunctionTable()
 
     // Ensure that rows number is at least 1
     if(numberOfRows == 0)
-        numberOfRows = 1;
+        numberOfRows = 6;
 
     // Set row count
     ui->tableWidget_targetFunctions->setRowCount(numberOfRows);
@@ -403,21 +403,21 @@ void MainWindow::refreshTargetFunctionTable()
     QLocale locale = QLocale::English;
     locale.setNumberOptions(QLocale::c().numberOptions());
 
-    QIntValidator* meanValidator = new QIntValidator(-10, 10, this);
+    QDoubleValidator* meanValidator = new QDoubleValidator(-10.0, 10.0, 3, this);
+    meanValidator->setLocale(locale);
+    meanValidator->setNotation(QDoubleValidator::StandardNotation);
 
     QDoubleValidator* stDevValidator = new QDoubleValidator(-5.0, 5.0, 3, this);
     stDevValidator->setLocale(locale);
     stDevValidator->setNotation(QDoubleValidator::StandardNotation);
 
-    QDoubleValidator* contributionValidator = new QDoubleValidator(0.0, 1.0, 3, this);
-    contributionValidator->setLocale(locale);
-    contributionValidator->setNotation(QDoubleValidator::StandardNotation);
+    QIntValidator* contributionValidator = new QIntValidator(0, 100, this);
 
     for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex)
     {
         // TODO TR: Ensure that this doesn't result in memory leaks
         ui->tableWidget_targetFunctions->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QLineEdit());
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setText("0");
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setText("0.0");
         ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setValidator(meanValidator);
 
         // TODO TR: Ensure that this doesn't result in memory leaks
@@ -430,12 +430,36 @@ void MainWindow::refreshTargetFunctionTable()
         ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
     }
 
+    // Disable last contribution cell, as it's filled automatically
+    ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(numberOfRows -1, CONTRIBUTION_COLUMN_INDEX)))->setEnabled(false);
+
     uniformContributions();
 }
 
 void MainWindow::uniformContributions()
 {
+    int numberOfRows = ui->tableWidget_targetFunctions->rowCount(), lastRowIndex = numberOfRows - 1;
 
+    for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
+    {
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(qCeil(100.0/numberOfRows)));
+    }
+
+    ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(qCeil(countLastContribution())));
+}
+
+qreal MainWindow::countLastContribution()
+{
+    qreal result = 100.0;
+
+    int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
+
+    for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
+    {
+        result -= ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->text().toInt();
+    }
+
+    return result;
 }
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
