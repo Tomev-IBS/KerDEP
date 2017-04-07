@@ -417,34 +417,36 @@ void MainWindow::refreshTargetFunctionTable()
     contributionValidator->setLocale(locale);
     contributionValidator->setNotation(QDoubleValidator::StandardNotation);
 
-    QTableWidget*   targetFunctionTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions,
-                    meansTablePointer, stDevsTablePointer;
-
+    QTableWidget *targetFunctionTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions,
+                 *meansTablePointer, *stDevsTablePointer;
 
     for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex)
     {
         // TODO TR: Ensure that this doesn't result in memory leaks
-        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QTableWidget());
+        targetFunctionTablePointer->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QTableWidget());
 
         meansTablePointer = ((QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
         meansTablePointer->setRowCount(dimensionsNumber);
         meansTablePointer->setColumnCount(1);
         meansTablePointer->horizontalHeader()->hide();
 
-
-
         // TODO TR: Ensure that this doesn't result in memory leaks
         targetFunctionTablePointer->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QTableWidget());
-        stDevsTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX);
+
+        stDevsTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX);
+        stDevsTablePointer->setRowCount(dimensionsNumber);
+        stDevsTablePointer->setColumnCount(1);
+        stDevsTablePointer->horizontalHeader()->hide();
 
         for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber)
         {
            meansTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, MEAN_COLUMN_INDEX)))->setText("0.0");
-           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, MEAN_COLUMN_INDEX)))->setValidator(meanValidator);
+           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
+           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
 
-           ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setText("1.0");
-           ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setValidator(stDevValidator);
+           stDevsTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
+           ((QLineEdit*)(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
+           ((QLineEdit*)(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(stDevValidator);
         }
 
         // TODO TR: Ensure that this doesn't result in memory leaks
