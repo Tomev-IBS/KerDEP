@@ -394,7 +394,7 @@
            </column>
            <column>
             <property name="text">
-             <string>Carrier restriction</string>
+             <string>Left carrier restriction</string>
             </property>
            </column>
           </widget>

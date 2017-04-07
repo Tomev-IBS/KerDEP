@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "Functions/Kernels/kernels.h"
+#include "KDE/kerneldensityestimator.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,8 @@ private slots:
         void fillDomain(QVector<point *> *domain, point* prototypePoint);
         void generateSamples();
         QColor getRandomColor();
+        void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
+            void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
     void on_pushButton_clear_clicked();
 

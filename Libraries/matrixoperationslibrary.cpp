@@ -146,6 +146,12 @@ void fillCofactorMatrix(matrixPtr baseMatrix, matrixPtr cofactorMatrix)
     if(baseMatrix->size() != baseMatrix->at(0)->size())
         return;
 
+    if(baseMatrix->size() == 1)
+    {
+        fillCopiedMatrix(baseMatrix, cofactorMatrix);
+        return;
+    }
+
     cofactorMatrix->clear();
 
     matrix submatrix;

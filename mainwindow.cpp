@@ -3,8 +3,8 @@
 
 #include "math.h"
 
+#include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Distributions/distributions.h"
-#include "KDE/kerneldensityestimator.h"
 #include "KDE/pluginsmoothingparametercounter.h"
 
 #include "QDebug"
@@ -59,83 +59,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_generate_clicked()
 {
-    // Log that application started generating plot
-    qDebug() << "Plot generation started.";
+    // Log that application started generating KDE
+    qDebug() << "KDE generation started.";
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-    // Check if prior plots should be saved
-    if(!ui->checkBox_keepPriorPlots->isChecked())
-    {
-        // If not clear plot
-        clearPlot();
-    }
+    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
-    // Resize plot
-    qreal   minX = ui->lineEdit_minX->text().toDouble(),
-            maxX = ui->lineEdit_maxX->text().toDouble(),
-            minY = ui->lineEdit_minY->text().toDouble(),
-            maxY = ui->lineEdit_maxY->text().toDouble();
+    QVector<qreal> means, stDevs;
 
-    // Check if sizes are entered correctly
-    if(minX < maxX)
+    for(int i = 0; i < dimensionsNumber; ++i)
     {
-        // If so change
-        ui->widget_plot->xAxis->setRange(minX, maxX);
-    }
-    else
-    {
-        // If not log it and correct
-        qDebug() << "Minimal x value cannot be lower than it's maximal value.";
-        minX = ui->widget_plot->xAxis->range().minRange;
-        maxX = ui->widget_plot->xAxis->range().maxRange;
-    }
-
-    if(minY < maxY)
-    {
-        // If so change
-        ui->widget_plot->yAxis->setRange(minY, maxY);
-    }
-    else
-    {
-        // If not log it and correct
-        qDebug() << "Minimal y value cannot be lower than it's maximal value.";
-        minY = ui->widget_plot->yAxis->range().minRange;
-        maxY = ui->widget_plot->yAxis->range().maxRange;
+        means.append(0);
+        stDevs.append(1);
     }
 
     // Generate a vector of values from normal distribution
-    kernel* gaussianProbabilityDensityFunc = new normalKernel();
-
-    // TODO TR: Need a multidimensional vector of attributes
-    // To keep things simple let's consider only these domains wherein each dimension has equal size
-    QVector<point*> domain;
-    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
-    QVector<qreal> X;
-    QVector<qreal> normalDistributionY;
-
-    // Fill domain with points
-    fillDomain(&domain, NULL);
-
-    foreach(auto x, domain)
-    {
-        normalDistributionY.append(gaussianProbabilityDensityFunc->getValue(x));
-        X.append(x->at(0));
-    }
-
-    // Generate plot of normal distribution using QCustomPlot
-    if(dimensionsNumber == 1)
-    {
-        addPlot(&X, &normalDistributionY);
-    }
+    function* normalDistributionProbabilityDensityFunction = new multivariateNormalProbabilityDensityFunction(&means, &stDevs);
 
     // Generate samples
     generateSamples();
-
-    foreach(QVector<qreal>* sample, samples)
-    {
-        qDebug() << *sample;
-    }
 
     // Generate KDE
     QVector<int> kernelsIDs;
@@ -157,20 +100,81 @@ void MainWindow::on_pushButton_generate_clicked()
                                             &kernelsIDs
     );
 
-    // Generate a vector of values from selected KDE
+    // Test estimator
+    testKDE(estimator, normalDistributionProbabilityDensityFunction);
 
-    QVector<qreal> KDEEstimationY;
-
-    // TODO: Place counting in another thread
-
-    foreach(QVector<qreal>* x, domain)
-    {
-        KDEEstimationY.append(estimator->getValue(x));
-    }
-
-    // Generate a plot of KDE
+    // Run plot related tasks if dimension number is equal to 1
     if(dimensionsNumber == 1)
     {
+        // Check if prior plots should be saved
+        if(!ui->checkBox_keepPriorPlots->isChecked())
+        {
+            // If not clear plot
+            clearPlot();
+        }
+
+        // Resize plot
+        // TR TODO: Place it in another method
+        qreal   minX = ui->lineEdit_minX->text().toDouble(),
+                maxX = ui->lineEdit_maxX->text().toDouble(),
+                minY = ui->lineEdit_minY->text().toDouble(),
+                maxY = ui->lineEdit_maxY->text().toDouble();
+
+        // Check if sizes are entered correctly
+        if(minX < maxX)
+        {
+            // If so change
+            ui->widget_plot->xAxis->setRange(minX, maxX);
+        }
+        else
+        {
+            // If not log it and correct
+            qDebug() << "Minimal x value cannot be lower than it's maximal value.";
+            minX = ui->widget_plot->xAxis->range().minRange;
+            maxX = ui->widget_plot->xAxis->range().maxRange;
+        }
+
+        if(minY < maxY)
+        {
+            // If so change
+            ui->widget_plot->yAxis->setRange(minY, maxY);
+        }
+        else
+        {
+            // If not log it and correct
+            qDebug() << "Minimal y value cannot be lower than it's maximal value.";
+            minY = ui->widget_plot->yAxis->range().minRange;
+            maxY = ui->widget_plot->yAxis->range().maxRange;
+        }
+
+        QVector<point*> domain;
+
+        QVector<qreal> X;
+        QVector<qreal> normalDistributionY;
+
+        // Fill domain with points
+        // To keep things simple let's consider only these domains wherein each dimension has equal size
+        fillDomain(&domain, NULL);
+
+        foreach(auto x, domain)
+        {
+            normalDistributionY.append(normalDistributionProbabilityDensityFunction->getValue(x));
+            X.append(x->at(0));
+        }
+
+        // Generate plot of normal distribution using QCustomPlot
+        addPlot(&X, &normalDistributionY);
+
+        // Generate a vector of values from selected KDE
+        QVector<qreal> KDEEstimationY;
+
+        // TODO: Place counting in another thread
+        foreach(QVector<qreal>* x, domain)
+        {
+            KDEEstimationY.append(estimator->getValue(x));
+        }
+
+        // Generate a plot of KDE
         addPlot(&X, &KDEEstimationY);
 
         // Draw plots
@@ -270,6 +274,61 @@ QColor MainWindow::getRandomColor()
     return QColor(rand()%110 + 50, rand()%110 + 50, rand()%110 + 50);
 }
 
+void MainWindow::testKDE(kernelDensityEstimator *KDE, function *targetFunction)
+{
+    QVector<point *> testDomain;
+
+    fillTestDomain(&testDomain, NULL);
+
+    qreal error = 0;
+
+    foreach(auto arg, testDomain)
+    {
+        qDebug()    << "Point: " << *arg
+                    << "Target: " << targetFunction->getValue(arg)
+                    << "Estimated: " << KDE->getValue(arg)
+                    << "Difference: " << qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
+        error += qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
+    }
+
+    qDebug() << "Error: " << error;
+    qDebug() << "Average error: " << error/testDomain.size();
+}
+
+void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
+{
+    // Check if domain is nullpointer
+    if(domain == NULL) return;
+
+   // Check if prototype is a null pointer
+    if(prototypePoint == NULL)
+    {
+        // If so make it a point pointer
+        prototypePoint = new point();
+    }
+
+    for(int i = -1; i <= 1; ++i)
+    {
+        prototypePoint->append(i);
+
+        if(prototypePoint->size() == ui->spinBox_dimensionsNumber->value())
+        {
+            domain->append(new point());
+
+            foreach(qreal dimensionVal, *prototypePoint)
+            {
+                domain->last()->append(dimensionVal);
+            }
+        }
+        else
+        {
+            fillTestDomain(domain, prototypePoint);
+        }
+
+        prototypePoint->removeLast();
+    }
+}
+
 void MainWindow::on_pushButton_clear_clicked()
 {
     clearPlot();
@@ -325,7 +384,7 @@ void MainWindow::refreshKernelsTable()
         ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
 
         // TODO TR: Ensure that this doesn't result in memory leaks
-        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("0.0");
+        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
     }
 }
 
