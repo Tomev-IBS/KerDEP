@@ -40,6 +40,10 @@ private slots:
 
         void on_pushButton_countSmoothingParameters_clicked();
 
+        void on_pushButton_addTargetFunction_clicked();
+
+        void on_pushButton_removeTargetFunction_clicked();
+
 private:
     Ui::MainWindow *ui;
 

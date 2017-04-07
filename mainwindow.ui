@@ -431,7 +431,7 @@
          </property>
         </column>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButton_removeTargetFunction">
         <property name="geometry">
          <rect>
           <x>30</x>
@@ -444,7 +444,7 @@
          <string>-</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pushButton_addTargetFunction">
         <property name="geometry">
          <rect>
           <x>140</x>

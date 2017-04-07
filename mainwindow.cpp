@@ -504,3 +504,23 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
     }
 }
 
+
+void MainWindow::on_pushButton_addTargetFunction_clicked()
+{
+    int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() +1;
+
+    // Set row count
+    ui->tableWidget_targetFunctions->setRowCount(newRowsNumber);
+
+    refreshTargetFunctionTable();
+}
+
+void MainWindow::on_pushButton_removeTargetFunction_clicked()
+{
+    int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() -1;
+
+    // Set row count
+    ui->tableWidget_targetFunctions->setRowCount(newRowsNumber);
+
+    refreshTargetFunctionTable();
+}
