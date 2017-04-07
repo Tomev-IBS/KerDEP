@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget_dimensionKernels->horizontalHeader()->setStretchLastSection(true);
 
     refreshKernelsTable();
+    refreshTargetFunctionTable();
 }
 
 MainWindow::~MainWindow()
@@ -386,6 +387,55 @@ void MainWindow::refreshKernelsTable()
         // TODO TR: Ensure that this doesn't result in memory leaks
         ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
     }
+}
+
+void MainWindow::refreshTargetFunctionTable()
+{
+    int numberOfRows = ui->tableWidget_targetFunctions->rowCount();
+
+    // Ensure that rows number is at least 1
+    if(numberOfRows == 0)
+        numberOfRows = 1;
+
+    // Set row count
+    ui->tableWidget_targetFunctions->setRowCount(numberOfRows);
+
+    QLocale locale = QLocale::English;
+    locale.setNumberOptions(QLocale::c().numberOptions());
+
+    QIntValidator* meanValidator = new QIntValidator(-10, 10, this);
+
+    QDoubleValidator* stDevValidator = new QDoubleValidator(-5.0, 5.0, 3, this);
+    stDevValidator->setLocale(locale);
+    stDevValidator->setNotation(QDoubleValidator::StandardNotation);
+
+    QDoubleValidator* contributionValidator = new QDoubleValidator(0.0, 1.0, 3, this);
+    contributionValidator->setLocale(locale);
+    contributionValidator->setNotation(QDoubleValidator::StandardNotation);
+
+    for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex)
+    {
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QLineEdit());
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setText("0");
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setValidator(meanValidator);
+
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QLineEdit());
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setText("1.0");
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setValidator(stDevValidator);
+
+        // TODO TR: Ensure that this doesn't result in memory leaks
+        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
+    }
+
+    uniformContributions();
+}
+
+void MainWindow::uniformContributions()
+{
+
 }
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
