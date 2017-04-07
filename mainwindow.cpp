@@ -338,6 +338,7 @@ void MainWindow::on_pushButton_clear_clicked()
 void MainWindow::on_spinBox_dimensionsNumber_editingFinished()
 {
     refreshKernelsTable();
+    refreshTargetFunctionTable();
 }
 
 void MainWindow::refreshKernelsTable()
@@ -391,11 +392,12 @@ void MainWindow::refreshKernelsTable()
 
 void MainWindow::refreshTargetFunctionTable()
 {
-    int numberOfRows = ui->tableWidget_targetFunctions->rowCount();
+    int numberOfRows = ui->tableWidget_targetFunctions->rowCount(),
+        dimensionsNumber = ui->spinBox_dimensionsNumber->value();
 
     // Ensure that rows number is at least 1
     if(numberOfRows == 0)
-        numberOfRows = 6;
+        numberOfRows = 1;
 
     // Set row count
     ui->tableWidget_targetFunctions->setRowCount(numberOfRows);
@@ -411,27 +413,48 @@ void MainWindow::refreshTargetFunctionTable()
     stDevValidator->setLocale(locale);
     stDevValidator->setNotation(QDoubleValidator::StandardNotation);
 
-    QIntValidator* contributionValidator = new QIntValidator(0, 100, this);
+    QDoubleValidator* contributionValidator = new QDoubleValidator(0.0, 100.0, 3, this);
+    contributionValidator->setLocale(locale);
+    contributionValidator->setNotation(QDoubleValidator::StandardNotation);
+
+    QTableWidget*   targetFunctionTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions,
+                    meansTablePointer, stDevsTablePointer;
+
 
     for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex)
     {
         // TODO TR: Ensure that this doesn't result in memory leaks
-        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QLineEdit());
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setText("0.0");
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX)))->setValidator(meanValidator);
+        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QTableWidget());
+
+        meansTablePointer = ((QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
+        meansTablePointer->setRowCount(dimensionsNumber);
+        meansTablePointer->setColumnCount(1);
+        meansTablePointer->horizontalHeader()->hide();
+
+
 
         // TODO TR: Ensure that this doesn't result in memory leaks
-        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QLineEdit());
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setText("1.0");
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setValidator(stDevValidator);
+        targetFunctionTablePointer->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QTableWidget());
+        stDevsTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX);
+
+        for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber)
+        {
+           meansTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
+           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, MEAN_COLUMN_INDEX)))->setText("0.0");
+           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, MEAN_COLUMN_INDEX)))->setValidator(meanValidator);
+
+           ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setText("1.0");
+           ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX)))->setValidator(stDevValidator);
+        }
 
         // TODO TR: Ensure that this doesn't result in memory leaks
-        ui->tableWidget_targetFunctions->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
+        targetFunctionTablePointer->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
+        ((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setMaxLength(6);
+        ((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
     }
 
     // Disable last contribution cell, as it's filled automatically
-    ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(numberOfRows -1, CONTRIBUTION_COLUMN_INDEX)))->setEnabled(false);
+    ((QLineEdit*)(targetFunctionTablePointer->cellWidget(numberOfRows -1, CONTRIBUTION_COLUMN_INDEX)))->setEnabled(false);
 
     uniformContributions();
 }
@@ -441,11 +464,9 @@ void MainWindow::uniformContributions()
     int numberOfRows = ui->tableWidget_targetFunctions->rowCount(), lastRowIndex = numberOfRows - 1;
 
     for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
-    {
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(qCeil(100.0/numberOfRows)));
-    }
+        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(100.0/numberOfRows));
 
-    ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(qCeil(countLastContribution())));
+    ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(countLastContribution()));
 }
 
 qreal MainWindow::countLastContribution()
@@ -456,7 +477,7 @@ qreal MainWindow::countLastContribution()
 
     for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
     {
-        result -= ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->text().toInt();
+        result -= ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->text().toDouble();
     }
 
     return result;
@@ -503,7 +524,6 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
                 ->setText(QString::number(value));
     }
 }
-
 
 void MainWindow::on_pushButton_addTargetFunction_clicked()
 {
