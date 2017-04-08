@@ -109,16 +109,8 @@ void MainWindow::on_pushButton_generate_clicked()
         elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means.last(), stDevs.last()));
     }
 
-    //for(int i = 0; i < dimensionsNumber; ++i)
-    //{
-    //    means.append(0);
-    //    stDevs.append(1);
-    //}
-
     // Generate a vector of values from normal distribution
     function* targetFunction = new complexFunction(&contributions, &elementalFunctions);
-
-    //function* normalDistributionProbabilityDensityFunction = new multivariateNormalProbabilityDensityFunction(&means, &stDevs);
 
     // Generate samples
     generateSamples();
@@ -282,23 +274,6 @@ void MainWindow::generateSamples()
 {
     samples.clear();
 
-    qreal seed = ui->lineEdit_seed->text().toDouble();
-
-    // TODO TR: May be selectable in the future.
-    int dimensionsNum = ui->spinBox_dimensionsNumber->value(),
-        targetFunctionElementsNumber;
-    QVector<qreal> means;
-    QVector<qreal> stDevs;
-    QVector<qreal> contributions;
-
-    while(means.size() != dimensionsNum)
-    {
-        means.append(0);
-        stDevs.append(1);
-    }
-
-    distribution* targetDistribution = new normalDistribution(seed, &means, &stDevs);
-
     int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
     if(sampleSize < 1)
@@ -306,6 +281,53 @@ void MainWindow::generateSamples()
         qDebug() << "Sample size < 1.";
         return;
     }
+
+    qreal seed = ui->lineEdit_seed->text().toDouble();
+
+    // TODO TR: May be selectable in the future.
+    int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
+        targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+
+    QVector<QVector<qreal>*> means, stDevs;
+    QVector<qreal> contributions;
+    QVector<distribution*> elementalDistributions;
+
+    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
+    {
+        means.append(new QVector<qreal>());
+        stDevs.append(new QVector<qreal>());
+
+        contributions.append
+        (
+            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+            ->text().toDouble()
+        );
+
+        for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
+        {
+            means.last()->append
+            (
+                ((QLineEdit*)(
+                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
+                    ->cellWidget(dimensionIndex, 0)
+                ))
+                ->text().toDouble()
+            );
+
+            stDevs.last()->append
+            (
+                ((QLineEdit*)(
+                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
+                    ->cellWidget(dimensionIndex, 0)
+                ))
+                ->text().toDouble()
+            );
+        }
+
+        elementalDistributions.append(new normalDistribution(seed, means.last(), stDevs.last()));
+    }
+
+    distribution* targetDistribution = new complexDistribution(seed, &elementalDistributions, &contributions);
 
     for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
     {

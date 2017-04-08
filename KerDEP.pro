@@ -26,7 +26,8 @@ SOURCES     +=  main.cpp\
     KDE/pluginsmoothingparametercounter.cpp \
     Functions/multivariatenormalprobabilitydensityfunction.cpp \
     Libraries/matrixoperationslibrary.cpp \
-    Functions/complexfunction.cpp
+    Functions/complexfunction.cpp \
+    Distributions/complexdistribution.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -44,7 +45,8 @@ HEADERS     +=  mainwindow.h \
     KDE/pluginsmoothingparametercounter.h \
     Functions/multivariatenormalprobabilitydensityfunction.h \
     Libraries/matrixoperationslibrary.h \
-    Functions/complexfunction.h
+    Functions/complexfunction.h \
+    Distributions/complexdistribution.h
 
 FORMS       +=  mainwindow.ui
 

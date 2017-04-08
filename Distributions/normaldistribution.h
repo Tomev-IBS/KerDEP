@@ -14,7 +14,7 @@ class normalDistribution : public distribution
 
         void getValue(QVector<qreal>* result);
 
-    private:
+    private:      
         QVector<qreal>* means;
         QVector<std::normal_distribution<qreal>*> distributions;
 
