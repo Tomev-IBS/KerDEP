@@ -115,6 +115,11 @@ void MainWindow::on_pushButton_generate_clicked()
     // Generate samples
     generateSamples();
 
+    foreach (auto x, samples)
+    {
+        qDebug() << *x;
+    }
+
     // Generate KDE
     QVector<int> kernelsIDs;
     QVector<qreal> smoothingParameters;

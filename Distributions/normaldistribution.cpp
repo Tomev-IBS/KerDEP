@@ -23,9 +23,10 @@ void normalDistribution::getValue(QVector<qreal> *result)
     // Generate vector Z of n values from random distribution
 
     QVector<qreal> Z;
+    std::normal_distribution<qreal> normalDis(0,1);
 
     for(int i = 0; i < A.size(); ++i)
-        Z.append((*distributions.last())(generator));
+        Z.append(normalDis(generator));
 
     // Generete result according to X = u + AZ
 
