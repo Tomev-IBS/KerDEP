@@ -4,6 +4,8 @@
 #include "math.h"
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
+#include "Functions/complexfunction.h"
+
 #include "Distributions/distributions.h"
 #include "KDE/pluginsmoothingparametercounter.h"
 
@@ -65,18 +67,58 @@ void MainWindow::on_pushButton_generate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount(),
+        targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
-    QVector<qreal> means, stDevs;
+    QVector<QVector<qreal>*> means, stDevs;
+    QVector<qreal> contributions;
+    QVector<function*> elementalFunctions;
 
-    for(int i = 0; i < dimensionsNumber; ++i)
+    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        means.append(0);
-        stDevs.append(1);
+        means.append(new QVector<qreal>());
+        stDevs.append(new QVector<qreal>());
+
+        contributions.append
+        (
+            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+            ->text().toDouble()
+        );
+
+        for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
+        {
+            means.last()->append
+            (
+                ((QLineEdit*)(
+                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
+                    ->cellWidget(dimensionIndex, 0)
+                ))
+                ->text().toDouble()
+            );
+
+            stDevs.last()->append
+            (
+                ((QLineEdit*)(
+                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
+                    ->cellWidget(dimensionIndex, 0)
+                ))
+                ->text().toDouble()
+            );
+        }
+
+        elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means.last(), stDevs.last()));
     }
 
+    //for(int i = 0; i < dimensionsNumber; ++i)
+    //{
+    //    means.append(0);
+    //    stDevs.append(1);
+    //}
+
     // Generate a vector of values from normal distribution
-    function* normalDistributionProbabilityDensityFunction = new multivariateNormalProbabilityDensityFunction(&means, &stDevs);
+    function* targetFunction = new complexFunction(&contributions, &elementalFunctions);
+
+    //function* normalDistributionProbabilityDensityFunction = new multivariateNormalProbabilityDensityFunction(&means, &stDevs);
 
     // Generate samples
     generateSamples();
@@ -102,7 +144,7 @@ void MainWindow::on_pushButton_generate_clicked()
     );
 
     // Test estimator
-    testKDE(estimator, normalDistributionProbabilityDensityFunction);
+    testKDE(estimator, targetFunction);
 
     // Run plot related tasks if dimension number is equal to 1
     if(dimensionsNumber == 1)
@@ -159,7 +201,7 @@ void MainWindow::on_pushButton_generate_clicked()
 
         foreach(auto x, domain)
         {
-            normalDistributionY.append(normalDistributionProbabilityDensityFunction->getValue(x));
+            normalDistributionY.append(targetFunction->getValue(x));
             X.append(x->at(0));
         }
 
@@ -243,9 +285,11 @@ void MainWindow::generateSamples()
     qreal seed = ui->lineEdit_seed->text().toDouble();
 
     // TODO TR: May be selectable in the future.
-    int dimensionsNum = ui->spinBox_dimensionsNumber->value();
+    int dimensionsNum = ui->spinBox_dimensionsNumber->value(),
+        targetFunctionElementsNumber;
     QVector<qreal> means;
     QVector<qreal> stDevs;
+    QVector<qreal> contributions;
 
     while(means.size() != dimensionsNum)
     {
