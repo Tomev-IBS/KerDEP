@@ -74,6 +74,18 @@ void MainWindow::on_pushButton_generate_clicked()
     QVector<qreal> contributions;
     QVector<function*> elementalFunctions;
 
+    // Check if contributions are set correctly. If they are, then last contribution is >= 0;
+    if(((QLineEdit*)(ui
+                     ->tableWidget_targetFunctions
+                     ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX))
+                    )
+            ->text().toDouble() <= 0)
+    {
+        // If not then uniform distributions and log error
+        qDebug() << "Contributions aren't set correctly. Uniforming contributions.";
+        uniformContributions();
+    }
+
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
         means.append(new QVector<qreal>());
@@ -114,11 +126,6 @@ void MainWindow::on_pushButton_generate_clicked()
 
     // Generate samples
     generateSamples();
-
-    foreach (auto x, samples)
-    {
-        qDebug() << *x;
-    }
 
     // Generate KDE
     QVector<int> kernelsIDs;
@@ -512,7 +519,7 @@ void MainWindow::refreshTargetFunctionTable()
         for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber)
         {
            meansTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
+           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
            ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
 
            stDevsTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
