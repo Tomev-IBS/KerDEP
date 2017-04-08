@@ -507,7 +507,7 @@ void MainWindow::refreshTargetFunctionTable()
         for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber)
         {
            meansTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
+           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
            ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
 
            stDevsTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
