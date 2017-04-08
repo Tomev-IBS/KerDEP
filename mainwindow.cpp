@@ -524,6 +524,7 @@ void MainWindow::refreshTargetFunctionTable()
         targetFunctionTablePointer->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
         ((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setMaxLength(6);
         ((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
+        QObject::connect(((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))), SIGNAL(textEdited(QString)), this, SLOT(updateLastContribution()));
     }
 
     // Disable last contribution cell, as it's filled automatically
@@ -549,11 +550,20 @@ qreal MainWindow::countLastContribution()
     int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
 
     for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
-    {
         result -= ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->text().toDouble();
-    }
 
     return result;
+}
+
+void MainWindow::updateLastContribution()
+{
+    int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
+    qreal lastContributionValue = countLastContribution();
+
+    ((QLineEdit*)(ui
+                  ->tableWidget_targetFunctions
+                  ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)))
+                  ->setText(QString::number(lastContributionValue));
 }
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
