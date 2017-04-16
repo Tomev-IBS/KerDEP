@@ -76,7 +76,7 @@ qreal pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter()
 qreal pluginSmoothingParameterCounter::countCapitalC(int xsi, qreal smoothingParameter)
 {
     // Page 81 of Kernel Estimators in System Analysis, P. Kulczycki
-5tg
+
     qreal (pluginSmoothingParameterCounter::* xsithKDerivative)(qreal);
 
     switch(xsi)
