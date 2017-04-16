@@ -38,10 +38,18 @@ qreal pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter()
 
     qDebug() << h3;
 
-    h3 = qPow(qAbs(h3), 1.0/11.0);
-    h3 = -h3;
+    // qPow has a problem with getting roots from negative numbers,
+    // hence if must be used
 
-    qDebug() << h3;
+    if(h3 < 0)
+    {
+        h3 = qPow(qAbs(h3), 1.0/11.0);
+        h3 = -h3;
+    }
+    else
+    {
+        h3 = qPow(h3, 1.0/11.0);
+    }
 
     qreal h2 = -2.0;
     h2 *= countK6thDerivativeInPoint(0);
@@ -49,9 +57,18 @@ qreal pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter()
     h2 /= countCapitalC(8.0, h3);
     h2 /= samples->size();
 
-    qDebug() << h2;
+    // Same issue with qPow as in h3 case
 
-    h2 = qPow(h2, 1.0/9.0);
+    if(h2 < 0)
+    {
+        h2 = qPow(qAbs(h2), 1.0/9.0);
+        h2 = -h2;
+    }
+    else
+    {
+        h2 = qPow(h2, 1.0/9.0);
+    }
+    qDebug() << h2;
 
     return countPluginSmoothingParameter(h2);
 }
@@ -59,7 +76,7 @@ qreal pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter()
 qreal pluginSmoothingParameterCounter::countCapitalC(int xsi, qreal smoothingParameter)
 {
     // Page 81 of Kernel Estimators in System Analysis, P. Kulczycki
-
+5tg
     qreal (pluginSmoothingParameterCounter::* xsithKDerivative)(qreal);
 
     switch(xsi)
@@ -112,9 +129,26 @@ qreal pluginSmoothingParameterCounter::count1stRankPluginSmoothingParameter(qrea
     qreal h1 = -2.0;
     h1 *= countK4thDerivativeInPoint(0);
     h1 /= U;
+
+
     h1 /= countCapitalC(6.0, h2);
+
+    qDebug() << "C, 6, h2 = " << countCapitalC(6.0, h2);
+
     h1 /= samples->size();
-    h1 = qPow(h1, 1.0/7.0);
+
+    // qPow has a problem with getting roots from negative numbers,
+    // hence if must be used
+
+    if(h1 < 0)
+    {
+        h1 = qPow(qAbs(h1), 1.0/7.0);
+        h1 = -h1;
+    }
+    else
+    {
+        h1 = qPow(h1, 1.0/7.0);
+    }
 
     return h1;
 }
@@ -123,13 +157,18 @@ qreal pluginSmoothingParameterCounter::countPluginSmoothingParameter(qreal h2)
 {
     qreal h1 = count1stRankPluginSmoothingParameter(h2);
 
+    qDebug() << "h1 = " << h1;
+
     qreal Zf = countCapitalC(4, h1);
 
-    qreal h0 = 0.6;
-    h0 /= qPow(0.2, 2.0);
+    qreal h0 = 0.5 / qSqrt(M_PI);
+    h0 /= qPow(1, 2.0);
     h0 /= samples->size();
     h0 /= Zf;
-    h0 = qPow(h0, 0.2);
+
+    qDebug() << "h0 = " << h0;
+
+    h0 = qPow(h0, 1.0/5.0);
 
     return h0;
 }
