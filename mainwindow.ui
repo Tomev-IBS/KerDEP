@@ -14,7 +14,7 @@
    <string>KerDEP</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
@@ -24,7 +24,7 @@
        <attribute name="title">
         <string>Plot</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <widget class="QCustomPlot" name="widget_plot" native="true">
           <property name="minimumSize">
@@ -37,86 +37,63 @@
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_4">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>150</width>
-            <height>0</height>
+            <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="title">
-           <string>Controls</string>
+           <string>Visualization settings</string>
           </property>
-          <widget class="QPushButton" name="pushButton_clear">
-           <property name="geometry">
-            <rect>
-             <x>20</x>
-             <y>380</y>
-             <width>75</width>
-             <height>23</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="pushButton_generate">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>350</y>
-             <width>128</width>
-             <height>23</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Generate</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkBox_keepPriorPlots">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>130</y>
-             <width>128</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Keep prior plots</string>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_seed">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>50</y>
-             <width>128</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>1</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_seed">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>30</y>
-             <width>128</width>
-             <height>13</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Seed</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QCheckBox" name="checkBox_keepPriorPlots">
+             <property name="text">
+              <string>Keep prior plots</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_generate">
+             <property name="text">
+              <string>Generate</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_clear">
+             <property name="text">
+              <string>Clear</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -131,7 +108,7 @@
           <x>180</x>
           <y>10</y>
           <width>191</width>
-          <height>214</height>
+          <height>141</height>
          </rect>
         </property>
         <property name="minimumSize">
@@ -204,9 +181,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>10</y>
-          <width>150</width>
-          <height>300</height>
+          <y>110</y>
+          <width>161</width>
+          <height>271</height>
          </rect>
         </property>
         <property name="minimumSize">
@@ -379,9 +356,9 @@
         <property name="geometry">
          <rect>
           <x>180</x>
-          <y>230</y>
+          <y>160</y>
           <width>191</width>
-          <height>260</height>
+          <height>231</height>
          </rect>
         </property>
         <property name="title">
@@ -453,6 +430,48 @@
          </item>
          <item>
           <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>11</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>161</width>
+          <height>91</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>General settings</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QLabel" name="label_seed">
+           <property name="text">
+            <string>Random seed</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_seed">
+           <property name="text">
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_4">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
