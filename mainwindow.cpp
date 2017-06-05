@@ -9,6 +9,8 @@
 #include "Distributions/distributions.h"
 #include "KDE/pluginsmoothingparametercounter.h"
 
+#include "Reservoir_sampling/dataParser.h"
+
 #include "QDebug"
 
 #include "climits"
@@ -125,7 +127,14 @@ void MainWindow::on_pushButton_generate_clicked()
     function* targetFunction = new complexFunction(&contributions, &elementalFunctions);
 
     // Generate samples
+
+    // Generate samples for testing purpose
     generateSamples();
+
+    // Generate samples using reservoir algorithm and distributions
+
+
+    // Parse samples to format readable for KDE
 
     // Generate KDE
     QVector<int> kernelsIDs;

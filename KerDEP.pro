@@ -23,11 +23,15 @@ SOURCES     +=  main.cpp\
                 Functions/Kernels/normalkernel.cpp \
                 Functions/Kernels/trianglekernel.cpp \
                 Functions/Kernels/epanecznikowkernel.cpp \
-    KDE/pluginsmoothingparametercounter.cpp \
-    Functions/multivariatenormalprobabilitydensityfunction.cpp \
-    Libraries/matrixoperationslibrary.cpp \
-    Functions/complexfunction.cpp \
-    Distributions/complexdistribution.cpp
+                KDE/pluginsmoothingparametercounter.cpp \
+                Functions/multivariatenormalprobabilitydensityfunction.cpp \
+                Libraries/matrixoperationslibrary.cpp \
+                Functions/complexfunction.cpp \
+                Distributions/complexdistribution.cpp \
+                Reservoir_sampling/biasedReservoirSamplingAlgorithm.cpp \
+                Reservoir_sampling/reservoirSamplingAlgorithm.cpp \
+                Reservoir_sampling/distributiondataparser.cpp \
+                Reservoir_sampling/distributiondatareader.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -41,12 +45,18 @@ HEADERS     +=  mainwindow.h \
                 Functions/Kernels/normalkernel.h \
                 Functions/Kernels/trianglekernel.h \
                 Functions/Kernels/epanecznikowkernel.h \
-    Functions/Kernels/kernels.h \
-    KDE/pluginsmoothingparametercounter.h \
-    Functions/multivariatenormalprobabilitydensityfunction.h \
-    Libraries/matrixoperationslibrary.h \
-    Functions/complexfunction.h \
-    Distributions/complexdistribution.h
+                Functions/Kernels/kernels.h \
+                KDE/pluginsmoothingparametercounter.h \
+                Functions/multivariatenormalprobabilitydensityfunction.h \
+                Libraries/matrixoperationslibrary.h \
+                Functions/complexfunction.h \
+                Distributions/complexdistribution.h \
+                Reservoir_sampling/biasedReservoirSamplingAlgorithm.h \
+                Reservoir_sampling/dataParser.h \
+                Reservoir_sampling/dataReader.h \
+                Reservoir_sampling/reservoirSamplingAlgorithm.h \
+                Reservoir_sampling/distributiondataparser.h \
+                Reservoir_sampling/distributiondatareader.h
 
 FORMS       +=  mainwindow.ui
 
