@@ -29,9 +29,9 @@ SOURCES     +=  main.cpp\
                 Functions/complexfunction.cpp \
                 Distributions/complexdistribution.cpp \
                 Reservoir_sampling/biasedReservoirSamplingAlgorithm.cpp \
-                Reservoir_sampling/reservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/distributiondataparser.cpp \
-                Reservoir_sampling/distributiondatareader.cpp
+                Reservoir_sampling/distributiondatareader.cpp \
+                Reservoir_sampling/basicReservoirSamplingAlgorithm.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -56,7 +56,8 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/dataReader.h \
                 Reservoir_sampling/reservoirSamplingAlgorithm.h \
                 Reservoir_sampling/distributiondataparser.h \
-                Reservoir_sampling/distributiondatareader.h
+                Reservoir_sampling/distributiondatareader.h \
+                Reservoir_sampling/basicReservoirSamplingAlgorithm.h
 
 FORMS       +=  mainwindow.ui
 

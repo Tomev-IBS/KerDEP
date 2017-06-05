@@ -4,8 +4,14 @@
 
 #include "biasedReservoirSamplingAlgorithm.h"
 
-biasedReservoirSamplingAlgorithm::biasedReservoirSamplingAlgorithm(dataParser *parser, dataReader *reader):
-reader(reader), parser(parser){}
+biasedReservoirSamplingAlgorithm::biasedReservoirSamplingAlgorithm(
+        dataReader *reader, dataParser *parser, int reservoirSize, int stepsNumber):
+        biasRate(1.0/reservoirSize)
+{
+  this->reader = reader;
+  this->parser = parser;
+  this->stepsNumber = stepsNumber;
+}
 
 void biasedReservoirSamplingAlgorithm::fillReservoir(void *reservoir)
 {
@@ -13,7 +19,7 @@ void biasedReservoirSamplingAlgorithm::fillReservoir(void *reservoir)
     int indexOfSampleToWriteOn, currentReservoirSize = 0;
 
     // For each incoming data sample
-    for(int step = 0; step < STEPS_NUMBER; ++step)
+    for(int step = 0; step < stepsNumber; ++step)
     {
       updateFractionOfReservoirFilled(currentReservoirSize);
 

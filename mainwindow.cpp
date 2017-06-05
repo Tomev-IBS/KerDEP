@@ -9,7 +9,8 @@
 #include "Distributions/distributions.h"
 #include "KDE/pluginsmoothingparametercounter.h"
 
-#include "Reservoir_sampling/dataParser.h"
+#include "Reservoir_sampling/biasedReservoirSamplingAlgorithm.h"
+#include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 
 #include "QDebug"
 
@@ -304,6 +305,7 @@ void MainWindow::generateSamples()
     }
 
     qreal seed = ui->lineEdit_seed->text().toDouble();
+    srand(seed);
 
     // TODO TR: May be selectable in the future.
     int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
@@ -349,6 +351,7 @@ void MainWindow::generateSamples()
     }
 
     distribution* targetDistribution = new complexDistribution(seed, &elementalDistributions, &contributions);
+
 
     for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
     {
