@@ -13,6 +13,14 @@ void complexDistribution::getValue(QVector<qreal> *result)
     elementalDistributions->at(distributionIndex)->getValue(result);
 }
 
+void complexDistribution::increaseMeans(qreal addend)
+{
+    foreach (distribution* elementalDistribution, *elementalDistributions)
+    {
+        elementalDistribution->increaseMeans(addend);
+    }
+}
+
 int complexDistribution::randomizeDistributionIndex()
 {
     std::uniform_real_distribution<qreal> uniformDistribution(0,1);

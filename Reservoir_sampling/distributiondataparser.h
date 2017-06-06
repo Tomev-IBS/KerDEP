@@ -9,9 +9,9 @@ class distributionDataParser: public dataParser
 {
     public:
         distributionDataParser();
-        void parseData(void* source, void *target);
+        void parseData(void *target);
         int addDatumToContainer(void *container);
-        void writeDatumOnPosition(void *datum, void *container, int position);
+        void writeDatumOnPosition(void *container, int position);
 };
 
 #endif // DISTRIBUTIONDATAPARSER_H

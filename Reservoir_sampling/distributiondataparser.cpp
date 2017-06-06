@@ -1,10 +1,15 @@
 #include "distributiondataparser.h"
 
-distributionDataParser::distributionDataParser(){}
+#include <QDebug>
 
-void distributionDataParser::parseData(void *source, void *target)
+distributionDataParser::distributionDataParser()
 {
-    QVector<qreal> *data    = static_cast<QVector<qreal>*>(source);
+    buffor = new QVector<qreal>();
+}
+
+void distributionDataParser::parseData(void *target)
+{
+    QVector<qreal> *data    = static_cast<QVector<qreal>*>(buffor);
     QVector<qreal> *sample  = static_cast<QVector<qreal>*>(target);
 
     sample->clear();
@@ -20,7 +25,7 @@ int distributionDataParser::addDatumToContainer(void *container)
     return samples->size();
 }
 
-void distributionDataParser::writeDatumOnPosition(void *datum, void *container, int position)
+void distributionDataParser::writeDatumOnPosition(void *container, int position)
 {
-    parseData(datum, static_cast<QVector<QVector<qreal>*>*>(container)->at(position));
+    parseData(static_cast<QVector<QVector<qreal>*>*>(container)->at(position));
 }

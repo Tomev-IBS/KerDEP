@@ -4,13 +4,13 @@
 #include "Distributions/distribution.h"
 #include "dataReader.h"
 
-#include "QVector"
+#include <QVector>
 
-class distributionDataReader : public distribution
+class distributionDataReader : public dataReader
 {
     public:
         distributionDataReader(distribution* sourceDistribution);
-        getNextRawDatum(void *target);
+        void getNextRawDatum(void *target);
 
     protected:
         distribution *sourceDistribution;

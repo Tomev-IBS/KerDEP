@@ -13,6 +13,7 @@ class complexDistribution : public distribution
         complexDistribution(int seed, QVector<distribution*>* elementalDistributions, QVector<qreal>* contributions);
 
         void getValue(QVector<qreal>* result);
+        void increaseMeans(qreal addend);
 
     private:
         QVector<distribution*>* elementalDistributions;

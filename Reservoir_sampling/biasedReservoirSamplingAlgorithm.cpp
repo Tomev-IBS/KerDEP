@@ -15,7 +15,6 @@ biasedReservoirSamplingAlgorithm::biasedReservoirSamplingAlgorithm(
 
 void biasedReservoirSamplingAlgorithm::fillReservoir(void *reservoir)
 {
-    std::string rawData;
     int indexOfSampleToWriteOn, currentReservoirSize = 0;
 
     // For each incoming data sample
@@ -37,8 +36,8 @@ void biasedReservoirSamplingAlgorithm::fillReservoir(void *reservoir)
       }
 
       // Add new data to the reservoir
-      reader->getNextRawDatum(&rawData);
-      parser->writeDatumOnPosition(&rawData, reservoir, indexOfSampleToWriteOn);
+      reader->getNextRawDatum(parser->buffor);
+      parser->writeDatumOnPosition(reservoir, indexOfSampleToWriteOn);
     }
 }
 

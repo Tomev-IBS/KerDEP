@@ -17,35 +17,32 @@ void basicReservoirSamplingAlgorithm::fillReservoir(void *reservoir)
 {
   initializeReservoir(reservoir);
 
-  std::string rawData;
-
   double addChance;
 
-  for(int step = reservoirSize+1; step < reservoirSize; ++step)
+  for(int step = reservoirSize+1; step < stepsNumber; ++step)
   {
     addChance = (double) reservoirSize/step;
-    reader->getNextRawDatum(&rawData);
+
+    reader->getNextRawDatum(parser->buffor);
 
     if(addChance > ((double) rand() / (RAND_MAX)))
     {
       // Adding to reservoir
-      int idxToDelete = (((double) rand() / (RAND_MAX)) * reservoirSize);
+      int idxToDelete = (((double) rand() / (RAND_MAX)) * (reservoirSize - 1));
 
-      parser->writeDatumOnPosition(&rawData, reservoir, idxToDelete);
+      parser->writeDatumOnPosition(reservoir, idxToDelete);
     }
   }
 }
 
 void basicReservoirSamplingAlgorithm::initializeReservoir(void *reservoir)
 {
-    std::string rawData;
-
     for(int step = 0; step < reservoirSize; ++step)
     {
-        reader->getNextRawDatum(&rawData);
+        reader->getNextRawDatum(parser->buffor);
 
         parser->addDatumToContainer(reservoir);
 
-        parser->writeDatumOnPosition(&rawData, reservoir, step);
+        parser->writeDatumOnPosition(reservoir, step);
     }
 }

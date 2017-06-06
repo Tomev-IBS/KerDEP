@@ -16,7 +16,7 @@
  *      On biased reservoir sampling in the presence of stream evolution by Aggarwal C..
  */
 
-class biasedReservoirSamplingAlgorithm : protected reservoirSamplingAlgorithm
+class biasedReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
 {
     public:
 

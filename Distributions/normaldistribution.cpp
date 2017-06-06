@@ -1,14 +1,12 @@
 #include "normaldistribution.h"
 #include "../Libraries/matrixoperationslibrary.h"
 
+#include <QDebug>
+
 normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<qreal> *stDevs)
-    :   means(means)
+    :   means(means), stDevs(stDevs)
 {
     generator = std::default_random_engine(seed);
-
-    for(int distributionNumber = 0; distributionNumber < means->size(); ++distributionNumber)
-        distributions.append(new std::normal_distribution<qreal>(means->at(distributionNumber),
-                                                                 stDevs->at(distributionNumber)));
 
     qreal correlationCoefficient = 0.5;
     QVector<QVector<qreal>*> covarianceMatrix;
@@ -42,5 +40,18 @@ void normalDistribution::getValue(QVector<qreal> *result)
         value += means->at(i);
 
         result->append(value);
+    }
+}
+
+void normalDistribution::increaseMeans(qreal addend)
+{
+    for(int i = 0; i < means->size(); ++i)
+    {
+        // TODO: FIXED THRESHOLD FOR RESEARCHES
+        if(means->at(i) < 10)
+        {
+            means->push_back(means->at(i) + addend);
+            means->pop_front();
+        }
     }
 }

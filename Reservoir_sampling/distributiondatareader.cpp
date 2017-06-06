@@ -3,7 +3,10 @@
 
 distributionDataReader::distributionDataReader(distribution *sourceDistribution) : sourceDistribution(sourceDistribution){}
 
-distributionDataReader::getNextRawDatum(void *target)
+void distributionDataReader::getNextRawDatum(void *target)
 {
-    sourceDistribution->getValue(static_cast<QVector<qreal>*>(target));
+    QVector<qreal>* targetPtr = static_cast<QVector<qreal>*>(target);
+    targetPtr->clear();
+
+    sourceDistribution->getValue(targetPtr);
 }

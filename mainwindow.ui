@@ -226,7 +226,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>5.0</string>
+            <string>15</string>
            </property>
           </widget>
          </item>
@@ -394,7 +394,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_dynamisDistribution">
+          <widget class="QCheckBox" name="checkBox_dynamicDistribution">
            <property name="text">
             <string>Dynamic distribution</string>
            </property>
@@ -410,7 +410,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.0001</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -424,7 +424,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_iterationsNumber">
            <property name="text">
-            <string>10000</string>
+            <string>1000</string>
            </property>
           </widget>
          </item>

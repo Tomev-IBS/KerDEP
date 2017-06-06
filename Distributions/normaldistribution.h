@@ -13,9 +13,11 @@ class normalDistribution : public distribution
         normalDistribution(int seed, QVector<qreal>* means, QVector<qreal>* stDevs);
 
         void getValue(QVector<qreal>* result);
+        void increaseMeans(qreal addend);
 
     private:      
         QVector<qreal>* means;
+        QVector<qreal>* stDevs;
         QVector<std::normal_distribution<qreal>*> distributions;
 
         matrix A;

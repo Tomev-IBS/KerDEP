@@ -28,7 +28,7 @@ private slots:
         void clearPlot();
         void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
         void fillDomain(QVector<point *> *domain, point* prototypePoint);
-        void generateSamples();
+        void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
         QColor getRandomColor();
         void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
             void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
@@ -36,7 +36,6 @@ private slots:
     void on_pushButton_clear_clicked();
 
     void on_spinBox_dimensionsNumber_editingFinished();
-
 
 
         void on_pushButton_countSmoothingParameters_clicked();
@@ -69,6 +68,12 @@ enum smoothingParameterCountingMethods
 {
     RANK_2_PLUG_IN    = 0,
     RANK_3_PLUG_IN    = 1
+};
+
+enum reservoirSamplingAlgorithms
+{
+    BASIC_RESERVOIR_SAMPLING_ALGORITHM = 0,
+    BIASED_RESERVOIR_SAMPLING_ALGORITHM = 1
 };
 
 #endif // MAINWINDOW_H

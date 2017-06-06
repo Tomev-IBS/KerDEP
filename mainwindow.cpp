@@ -10,7 +10,11 @@
 #include "KDE/pluginsmoothingparametercounter.h"
 
 #include "Reservoir_sampling/biasedReservoirSamplingAlgorithm.h"
-#include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
+#include "Reservoir_sampling/basicReservoirSamplingAlgorithm.h"
+
+#include "Reservoir_sampling/distributiondataparser.h"
+#include "Reservoir_sampling/distributiondatareader.h"
+#include "Reservoir_sampling/progressivedistributiondatareader.h"
 
 #include "QDebug"
 
@@ -77,6 +81,9 @@ void MainWindow::on_pushButton_generate_clicked()
     QVector<qreal> contributions;
     QVector<function*> elementalFunctions;
 
+    // Generate samples
+    generateSamples(&means, &stDevs);
+
     // Check if contributions are set correctly. If they are, then last contribution is >= 0;
     if(((QLineEdit*)(ui
                      ->tableWidget_targetFunctions
@@ -91,51 +98,17 @@ void MainWindow::on_pushButton_generate_clicked()
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        means.append(new QVector<qreal>());
-        stDevs.append(new QVector<qreal>());
-
         contributions.append
         (
             ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
             ->text().toDouble()
         );
 
-        for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
-        {
-            means.last()->append
-            (
-                ((QLineEdit*)(
-                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
-                    ->cellWidget(dimensionIndex, 0)
-                ))
-                ->text().toDouble()
-            );
-
-            stDevs.last()->append
-            (
-                ((QLineEdit*)(
-                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
-                    ->cellWidget(dimensionIndex, 0)
-                ))
-                ->text().toDouble()
-            );
-        }
-
         elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means.last(), stDevs.last()));
     }
 
     // Generate a vector of values from normal distribution
     function* targetFunction = new complexFunction(&contributions, &elementalFunctions);
-
-    // Generate samples
-
-    // Generate samples for testing purpose
-    generateSamples();
-
-    // Generate samples using reservoir algorithm and distributions
-
-
-    // Parse samples to format readable for KDE
 
     // Generate KDE
     QVector<int> kernelsIDs;
@@ -292,7 +265,7 @@ void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
     }
 }
 
-void MainWindow::generateSamples()
+void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs)
 {
     samples.clear();
 
@@ -311,14 +284,13 @@ void MainWindow::generateSamples()
     int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
-    QVector<QVector<qreal>*> means, stDevs;
     QVector<qreal> contributions;
     QVector<distribution*> elementalDistributions;
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        means.append(new QVector<qreal>());
-        stDevs.append(new QVector<qreal>());
+        means->append(new QVector<qreal>());
+        stDevs->append(new QVector<qreal>());
 
         contributions.append
         (
@@ -328,7 +300,7 @@ void MainWindow::generateSamples()
 
         for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
         {
-            means.last()->append
+            means->last()->append
             (
                 ((QLineEdit*)(
                     ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
@@ -337,7 +309,7 @@ void MainWindow::generateSamples()
                 ->text().toDouble()
             );
 
-            stDevs.last()->append
+            stDevs->last()->append
             (
                 ((QLineEdit*)(
                     ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
@@ -347,17 +319,41 @@ void MainWindow::generateSamples()
             );
         }
 
-        elementalDistributions.append(new normalDistribution(seed, means.last(), stDevs.last()));
+        elementalDistributions.append(new normalDistribution(seed, means->last(), stDevs->last()));
     }
 
     distribution* targetDistribution = new complexDistribution(seed, &elementalDistributions, &contributions);
 
+    bool progressiveDistribution = ui->checkBox_dynamicDistribution->isChecked();
 
-    for(int sampleNumber = 0; sampleNumber < sampleSize; ++sampleNumber)
+    dataParser *parser = new distributionDataParser();
+    dataReader *reader;
+
+    if(progressiveDistribution)
     {
-        samples.append(new QVector<qreal>());
-        targetDistribution->getValue(samples.last());
+        qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
+        reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
     }
+    else reader = new distributionDataReader(targetDistribution);
+
+    reservoirSamplingAlgorithm *samplingAlgorithm;
+
+    int stepsNumber = ui->lineEdit_iterationsNumber->text().toDouble();
+
+    int samplingAlgorithmID = ui->comboBox_samplingAlgorithm->currentIndex();
+
+    switch(samplingAlgorithmID)
+    {
+        case BIASED_RESERVOIR_SAMPLING_ALGORITHM:
+            samplingAlgorithm = new biasedReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
+        break;
+        case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
+        default:
+            samplingAlgorithm = new basicReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
+        break;
+    }
+
+    samplingAlgorithm->fillReservoir(&samples);
 }
 
 QColor MainWindow::getRandomColor()
@@ -587,7 +583,9 @@ void MainWindow::updateLastContribution()
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 {
-    generateSamples();
+    QVector<QVector<qreal> *> means, stDevs;
+
+    generateSamples(&means, &stDevs);
 
     // Check which method was selected
 
