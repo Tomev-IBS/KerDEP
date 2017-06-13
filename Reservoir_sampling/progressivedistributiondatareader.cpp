@@ -2,9 +2,7 @@
 
 progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, qreal progressionSize) :
     sourceDistribution(source), progressionSize(progressionSize)
-{
-
-}
+{}
 
 void progressiveDistributionDataReader::getNextRawDatum(void *target)
 {
@@ -16,4 +14,14 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     sourceDistribution->increaseMeans(progressionSize);
 }
 
+void progressiveDistributionDataReader::gatherAttributesData(void *attributes)
+{
+    // There are no attributes in distribution, just numbers;
+    return;
+}
 
+bool progressiveDistributionDataReader::hasMoreData()
+{
+    // One can always generate more data from distribution.
+    return true;
+}

@@ -18,19 +18,21 @@
 
 class biasedReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
 {
-    public:
+  public:
 
-        biasedReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser, int reservoirSize, int stepsNumber);
-        void fillReservoir(void *reservoir);
+  biasedReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser, int reservoirMaxSize, int stepsNumber);
 
-    private:
+  void fillReservoir(std::vector<sample*> *reservoir);
+  void performSingleStep(std::vector<sample*> *reservoir, int stepNumber);
 
-        // Bias rate. According to Aggarwal should be in [0,1]
-        double  biasRate = 0.001;
-        // Fraction of reservoir filled is also a success rate of deleting a reservoir member.
-        double fractionOfReservoirFilled = 0.0;
+  private:
 
-        void updateFractionOfReservoirFilled(int currentReservoirSize);
+  // Bias rate. According to Aggarwal should be in [0,1]
+  double  biasRate = 0.001;
+  // Fraction of reservoir filled is also a success rate of deleting a reservoir member.
+  double fractionOfReservoirFilled = 0.0;
+
+  void updateFractionOfReservoirFilled(int currentReservoirSize);
 };
 
 

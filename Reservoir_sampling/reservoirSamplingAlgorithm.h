@@ -5,13 +5,17 @@
 #ifndef RESERVOIRALGORITHM_RESERVOIRSAMPLINGALGORITHM_H
 #define RESERVOIRALGORITHM_RESERVOIRSAMPLINGALGORITHM_H
 
+#include <vector>
+
 #include "dataParser.h"
 #include "dataReader.h"
+#include "sample.h"
 
 class reservoirSamplingAlgorithm
 {
   public:
-    virtual void fillReservoir(void *reservoir) = 0;
+    virtual void fillReservoir(std::vector<sample*> *reservoir) = 0;
+    virtual void performSingleStep(std::vector<sample*> *reservoir, int stepNumber) = 0;
 
   protected:
     dataParser *parser;

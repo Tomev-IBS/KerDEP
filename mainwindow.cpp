@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    kernelTypes << "Normal" << "Triangle" << "Epanecznikow" << "Dull";
+
     ui->setupUi(this);
 
     setupValidators();
@@ -152,39 +154,7 @@ void MainWindow::on_pushButton_generate_clicked()
             clearPlot();
         }
 
-        // Resize plot
-        // TR TODO: Place it in another method
-        qreal   minX = ui->lineEdit_minX->text().toDouble(),
-                maxX = ui->lineEdit_maxX->text().toDouble(),
-                minY = ui->lineEdit_minY->text().toDouble(),
-                maxY = ui->lineEdit_maxY->text().toDouble();
-
-        // Check if sizes are entered correctly
-        if(minX < maxX)
-        {
-            // If so change
-            ui->widget_plot->xAxis->setRange(minX, maxX);
-        }
-        else
-        {
-            // If not log it and correct
-            qDebug() << "Minimal x value cannot be lower than it's maximal value.";
-            minX = ui->widget_plot->xAxis->range().minRange;
-            maxX = ui->widget_plot->xAxis->range().maxRange;
-        }
-
-        if(minY < maxY)
-        {
-            // If so change
-            ui->widget_plot->yAxis->setRange(minY, maxY);
-        }
-        else
-        {
-            // If not log it and correct
-            qDebug() << "Minimal y value cannot be lower than it's maximal value.";
-            minY = ui->widget_plot->yAxis->range().minRange;
-            maxY = ui->widget_plot->yAxis->range().maxRange;
-        }
+        resizePlot();
 
         QVector<point*> domain;
 
@@ -218,6 +188,43 @@ void MainWindow::on_pushButton_generate_clicked()
 
         // Draw plots
         ui->widget_plot->replot();
+
+    }
+}
+
+void MainWindow::resizePlot()
+{
+    // Resize plot
+    qreal   minX = ui->lineEdit_minX->text().toDouble(),
+            maxX = ui->lineEdit_maxX->text().toDouble(),
+            minY = ui->lineEdit_minY->text().toDouble(),
+            maxY = ui->lineEdit_maxY->text().toDouble();
+
+    // Check if sizes are entered correctly
+    if(minX < maxX)
+    {
+        // If so change
+        ui->widget_plot->xAxis->setRange(minX, maxX);
+    }
+    else
+    {
+        // If not log it and correct
+        qDebug() << "Minimal x value cannot be lower than it's maximal value.";
+        minX = ui->widget_plot->xAxis->range().minRange;
+        maxX = ui->widget_plot->xAxis->range().maxRange;
+    }
+
+    if(minY < maxY)
+    {
+        // If so change
+        ui->widget_plot->yAxis->setRange(minY, maxY);
+    }
+    else
+    {
+        // If not log it and correct
+        qDebug() << "Minimal y value cannot be lower than it's maximal value.";
+        minY = ui->widget_plot->yAxis->range().minRange;
+        maxY = ui->widget_plot->yAxis->range().maxRange;
     }
 }
 
@@ -277,6 +284,7 @@ void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
 void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs)
 {
     samples.clear();
+    objects.clear();
 
     int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
@@ -362,7 +370,13 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
         break;
     }
 
-    samplingAlgorithm->fillReservoir(&samples);
+    samplingAlgorithm->fillReservoir(&objects);
+
+    foreach(auto object, objects)
+    {
+        samples.append(&(static_cast<distributionDataSample*>(object)->values));
+    }
+
 }
 
 QColor MainWindow::getRandomColor()
@@ -411,15 +425,9 @@ void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
         {
             domain->append(new point());
 
-            foreach(qreal dimensionVal, *prototypePoint)
-            {
-                domain->last()->append(dimensionVal);
-            }
+            foreach(qreal dimensionVal, *prototypePoint) domain->last()->append(dimensionVal);
         }
-        else
-        {
-            fillTestDomain(domain, prototypePoint);
-        }
+        else fillTestDomain(domain, prototypePoint);
 
         prototypePoint->removeLast();
     }
@@ -442,14 +450,7 @@ void MainWindow::refreshKernelsTable()
     int newNumberOfRows = ui->spinBox_dimensionsNumber->value();
 
     // If new number of rows is equal to current number of rows do nothing
-    if(newNumberOfRows == ui->tableWidget_dimensionKernels->rowCount())
-    {
-        return;
-    }
-
-    // Set combo box options
-    QStringList comboBoxOptions;
-    comboBoxOptions << "Normal" << "Triangle" << "Epanecznikow" << "Dull";
+    if(newNumberOfRows == ui->tableWidget_dimensionKernels->rowCount()) return;
 
     // Set new row count
     ui->tableWidget_dimensionKernels->setRowCount(newNumberOfRows);
@@ -457,32 +458,34 @@ void MainWindow::refreshKernelsTable()
     QLocale locale = QLocale::English;
     locale.setNumberOptions(QLocale::c().numberOptions());
 
-    QDoubleValidator* smoothingParameterValidator = new QDoubleValidator(-2.0, 2.0, 3, this);
+    QDoubleValidator* smoothingParameterValidator = new QDoubleValidator(MIN_SMOOTHING_P, MAX_SMOOTHING_P, DECIMAL_NUMBERS, this);
     smoothingParameterValidator->setLocale(locale);
     smoothingParameterValidator->setNotation(QDoubleValidator::StandardNotation);
 
-    for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber)
-    {
-        // Add combobox with kernels
+    for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber) addKernelToTable(rowNumber, smoothingParameterValidator);
+}
 
-        // TODO TR: Ensure that this doesn't result in memory leaks
-        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, KERNEL_COLUMN_INDEX, new QComboBox());
+void MainWindow::addKernelToTable(int rowNumber, QDoubleValidator* smoothingParameterValidator)
+{
+    // Add combobox with kernels
 
-        ((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->insertItems(0, comboBoxOptions);
+    // TODO TR: Ensure that this doesn't result in memory leaks
+    ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, KERNEL_COLUMN_INDEX, new QComboBox());
 
-        // Add input box with validator for smoothing parameters
-        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX, new QLineEdit());
+    ((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->insertItems(0, kernelTypes);
 
-        // TODO TR: Ensure that this doesn't result in memory leaks
-        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
-        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
+    // Add input box with validator for smoothing parameters
+    ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX, new QLineEdit());
 
-        // Add input box for carrier restriction value
-        ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
+    // TODO TR: Ensure that this doesn't result in memory leaks
+    ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
+    ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
 
-        // TODO TR: Ensure that this doesn't result in memory leaks
-        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
-    }
+    // Add input box for carrier restriction value
+    ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
+
+    // TODO TR: Ensure that this doesn't result in memory leaks
+    ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
 }
 
 void MainWindow::refreshTargetFunctionTable()

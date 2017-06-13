@@ -9,12 +9,16 @@
 class progressiveDistributionDataReader : public dataReader
 {
     public:
+
         progressiveDistributionDataReader(distribution *source, qreal progressionSize);
+
         void getNextRawDatum(void *target);
+        void gatherAttributesData(void *attributes);
+        bool hasMoreData();
 
     protected:
         distribution *sourceDistribution;
-        qreal progressionSize;
+        qreal progressionSize = 0.0;
 
 };
 

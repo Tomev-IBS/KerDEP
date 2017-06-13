@@ -9,10 +9,15 @@
 class distributionDataReader : public dataReader
 {
     public:
+
         distributionDataReader(distribution* sourceDistribution);
+
         void getNextRawDatum(void *target);
+        void gatherAttributesData(void *attributes);
+        bool hasMoreData();
 
     protected:
+
         distribution *sourceDistribution;
 };
 

@@ -2,68 +2,83 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDoubleValidator>
+#include <QStringList>
+#include <vector>
+
+#include "Reservoir_sampling/sample.h"
 #include "Functions/Kernels/kernels.h"
 #include "KDE/kerneldensityestimator.h"
 
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    public:
+        explicit MainWindow(QWidget *parent = 0);
+        ~MainWindow();
 
-private:
-    void setupValidators();
-    void setupPlot();
-    void setupKernelsTable();
+    private:
+        void setupValidators();
+        void setupPlot();
+        void setupKernelsTable();
 
-    const qreal MAX_X           = 999.0;
-    const qreal MIN_X           = -999.0;
-    const qreal MAX_Y           = 99.0;
-    const qreal MIN_Y           = -99.0;
-    const int DECIMAL_NUMBERS   = 3;
-    const qreal DEFAULT_MIN_X   =-5;
-    const qreal DEFAULT_MAX_X   =5;
-    const qreal DEFAULT_MIN_Y   =-0.05;
-    const qreal DEFAULT_MAX_Y   =1;
+        const qreal MAX_X           = 999.0;
+        const qreal MIN_X           = -999.0;
+        const qreal MAX_Y           = 99.0;
+        const qreal MIN_Y           = -99.0;
+        const qreal MIN_SMOOTHING_P = 0.0;
+        const qreal MAX_SMOOTHING_P = 2.0;
+        const int DECIMAL_NUMBERS   = 3;
+        const qreal DEFAULT_MIN_X   =-5;
+        const qreal DEFAULT_MAX_X   =5;
+        const qreal DEFAULT_MIN_Y   =-0.05;
+        const qreal DEFAULT_MAX_Y   =1;
 
-private slots:
+        void drawPlot();
+            void clearPlot();
+            void resizePlot();
 
-    void refreshKernelsTable();
-    void refreshTargetFunctionTable();
-        void uniformContributions();
-            qreal countLastContribution();
-    void updateLastContribution();
+        Ui::MainWindow *ui;
 
-    void on_pushButton_generate_clicked();
-        void clearPlot();
-        void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
-        void fillDomain(QVector<point *> *domain, point* prototypePoint);
-        void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
-        QColor getRandomColor();
-        void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
-            void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
+        QVector<QVector<qreal>*> samples;
+        std::vector<sample*> objects;
 
-    void on_pushButton_clear_clicked();
-
-    void on_spinBox_dimensionsNumber_editingFinished();
+        QStringList kernelTypes;
 
 
-        void on_pushButton_countSmoothingParameters_clicked();
+    private slots:
 
-        void on_pushButton_addTargetFunction_clicked();
+        void refreshKernelsTable();
+            void addKernelToTable(int rowNumber, QDoubleValidator *smoothingParameterValidator);
+        void refreshTargetFunctionTable();
+            void uniformContributions();
+                qreal countLastContribution();
+        void updateLastContribution();
 
-        void on_pushButton_removeTargetFunction_clicked();
+        void on_pushButton_generate_clicked();
+            void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+            void fillDomain(QVector<point *> *domain, point* prototypePoint);
+            void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
+            QColor getRandomColor();
+            void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
+                void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
-private:
-    Ui::MainWindow *ui;
+        void on_pushButton_clear_clicked();
 
-    QVector<QVector<qreal>*> samples;
+        void on_spinBox_dimensionsNumber_editingFinished();
+
+
+            void on_pushButton_countSmoothingParameters_clicked();
+
+            void on_pushButton_addTargetFunction_clicked();
+
+            void on_pushButton_removeTargetFunction_clicked();
 };
 
 enum kernelSettingsColumns
