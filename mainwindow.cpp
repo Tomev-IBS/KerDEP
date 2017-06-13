@@ -26,15 +26,26 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setupValidators();
+    setupPlot();
+    setupKernelsTable();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::setupValidators()
+{
     QLocale locale = QLocale::English;
     locale.setNumberOptions(QLocale::c().numberOptions());
 
-    // Set validators for lineEdits
     const QIntValidator* seedAndSizeValidator = new QIntValidator(1, std::numeric_limits<int>::max(), this);
-    QDoubleValidator* xAxisValidator = new QDoubleValidator(-10.0, 10.0, 3, this);
+    QDoubleValidator* xAxisValidator = new QDoubleValidator(MIN_X, MAX_X, DECIMAL_NUMBERS, this);
     xAxisValidator->setLocale(locale);
     xAxisValidator->setNotation(QDoubleValidator::StandardNotation);
-    QDoubleValidator* yAxisValidator = new QDoubleValidator(-0.05, 1.0, 3, this);
+    QDoubleValidator* yAxisValidator = new QDoubleValidator(MIN_Y, MAX_Y, DECIMAL_NUMBERS, this);
     yAxisValidator->setLocale(locale);
     yAxisValidator->setNotation(QDoubleValidator::StandardNotation);
 
@@ -46,25 +57,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->lineEdit_minY->setValidator(yAxisValidator);
     ui->lineEdit_maxY->setValidator(yAxisValidator);
+}
 
-    // Setup plot
-
+void MainWindow::setupPlot()
+{
     ui->widget_plot->xAxis->setLabel("x");
     ui->widget_plot->yAxis->setLabel("f(x)");
 
-    ui->widget_plot->xAxis->setRange(-5, 5);
-    ui->widget_plot->yAxis->setRange(-0.05, 0.8);
+    ui->widget_plot->xAxis->setRange(DEFAULT_MIN_X, DEFAULT_MAX_X);
+    ui->widget_plot->yAxis->setRange(DEFAULT_MIN_Y, DEFAULT_MAX_Y);
+}
 
-    // Setup kernels table
+void MainWindow::setupKernelsTable()
+{
     ui->tableWidget_dimensionKernels->horizontalHeader()->setStretchLastSection(true);
 
     refreshKernelsTable();
     refreshTargetFunctionTable();
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::on_pushButton_generate_clicked()

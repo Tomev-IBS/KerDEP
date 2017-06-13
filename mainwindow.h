@@ -17,7 +17,23 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private:
+    void setupValidators();
+    void setupPlot();
+    void setupKernelsTable();
+
+    const qreal MAX_X           = 999.0;
+    const qreal MIN_X           = -999.0;
+    const qreal MAX_Y           = 99.0;
+    const qreal MIN_Y           = -99.0;
+    const int DECIMAL_NUMBERS   = 3;
+    const qreal DEFAULT_MIN_X   =-5;
+    const qreal DEFAULT_MAX_X   =5;
+    const qreal DEFAULT_MIN_Y   =-0.05;
+    const qreal DEFAULT_MAX_Y   =1;
+
 private slots:
+
     void refreshKernelsTable();
     void refreshTargetFunctionTable();
         void uniformContributions();
