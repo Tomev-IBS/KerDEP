@@ -23,10 +23,10 @@ class kernelDensityEstimator
 
         int kernelType;
 
-        QVector<QVector<qreal>*>* samples;
-        QVector<kernelPtr> kernels;
-        QVector<qreal>* smoothingParameters;
-        QVector<QString>* carriersRestrictions;
+        QVector<QVector<qreal>*>    samples;
+        QVector<kernelPtr>          kernels;
+        QVector<qreal>              smoothingParameters;
+        QVector<QString>            carriersRestrictions;
 
         qreal getProductKernelValue(QVector<qreal>* x);
         qreal getRadialKernelValue(QVector<qreal>* x);

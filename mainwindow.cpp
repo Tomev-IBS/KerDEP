@@ -85,8 +85,8 @@ void MainWindow::on_pushButton_generate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount(),
-        targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
     QVector<QVector<qreal>*> means, stDevs;
     QVector<qreal> contributions;
@@ -118,28 +118,9 @@ void MainWindow::on_pushButton_generate_clicked()
         elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means.last(), stDevs.last()));
     }
 
-    // Generate a vector of values from normal distribution
     function* targetFunction = new complexFunction(&contributions, &elementalFunctions);
 
-    // Generate KDE
-    QVector<int> kernelsIDs;
-    QVector<qreal> smoothingParameters;
-    QVector<QString> carriersRestrictions;
-
-    for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber)
-    {
-        kernelsIDs.append(((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
-        smoothingParameters.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
-        carriersRestrictions.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text());
-    }
-
-    kernelDensityEstimator* estimator = new kernelDensityEstimator(
-                                            &samples,
-                                            &smoothingParameters,
-                                            &carriersRestrictions,
-                                            PRODUCT,
-                                            &kernelsIDs
-    );
+    kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
 
     // Test estimator
     testKDE(estimator, targetFunction);
@@ -377,6 +358,28 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
         samples.append(&(static_cast<distributionDataSample*>(object)->values));
     }
 
+}
+
+kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimensionsNumber)
+{
+    QVector<int> kernelsIDs;
+    QVector<qreal> smoothingParameters;
+    QVector<QString> carriersRestrictions;
+
+    for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber)
+    {
+        kernelsIDs.append(((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
+        smoothingParameters.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
+        carriersRestrictions.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text());
+    }
+
+    return new kernelDensityEstimator(
+                    &samples,
+                    &smoothingParameters,
+                    &carriersRestrictions,
+                    PRODUCT,
+                    &kernelsIDs
+    );
 }
 
 QColor MainWindow::getRandomColor()

@@ -65,6 +65,7 @@ class MainWindow : public QMainWindow
             void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
             void fillDomain(QVector<point *> *domain, point* prototypePoint);
             void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
+            kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
             QColor getRandomColor();
             void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
                 void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
