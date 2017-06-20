@@ -16,8 +16,8 @@ class complexDistribution : public distribution
         void increaseMeans(qreal addend);
 
     private:
-        QVector<distribution*>* elementalDistributions;
-        QVector<qreal>* contributions;
+        QVector<distribution*> elementalDistributions;
+        QVector<qreal> contributions;
 
         const std::uniform_real_distribution<qreal> uniformDistribution;
 

@@ -80,6 +80,7 @@ class MainWindow : public QMainWindow
             void on_pushButton_addTargetFunction_clicked();
 
             void on_pushButton_removeTargetFunction_clicked();
+            void on_pushButton_animate_clicked();
 };
 
 enum kernelSettingsColumns

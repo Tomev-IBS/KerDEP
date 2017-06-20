@@ -278,7 +278,6 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
     qreal seed = ui->lineEdit_seed->text().toDouble();
     srand(seed);
 
-    // TODO TR: May be selectable in the future.
     int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
@@ -434,6 +433,21 @@ void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
 
         prototypePoint->removeLast();
     }
+}
+
+void MainWindow::on_pushButton_animate_clicked()
+{
+    // Log that application started generating KDE
+    qDebug() << "KDE animation started.";
+    qDebug() << "Seed: " + ui->lineEdit_seed->text() +
+                ", Sample size: " + ui->lineEdit_sampleSize->text();
+
+
+
+
+
+
+
 }
 
 void MainWindow::on_pushButton_clear_clicked()
