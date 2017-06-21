@@ -227,6 +227,9 @@ void MainWindow::on_pushButton_generate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
+    qreal seed = ui->lineEdit_seed->text().toDouble();
+    srand(seed);
+
     int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
     QVector<QVector<qreal>*> means, stDevs;
@@ -299,26 +302,7 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
         return;
     }
 
-    qreal seed = ui->lineEdit_seed->text().toDouble();
-    srand(seed);
-
-    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
-
-    QVector<qreal> contributions;
-    QVector<distribution*> elementalDistributions;
-
-    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-    {
-        contributions.append
-        (
-            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
-            ->text().toDouble()
-        );
-
-        elementalDistributions.append(new normalDistribution(seed, means->at(functionIndex), stDevs->at(functionIndex)));
-    }
-
-    distribution* targetDistribution = new complexDistribution(seed, &elementalDistributions, &contributions);
+    distribution* targetDistribution = generateTargetDistribution(means, stDevs);
 
     bool progressiveDistribution = ui->checkBox_dynamicDistribution->isChecked();
 
@@ -356,6 +340,29 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
         samples.append(&(static_cast<distributionDataSample*>(object)->values));
     }
 
+}
+
+distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs)
+{
+    qreal seed = ui->lineEdit_seed->text().toDouble();
+
+    QVector<qreal> contributions;
+    QVector<distribution*> elementalDistributions;
+
+    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+
+    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
+    {
+        contributions.append
+        (
+            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+            ->text().toDouble()
+        );
+
+        elementalDistributions.append(new normalDistribution(seed, means->at(functionIndex), stDevs->at(functionIndex)));
+    }
+
+    return new complexDistribution(seed, &elementalDistributions, &contributions);
 }
 
 kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimensionsNumber)
@@ -483,6 +490,8 @@ void MainWindow::on_pushButton_animate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
+    qreal seed = ui->lineEdit_seed->text().toDouble();
+    srand(seed);
 
     QVector<QVector<qreal>*> means, stDevs;
 

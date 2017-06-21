@@ -67,6 +67,7 @@ class MainWindow : public QMainWindow
         void on_pushButton_generate_clicked();
             void fillDomain(QVector<point *> *domain, point* prototypePoint);
             void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
+                distribution *generateTargetDistribution(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
             function *generateTargetFunction(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             QColor getRandomColor();
