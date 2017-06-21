@@ -15,7 +15,7 @@ class multivariateNormalProbabilityDensityFunction : public function
     private:
 
         matrix inverseCovarianceMatrix;
-        QVector<qreal>* means;
+        QVector<qreal> means;
         qreal covarianceMatrixDeterminant;
 };
 

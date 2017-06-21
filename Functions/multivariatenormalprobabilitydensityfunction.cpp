@@ -4,10 +4,11 @@
 #include <QDebug>
 
 multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(QVector<qreal> *means, QVector<qreal> *stDevs)
-    : means(means)
 {
     qreal correlationCoefficient = 0.5;
     QVector<QVector<qreal>*> covarianceMatrix;
+
+    this->means = QVector<qreal>(*means);
 
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
 
@@ -34,14 +35,14 @@ qreal multivariateNormalProbabilityDensityFunction::getValue(point *arguments)
         for(int columnIndex = 0; columnIndex < inverseCovarianceMatrix.at(rowIndex)->size(); ++columnIndex)
         {
             value += inverseCovarianceMatrix.at(rowIndex)->at(columnIndex)
-                    * (arguments->at(columnIndex) - means->at(columnIndex));
+                    * (arguments->at(columnIndex) - means.at(columnIndex));
         }
 
         vectorMatrixProduct.append(value);
     }
 
     for(int i = 0; i < vectorMatrixProduct.size(); ++i)
-        result += vectorMatrixProduct.at(i) * (arguments->at(i) - means->at(i));
+        result += vectorMatrixProduct.at(i) * (arguments->at(i) - means.at(i));
 
     result /= -2;
 

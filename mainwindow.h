@@ -40,10 +40,6 @@ class MainWindow : public QMainWindow
         const qreal DEFAULT_MIN_Y   =-0.05;
         const qreal DEFAULT_MAX_Y   =1;
 
-        void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
-            void clearPlot();
-            void resizePlot();
-
         Ui::MainWindow *ui;
 
         QVector<QVector<qreal>*> samples;
@@ -51,6 +47,13 @@ class MainWindow : public QMainWindow
 
         QStringList kernelTypes;
 
+        void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
+            void clearPlot();
+            void resizePlot();
+            void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+
+        void fillStandardDeviations(QVector<QVector<qreal> *> *stDevs);
+        void fillMeans(QVector<QVector<qreal> *> *means);
 
     private slots:
 
@@ -62,7 +65,6 @@ class MainWindow : public QMainWindow
         void updateLastContribution();
 
         void on_pushButton_generate_clicked();
-            void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
             void fillDomain(QVector<point *> *domain, point* prototypePoint);
             void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
@@ -71,17 +73,18 @@ class MainWindow : public QMainWindow
             void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
                 void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
+        void on_pushButton_animate_clicked();
+
         void on_pushButton_clear_clicked();
 
         void on_spinBox_dimensionsNumber_editingFinished();
 
+        void on_pushButton_countSmoothingParameters_clicked();
 
-            void on_pushButton_countSmoothingParameters_clicked();
+        void on_pushButton_addTargetFunction_clicked();
 
-            void on_pushButton_addTargetFunction_clicked();
+        void on_pushButton_removeTargetFunction_clicked();
 
-            void on_pushButton_removeTargetFunction_clicked();
-            void on_pushButton_animate_clicked();
 };
 
 enum kernelSettingsColumns

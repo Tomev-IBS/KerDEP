@@ -174,6 +174,52 @@ void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
 }
 
+void MainWindow::fillStandardDeviations(QVector<QVector<qreal>*> *stDevs)
+{
+    int dimensionsNumber                = ui->spinBox_dimensionsNumber->value(),
+        targetFunctionElementsNumber    = ui->tableWidget_targetFunctions->rowCount();
+
+    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
+    {
+        stDevs->append(new QVector<qreal>());
+
+        for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
+        {
+            stDevs->last()->append
+            (
+                ((QLineEdit*)(
+                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
+                    ->cellWidget(dimensionIndex, 0)
+                ))
+                ->text().toDouble()
+            );
+        }
+    }
+}
+
+void MainWindow::fillMeans(QVector<QVector<qreal>*> *means)
+{
+    int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
+        targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+
+    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
+    {
+        means->append(new QVector<qreal>());
+
+        for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
+        {
+            means->last()->append
+            (
+                ((QLineEdit*)(
+                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
+                    ->cellWidget(dimensionIndex, 0)
+                ))
+                ->text().toDouble()
+            );
+        }
+    }
+}
+
 void MainWindow::on_pushButton_generate_clicked()
 {
     // Log that application started generating KDE
@@ -184,6 +230,9 @@ void MainWindow::on_pushButton_generate_clicked()
     int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
     QVector<QVector<qreal>*> means, stDevs;
+
+    fillMeans(&means);
+    fillStandardDeviations(&stDevs);
 
     // Generate samples
     generateSamples(&means, &stDevs);
@@ -196,10 +245,7 @@ void MainWindow::on_pushButton_generate_clicked()
     testKDE(estimator, targetFunction);
 
     // Run plot related tasks if dimension number is equal to 1
-    if(dimensionsNumber == 1)
-    {
-        drawPlots(estimator, targetFunction);
-    }
+    if(dimensionsNumber == 1) drawPlots(estimator, targetFunction);
 }
 
 void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
@@ -256,45 +302,20 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
     qreal seed = ui->lineEdit_seed->text().toDouble();
     srand(seed);
 
-    int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
-        targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
     QVector<qreal> contributions;
     QVector<distribution*> elementalDistributions;
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        means->append(new QVector<qreal>());
-        stDevs->append(new QVector<qreal>());
-
         contributions.append
         (
             ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
             ->text().toDouble()
         );
 
-        for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
-        {
-            means->last()->append
-            (
-                ((QLineEdit*)(
-                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
-                    ->cellWidget(dimensionIndex, 0)
-                ))
-                ->text().toDouble()
-            );
-
-            stDevs->last()->append
-            (
-                ((QLineEdit*)(
-                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
-                    ->cellWidget(dimensionIndex, 0)
-                ))
-                ->text().toDouble()
-            );
-        }
-
-        elementalDistributions.append(new normalDistribution(seed, means->last(), stDevs->last()));
+        elementalDistributions.append(new normalDistribution(seed, means->at(functionIndex), stDevs->at(functionIndex)));
     }
 
     distribution* targetDistribution = new complexDistribution(seed, &elementalDistributions, &contributions);
@@ -449,14 +470,25 @@ void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
 
 void MainWindow::on_pushButton_animate_clicked()
 {
+    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+    if(dimensionsNumber != 1)
+    {
+        qDebug() << "Dimensions number is not equal 1. Animation cannot be performed.";
+        return;
+    }
+
     // Log that application started generating KDE
     qDebug() << "KDE animation started.";
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
 
+    QVector<QVector<qreal>*> means, stDevs;
 
+    function* targetFunction = generateTargetFunction(&means, &stDevs);
 
+    kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
 
 
 
