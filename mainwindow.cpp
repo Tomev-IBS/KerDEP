@@ -316,22 +316,7 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
     }
     else reader = new distributionDataReader(targetDistribution);
 
-    reservoirSamplingAlgorithm *samplingAlgorithm;
-
-    int stepsNumber = ui->lineEdit_iterationsNumber->text().toDouble();
-
-    int samplingAlgorithmID = ui->comboBox_samplingAlgorithm->currentIndex();
-
-    switch(samplingAlgorithmID)
-    {
-        case BIASED_RESERVOIR_SAMPLING_ALGORITHM:
-            samplingAlgorithm = new biasedReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
-        break;
-        case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
-        default:
-            samplingAlgorithm = new basicReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
-        break;
-    }
+    reservoirSamplingAlgorithm *samplingAlgorithm = generateReservoirSamplingAlgorithm(reader, parser);
 
     samplingAlgorithm->fillReservoir(&objects);
 
@@ -363,6 +348,24 @@ distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *
     }
 
     return new complexDistribution(seed, &elementalDistributions, &contributions);
+}
+
+reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser)
+{
+    int sampleSize = ui->lineEdit_sampleSize->text().toInt(),
+        stepsNumber = ui->lineEdit_iterationsNumber->text().toDouble(),
+        samplingAlgorithmID = ui->comboBox_samplingAlgorithm->currentIndex();
+
+    switch(samplingAlgorithmID)
+    {
+        case BIASED_RESERVOIR_SAMPLING_ALGORITHM:
+            return new biasedReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
+        break;
+        case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
+        default:
+            return new basicReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
+        break;
+    }
 }
 
 kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimensionsNumber)

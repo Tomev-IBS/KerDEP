@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <vector>
 
+#include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/sample.h"
 #include "Functions/Kernels/kernels.h"
 #include "KDE/kerneldensityestimator.h"
@@ -55,7 +56,8 @@ class MainWindow : public QMainWindow
         void fillStandardDeviations(QVector<QVector<qreal> *> *stDevs);
         void fillMeans(QVector<QVector<qreal> *> *means);
 
-    private slots:
+
+private slots:
 
         void refreshKernelsTable();
             void addKernelToTable(int rowNumber, QDoubleValidator *smoothingParameterValidator);
@@ -68,6 +70,7 @@ class MainWindow : public QMainWindow
             void fillDomain(QVector<point *> *domain, point* prototypePoint);
             void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
                 distribution *generateTargetDistribution(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
+                reservoirSamplingAlgorithm *generateReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser);
             kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
             function *generateTargetFunction(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             QColor getRandomColor();
