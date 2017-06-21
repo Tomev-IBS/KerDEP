@@ -304,17 +304,11 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
 
     distribution* targetDistribution = generateTargetDistribution(means, stDevs);
 
-    bool progressiveDistribution = ui->checkBox_dynamicDistribution->isChecked();
-
     dataParser *parser = new distributionDataParser();
-    dataReader *reader;
 
-    if(progressiveDistribution)
-    {
-        qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
-        reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
-    }
-    else reader = new distributionDataReader(targetDistribution);
+    qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
+
+    dataReader *reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
 
     reservoirSamplingAlgorithm *samplingAlgorithm = generateReservoirSamplingAlgorithm(reader, parser);
 
@@ -324,7 +318,6 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
     {
         samples.append(&(static_cast<distributionDataSample*>(object)->values));
     }
-
 }
 
 distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs)
@@ -497,6 +490,9 @@ void MainWindow::on_pushButton_animate_clicked()
     srand(seed);
 
     QVector<QVector<qreal>*> means, stDevs;
+
+    fillMeans(&means);
+    fillStandardDeviations(&stDevs);
 
     function* targetFunction = generateTargetFunction(&means, &stDevs);
 

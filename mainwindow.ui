@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -401,13 +401,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_dynamicDistribution">
-           <property name="text">
-            <string>Dynamic distribution</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="label_distributionProgression">
            <property name="text">
             <string>Distribution progression</string>
@@ -417,7 +410,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.001</string>
+            <string>0.0</string>
            </property>
           </widget>
          </item>
