@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow
         const qreal DEFAULT_MIN_Y   =-0.05;
         const qreal DEFAULT_MAX_Y   =1;
 
-        void drawPlot();
+        void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
             void clearPlot();
             void resizePlot();
 
@@ -66,6 +66,7 @@ class MainWindow : public QMainWindow
             void fillDomain(QVector<point *> *domain, point* prototypePoint);
             void generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
+            function *generateTargetFunction(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             QColor getRandomColor();
             void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
                 void fillTestDomain(QVector<point *> *domain, point* prototypePoint);

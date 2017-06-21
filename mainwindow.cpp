@@ -78,99 +78,49 @@ void MainWindow::setupKernelsTable()
     refreshTargetFunctionTable();
 }
 
-void MainWindow::on_pushButton_generate_clicked()
+void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFunction)
 {
-    // Log that application started generating KDE
-    qDebug() << "KDE generation started.";
-    qDebug() << "Seed: " + ui->lineEdit_seed->text() +
-                ", Sample size: " + ui->lineEdit_sampleSize->text();
-
-    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
-    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
-
-    QVector<QVector<qreal>*> means, stDevs;
-    QVector<qreal> contributions;
-    QVector<function*> elementalFunctions;
-
-    // Generate samples
-    generateSamples(&means, &stDevs);
-
-    // Check if contributions are set correctly. If they are, then last contribution is >= 0;
-    if(((QLineEdit*)(ui
-                     ->tableWidget_targetFunctions
-                     ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX))
-                    )
-            ->text().toDouble() <= 0)
+    // Check if prior plots should be saved
+    if(!ui->checkBox_keepPriorPlots->isChecked())
     {
-        // If not then uniform distributions and log error
-        qDebug() << "Contributions aren't set correctly. Uniforming contributions.";
-        uniformContributions();
+        // If not clear plot
+        clearPlot();
     }
 
-    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-    {
-        contributions.append
-        (
-            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
-            ->text().toDouble()
-        );
+    resizePlot();
 
-        elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means.last(), stDevs.last()));
+    QVector<point*> domain;
+
+    QVector<qreal> X;
+    QVector<qreal> normalDistributionY;
+
+    // Fill domain with points
+    // To keep things simple let's consider only these domains wherein each dimension has equal size
+    fillDomain(&domain, NULL);
+
+    foreach(auto x, domain)
+    {
+        normalDistributionY.append(targetFunction->getValue(x));
+        X.append(x->at(0));
     }
 
-    function* targetFunction = new complexFunction(&contributions, &elementalFunctions);
+    // Generate plot of normal distribution using QCustomPlot
+    addPlot(&X, &normalDistributionY);
 
-    kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
+    // Generate a vector of values from selected KDE
+    QVector<qreal> KDEEstimationY;
 
-    // Test estimator
-    testKDE(estimator, targetFunction);
-
-    // Run plot related tasks if dimension number is equal to 1
-    if(dimensionsNumber == 1)
+    // TODO: Place counting in another thread
+    foreach(QVector<qreal>* x, domain)
     {
-        // Check if prior plots should be saved
-        if(!ui->checkBox_keepPriorPlots->isChecked())
-        {
-            // If not clear plot
-            clearPlot();
-        }
-
-        resizePlot();
-
-        QVector<point*> domain;
-
-        QVector<qreal> X;
-        QVector<qreal> normalDistributionY;
-
-        // Fill domain with points
-        // To keep things simple let's consider only these domains wherein each dimension has equal size
-        fillDomain(&domain, NULL);
-
-        foreach(auto x, domain)
-        {
-            normalDistributionY.append(targetFunction->getValue(x));
-            X.append(x->at(0));
-        }
-
-        // Generate plot of normal distribution using QCustomPlot
-        addPlot(&X, &normalDistributionY);
-
-        // Generate a vector of values from selected KDE
-        QVector<qreal> KDEEstimationY;
-
-        // TODO: Place counting in another thread
-        foreach(QVector<qreal>* x, domain)
-        {
-            KDEEstimationY.append(estimator->getValue(x));
-        }
-
-        // Generate a plot of KDE
-        addPlot(&X, &KDEEstimationY);
-
-        // Draw plots
-        ui->widget_plot->replot();
-
+        KDEEstimationY.append(estimator->getValue(x));
     }
+
+    // Generate a plot of KDE
+    addPlot(&X, &KDEEstimationY);
+
+    // Draw plots
+    ui->widget_plot->replot();
 }
 
 void MainWindow::resizePlot()
@@ -222,6 +172,34 @@ void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
+}
+
+void MainWindow::on_pushButton_generate_clicked()
+{
+    // Log that application started generating KDE
+    qDebug() << "KDE generation started.";
+    qDebug() << "Seed: " + ui->lineEdit_seed->text() +
+                ", Sample size: " + ui->lineEdit_sampleSize->text();
+
+    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+    QVector<QVector<qreal>*> means, stDevs;
+
+    // Generate samples
+    generateSamples(&means, &stDevs);
+
+    function* targetFunction = generateTargetFunction(&means, &stDevs);
+
+    kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
+
+    // Test estimator
+    testKDE(estimator, targetFunction);
+
+    // Run plot related tasks if dimension number is equal to 1
+    if(dimensionsNumber == 1)
+    {
+        drawPlots(estimator, targetFunction);
+    }
 }
 
 void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
@@ -378,7 +356,41 @@ kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimension
                     &carriersRestrictions,
                     PRODUCT,
                     &kernelsIDs
-    );
+                );
+}
+
+function* MainWindow::generateTargetFunction(QVector<QVector<qreal>*>* means, QVector<QVector<qreal>*>* stDevs)
+{
+    QVector<qreal> contributions;
+    QVector<function*> elementalFunctions;
+
+    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+
+    // Check if contributions are set correctly. If they are, then last contribution is >= 0;
+    if(((QLineEdit*)(ui
+                     ->tableWidget_targetFunctions
+                     ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX))
+                    )
+            ->text().toDouble() <= 0)
+    {
+        // If not then uniform distributions and log error
+        qDebug() << "Contributions aren't set correctly. Uniforming contributions.";
+        uniformContributions();
+    }
+
+    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
+    {
+        contributions.append
+        (
+            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+            ->text().toDouble()
+        );
+
+        elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means->last(), stDevs->last()));
+    }
+
+
+    return new complexFunction(&contributions, &elementalFunctions);
 }
 
 QColor MainWindow::getRandomColor()

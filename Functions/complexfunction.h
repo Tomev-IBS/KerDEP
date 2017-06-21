@@ -11,8 +11,8 @@ class complexFunction : public function
         qreal getValue(point* args);
 
     private:
-        QVector<qreal>* contributions;
-        QVector<function*>* elementalFunctions;
+        QVector<qreal> contributions;
+        QVector<function*> elementalFunctions;
 
 };
 
