@@ -3,12 +3,13 @@
 
 #include <QDebug>
 
-normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<qreal> *stDevs)
+normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<qreal> *stDevs) :
+    means(means), stDevs(stDevs)
 {
     generator = std::default_random_engine(seed);
 
-    this->means = QVector<qreal>(*means);
-    this->stDevs = QVector<qreal>(*stDevs);
+    //this->means = QVector<qreal>(*means);
+    //this->stDevs = QVector<qreal>(*stDevs);
 
     qreal correlationCoefficient = 0.5;
     QVector<QVector<qreal>*> covarianceMatrix;
@@ -39,7 +40,7 @@ void normalDistribution::getValue(QVector<qreal> *result)
         for(int j = 0; j < A.size(); ++j)
             value += A.at(i)->at(j) * Z.at(j);
 
-        value += means.at(i);
+        value += means->at(i);
 
         result->append(value);
     }
@@ -47,13 +48,13 @@ void normalDistribution::getValue(QVector<qreal> *result)
 
 void normalDistribution::increaseMeans(qreal addend)
 {
-    for(int i = 0; i < means.size(); ++i)
+    for(int i = 0; i < means->size(); ++i)
     {
         // TODO: FIXED THRESHOLD FOR RESEARCHES
-        if(means.at(i) < 10)
+        if(means->at(i) < 10)
         {
-            means.push_back(means.at(i) + addend);
-            means.pop_front();
+            means->push_back(means->at(i) + addend);
+            means->pop_front();
         }
     }
 }

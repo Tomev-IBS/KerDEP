@@ -16,8 +16,8 @@ class normalDistribution : public distribution
         void increaseMeans(qreal addend);
 
     private:      
-        QVector<qreal> means;
-        QVector<qreal> stDevs;
+        QVector<qreal>* means;
+        QVector<qreal>* stDevs;
         QVector<std::normal_distribution<qreal>*> distributions;
 
         matrix A;

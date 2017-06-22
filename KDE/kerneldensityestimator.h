@@ -17,6 +17,8 @@ class kernelDensityEstimator
     public:
         kernelDensityEstimator(QVector<QVector<qreal>*>* samples, QVector<qreal>* smoothingParameter, QVector<QString>* carriersRestrictions, int kernelType, QVector<int>* kernelsIDs);
 
+        void setSamples(QVector<QVector<qreal>*>* samples);
+
         qreal getValue(QVector<qreal>* x);
 
     private:

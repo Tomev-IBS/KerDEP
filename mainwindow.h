@@ -52,6 +52,8 @@ class MainWindow : public QMainWindow
             void clearPlot();
             void resizePlot();
             void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+            void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+            void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
         void fillStandardDeviations(QVector<QVector<qreal> *> *stDevs);
         void fillMeans(QVector<QVector<qreal> *> *means);

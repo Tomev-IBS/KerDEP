@@ -18,6 +18,11 @@ kernelDensityEstimator::kernelDensityEstimator(QVector<QVector<qreal>*>* samples
     fillKernelsList(kernelsIDs);
 }
 
+void kernelDensityEstimator::setSamples(QVector<QVector<qreal> *> *samples)
+{
+    this->samples = QVector<QVector<qreal>*>(*samples);
+}
+
 qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
 {
     if(x == NULL)

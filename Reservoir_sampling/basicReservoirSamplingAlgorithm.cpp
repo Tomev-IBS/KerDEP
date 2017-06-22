@@ -18,7 +18,9 @@ void basicReservoirSamplingAlgorithm::fillReservoir(std::vector<sample*> *reserv
   initializeReservoir(reservoir);
 
   for(int step = reservoirMaxSize+1; step < reservoirMaxSize; ++step)
+  {
     if(shouldDatumBeAdded(step)) addDatumOnRandomPosition (reservoir);
+  }
 }
 
 void basicReservoirSamplingAlgorithm::initializeReservoir(std::vector<sample*> *reservoir)

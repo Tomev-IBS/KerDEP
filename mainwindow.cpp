@@ -13,7 +13,6 @@
 #include "Reservoir_sampling/basicReservoirSamplingAlgorithm.h"
 
 #include "Reservoir_sampling/distributiondataparser.h"
-#include "Reservoir_sampling/distributiondatareader.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
 
 #include "QDebug"
@@ -105,7 +104,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     }
 
     // Generate plot of normal distribution using QCustomPlot
-    addPlot(&X, &normalDistributionY);
+    addModelPlot(&X, &normalDistributionY);
 
     // Generate a vector of values from selected KDE
     QVector<qreal> KDEEstimationY;
@@ -117,7 +116,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     }
 
     // Generate a plot of KDE
-    addPlot(&X, &KDEEstimationY);
+    addEstimatedPlot(&X, &KDEEstimationY);
 
     // Draw plots
     ui->widget_plot->replot();
@@ -163,8 +162,6 @@ void MainWindow::clearPlot()
 {
     while(ui->widget_plot->graphCount() != 0)
         ui->widget_plot->removeGraph(0);
-
-    ui->widget_plot->replot();
 }
 
 void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
@@ -172,6 +169,20 @@ void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
+}
+
+void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
+{
+    ui->widget_plot->addGraph();
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::red));
+}
+
+void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
+{
+    ui->widget_plot->addGraph();
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::blue));
 }
 
 void MainWindow::fillStandardDeviations(QVector<QVector<qreal>*> *stDevs)
@@ -498,13 +509,50 @@ void MainWindow::on_pushButton_animate_clicked()
 
     kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
 
+    distribution* targetDistribution = generateTargetDistribution(&means, &stDevs);
 
+    dataParser *parser = new distributionDataParser();
 
+    qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
+    dataReader *reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
+
+    reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader, parser);
+
+    objects.clear();
+
+    int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+    for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
+    {
+        algorithm->performSingleStep(&objects, stepNumber);
+
+        samples.clear();
+
+        foreach(auto object, objects)
+        {
+            samples.append(&(static_cast<distributionDataSample*>(object)->values));
+        }
+
+        estimator->setSamples(&samples);
+
+        targetFunction = generateTargetFunction(&means, &stDevs);
+
+        drawPlots(estimator, targetFunction);
+
+        qDebug() << stepNumber;
+
+        // Ensure that it will be refreshed.
+        qApp->processEvents();
+    }
+
+    qDebug() << "Animation finished.";
 }
 
 void MainWindow::on_pushButton_clear_clicked()
 {
     clearPlot();
+
+    ui->widget_plot->replot();
 }
 
 void MainWindow::on_spinBox_dimensionsNumber_editingFinished()
@@ -665,6 +713,9 @@ void MainWindow::updateLastContribution()
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 {
     QVector<QVector<qreal> *> means, stDevs;
+
+    fillMeans(&means);
+    fillStandardDeviations(&stDevs);
 
     generateSamples(&means, &stDevs);
 
