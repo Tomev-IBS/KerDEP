@@ -15,6 +15,8 @@
 #include "Reservoir_sampling/distributiondataparser.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
 
+#include "Detectors/rareElementsDetector.h"
+
 #include "QDebug"
 
 #include "climits"
@@ -394,7 +396,9 @@ kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimension
                 );
 }
 
-function* MainWindow::generateTargetFunction(QVector<QVector<qreal>*>* means, QVector<QVector<qreal>*>* stDevs)
+function* MainWindow::generateTargetFunction(QVector<QVector<qreal>*>* means,
+                                             QVector<QVector<qreal>*>* stDevs)
+
 {
     QVector<qreal> contributions;
     QVector<function*> elementalFunctions;
@@ -435,23 +439,49 @@ QColor MainWindow::getRandomColor()
 
 void MainWindow::testKDE(kernelDensityEstimator *KDE, function *targetFunction)
 {
-    QVector<point *> testDomain;
+  testKDEError(KDE, targetFunction);
+  testRareElementsDetector(KDE);
+}
 
-    fillTestDomain(&testDomain, NULL);
+int MainWindow::testKDEError(kernelDensityEstimator *KDE, function *targetFunction)
+{
+  QVector<point *> testDomain;
+  fillTestDomain(&testDomain, NULL);
 
-    qreal error = 0;
+  qreal error = 0;
 
-    foreach(auto arg, testDomain)
-    {
-        qDebug()    << "Point: " << *arg
-                    << "Target: " << targetFunction->getValue(arg)
-                    << "Estimated: " << KDE->getValue(arg)
-                    << "Difference: " << qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
-        error += qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
-    }
+  foreach(auto arg, testDomain)
+  {
+    qDebug()  << "Point: " << *arg
+              << "Target: " << targetFunction->getValue(arg)
+              << "Estimated: " << KDE->getValue(arg)
+              << "Difference: " << qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
+    error += qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
+  }
 
-    qDebug() << "Error: " << error;
-    qDebug() << "Average error: " << error/testDomain.size();
+  qDebug() << "Error: " << error;
+  qDebug() << "Average error: " << error/testDomain.size();
+
+  return 0;
+}
+
+int MainWindow::testRareElementsDetector(kernelDensityEstimator *KDE)
+{
+  QVector<point *> testDomain;
+  fillTestDomain(&testDomain, NULL);
+
+  qreal r = 0.1;
+
+  QVector<int> atypicalElementsIndexes;
+
+  rareElementsDetector* detector = new rareElementsDetector(KDE, r);
+
+  detector->findAtypicalElementsInDomain(&testDomain, &atypicalElementsIndexes);
+
+  qDebug() << "Atypical elements indexes:";
+  qDebug() << atypicalElementsIndexes;
+
+  return 0;
 }
 
 void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)

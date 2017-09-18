@@ -35,11 +35,11 @@ class MainWindow : public QMainWindow
         const qreal MIN_Y           = -99.0;
         const qreal MIN_SMOOTHING_P = 0.0;
         const qreal MAX_SMOOTHING_P = 2.0;
-        const int DECIMAL_NUMBERS   = 3;
-        const qreal DEFAULT_MIN_X   =-5;
-        const qreal DEFAULT_MAX_X   =5;
-        const qreal DEFAULT_MIN_Y   =-0.05;
-        const qreal DEFAULT_MAX_Y   =1;
+        const int   DECIMAL_NUMBERS = 3;
+        const qreal DEFAULT_MIN_X   = -5;
+        const qreal DEFAULT_MAX_X   = 5;
+        const qreal DEFAULT_MIN_Y   = -0.05;
+        const qreal DEFAULT_MAX_Y   = 1;
 
         Ui::MainWindow *ui;
 
@@ -77,7 +77,9 @@ private slots:
             function *generateTargetFunction(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
             QColor getRandomColor();
             void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
-                void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
+              int testKDEError(kernelDensityEstimator *KDE, function *targetFunction);
+              int testRareElementsDetector(kernelDensityEstimator *KDE);
+              void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
         void on_pushButton_animate_clicked();
 

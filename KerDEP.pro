@@ -32,7 +32,8 @@ SOURCES     +=  main.cpp\
                 Reservoir_sampling/distributiondataparser.cpp \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/progressivedistributiondatareader.cpp \
-    Reservoir_sampling/distributionDataSample.cpp
+    Reservoir_sampling/distributionDataSample.cpp \
+    Detectors/rareElementsDetector.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -59,7 +60,8 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributiondataparser.h \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.h \
                 Reservoir_sampling/progressivedistributiondatareader.h \
-    Reservoir_sampling/distributionDataSample.h
+    Reservoir_sampling/distributionDataSample.h \
+    Detectors/rareElementsDetector.h
 
 FORMS       +=  mainwindow.ui
 
