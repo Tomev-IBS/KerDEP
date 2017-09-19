@@ -26,6 +26,8 @@ int rareElementsDetector::findAtypicalElementsInDomain(QVector<point *>* domain,
   int i = countI(domain->size());
   qreal q = countQ(i, &estimatedValues);
 
+  qDebug() << "q = " << q;
+
   target->clear();
 
   for(int index = 0; index < estimatedValues.size(); ++index)

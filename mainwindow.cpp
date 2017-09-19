@@ -471,7 +471,7 @@ int MainWindow::testRareElementsDetector(kernelDensityEstimator *KDE)
   QVector<point *> testDomain;
   fillTestDomain(&testDomain, NULL);
 
-  qreal r = 0.1;
+  qreal r = ui->lineEdit_rarity->text().toDouble();
 
   QVector<int> atypicalElementsIndexes;
 
@@ -743,49 +743,53 @@ void MainWindow::updateLastContribution()
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 {
-    QVector<QVector<qreal> *> means, stDevs;
+  QVector<QVector<qreal> *> means, stDevs;
 
-    fillMeans(&means);
-    fillStandardDeviations(&stDevs);
+  fillMeans(&means);
+  fillStandardDeviations(&stDevs);
 
-    generateSamples(&means, &stDevs);
+  generateSamples(&means, &stDevs);
 
-    // Check which method was selected
+  // Check which method was selected
 
-    qreal(pluginSmoothingParameterCounter::*(methodFunctionPointer))(void);
+  qreal(pluginSmoothingParameterCounter::*(methodFunctionPointer))(void);
 
-    switch(ui->comboBox_smoothingParameterCountingMethod->currentIndex())
-    {
-        case RANK_3_PLUG_IN:
-            methodFunctionPointer = &pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter;
-        break;
-        case RANK_2_PLUG_IN:
-        default:
-            methodFunctionPointer = &pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter;
-        break;
-    }
+  switch(ui->comboBox_smoothingParameterCountingMethod->currentIndex())
+  {
+    case RANK_3_PLUG_IN:
+      methodFunctionPointer =
+        &pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter;
+    break;
+    case RANK_2_PLUG_IN:
+    default:
+      methodFunctionPointer =
+        &pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter;
+      break;
+   }
 
-    // Count smoothing parameter for each dimension
+  // Count smoothing parameter for each dimension
 
-    int numberOfRows = ui->tableWidget_dimensionKernels->rowCount();
-    QVector<qreal> samplesColumn;
-    pluginSmoothingParameterCounter counter(&samplesColumn);
-    qreal value;
+  int numberOfRows = ui->tableWidget_dimensionKernels->rowCount();
+  QVector<qreal> samplesColumn;
+  pluginSmoothingParameterCounter counter(&samplesColumn);
+  qreal value;
 
-    for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)
-    {
-        // Create vector that consists of variables inside this dimension
+  for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)
+  {
+    // Create vector that consists of variables inside this dimension
 
-        samplesColumn.clear();
+    samplesColumn.clear();
 
-        foreach(QVector<qreal>* sample, samples)
-            samplesColumn.append(sample->at(rowNumber));
+    foreach(QVector<qreal>* sample, samples)
+        samplesColumn.append(sample->at(rowNumber));
 
-        value = (counter.*methodFunctionPointer)();
+    value = (counter.*methodFunctionPointer)();
 
-        ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
-                ->setText(QString::number(value));
-    }
+    ((QLineEdit*)(ui
+                  ->tableWidget_dimensionKernels
+                  ->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
+      ->setText(QString::number(value));
+  }
 }
 
 void MainWindow::on_pushButton_addTargetFunction_clicked()
