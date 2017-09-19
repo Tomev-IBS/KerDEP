@@ -23,8 +23,6 @@ class basicReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
 
     int reservoirMaxSize = 1000;
 
-    void initializeReservoir(std::vector<sample*> *reservoir);
-
     void addDatumToReservoir(std::vector<sample *> *reservoir);
     bool shouldDatumBeAdded(int stepNumber);
     void addDatumOnRandomPosition(std::vector<sample *> *reservoir);

@@ -1,7 +1,3 @@
-//
-// Created by Tomev on 29.05.2017.
-//
-
 #include "basicReservoirSamplingAlgorithm.h"
 
 basicReservoirSamplingAlgorithm::basicReservoirSamplingAlgorithm(
@@ -15,17 +11,8 @@ basicReservoirSamplingAlgorithm::basicReservoirSamplingAlgorithm(
 
 void basicReservoirSamplingAlgorithm::fillReservoir(std::vector<sample*> *reservoir)
 {
-  initializeReservoir(reservoir);
-
-  for(int step = reservoirMaxSize+1; step < reservoirMaxSize; ++step)
-  {
-    if(shouldDatumBeAdded(step)) addDatumOnRandomPosition (reservoir);
-  }
-}
-
-void basicReservoirSamplingAlgorithm::initializeReservoir(std::vector<sample*> *reservoir)
-{
-  while(reservoir->size() < reservoirMaxSize) addDatumToReservoir(reservoir);
+  for(int step = 0; step < stepsNumber; ++step)
+    performSingleStep(reservoir, step);
 }
 
 void basicReservoirSamplingAlgorithm::performSingleStep(std::vector<sample*> *reservoir, int stepNumber)

@@ -240,8 +240,7 @@ void MainWindow::on_pushButton_generate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-    qreal seed = ui->lineEdit_seed->text().toDouble();
-    srand(seed);
+    srand(ui->lineEdit_seed->text().toDouble());
 
     int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
@@ -255,10 +254,13 @@ void MainWindow::on_pushButton_generate_clicked()
 
     function* targetFunction = generateTargetFunction(&means, &stDevs);
 
-    kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
+    kernelDensityEstimator* estimator
+        = generateKernelDensityEstimator(dimensionsNumber);
 
     // Test estimator
     testKDE(estimator, targetFunction);
+
+    qDebug() << samples.size();
 
     // Run plot related tasks if dimension number is equal to 1
     if(dimensionsNumber == 1) drawPlots(estimator, targetFunction);
@@ -370,7 +372,6 @@ reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataR
         case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
         default:
             return new basicReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
-        break;
     }
 }
 
@@ -527,8 +528,7 @@ void MainWindow::on_pushButton_animate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-    qreal seed = ui->lineEdit_seed->text().toDouble();
-    srand(seed);
+    srand(ui->lineEdit_seed->text().toDouble());
 
     QVector<QVector<qreal>*> means, stDevs;
 
@@ -612,7 +612,8 @@ void MainWindow::refreshKernelsTable()
     for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber) addKernelToTable(rowNumber, smoothingParameterValidator);
 }
 
-void MainWindow::addKernelToTable(int rowNumber, QDoubleValidator* smoothingParameterValidator)
+void MainWindow::addKernelToTable(int rowNumber,
+                                  QDoubleValidator* smoothingParameterValidator)
 {
     // Add combobox with kernels
 

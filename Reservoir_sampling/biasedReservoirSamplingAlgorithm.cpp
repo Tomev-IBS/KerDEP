@@ -1,7 +1,3 @@
-//
-// Created by Tomev on 03.06.2017.
-//
-
 #include "biasedReservoirSamplingAlgorithm.h"
 
 biasedReservoirSamplingAlgorithm::biasedReservoirSamplingAlgorithm(
