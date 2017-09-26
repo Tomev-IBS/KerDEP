@@ -8,6 +8,7 @@
 
 #include "Distributions/distributions.h"
 #include "KDE/pluginsmoothingparametercounter.h"
+#include "KDE/weightedSilvermanSmoothingParameterCounter.h"
 
 #include "Reservoir_sampling/biasedReservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/basicReservoirSamplingAlgorithm.h"
@@ -20,6 +21,9 @@
 #include "QDebug"
 
 #include "climits"
+
+
+#include "groupingThread/groupingThread.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -249,13 +253,19 @@ void MainWindow::on_pushButton_generate_clicked()
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
 
+    qDebug() << "Means and stDevs filled.";
+
     // Generate samples
     generateSamples(&means, &stDevs);
+
+    qDebug() << "Samples generated.";
 
     function* targetFunction = generateTargetFunction(&means, &stDevs);
 
     kernelDensityEstimator* estimator
         = generateKernelDensityEstimator(dimensionsNumber);
+
+    qDebug() << "Testing...";
 
     // Test estimator
     testKDE(estimator, targetFunction);
@@ -304,7 +314,8 @@ void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
     }
 }
 
-void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs)
+void MainWindow::generateSamples(QVector<QVector<qreal> *> *means,
+                                 QVector<QVector<qreal> *> *stDevs)
 {
     samples.clear();
     objects.clear();
@@ -319,11 +330,14 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
 
     distribution* targetDistribution = generateTargetDistribution(means, stDevs);
 
-    dataParser *parser = new distributionDataParser();
+    dataParser *parser = new distributionDataParser(&attributesData);
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
 
     dataReader *reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
+
+    reader->gatherAttributesData(&attributesData);
+    parser->setAttributesOrder(reader->getAttributesOrder());
 
     reservoirSamplingAlgorithm *samplingAlgorithm = generateReservoirSamplingAlgorithm(reader, parser);
 
@@ -331,11 +345,17 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means, QVector<QVect
 
     foreach(auto object, objects)
     {
-        samples.append(&(static_cast<distributionDataSample*>(object)->values));
+      samples.push_back(new QVector<qreal>());
+
+      for(auto nameValue : static_cast<distributionDataSample*>(object)->attributesValues)
+      {
+        samples.last()->push_back(stod(nameValue.second));
+      }
     }
 }
 
-distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs)
+distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *means,
+                                                     QVector<QVector<qreal> *> *stDevs)
 {
     qreal seed = ui->lineEdit_seed->text().toDouble();
 
@@ -358,7 +378,8 @@ distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *
     return new complexDistribution(seed, &elementalDistributions, &contributions);
 }
 
-reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser)
+reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataReader *reader,
+                                                                           dataParser *parser)
 {
     int sampleSize = ui->lineEdit_sampleSize->text().toInt(),
         stepsNumber = ui->lineEdit_iterationsNumber->text().toDouble(),
@@ -541,10 +562,13 @@ void MainWindow::on_pushButton_animate_clicked()
 
     distribution* targetDistribution = generateTargetDistribution(&means, &stDevs);
 
-    dataParser *parser = new distributionDataParser();
+    dataParser *parser = new distributionDataParser(&attributesData);
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
     dataReader *reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
+
+    reader->gatherAttributesData(&attributesData);
+    parser->setAttributesOrder(reader->getAttributesOrder());
 
     reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader, parser);
 
@@ -552,27 +576,43 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
+    groupingThread gt;
+
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
-        algorithm->performSingleStep(&objects, stepNumber);
+      algorithm->performSingleStep(&objects, stepNumber);
 
-        samples.clear();
+      samples.clear();
 
-        foreach(auto object, objects)
+      foreach(auto object, objects)
+      {
+        samples.push_back(new QVector<qreal>());
+
+        for(auto nameValue : static_cast<distributionDataSample*>(object)->attributesValues)
         {
-            samples.append(&(static_cast<distributionDataSample*>(object)->values));
+          samples.last()->push_back(stod(nameValue.second));
         }
+      }
 
-        estimator->setSamples(&samples);
+      estimator->setSamples(&samples);
 
-        targetFunction = generateTargetFunction(&means, &stDevs);
+      targetFunction = generateTargetFunction(&means, &stDevs);
 
-        drawPlots(estimator, targetFunction);
+      drawPlots(estimator, targetFunction);
 
-        qDebug() << stepNumber;
+      qDebug() << "Reservoir size in step " << stepNumber
+               << " is: " << objects.size();
 
-        // Ensure that it will be refreshed.
-        qApp->processEvents();
+      if(objects.size() == algorithm->getReservoidMaxSize())
+      {
+        gt.setAttributesData(&attributesData);
+        gt.getObjectsForGrouping(objects);
+        gt.run();
+        objects.clear();
+      }
+
+      // Ensure that it will be refreshed.
+      qApp->processEvents();
     }
 
     qDebug() << "Animation finished.";
@@ -750,28 +790,16 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 
   generateSamples(&means, &stDevs);
 
-  // Check which method was selected
-
-  qreal(pluginSmoothingParameterCounter::*(methodFunctionPointer))(void);
-
-  switch(ui->comboBox_smoothingParameterCountingMethod->currentIndex())
-  {
-    case RANK_3_PLUG_IN:
-      methodFunctionPointer =
-        &pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter;
-    break;
-    case RANK_2_PLUG_IN:
-    default:
-      methodFunctionPointer =
-        &pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter;
-      break;
-   }
-
   // Count smoothing parameter for each dimension
-
   int numberOfRows = ui->tableWidget_dimensionKernels->rowCount();
+
   QVector<qreal> samplesColumn;
-  pluginSmoothingParameterCounter counter(&samplesColumn);
+  QVector<int> weights;
+
+  smoothingParameterCounter* counter
+      = generateSmoothingParameterCounter(&samplesColumn);
+
+  //pluginSmoothingParameterCounter counter(&samplesColumn);
   qreal value;
 
   for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)
@@ -783,13 +811,37 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
     foreach(QVector<qreal>* sample, samples)
         samplesColumn.append(sample->at(rowNumber));
 
-    value = (counter.*methodFunctionPointer)();
+    //value = (counter.*methodFunctionPointer)();
+    value = counter->countSmoothingParameterValue();
 
     ((QLineEdit*)(ui
                   ->tableWidget_dimensionKernels
                   ->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
       ->setText(QString::number(value));
   }
+}
+
+smoothingParameterCounter *MainWindow::generateSmoothingParameterCounter(QVector<qreal> *samplesColumn)
+{
+  int smoothingParameterCounterID = ui
+                                    ->comboBox_smoothingParameterCountingMethod
+                                    ->currentIndex();
+
+  switch (smoothingParameterCounterID)
+  {
+    case WEIGHTED_SILVERMAN:
+      return new weightedSilvermanSmoothingParameterCounter(samplesColumn, NULL);
+    break;
+    case RANK_3_PLUG_IN:
+      return new pluginSmoothingParameterCounter(samplesColumn, 3);
+    break;
+    case RANK_2_PLUG_IN:
+    default:
+      return new pluginSmoothingParameterCounter(samplesColumn, 2);
+    break;
+  }
+
+  return NULL;
 }
 
 void MainWindow::on_pushButton_addTargetFunction_clicked()

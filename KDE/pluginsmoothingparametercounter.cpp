@@ -4,8 +4,23 @@
 
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(){}
 
-pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(QVector<qreal> *samples)
-    : samples(samples){}
+pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(
+    QVector<qreal> *samples, int rank) : samples(samples), rank(rank){}
+
+double pluginSmoothingParameterCounter::countSmoothingParameterValue()
+{
+  switch(rank)
+  {
+    case 3:
+      return count3rdRankPluginSmoothingParameter();
+    break;
+    case 2:
+    default:
+      return count2ndRankPluginSmoothingParameter();
+  }
+
+  return -1.0;
+}
 
 void pluginSmoothingParameterCounter::setSamples(QVector<qreal>* samples)
 {
@@ -15,7 +30,6 @@ void pluginSmoothingParameterCounter::setSamples(QVector<qreal>* samples)
 qreal pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter()
 {
     // Page 82 of Kernel Estimators in System Analysis
-
     qreal h2 = -2.0;
     h2 *= countK6thDerivativeInPoint(0);
     h2 /= U;
@@ -29,7 +43,6 @@ qreal pluginSmoothingParameterCounter::count2ndRankPluginSmoothingParameter()
 qreal pluginSmoothingParameterCounter::count3rdRankPluginSmoothingParameter()
 {
     // Page 82 of Kernel Estimators in System Analysis
-
     qreal h3 = -2.0;
     h3 *= countK8thDerivativeInPoint(0);
     h3 /= U;

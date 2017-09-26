@@ -1,7 +1,8 @@
 #include "biasedReservoirSamplingAlgorithm.h"
 
 biasedReservoirSamplingAlgorithm::biasedReservoirSamplingAlgorithm(
-        dataReader *reader, dataParser *parser, int reservoirMaxSize, int stepsNumber):
+        dataReader *reader, dataParser *parser, int reservoirMaxSize,
+        int stepsNumber):
         biasRate(1.0/reservoirMaxSize)
 {
   this->reader = reader;
@@ -45,4 +46,7 @@ void biasedReservoirSamplingAlgorithm::performSingleStep(std::vector<sample *> *
   parser->writeDatumOnPosition(reservoir, indexOfSampleToWriteOn);
 }
 
-
+int biasedReservoirSamplingAlgorithm::getReservoidMaxSize()
+{
+  return 1 / biasRate;
+}

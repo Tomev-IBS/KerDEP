@@ -5,6 +5,7 @@
 #include "Distributions/distribution.h"
 
 #include <QVector>
+#include <vector>
 
 class progressiveDistributionDataReader : public dataReader
 {
@@ -16,9 +17,13 @@ class progressiveDistributionDataReader : public dataReader
         void gatherAttributesData(void *attributes);
         bool hasMoreData();
 
+        std::vector<std::string>* getAttributesOrder();
+
     protected:
         distribution *sourceDistribution;
         qreal progressionSize = 0.0;
+
+        std::vector<std::string> attributesOrder;
 
 };
 

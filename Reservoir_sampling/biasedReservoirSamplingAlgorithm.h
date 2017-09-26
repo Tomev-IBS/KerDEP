@@ -1,7 +1,3 @@
-//
-// Created by Tomev on 03.06.2017.
-//
-
 #ifndef RESERVOIRALGORITHM_BIASEDRESERVOIRSAMPLINGALGORITHM_H
 #define RESERVOIRALGORITHM_BIASEDRESERVOIRSAMPLINGALGORITHM_H
 
@@ -13,17 +9,20 @@
 
 /*
  *      A class for biased reservoir sampling as proposed in:
- *      On biased reservoir sampling in the presence of stream evolution by Aggarwal C..
+ *      On biased reservoir sampling in the presence of stream evolution by
+ *      Aggarwal C..
  */
 
 class biasedReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
 {
   public:
 
-  biasedReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser, int reservoirMaxSize, int stepsNumber);
+  biasedReservoirSamplingAlgorithm(dataReader *reader, dataParser *parser,
+                                   int reservoirMaxSize, int stepsNumber);
 
   void fillReservoir(std::vector<sample*> *reservoir);
   void performSingleStep(std::vector<sample*> *reservoir, int stepNumber);
+  int getReservoidMaxSize();
 
   private:
 

@@ -8,7 +8,6 @@
 class distributionDataSample : public sample
 {
     public:
-        QVector<qreal> values;
         void print();
 };
 

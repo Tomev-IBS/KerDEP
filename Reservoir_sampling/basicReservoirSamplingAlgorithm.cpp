@@ -21,6 +21,11 @@ void basicReservoirSamplingAlgorithm::performSingleStep(std::vector<sample*> *re
   else if(shouldDatumBeAdded(stepNumber)) addDatumOnRandomPosition(reservoir);
 }
 
+int basicReservoirSamplingAlgorithm::getReservoidMaxSize()
+{
+  return this->reservoirMaxSize;
+}
+
 void basicReservoirSamplingAlgorithm::addDatumToReservoir(std::vector<sample *> *reservoir)
 {
   reader->getNextRawDatum(parser->buffer);

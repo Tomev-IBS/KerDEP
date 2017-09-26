@@ -1,7 +1,3 @@
-//
-// Created by Tomev on 05.06.2017.
-//
-
 #ifndef RESERVOIRALGORITHM_RESERVOIRSAMPLINGALGORITHM_H
 #define RESERVOIRALGORITHM_RESERVOIRSAMPLINGALGORITHM_H
 
@@ -16,6 +12,7 @@ class reservoirSamplingAlgorithm
   public:
     virtual void fillReservoir(std::vector<sample*> *reservoir) = 0;
     virtual void performSingleStep(std::vector<sample*> *reservoir, int stepNumber) = 0;
+    virtual int getReservoidMaxSize() = 0;
 
   protected:
     dataParser *parser;

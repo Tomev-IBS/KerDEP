@@ -5,11 +5,15 @@
 #include <QtMath>
 #include <QVector>
 
-class pluginSmoothingParameterCounter
+#include "smoothingparametercounter.h"
+
+class pluginSmoothingParameterCounter : public smoothingParameterCounter
 {
     public:
         pluginSmoothingParameterCounter();
-        pluginSmoothingParameterCounter(QVector<qreal> *samples);
+        pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank);
+
+        double countSmoothingParameterValue();
 
         void setSamples(QVector<qreal>* samples);
 
@@ -20,6 +24,8 @@ class pluginSmoothingParameterCounter
 private:
 
         QVector<qreal>* samples;
+
+        int rank;
 
         qreal countCapitalC(int xsi, qreal smoothingParameter);
         qreal countSmallC(int xsi);
