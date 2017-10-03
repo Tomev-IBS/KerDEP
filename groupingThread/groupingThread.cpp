@@ -12,7 +12,7 @@
 
 #include "medoidStoringAlgorithm/medoidStoringAlgorithm.h"
 
-groupingThread::groupingThread(std::vector<std::vector<std::vector<std::shared_ptr<cluster>> > > *medoidsStorage)
+groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>> >  *medoidsStorage)
 {
   this->medoidsStorage = medoidsStorage;
 }
@@ -47,7 +47,7 @@ void groupingThread::run()
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
     qDebug() << "Level: " << i << ". Custers number: "
-             << medoidsStorage->at(i).back().size();
+             << medoidsStorage->at(i).size();
   }
 
   qDebug() << "Grouping finished and stored.";

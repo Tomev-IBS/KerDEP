@@ -574,7 +574,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-    std::vector<std::vector<std::vector<std::shared_ptr<cluster>>>> storedMedoids;
+    std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
     groupingThread gt(&storedMedoids);
 
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
@@ -629,7 +629,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     long ws = 0;
 
-    for(std::shared_ptr<cluster> c : storedMedoids.back().back())
+    for(std::shared_ptr<cluster> c : storedMedoids.back())
     {
       qDebug() << c.get()->getWeight();
       ws += c.get()->getWeight();

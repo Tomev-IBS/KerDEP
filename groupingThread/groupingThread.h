@@ -15,7 +15,7 @@ class groupingThread  : public QThread
 {
   public:
 
-    groupingThread(std::vector<std::vector<std::vector<std::shared_ptr<cluster>>>> *medoidsStorage);
+    groupingThread(std::vector<std::vector<std::shared_ptr<cluster> > > *medoidsStorage);
     void run();
 
     int getObjectsForGrouping(std::vector<std::shared_ptr<sample> > samples);
@@ -26,7 +26,7 @@ class groupingThread  : public QThread
     std::vector<std::shared_ptr<sample>> objects;
     std::unordered_map<std::string, attributeData*>* attributesData;
 
-    std::vector<std::vector<std::vector<std::shared_ptr<cluster>>>> *medoidsStorage;
+    std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage;
 
 };
 
