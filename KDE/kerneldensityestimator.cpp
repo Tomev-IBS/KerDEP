@@ -110,6 +110,7 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
 qreal kernelDensityEstimator::getRadialKernelValue(QVector<qreal> *x)
 {
     // TODO TR: Code it when radial kernel is implemented
+    x->clear();
 
     return -1.0;
 }
@@ -154,7 +155,8 @@ void kernelDensityEstimator::addProductKernelsToTheList(QVector<int> *kernelsIDs
 
 void kernelDensityEstimator::addRadialKernelsToTheList(QVector<int> *kernelsIDs)
 {
-    // TR TODO: Fill when radial kernel will be used
+  // TR TODO: Fill when radial kernel will be used
+  kernelsIDs->clear();
 }
 
 int kernelDensityEstimator::partitionCharacteristicFunction(qreal carrier, qreal restriction)

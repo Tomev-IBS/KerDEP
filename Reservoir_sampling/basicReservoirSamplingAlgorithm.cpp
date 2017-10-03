@@ -9,24 +9,24 @@ basicReservoirSamplingAlgorithm::basicReservoirSamplingAlgorithm(
   this->stepsNumber = stepsNumber;
 }
 
-void basicReservoirSamplingAlgorithm::fillReservoir(std::vector<sample*> *reservoir)
+void basicReservoirSamplingAlgorithm::fillReservoir(std::vector<std::shared_ptr<sample> > *reservoir)
 {
   for(int step = 0; step < stepsNumber; ++step)
     performSingleStep(reservoir, step);
 }
 
-void basicReservoirSamplingAlgorithm::performSingleStep(std::vector<sample*> *reservoir, int stepNumber)
+void basicReservoirSamplingAlgorithm::performSingleStep(std::vector<std::shared_ptr<sample> > *reservoir, int stepNumber)
 {
   if(reservoir->size() < reservoirMaxSize) addDatumToReservoir(reservoir);
   else if(shouldDatumBeAdded(stepNumber)) addDatumOnRandomPosition(reservoir);
 }
 
-int basicReservoirSamplingAlgorithm::getReservoidMaxSize()
+unsigned int basicReservoirSamplingAlgorithm::getReservoidMaxSize()
 {
   return this->reservoirMaxSize;
 }
 
-void basicReservoirSamplingAlgorithm::addDatumToReservoir(std::vector<sample *> *reservoir)
+void basicReservoirSamplingAlgorithm::addDatumToReservoir(std::vector<std::shared_ptr<sample>> *reservoir)
 {
   reader->getNextRawDatum(parser->buffer);
 
@@ -35,7 +35,7 @@ void basicReservoirSamplingAlgorithm::addDatumToReservoir(std::vector<sample *> 
   parser->writeDatumOnPosition(reservoir, reservoir->size()-1);
 }
 
-void basicReservoirSamplingAlgorithm::addDatumOnRandomPosition(std::vector<sample *> *reservoir)
+void basicReservoirSamplingAlgorithm::addDatumOnRandomPosition(std::vector<std::shared_ptr<sample>> *reservoir)
 {
   int idxToDelete = (((double) rand() / (RAND_MAX)) * reservoir->size());
 

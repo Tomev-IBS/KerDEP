@@ -2,6 +2,7 @@
 #define RESERVOIRALGORITHM_RESERVOIRSAMPLINGALGORITHM_H
 
 #include <vector>
+#include <memory>
 
 #include "dataParser.h"
 #include "dataReader.h"
@@ -10,9 +11,9 @@
 class reservoirSamplingAlgorithm
 {
   public:
-    virtual void fillReservoir(std::vector<sample*> *reservoir) = 0;
-    virtual void performSingleStep(std::vector<sample*> *reservoir, int stepNumber) = 0;
-    virtual int getReservoidMaxSize() = 0;
+    virtual void fillReservoir(std::vector<std::shared_ptr<sample>> *reservoir) = 0;
+    virtual void performSingleStep(std::vector<std::shared_ptr<sample>> *reservoir, int stepNumber) = 0;
+    virtual unsigned int getReservoidMaxSize() = 0;
 
   protected:
     dataParser *parser;

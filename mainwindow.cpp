@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include "math.h"
+#include "climits"
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -19,8 +19,6 @@
 #include "Detectors/rareElementsDetector.h"
 
 #include "QDebug"
-
-#include "climits"
 
 
 #include "groupingThread/groupingThread.h"
@@ -347,7 +345,7 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means,
     {
       samples.push_back(new QVector<qreal>());
 
-      for(auto nameValue : static_cast<distributionDataSample*>(object)->attributesValues)
+      for(auto nameValue : static_cast<distributionDataSample*>(object.get())->attributesValues)
       {
         samples.last()->push_back(stod(nameValue.second));
       }
@@ -576,7 +574,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-    groupingThread gt;
+    std::vector<std::vector<std::vector<std::shared_ptr<cluster>>>> storedMedoids;
+    groupingThread gt(&storedMedoids);
 
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
@@ -588,7 +587,7 @@ void MainWindow::on_pushButton_animate_clicked()
       {
         samples.push_back(new QVector<qreal>());
 
-        for(auto nameValue : static_cast<distributionDataSample*>(object)->attributesValues)
+        for(auto nameValue : static_cast<distributionDataSample*>(object.get())->attributesValues)
         {
           samples.last()->push_back(stod(nameValue.second));
         }
@@ -606,9 +605,20 @@ void MainWindow::on_pushButton_animate_clicked()
       if(objects.size() == algorithm->getReservoidMaxSize())
       {
         gt.setAttributesData(&attributesData);
+
+        qDebug() << "Attributes data set.";
+
         gt.getObjectsForGrouping(objects);
+
+        qDebug() << "Got objects for grouping.";
+
         gt.run();
+
+        qDebug() << "Thread run.";
+
         objects.clear();
+
+        qDebug() << "Objects cleared.";
       }
 
       // Ensure that it will be refreshed.
@@ -616,6 +626,16 @@ void MainWindow::on_pushButton_animate_clicked()
     }
 
     qDebug() << "Animation finished.";
+
+    long ws = 0;
+
+    for(std::shared_ptr<cluster> c : storedMedoids.back().back())
+    {
+      qDebug() << c.get()->getWeight();
+      ws += c.get()->getWeight();
+    }
+
+    qDebug() << ws;
 }
 
 void MainWindow::on_pushButton_clear_clicked()
@@ -799,7 +819,6 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
   smoothingParameterCounter* counter
       = generateSmoothingParameterCounter(&samplesColumn);
 
-  //pluginSmoothingParameterCounter counter(&samplesColumn);
   qreal value;
 
   for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)

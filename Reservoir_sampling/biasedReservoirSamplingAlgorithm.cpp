@@ -10,7 +10,7 @@ biasedReservoirSamplingAlgorithm::biasedReservoirSamplingAlgorithm(
   this->stepsNumber = stepsNumber;
 }
 
-void biasedReservoirSamplingAlgorithm::fillReservoir(std::vector<sample*> *reservoir)
+void biasedReservoirSamplingAlgorithm::fillReservoir(std::vector<std::shared_ptr<sample> > *reservoir)
 {
     // For each incoming data sample
     for(int step = 0; step < stepsNumber; ++step) performSingleStep(reservoir, stepsNumber);
@@ -22,7 +22,7 @@ void biasedReservoirSamplingAlgorithm::updateFractionOfReservoirFilled(int curre
     this->fractionOfReservoirFilled = currentReservoirSize * biasRate;
 }
 
-void biasedReservoirSamplingAlgorithm::performSingleStep(std::vector<sample *> *reservoir, int stepNumber)
+void biasedReservoirSamplingAlgorithm::performSingleStep(std::vector<std::shared_ptr<sample> > *reservoir, int stepNumber)
 {
   int indexOfSampleToWriteOn;
 
@@ -46,7 +46,7 @@ void biasedReservoirSamplingAlgorithm::performSingleStep(std::vector<sample *> *
   parser->writeDatumOnPosition(reservoir, indexOfSampleToWriteOn);
 }
 
-int biasedReservoirSamplingAlgorithm::getReservoidMaxSize()
+unsigned int biasedReservoirSamplingAlgorithm::getReservoidMaxSize()
 {
   return 1 / biasRate;
 }

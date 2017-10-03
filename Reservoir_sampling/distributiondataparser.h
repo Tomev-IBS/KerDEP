@@ -15,8 +15,8 @@ class distributionDataParser: public dataParser
     public:
     distributionDataParser(std::unordered_map<std::string, attributeData*> *attributesData);
     void parseData(void *target);
-    int addDatumToContainer(std::vector<sample*> *container);
-    void writeDatumOnPosition(std::vector<sample*> *container, int position);
+    int addDatumToContainer(std::vector<std::shared_ptr<sample>> *container);
+    void writeDatumOnPosition(std::vector<std::shared_ptr<sample>> *container, int position);
 
     void setAttributesOrder(std::vector<std::string> *attributesOrder);
 

@@ -12,17 +12,17 @@ class basicReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
 
     basicReservoirSamplingAlgorithm(dataReader *reader, dataParser* parser, int reservoirMaxSize, int stepsNumber);
 
-    void fillReservoir(std::vector<sample*> *reservoir);
-    void performSingleStep(std::vector<sample*> *reservoir, int stepNumber);
-    int getReservoidMaxSize();
+    void fillReservoir(std::vector<std::shared_ptr<sample>> *reservoir);
+    void performSingleStep(std::vector<std::shared_ptr<sample>> *reservoir, int stepNumber);
+    unsigned int getReservoidMaxSize();
 
   private:
 
-    int reservoirMaxSize = 1000;
+    unsigned int reservoirMaxSize = 1000;
 
-    void addDatumToReservoir(std::vector<sample *> *reservoir);
+    void addDatumToReservoir(std::vector<std::shared_ptr<sample> > *reservoir);
     bool shouldDatumBeAdded(int stepNumber);
-    void addDatumOnRandomPosition(std::vector<sample *> *reservoir);
+    void addDatumOnRandomPosition(std::vector<std::shared_ptr<sample>> *reservoir);
 };
 
 

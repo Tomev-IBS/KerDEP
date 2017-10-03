@@ -10,9 +10,11 @@
 #include "kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.h"
 #include "kMedoidsAlgorithm/clusterDistanceMeasures/completeLinkClusterDistanceMeasure.h"
 
-groupingThread::groupingThread()
-{
+#include "medoidStoringAlgorithm/medoidStoringAlgorithm.h"
 
+groupingThread::groupingThread(std::vector<std::vector<std::vector<std::shared_ptr<cluster>> > > *medoidsStorage)
+{
+  this->medoidsStorage = medoidsStorage;
 }
 
 void groupingThread::run()
@@ -27,31 +29,31 @@ void groupingThread::run()
   objectsDistanceMeasure* ODM = new customObjectsDistanceMeasure(CADM, NADM, attributesData);
   clustersDistanceMeasure* CDM = new completeLinkClusterDistanceMeasure(ODM);
 
-  groupingAlgorithm* algorithm = new kMedoidsAlgorithm( NUMBER_OF_MEDOIDS,
-                                                        CDM,
-                                                        MEDOIDS_FINDING_STRATEGY);
+  std::shared_ptr<groupingAlgorithm> algorithm(new kMedoidsAlgorithm
+                          (
+                            NUMBER_OF_MEDOIDS,
+                            CDM,
+                            MEDOIDS_FINDING_STRATEGY
+                          )
+                        );
 
+  medoidStoringAlgorithm* storingAlgorithm = new medoidStoringAlgorithm(algorithm);
 
-  std::vector<cluster> target;
-  std::vector<sample*> samples;
+  // TODO TR: It generates some errors. I'll work on it later on.
+  //std::unique_ptr<medoidStoringAlgorithm> storingAlgorithm(new medoidStoringAlgorithm(algorithm));
 
-  for(auto object : objects)
+  storingAlgorithm->findAndStoreMedoids(&objects, medoidsStorage);
+
+  for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
-    samples.push_back(object.get());
+    qDebug() << "Level: " << i << ". Custers number: "
+             << medoidsStorage->at(i).back().size();
   }
 
-  algorithm->groupObjects(&samples, &target);
-
-  qDebug() << "Znaleziono " << target.size() << " klastrów.";
-
-  for(cluster c : target)
-  {
-    c.getRepresentative()->print();
-    qDebug() << c.size();
-  }
+  qDebug() << "Grouping finished and stored.";
 }
 
-int groupingThread::getObjectsForGrouping(std::vector<sample *> samples)
+int groupingThread::getObjectsForGrouping(std::vector<std::shared_ptr<sample>> samples)
 {
   objects.clear();
 

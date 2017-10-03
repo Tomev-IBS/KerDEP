@@ -127,7 +127,7 @@ void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix)
     transposedMatrix->clear();
 
     // Insert row for each column
-    foreach(auto column, *(baseMatrix->at(0)))
+    for(int i = 0; i < baseMatrix->at(0)->size(); ++i)
         transposedMatrix->append(new QVector<qreal>());
 
     for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)

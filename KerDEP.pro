@@ -47,7 +47,8 @@ SOURCES     +=  main.cpp\
     groupingThread/kMedoidsAlgorithm/categoricalAttributeData.cpp \
     groupingThread/kMedoidsAlgorithm/customObjectsDistanceMeasure.cpp \
     groupingThread/kMedoidsAlgorithm/kMedoidsAlgorithm.cpp \
-    groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp
+    groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp \
+    groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -86,9 +87,6 @@ HEADERS     +=  mainwindow.h \
     groupingThread/kMedoidsAlgorithm/clusterDistanceMeasures/centroidLinkClusterDistanceMeasure.h \
     groupingThread/kMedoidsAlgorithm/clusterDistanceMeasures/completeLinkClusterDistanceMeasure.h \
     groupingThread/kMedoidsAlgorithm/clusterDistanceMeasures/singleLinkClusterDistanceMeasure.h \
-    groupingThread/kMedoidsAlgorithm/dataParsers/textDataParser.h \
-    groupingThread/kMedoidsAlgorithm/dataReaders/textDataReader.h \
-    groupingThread/kMedoidsAlgorithm/dataSamples/textDataSample.h \
     groupingThread/kMedoidsAlgorithm/groupingAlgorithm/cluster.h \
     groupingThread/kMedoidsAlgorithm/groupingAlgorithm/distanceBasedGroupingAlgorithm.h \
     groupingThread/kMedoidsAlgorithm/groupingAlgorithm/groupingAlgorithm.h \
@@ -104,7 +102,8 @@ HEADERS     +=  mainwindow.h \
     groupingThread/kMedoidsAlgorithm/dataReader.h \
     groupingThread/kMedoidsAlgorithm/kMedoidsAlgorithm.h \
     groupingThread/kMedoidsAlgorithm/numericalAttributeData.h \
-    groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h
+    groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h \
+    groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h
 
 FORMS       +=  mainwindow.ui
 

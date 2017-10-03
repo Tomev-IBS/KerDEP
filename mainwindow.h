@@ -48,7 +48,7 @@ class MainWindow : public QMainWindow
     Ui::MainWindow *ui;
 
     QVector<QVector<qreal>*> samples;
-    std::vector<sample*> objects;
+    std::vector<std::shared_ptr<sample>> objects;
 
     std::unordered_map<std::string, attributeData*> attributesData;
 

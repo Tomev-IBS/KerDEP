@@ -22,16 +22,16 @@ void distributionDataParser::parseData(void *target)
   updateAttributesData(sample);
 }
 
-int distributionDataParser::addDatumToContainer(std::vector<sample*> *container)
+int distributionDataParser::addDatumToContainer(std::vector<std::shared_ptr<sample>> *container)
 {
-    container->push_back(new distributionDataSample());
+    container->push_back(std::shared_ptr<sample>(new distributionDataSample()));
 
     return container->size();
 }
 
-void distributionDataParser::writeDatumOnPosition(std::vector<sample *> *container, int position)
+void distributionDataParser::writeDatumOnPosition(std::vector<std::shared_ptr<sample>> *container, int position)
 {
-  parseData(container->at(position));
+  parseData(container->at(position).get());
 }
 
 void distributionDataParser::setAttributesOrder(std::vector<std::string> *attributesOrder)
