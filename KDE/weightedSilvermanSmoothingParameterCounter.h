@@ -1,6 +1,8 @@
 #ifndef WEIGHTEDSILVERMANSMOOTHINGPARAMETERCOUNTER_H
 #define WEIGHTEDSILVERMANSMOOTHINGPARAMETERCOUNTER_H
 
+#include "../groupingThread/kMedoidsAlgorithm/groupingAlgorithm/cluster.h"
+
 #include "smoothingParameterCounter.h"
 
 #include <QVector>
@@ -12,6 +14,8 @@ class weightedSilvermanSmoothingParameterCounter
 
     weightedSilvermanSmoothingParameterCounter(QVector<qreal> *samples,
                                                QVector<int> *weights);
+
+    weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster> > *clusters, int dimension);
 
     double countSmoothingParameterValue();
 

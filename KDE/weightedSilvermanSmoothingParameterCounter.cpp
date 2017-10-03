@@ -7,6 +7,24 @@ weightedSilvermanSmoothingParameterCounter::weightedSilvermanSmoothingParameterC
 (QVector<qreal> *samples, QVector<int> *weights) : samples(samples), weights(weights)
 {}
 
+weightedSilvermanSmoothingParameterCounter::weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster>> *clusters, int dimension)
+{
+  samples = new QVector<qreal>();
+  weights = new QVector<int>();
+
+  for(std::shared_ptr<cluster> c : *clusters)
+  {
+    int counter = 0;
+
+    for(auto attrVal : c.get()->getObject().get()->attributesValues)
+    {
+      if(counter == dimension) samples->append(stod(attrVal.second));
+    }
+
+    weights->append(c.get()->getWeight());
+  }
+}
+
 double weightedSilvermanSmoothingParameterCounter::countSmoothingParameterValue()
 {
   double result = 0.9 * pow(samples->size(), -0.2);
