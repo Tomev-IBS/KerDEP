@@ -2,10 +2,10 @@
 
 #include "QDebug"
 
-kernelDensityEstimator::kernelDensityEstimator(QVector<QVector<qreal>*>* samples, QVector<qreal>* smoothingParameters, QVector<QString> *carriersRestrictions, int kernelType, QVector<int>* kernelsIDs)
+kernelDensityEstimator::kernelDensityEstimator(QVector<std::shared_ptr<QVector<qreal>>>* samples, QVector<qreal>* smoothingParameters, QVector<QString> *carriersRestrictions, int kernelType, QVector<int>* kernelsIDs)
     : kernelType(kernelType){
 
-    this->samples               = QVector<QVector<qreal>*>(*samples);
+    this->samples               = QVector<std::shared_ptr<QVector<qreal>>>(*samples);
     this->smoothingParameters   = QVector<qreal>(*smoothingParameters);
     this->carriersRestrictions  = QVector<QString>(*carriersRestrictions);
 
@@ -18,9 +18,16 @@ kernelDensityEstimator::kernelDensityEstimator(QVector<QVector<qreal>*>* samples
     fillKernelsList(kernelsIDs);
 }
 
-void kernelDensityEstimator::setSamples(QVector<QVector<qreal> *> *samples)
+void kernelDensityEstimator::setSamples(QVector<std::shared_ptr<QVector<qreal> >> *samples)
 {
-    this->samples = QVector<QVector<qreal>*>(*samples);
+  this->samples = QVector<std::shared_ptr<QVector<qreal>>>(*samples);
+}
+
+int kernelDensityEstimator::setClusters(std::vector<std::shared_ptr<cluster>> clusters)
+{
+  this->clusters = clusters;
+
+  return this->clusters.size();
 }
 
 qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
@@ -53,7 +60,9 @@ qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
 }
 
 qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
-{
+{  
+    weight = 0;
+
     // Check if values vector dimension is same size as kernels dimension
     if(x->size() != kernels.size())
     {
@@ -63,48 +72,96 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
         return -1.0;
     }
 
-    qreal result = 0.0, addend, restriction, component;
-    bool hasRestriction;
+    double result = 0.0;
 
-    QVector<qreal>* tempValueHolder = new QVector<qreal>();
+    result += getProductValuesFromClusters(x);
+    result += getProductValuesFromSamples(x);
 
-    foreach(QVector<qreal>* sample, samples)
-    {
-        addend = 1.0;
-
-        for(int i = 0; i < kernels.size(); ++i)
-        {
-            tempValueHolder->clear();
-            tempValueHolder->append((x->at(i)-sample->at(i))/smoothingParameters.at(i));
-
-            component = kernels.at(i)->getValue(tempValueHolder);
-
-            restriction = carriersRestrictions.at(i).toDouble(&hasRestriction);
-
-            if(hasRestriction)
-            {
-                tempValueHolder->clear();
-                tempValueHolder->append((x->at(i)+sample->at(i)-2*restriction)/smoothingParameters.at(i));
-                component += kernels.at(i)->getValue(tempValueHolder);
-
-                component *= partitionCharacteristicFunction(x->at(i), carriersRestrictions.at(i).toDouble());
-            }
-
-            addend *= component;
-        }
-
-        result += addend;
-    }
-
-    foreach (qreal smoothingParameter, smoothingParameters)
-    {
+    for(double smoothingParameter : smoothingParameters)
         result /= smoothingParameter;
-    }
 
-    result /= samples.size();
+    weight += samples.size();
+
+    result /= weight;
 
     return result;
 
+}
+
+double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
+{
+  double result = 0.f, addend;
+  QVector<qreal> sample;
+
+  for(std::shared_ptr<cluster> c : clusters)
+  {
+    extractSampleFromCluster(c, &sample);
+
+    addend = getProductKernelAddendFromSample(&sample, x);
+    addend *= c.get()->getWeight();
+
+    weight += c.get()->getWeight();
+
+    result += addend;
+  }
+
+  return result;
+}
+
+int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *sample)
+{
+  // This method assumes, that clustered sample has numerical values only
+  sample->clear();
+
+  if(c.get()->getObject().get() == nullptr) return -1;
+
+  for(auto attrVal : c.get()->getObject().get()->attributesValues)
+    sample->append(stod(attrVal.second));
+
+  return sample->size();
+}
+
+double kernelDensityEstimator::getProductKernelAddendFromSample(QVector<qreal> *sample, QVector<qreal> *x)
+{
+  double result = 1.0;
+
+  qreal restriction, component;
+  bool hasRestriction;
+
+  QVector<qreal>* tempValueHolder = new QVector<qreal>();
+
+  for(int i = 0; i < kernels.size(); ++i)
+  {
+      tempValueHolder->clear();
+      tempValueHolder->append((x->at(i)-sample->at(i))/smoothingParameters.at(i));
+
+      component = kernels.at(i)->getValue(tempValueHolder);
+
+      restriction = carriersRestrictions.at(i).toDouble(&hasRestriction);
+
+      if(hasRestriction)
+      {
+          tempValueHolder->clear();
+          tempValueHolder->append((x->at(i)+sample->at(i)-2*restriction)/smoothingParameters.at(i));
+          component += kernels.at(i)->getValue(tempValueHolder);
+
+          component *= partitionCharacteristicFunction(x->at(i), carriersRestrictions.at(i).toDouble());
+      }
+
+      result *= component;
+  }
+
+  return result;
+}
+
+double kernelDensityEstimator::getProductValuesFromSamples(QVector<qreal> *x)
+{
+  double result = 0.f;
+
+  for(std::shared_ptr<QVector<qreal>> sample : samples)
+    result += getProductKernelAddendFromSample(sample.get(), x);
+
+  return result;
 }
 
 qreal kernelDensityEstimator::getRadialKernelValue(QVector<qreal> *x)

@@ -10,24 +10,22 @@
 #include "kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.h"
 #include "kMedoidsAlgorithm/clusterDistanceMeasures/completeLinkClusterDistanceMeasure.h"
 
-#include "medoidStoringAlgorithm/medoidStoringAlgorithm.h"
 
-groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>> >  *medoidsStorage)
+
+groupingThread::groupingThread(std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>> medoidsStorage)
 {
   this->medoidsStorage = medoidsStorage;
 }
 
-void groupingThread::run()
+int groupingThread::initialize()
 {
-  qDebug() << "Wątek totalnie działa.";
-
   int NUMBER_OF_MEDOIDS = 10;
   int MEDOIDS_FINDING_STRATEGY = RANDOM_ACCORDING_TO_DISTANCE;
 
   attributesDistanceMeasure* CADM = new smdCategoricalAttributesDistanceMeasure();
   attributesDistanceMeasure* NADM = new gowersNumericalAttributesDistanceMeasure(attributesData);
   objectsDistanceMeasure* ODM = new customObjectsDistanceMeasure(CADM, NADM, attributesData);
-  clustersDistanceMeasure* CDM = new completeLinkClusterDistanceMeasure(ODM);
+  std::shared_ptr<clustersDistanceMeasure> CDM(new completeLinkClusterDistanceMeasure(ODM));
 
   std::shared_ptr<groupingAlgorithm> algorithm(new kMedoidsAlgorithm
                           (
@@ -37,12 +35,16 @@ void groupingThread::run()
                           )
                         );
 
-  medoidStoringAlgorithm* storingAlgorithm = new medoidStoringAlgorithm(algorithm);
+  storingAlgorithm.reset(new medoidStoringAlgorithm(algorithm));
 
-  // TODO TR: It generates some errors. I'll work on it later on.
-  //std::unique_ptr<medoidStoringAlgorithm> storingAlgorithm(new medoidStoringAlgorithm(algorithm));
+  return 0;
+}
 
-  storingAlgorithm->findAndStoreMedoids(&objects, medoidsStorage);
+void groupingThread::run()
+{
+  qDebug() << "Wątek totalnie działa.";
+
+  storingAlgorithm.get()->findAndStoreMedoids(&objects, medoidsStorage);
 
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
@@ -71,3 +73,5 @@ int groupingThread::setAttributesData(std::unordered_map<std::string, attributeD
 
   return attributesData->size();
 }
+
+

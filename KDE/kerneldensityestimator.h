@@ -4,7 +4,11 @@
 #include "../Functions/Kernels/kernels.h"
 #include "../Distributions/distribution.h"
 
+#include "../groupingThread/kMedoidsAlgorithm/groupingAlgorithm/cluster.h"
+
 #include <QObject>
+
+#include <memory>
 
 enum estimatorsKernelsType
 {
@@ -15,22 +19,30 @@ enum estimatorsKernelsType
 class kernelDensityEstimator
 {
     public:
-        kernelDensityEstimator(QVector<QVector<qreal>*>* samples, QVector<qreal>* smoothingParameter, QVector<QString>* carriersRestrictions, int kernelType, QVector<int>* kernelsIDs);
+        kernelDensityEstimator(QVector<std::shared_ptr<QVector<qreal>>>* samples, QVector<qreal>* smoothingParameter, QVector<QString>* carriersRestrictions, int kernelType, QVector<int>* kernelsIDs);
 
-        void setSamples(QVector<QVector<qreal>*>* samples);
+        void setSamples(QVector<std::shared_ptr<QVector<qreal>>>* samples);
+        int setClusters(std::vector<std::shared_ptr<cluster> > clusters);
 
         qreal getValue(QVector<qreal>* x);
 
     private:
 
         int kernelType;
+        long weight;
 
-        QVector<QVector<qreal>*>    samples;
-        QVector<kernelPtr>          kernels;
-        QVector<qreal>              smoothingParameters;
-        QVector<QString>            carriersRestrictions;
+        QVector<std::shared_ptr<QVector<qreal>>>    samples;
+        QVector<kernelPtr>                          kernels;
+        QVector<qreal>                              smoothingParameters;
+        QVector<QString>                            carriersRestrictions;
+
+        std::vector<std::shared_ptr<cluster>> clusters;
 
         qreal getProductKernelValue(QVector<qreal>* x);
+          double getProductValuesFromClusters(QVector<qreal> *x);
+            int extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *sample);
+            double getProductKernelAddendFromSample(QVector<qreal> *sample, QVector<qreal> *x);
+          double getProductValuesFromSamples(QVector<qreal> *x);
         qreal getRadialKernelValue(QVector<qreal>* x);
 
         void fillKernelsList(QVector<int>* kernelsIDs);

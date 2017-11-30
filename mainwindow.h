@@ -47,7 +47,7 @@ class MainWindow : public QMainWindow
 
     Ui::MainWindow *ui;
 
-    QVector<QVector<qreal>*> samples;
+    QVector<std::shared_ptr<QVector<qreal>>> samples;
     std::vector<std::shared_ptr<sample>> objects;
 
     std::unordered_map<std::string, attributeData*> attributesData;
@@ -90,6 +90,10 @@ class MainWindow : public QMainWindow
         void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
     void on_pushButton_animate_clicked();
+      void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
+                              std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
+      void delay(int ms);
+
 
     void on_pushButton_clear_clicked();
 

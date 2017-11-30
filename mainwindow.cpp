@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "math.h"
 #include "climits"
+#include "set"
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -19,6 +20,7 @@
 #include "Detectors/rareElementsDetector.h"
 
 #include "QDebug"
+
 
 
 #include "groupingThread/groupingThread.h"
@@ -46,22 +48,26 @@ void MainWindow::setupValidators()
     QLocale locale = QLocale::English;
     locale.setNumberOptions(QLocale::c().numberOptions());
 
-    const QIntValidator* seedAndSizeValidator = new QIntValidator(1, std::numeric_limits<int>::max(), this);
-    QDoubleValidator* xAxisValidator = new QDoubleValidator(MIN_X, MAX_X, DECIMAL_NUMBERS, this);
+    std::unique_ptr<QIntValidator> naturalNumbersValidator(new QIntValidator(0, std::numeric_limits<int>::max(), this));
+    std::unique_ptr<QIntValidator> positiveNaturalNumbersValidator(new QIntValidator(1, std::numeric_limits<int>::max(), this));
+
+    std::unique_ptr<QDoubleValidator> xAxisValidator(new QDoubleValidator(MIN_X, MAX_X, DECIMAL_NUMBERS, this));
     xAxisValidator->setLocale(locale);
     xAxisValidator->setNotation(QDoubleValidator::StandardNotation);
-    QDoubleValidator* yAxisValidator = new QDoubleValidator(MIN_Y, MAX_Y, DECIMAL_NUMBERS, this);
+
+    std::unique_ptr<QDoubleValidator> yAxisValidator(new QDoubleValidator(MIN_Y, MAX_Y, DECIMAL_NUMBERS, this));
     yAxisValidator->setLocale(locale);
     yAxisValidator->setNotation(QDoubleValidator::StandardNotation);
 
-    ui->lineEdit_sampleSize->setValidator(seedAndSizeValidator);
-    ui->lineEdit_seed->setValidator(seedAndSizeValidator);
+    ui->lineEdit_sampleSize->setValidator(positiveNaturalNumbersValidator.get());
+    ui->lineEdit_seed->setValidator(naturalNumbersValidator.get());
+    ui->lineEdit_milisecondsDelay->setValidator(naturalNumbersValidator.get());
 
-    ui->lineEdit_minX->setValidator(xAxisValidator);
-    ui->lineEdit_maxX->setValidator(xAxisValidator);
+    ui->lineEdit_minX->setValidator(xAxisValidator.get());
+    ui->lineEdit_maxX->setValidator(xAxisValidator.get());
 
-    ui->lineEdit_minY->setValidator(yAxisValidator);
-    ui->lineEdit_maxY->setValidator(yAxisValidator);
+    ui->lineEdit_minY->setValidator(yAxisValidator.get());
+    ui->lineEdit_maxY->setValidator(yAxisValidator.get());
 }
 
 void MainWindow::setupPlot()
@@ -343,7 +349,7 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means,
 
     foreach(auto object, objects)
     {
-      samples.push_back(new QVector<qreal>());
+      samples.push_back(std::make_shared<QVector<qreal>>());
 
       for(auto nameValue : static_cast<distributionDataSample*>(object.get())->attributesValues)
       {
@@ -575,7 +581,43 @@ void MainWindow::on_pushButton_animate_clicked()
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
     std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
-    groupingThread gt(&storedMedoids);
+
+    groupingThread gt(std::make_shared<std::vector<std::vector<std::shared_ptr<cluster>>>>(storedMedoids));
+
+    gt.setAttributesData(&attributesData);
+
+    qDebug() << "Attributes data set.";
+
+    gt.initialize();
+
+    // Massive data occurrence test
+      // Generate massive data
+
+    qDebug() << "Generating data.";
+
+    for(int i = 0; i < 1000000; ++i)
+    {
+      reader->getNextRawDatum(parser->buffer);
+
+      parser->addDatumToContainer(&objects);
+
+      parser->writeDatumOnPosition(&objects, objects.size()-1);
+    }
+
+    qDebug() << "Massive data generated.";
+
+    objects.clear();
+
+      // Randomly select medoids from massive data
+
+    clusterMassiveData(&objects, &storedMedoids);
+    estimator->setClusters(storedMedoids.back());
+
+    qDebug() << "Massive data clustered.";
+
+    objects.clear();
+
+    // End test
 
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
@@ -585,7 +627,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       foreach(auto object, objects)
       {
-        samples.push_back(new QVector<qreal>());
+        samples.push_back(std::make_shared<QVector<qreal>>());
 
         for(auto nameValue : static_cast<distributionDataSample*>(object.get())->attributesValues)
         {
@@ -593,21 +635,11 @@ void MainWindow::on_pushButton_animate_clicked()
         }
       }
 
-      estimator->setSamples(&samples);
-
-      targetFunction = generateTargetFunction(&means, &stDevs);
-
-      drawPlots(estimator, targetFunction);
-
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << objects.size();
 
       if(objects.size() == algorithm->getReservoidMaxSize())
       {
-        gt.setAttributesData(&attributesData);
-
-        qDebug() << "Attributes data set.";
-
         gt.getObjectsForGrouping(objects);
 
         qDebug() << "Got objects for grouping.";
@@ -619,23 +651,59 @@ void MainWindow::on_pushButton_animate_clicked()
         objects.clear();
 
         qDebug() << "Objects cleared.";
+
+        estimator->setClusters(storedMedoids.back());
       }
+
+      estimator->setSamples(&samples);
+
+      targetFunction = generateTargetFunction(&means, &stDevs);
+
+      drawPlots(estimator, targetFunction);
 
       // Ensure that it will be refreshed.
       qApp->processEvents();
+
+      delay(ui->lineEdit_milisecondsDelay->text().toInt());
     }
 
     qDebug() << "Animation finished.";
+}
 
-    long ws = 0;
+void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
+                                    std::vector<std::vector<std::shared_ptr<cluster>>> *storage)
+{
+  // Select medoids
+  std::set<int> medoidsIndexes;
 
-    for(std::shared_ptr<cluster> c : storedMedoids.back())
+  // TODO TR: Add ui control
+  unsigned int medoidsNumber = 10;
+
+  do
+  {
+    medoidsIndexes.insert(rand() % objects->size());
+  } while(medoidsIndexes.size() < medoidsNumber);
+
+  // Create clusters from medoids
+  std::set<int>::iterator it = medoidsIndexes.begin();
+
+  if(storage->size() == 0) storage->push_back(std::vector<std::shared_ptr<cluster>>());
+
+  for(unsigned int i = 0; i < medoidsNumber; ++i)
+  {
+    storage->at(0).push_back(std::make_shared<cluster>(cluster(i, objects->at(*it))));
+    storage->at(0).back().get()->setWeight(objects->size() / medoidsNumber);
+    std::advance(it, 1);
+  }
+}
+
+void MainWindow::delay( int ms )
+{
+    QTime dieTime = QTime::currentTime().addMSecs( ms );
+    while( QTime::currentTime() < dieTime )
     {
-      qDebug() << c.get()->getWeight();
-      ws += c.get()->getWeight();
+        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
     }
-
-    qDebug() << ws;
 }
 
 void MainWindow::on_pushButton_clear_clicked()
@@ -827,8 +895,8 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 
     samplesColumn.clear();
 
-    foreach(QVector<qreal>* sample, samples)
-        samplesColumn.append(sample->at(rowNumber));
+    foreach(std::shared_ptr<QVector<qreal>> sample, samples)
+        samplesColumn.append(sample.get()->at(rowNumber));
 
     //value = (counter.*methodFunctionPointer)();
     value = counter->countSmoothingParameterValue();

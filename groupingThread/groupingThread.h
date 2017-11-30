@@ -5,6 +5,8 @@
 #include "../groupingThread/kMedoidsAlgorithm/groupingAlgorithm/cluster.h"
 #include "../groupingThread/kMedoidsAlgorithm/attributeData.h"
 
+#include "medoidStoringAlgorithm/medoidStoringAlgorithm.h"
+
 #include <QThread>
 
 #include <unordered_map>
@@ -15,8 +17,9 @@ class groupingThread  : public QThread
 {
   public:
 
-    groupingThread(std::vector<std::vector<std::shared_ptr<cluster> > > *medoidsStorage);
+    groupingThread(std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster> >> > medoidsStorage);
     void run();
+    int initialize();
 
     int getObjectsForGrouping(std::vector<std::shared_ptr<sample> > samples);
     int setAttributesData(std::unordered_map<std::string, attributeData*>* attributesData);
@@ -26,7 +29,10 @@ class groupingThread  : public QThread
     std::vector<std::shared_ptr<sample>> objects;
     std::unordered_map<std::string, attributeData*>* attributesData;
 
-    std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage;
+    std::unique_ptr<medoidStoringAlgorithm> storingAlgorithm;
+
+    std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>> medoidsStorage;
+
 
 };
 
