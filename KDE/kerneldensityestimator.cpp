@@ -128,14 +128,14 @@ double kernelDensityEstimator::getProductKernelAddendFromSample(QVector<qreal> *
   qreal restriction, component;
   bool hasRestriction;
 
-  QVector<qreal>* tempValueHolder = new QVector<qreal>();
+  std::unique_ptr<QVector<qreal>> tempValueHolder(new QVector<qreal>());
 
   for(int i = 0; i < kernels.size(); ++i)
   {
       tempValueHolder->clear();
       tempValueHolder->append((x->at(i)-sample->at(i))/smoothingParameters.at(i));
 
-      component = kernels.at(i)->getValue(tempValueHolder);
+      component = kernels.at(i)->getValue(tempValueHolder.get());
 
       restriction = carriersRestrictions.at(i).toDouble(&hasRestriction);
 
@@ -143,7 +143,7 @@ double kernelDensityEstimator::getProductKernelAddendFromSample(QVector<qreal> *
       {
           tempValueHolder->clear();
           tempValueHolder->append((x->at(i)+sample->at(i)-2*restriction)/smoothingParameters.at(i));
-          component += kernels.at(i)->getValue(tempValueHolder);
+          component += kernels.at(i)->getValue(tempValueHolder.get());
 
           component *= partitionCharacteristicFunction(x->at(i), carriersRestrictions.at(i).toDouble());
       }

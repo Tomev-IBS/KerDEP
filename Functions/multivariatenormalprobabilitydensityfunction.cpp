@@ -6,7 +6,7 @@
 multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(QVector<qreal> *means, QVector<qreal> *stDevs)
 {
     qreal correlationCoefficient = 0.5;
-    QVector<QVector<qreal>*> covarianceMatrix;
+    matrix covarianceMatrix;
 
     this->means = QVector<qreal>(*means);
 

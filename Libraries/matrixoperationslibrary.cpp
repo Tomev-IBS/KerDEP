@@ -1,11 +1,11 @@
 #include "matrixoperationslibrary.h"
 #include "QtMath"
 
-void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal> *stDevs, QVector<QVector<qreal> *> *covarianceMatrix)
+void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal> *stDevs, matrix *covarianceMatrix)
 {
     for(int i = 0; i < stDevs->size(); ++i)
     {
-        covarianceMatrix->append(new QVector<qreal>());
+        covarianceMatrix->append(std::make_shared<QVector<qreal>>());
 
         for(int j = 0; j < stDevs->size(); ++j)
         {
@@ -28,7 +28,7 @@ void fillCholeskyDecompositionMatrix(matrixPtr baseMatrix, matrixPtr decomposedM
 
     for(int rowNum = 0; rowNum < baseMatrix->size(); ++rowNum)
     {
-        decomposedMatrix->append(new QVector<qreal>());
+        decomposedMatrix->append(std::make_shared<QVector<qreal>>());
 
         for(int columnNum = 0; columnNum < baseMatrix->size(); ++columnNum)
         {
@@ -113,7 +113,7 @@ void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix)
 
     foreach(auto row, transposedCofactorMatrix)
     {
-        inverseMatrix->append(new QVector<qreal>());
+        inverseMatrix->append(std::make_shared<QVector<qreal>>());
 
         foreach(qreal value, *row)
         {
@@ -128,7 +128,7 @@ void fillTransposedMatrix(matrixPtr baseMatrix, matrixPtr transposedMatrix)
 
     // Insert row for each column
     for(int i = 0; i < baseMatrix->at(0)->size(); ++i)
-        transposedMatrix->append(new QVector<qreal>());
+        transposedMatrix->append(std::make_shared<QVector<qreal>>());
 
     for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)
     {
@@ -158,7 +158,7 @@ void fillCofactorMatrix(matrixPtr baseMatrix, matrixPtr cofactorMatrix)
 
     for(int rowIndex = 0; rowIndex < baseMatrix->size(); ++rowIndex)
     {
-        cofactorMatrix->append(new QVector<qreal>());
+        cofactorMatrix->append(std::make_shared<QVector<qreal>>());
 
         for(int columnIndex = 0; columnIndex < baseMatrix->at(rowIndex)->size(); ++columnIndex)
         {
@@ -175,19 +175,16 @@ void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy)
 {
     copy->clear();
 
-    foreach(QVector<qreal>* row, *baseMatrix)
+    foreach(std::shared_ptr<QVector<qreal>> row, *baseMatrix)
     {
-        copy->append(new QVector<qreal>());
-
-        foreach (qreal position, *row)
-            copy->last()->append(position);
+        copy->append(row);
     }
 }
 
 void removeMatrixColumn(matrixPtr baseMatrix, int columnIndex)
 {
     // Remove first value of each row (first column)
-    foreach (QVector<qreal>* row, *baseMatrix)
+    foreach (std::shared_ptr<QVector<qreal>> row, *baseMatrix)
         row->removeAt(columnIndex);
 }
 

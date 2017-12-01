@@ -1,3 +1,7 @@
 [submodule "kMedoidsAlgorithm"]
       path = groupingThread/kMedoidsAlgorithm
       url = https://github.com/Tomev/kMedoidsAlgorithm.git
+	  
+[submodule "medoidStoringAlgorithm"]
+      path = groupingThread/medoidStoringAlgorithm
+      url = https://github.com/Tomev/medoidStoringAlgorithm.git

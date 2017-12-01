@@ -10,6 +10,7 @@ class function
 {
     public:
         virtual qreal getValue(point* arguments) = 0;
+        virtual ~function(){};
 };
 
 #endif // FUNCTION_H

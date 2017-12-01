@@ -3,16 +3,19 @@
 
 #include "function.h"
 
+#include <memory>
+
 class complexFunction : public function
 {
     public:
-        complexFunction(QVector<qreal>* contributions, QVector<function*>* elementalFunctions);
+        complexFunction(QVector<qreal>* contributions, QVector<std::shared_ptr<function>>* elementalFunctions);
+        ~complexFunction();
 
         qreal getValue(point* args);
 
     private:
         QVector<qreal> contributions;
-        QVector<function*> elementalFunctions;
+        QVector<std::shared_ptr<function>> elementalFunctions;
 
 };
 

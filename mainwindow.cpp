@@ -98,18 +98,20 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
 
     resizePlot();
 
-    QVector<point*> domain;
+    QVector<std::shared_ptr<point>> domain;
 
     QVector<qreal> X;
     QVector<qreal> normalDistributionY;
 
     // Fill domain with points
     // To keep things simple let's consider only these domains wherein each dimension has equal size
+
     fillDomain(&domain, NULL);
+
 
     foreach(auto x, domain)
     {
-        normalDistributionY.append(targetFunction->getValue(x));
+        normalDistributionY.append(targetFunction->getValue(x.get()));
         X.append(x->at(0));
     }
 
@@ -119,17 +121,21 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // Generate a vector of values from selected KDE
     QVector<qreal> KDEEstimationY;
 
+
+
     // TODO: Place counting in another thread
-    foreach(QVector<qreal>* x, domain)
+    foreach(std::shared_ptr<point> x, domain)
     {
-        KDEEstimationY.append(estimator->getValue(x));
+        KDEEstimationY.append(estimator->getValue(x.get()));
     }
 
     // Generate a plot of KDE
     addEstimatedPlot(&X, &KDEEstimationY);
 
+
     // Draw plots
     ui->widget_plot->replot();
+
 }
 
 void MainWindow::resizePlot()
@@ -195,18 +201,18 @@ void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> 
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::blue));
 }
 
-void MainWindow::fillStandardDeviations(QVector<QVector<qreal>*> *stDevs)
+void MainWindow::fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
 {
     int dimensionsNumber                = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber    = ui->tableWidget_targetFunctions->rowCount();
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        stDevs->append(new QVector<qreal>());
+        stDevs->append(std::make_shared<QVector<qreal>>());
 
         for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
         {
-            stDevs->last()->append
+            stDevs->last().get()->append
             (
                 ((QLineEdit*)(
                     ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
@@ -218,18 +224,18 @@ void MainWindow::fillStandardDeviations(QVector<QVector<qreal>*> *stDevs)
     }
 }
 
-void MainWindow::fillMeans(QVector<QVector<qreal>*> *means)
+void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
 {
     int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        means->append(new QVector<qreal>());
+        means->append(std::make_shared<QVector<qreal>>());
 
         for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
         {
-            means->last()->append
+            means->last().get()->append
             (
                 ((QLineEdit*)(
                     ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
@@ -252,7 +258,7 @@ void MainWindow::on_pushButton_generate_clicked()
 
     int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
-    QVector<QVector<qreal>*> means, stDevs;
+    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
@@ -264,7 +270,7 @@ void MainWindow::on_pushButton_generate_clicked()
 
     qDebug() << "Samples generated.";
 
-    function* targetFunction = generateTargetFunction(&means, &stDevs);
+    std::shared_ptr<function> targetFunction(generateTargetFunction(&means, &stDevs));
 
     kernelDensityEstimator* estimator
         = generateKernelDensityEstimator(dimensionsNumber);
@@ -272,37 +278,44 @@ void MainWindow::on_pushButton_generate_clicked()
     qDebug() << "Testing...";
 
     // Test estimator
-    testKDE(estimator, targetFunction);
+    testKDE(estimator, targetFunction.get());
 
     qDebug() << samples.size();
 
     // Run plot related tasks if dimension number is equal to 1
-    if(dimensionsNumber == 1) drawPlots(estimator, targetFunction);
+    if(dimensionsNumber == 1) drawPlots(estimator, targetFunction.get());
 }
 
-void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
+void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain, std::shared_ptr<point> *prototypePoint)
 {
     // Check if domain is nullpointer
     if(domain == NULL) return;
+
+    std::shared_ptr<point> pPoint;
 
    // Check if prototype is a null pointer
     if(prototypePoint == NULL)
     {
         // If so make it a point pointer
-        prototypePoint = new point();
+        pPoint = std::make_shared<point>();
     }
+    else
+    {
+        pPoint = *prototypePoint;
+    }
+
 
     qreal val = ui->lineEdit_minX->text().toDouble();
 
     while(val <= ui->lineEdit_maxX->text().toDouble())
     {
-        prototypePoint->append(val);
+        pPoint.get()->append(val);
 
-        if(prototypePoint->size() == ui->spinBox_dimensionsNumber->value())
+        if(pPoint.get()->size() == ui->spinBox_dimensionsNumber->value())
         {
-            domain->append(new point());
+            domain->append(std::make_shared<point>());
 
-            foreach(qreal dimensionVal, *prototypePoint)
+            foreach(qreal dimensionVal, *(pPoint.get()))
             {
                 domain->last()->append(dimensionVal);
             }
@@ -312,14 +325,14 @@ void MainWindow::fillDomain(QVector<point*>* domain, point *prototypePoint)
             fillDomain(domain, prototypePoint);
         }
 
-        prototypePoint->removeLast();
+        pPoint.get()->removeLast();
 
         val += ui->lineEdit_domainDensity->text().toDouble();
     }
 }
 
-void MainWindow::generateSamples(QVector<QVector<qreal> *> *means,
-                                 QVector<QVector<qreal> *> *stDevs)
+void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *means,
+                                 QVector<std::shared_ptr<QVector<qreal>> > *stDevs)
 {
     samples.clear();
     objects.clear();
@@ -332,13 +345,13 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means,
         return;
     }
 
-    distribution* targetDistribution = generateTargetDistribution(means, stDevs);
+    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
 
     dataParser *parser = new distributionDataParser(&attributesData);
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
 
-    dataReader *reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
+    dataReader *reader = new progressiveDistributionDataReader(targetDistribution.get(), progressionSize);
 
     reader->gatherAttributesData(&attributesData);
     parser->setAttributesOrder(reader->getAttributesOrder());
@@ -358,13 +371,13 @@ void MainWindow::generateSamples(QVector<QVector<qreal> *> *means,
     }
 }
 
-distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *means,
-                                                     QVector<QVector<qreal> *> *stDevs)
+distribution* MainWindow::generateTargetDistribution(QVector<std::shared_ptr<QVector<qreal>>> *means,
+                                                     QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
 {
     qreal seed = ui->lineEdit_seed->text().toDouble();
 
     QVector<qreal> contributions;
-    QVector<distribution*> elementalDistributions;
+    QVector<std::shared_ptr<distribution>> elementalDistributions;
 
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
@@ -376,7 +389,7 @@ distribution* MainWindow::generateTargetDistribution(QVector<QVector<qreal> *> *
             ->text().toDouble()
         );
 
-        elementalDistributions.append(new normalDistribution(seed, means->at(functionIndex), stDevs->at(functionIndex)));
+        elementalDistributions.append(std::shared_ptr<distribution>(new normalDistribution(seed, means->at(functionIndex).get(), stDevs->at(functionIndex).get())));
     }
 
     return new complexDistribution(seed, &elementalDistributions, &contributions);
@@ -422,12 +435,12 @@ kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimension
                 );
 }
 
-function* MainWindow::generateTargetFunction(QVector<QVector<qreal>*>* means,
-                                             QVector<QVector<qreal>*>* stDevs)
+function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qreal>>>* means,
+                                             QVector<std::shared_ptr<QVector<qreal>>>* stDevs)
 
 {
     QVector<qreal> contributions;
-    QVector<function*> elementalFunctions;
+    QVector<std::shared_ptr<function>> elementalFunctions;
 
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
@@ -443,19 +456,24 @@ function* MainWindow::generateTargetFunction(QVector<QVector<qreal>*>* means,
         uniformContributions();
     }
 
+
+
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
+
         contributions.append
         (
             ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
             ->text().toDouble()
         );
 
-        elementalFunctions.append(new multivariateNormalProbabilityDensityFunction(means->last(), stDevs->last()));
+
+        elementalFunctions.append(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->last().get(),
+                                                                                                            stDevs->last().get())));
     }
 
-
     return new complexFunction(&contributions, &elementalFunctions);
+    return NULL;
 }
 
 QColor MainWindow::getRandomColor()
@@ -555,12 +573,12 @@ void MainWindow::on_pushButton_animate_clicked()
 
     srand(ui->lineEdit_seed->text().toDouble());
 
-    QVector<QVector<qreal>*> means, stDevs;
+    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
 
-    function* targetFunction = generateTargetFunction(&means, &stDevs);
+    std::shared_ptr<function> targetFunction(generateTargetFunction(&means, &stDevs));
 
     kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
 
@@ -595,7 +613,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     qDebug() << "Generating data.";
 
-    for(int i = 0; i < 1000000; ++i)
+    for(int i = 0; i < 10000; ++i)
     {
       reader->getNextRawDatum(parser->buffer);
 
@@ -606,9 +624,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     qDebug() << "Massive data generated.";
 
-    objects.clear();
-
-      // Randomly select medoids from massive data
+    // Randomly select medoids from massive data
 
     clusterMassiveData(&objects, &storedMedoids);
     estimator->setClusters(storedMedoids.back());
@@ -621,7 +637,9 @@ void MainWindow::on_pushButton_animate_clicked()
 
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
+
       algorithm->performSingleStep(&objects, stepNumber);
+
 
       samples.clear();
 
@@ -638,8 +656,10 @@ void MainWindow::on_pushButton_animate_clicked()
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << objects.size();
 
+
       if(objects.size() == algorithm->getReservoidMaxSize())
       {
+
         gt.getObjectsForGrouping(objects);
 
         qDebug() << "Got objects for grouping.";
@@ -648,18 +668,25 @@ void MainWindow::on_pushButton_animate_clicked()
 
         qDebug() << "Thread run.";
 
+
+
         objects.clear();
 
         qDebug() << "Objects cleared.";
 
-        estimator->setClusters(storedMedoids.back());
+
+        //estimator->setClusters(storedMedoids.back());
+
+
       }
 
       estimator->setSamples(&samples);
 
-      targetFunction = generateTargetFunction(&means, &stDevs);
+      qDebug() << targetFunction.use_count();
 
-      drawPlots(estimator, targetFunction);
+      targetFunction.reset(generateTargetFunction(&means, &stDevs));
+
+      drawPlots(estimator, targetFunction.get());
 
       // Ensure that it will be refreshed.
       qApp->processEvents();
@@ -871,7 +898,7 @@ void MainWindow::updateLastContribution()
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 {
-  QVector<QVector<qreal> *> means, stDevs;
+  QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
   fillMeans(&means);
   fillStandardDeviations(&stDevs);

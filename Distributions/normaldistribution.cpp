@@ -12,7 +12,7 @@ normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<
     //this->stDevs = QVector<qreal>(*stDevs);
 
     qreal correlationCoefficient = 0.5;
-    QVector<QVector<qreal>*> covarianceMatrix;
+    matrix covarianceMatrix;
 
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
 

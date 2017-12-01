@@ -5,11 +5,12 @@
 
 #include <QObject>
 #include <QVector>
+#include <memory>
 
-typedef QVector<QVector<qreal>*>* matrixPtr;
-typedef QVector<QVector<qreal>*> matrix;
+typedef QVector<std::shared_ptr<QVector<qreal>>>* matrixPtr;
+typedef QVector<std::shared_ptr<QVector<qreal>>> matrix;
 
-void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal>* stDevs, matrixPtr covarianceMatrix);
+void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal>* stDevs, matrix *covarianceMatrix);
 
 qreal countMatrixDeterminantRecursively(matrixPtr baseMatrix);
 

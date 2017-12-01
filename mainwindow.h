@@ -61,8 +61,8 @@ class MainWindow : public QMainWindow
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
-    void fillStandardDeviations(QVector<QVector<qreal> *> *stDevs);
-    void fillMeans(QVector<QVector<qreal> *> *means);
+    void fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
+    void fillMeans(QVector<std::shared_ptr<QVector<qreal> > > *means);
 
   private slots:
 
@@ -74,15 +74,15 @@ class MainWindow : public QMainWindow
     void updateLastContribution();
 
     void on_pushButton_generate_clicked();
-      void fillDomain(QVector<point *> *domain, point* prototypePoint);
-      void generateSamples(QVector<QVector<qreal> *> *means,
-                           QVector<QVector<qreal> *> *stDevs);
-        distribution *generateTargetDistribution(QVector<QVector<qreal> *> *means,
-                                                 QVector<QVector<qreal> *> *stDevs);
+      void fillDomain(QVector<std::shared_ptr<point> > *domain, std::shared_ptr<point> *prototypePoint);
+      void generateSamples(QVector<std::shared_ptr<QVector<qreal> > > *means,
+                           QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
+        distribution *generateTargetDistribution(QVector<std::shared_ptr<QVector<qreal> > > *means,
+                                                 QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
         reservoirSamplingAlgorithm *generateReservoirSamplingAlgorithm(dataReader *reader,
                                                                        dataParser *parser);
       kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
-      function *generateTargetFunction(QVector<QVector<qreal> *> *means, QVector<QVector<qreal> *> *stDevs);
+      function *generateTargetFunction(QVector<std::shared_ptr<QVector<qreal> > > *means, QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
       QColor getRandomColor();
       void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
         int testKDEError(kernelDensityEstimator *KDE, function *targetFunction);

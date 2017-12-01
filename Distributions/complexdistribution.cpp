@@ -1,9 +1,9 @@
 #include "complexdistribution.h"
 
-complexDistribution::complexDistribution(int seed, QVector<distribution *> *elementalDistributions, QVector<qreal> *contributions) :
+complexDistribution::complexDistribution(int seed, QVector<std::shared_ptr<distribution>> *elementalDistributions, QVector<qreal> *contributions) :
     uniformDistribution(0.0, 1.0)
 {
-    this->elementalDistributions = QVector<distribution*>(*elementalDistributions);
+    this->elementalDistributions = QVector<std::shared_ptr<distribution>>(*elementalDistributions);
     this->contributions = QVector<qreal>(*contributions);
 
     generator = std::default_random_engine(seed);
@@ -18,7 +18,7 @@ void complexDistribution::getValue(QVector<qreal> *result)
 
 void complexDistribution::increaseMeans(qreal addend)
 {
-    foreach (distribution* elementalDistribution, elementalDistributions)
+    foreach (std::shared_ptr<distribution> elementalDistribution, elementalDistributions)
     {
         elementalDistribution->increaseMeans(addend);
     }
