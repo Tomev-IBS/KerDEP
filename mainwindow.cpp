@@ -669,7 +669,6 @@ void MainWindow::on_pushButton_animate_clicked()
         qDebug() << "Thread run.";
 
 
-
         objects.clear();
 
         qDebug() << "Objects cleared.";
