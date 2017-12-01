@@ -560,11 +560,7 @@ void MainWindow::on_pushButton_animate_clicked()
 {
     int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
-    if(dimensionsNumber != 1)
-    {
-        qDebug() << "Dimensions number is not equal 1. Animation cannot be performed.";
-        return;
-    }
+    if(!canAnimationBePerformed(dimensionsNumber)) return;
 
     // Log that application started generating KDE
     qDebug() << "KDE animation started.";
@@ -580,14 +576,14 @@ void MainWindow::on_pushButton_animate_clicked()
 
     std::shared_ptr<function> targetFunction(generateTargetFunction(&means, &stDevs));
 
-    kernelDensityEstimator* estimator = generateKernelDensityEstimator(dimensionsNumber);
+    std::shared_ptr<kernelDensityEstimator> estimator(generateKernelDensityEstimator(dimensionsNumber));
 
-    distribution* targetDistribution = generateTargetDistribution(&means, &stDevs);
+    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(&means, &stDevs));
 
     dataParser *parser = new distributionDataParser(&attributesData);
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
-    dataReader *reader = new progressiveDistributionDataReader(targetDistribution, progressionSize);
+    dataReader *reader = new progressiveDistributionDataReader(targetDistribution.get(), progressionSize);
 
     reader->gatherAttributesData(&attributesData);
     parser->setAttributesOrder(reader->getAttributesOrder());
@@ -681,11 +677,9 @@ void MainWindow::on_pushButton_animate_clicked()
 
       estimator->setSamples(&samples);
 
-      qDebug() << targetFunction.use_count();
-
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      drawPlots(estimator, targetFunction.get());
+      drawPlots(estimator.get(), targetFunction.get());
 
       // Ensure that it will be refreshed.
       qApp->processEvents();
@@ -694,6 +688,20 @@ void MainWindow::on_pushButton_animate_clicked()
     }
 
     qDebug() << "Animation finished.";
+}
+
+int MainWindow::canAnimationBePerformed(int dimensionsNumber)
+{
+  switch(dimensionsNumber)
+  {
+    case 1:
+      return 1;
+    default:
+      qDebug() << "Dimensions number is not equal 1. Animation cannot be performed.";
+      return -2;
+  }
+
+  return 0;
 }
 
 void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,

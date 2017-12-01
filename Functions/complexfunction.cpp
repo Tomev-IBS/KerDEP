@@ -12,8 +12,6 @@ complexFunction::~complexFunction()
 {
     contributions.clear();
     elementalFunctions.clear();
-
-    qDebug() << "Destro";
 }
 
 qreal complexFunction::getValue(point *args)

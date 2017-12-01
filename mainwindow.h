@@ -90,6 +90,7 @@ class MainWindow : public QMainWindow
         void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
     void on_pushButton_animate_clicked();
+      int canAnimationBePerformed(int dimensionsNumber);
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       void delay(int ms);
