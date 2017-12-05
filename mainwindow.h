@@ -28,6 +28,9 @@ class MainWindow : public QMainWindow
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+  protected:
+    void keyPressEvent(QKeyEvent* event);
+
   private:
     void setupValidators();
     void setupPlot();
@@ -53,6 +56,8 @@ class MainWindow : public QMainWindow
     std::unordered_map<std::string, attributeData*> attributesData;
 
     QStringList kernelTypes;
+
+    int insertObjectsBetweenIntervals(int objectsNumber);
 
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
       void clearPlot();

@@ -22,7 +22,6 @@
 #include "QDebug"
 
 
-
 #include "groupingThread/groupingThread.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -40,7 +39,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+  delete ui;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+  int keyCode = event->key();
+
+  // If key is a number
+  if(keyCode >= 48 && keyCode <= 57)
+  {
+    int objectsNumber = keyCode - 48;
+
+    if(objectsNumber == 0) objectsNumber += 10;
+
+    insertObjectsBetweenIntervals(objectsNumber);
+  }
+}
+
+int MainWindow::insertObjectsBetweenIntervals(int objectsNumber)
+{
+  qDebug() << "Inter interval objects inserterd: " << objectsNumber;
+
+
+
+  return objectsNumber;
 }
 
 void MainWindow::setupValidators()
@@ -635,7 +658,6 @@ void MainWindow::on_pushButton_animate_clicked()
     {
 
       algorithm->performSingleStep(&objects, stepNumber);
-
 
       samples.clear();
 
