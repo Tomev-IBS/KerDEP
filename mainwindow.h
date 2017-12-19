@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <vector>
 #include <unordered_map>
+#include <chrono>
 
 #include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/sample.h"
@@ -35,6 +36,8 @@ class MainWindow : public QMainWindow
     void setupValidators();
     void setupPlot();
     void setupKernelsTable();
+
+    long start;
 
     const qreal MAX_X           = 999.0;
     const qreal MIN_X           = -999.0;
@@ -67,6 +70,9 @@ class MainWindow : public QMainWindow
       int generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
                                        unsigned int objectsNumber);
       int selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
+      int insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
+        double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
+          double countInterIntervalClustersWeight();
 
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
       void clearPlot();
@@ -126,16 +132,16 @@ class MainWindow : public QMainWindow
 
 enum kernelSettingsColumns
 {
-    KERNEL_COLUMN_INDEX                 = 0,
-    SMOOTHING_PARAMETER_COLUMN_INDEX    = 1,
-    CARRIER_RESTRICTION_COLUMN_INDEX    = 2
+  KERNEL_COLUMN_INDEX                 = 0,
+  SMOOTHING_PARAMETER_COLUMN_INDEX    = 1,
+  CARRIER_RESTRICTION_COLUMN_INDEX    = 2
 };
 
 enum targetFunctionSettingsColumns
 {
-    MEAN_COLUMN_INDEX           = 0,
-    STDEV_COLUMN_INDEX          = 1,
-    CONTRIBUTION_COLUMN_INDEX   = 2
+  MEAN_COLUMN_INDEX           = 0,
+  STDEV_COLUMN_INDEX          = 1,
+  CONTRIBUTION_COLUMN_INDEX   = 2
 };
 
 enum smoothingParameterCountingMethods
@@ -147,8 +153,8 @@ enum smoothingParameterCountingMethods
 
 enum reservoirSamplingAlgorithms
 {
-    BASIC_RESERVOIR_SAMPLING_ALGORITHM = 0,
-    BIASED_RESERVOIR_SAMPLING_ALGORITHM = 1
+  BASIC_RESERVOIR_SAMPLING_ALGORITHM = 0,
+  BIASED_RESERVOIR_SAMPLING_ALGORITHM = 1
 };
 
 #endif // MAINWINDOW_H

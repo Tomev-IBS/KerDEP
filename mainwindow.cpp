@@ -63,10 +63,11 @@ int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
 
   generateInterIntervalObjects(&interIntervalObjects, objectsNumber);
   selectDesiredNumberOfInterIntervalObjects(&interIntervalObjects);
+  insertClustersFromInterIntervalObjects(&interIntervalObjects);
 
   objects.insert(objects.end(), interIntervalObjects.begin(), interIntervalObjects.end());
 
-  qDebug() << "Inter interval objects inserterd: " << objectsNumber;
+  qDebug() << "Inter interval objects inserterd: " << interIntervalObjects.size();
 
   return interIntervalObjects.size();
 }
@@ -95,10 +96,49 @@ int MainWindow::selectDesiredNumberOfInterIntervalObjects(std::vector<std::share
   while(interIntervalObjects->size() > desiredNumberOfClusters)
     interIntervalObjects->erase(interIntervalObjects->begin() + (rand() % interIntervalObjects->size()));
 
-  for(unsigned int i = 0; i < interIntervalObjects->size(); ++i)
-    clusters.push_back(std::shared_ptr<cluster>(new cluster(clusters.size()+i, (*interIntervalObjects)[i])));
-
   return interIntervalObjects->size();
+}
+
+int MainWindow::insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample> > *interIntervalObjects)
+{
+  std::vector<std::shared_ptr<cluster>> newClusters;
+
+  for(unsigned int i = 0; i < interIntervalObjects->size(); ++i)
+    newClusters.push_back(std::shared_ptr<cluster>(new cluster(clusters.size()+i, (*interIntervalObjects)[i])));
+
+  setInterIntervalClustersWeights(&newClusters);
+
+  clusters.insert(clusters.end(), newClusters.begin(), newClusters.end());
+
+  return newClusters.size();
+}
+
+double MainWindow::setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster> > *newClusters)
+{
+  double weight = countInterIntervalClustersWeight();
+
+  for(unsigned int i = 0; i < newClusters->size(); ++i)
+    (*newClusters)[i]->setWeight(weight);
+
+  return weight;
+}
+
+double MainWindow::countInterIntervalClustersWeight()
+{
+  // All values in milliseconds.
+
+  long intervalValue = ui->lineEdit_milisecondsDelay->text().toInt();
+
+  if(intervalValue == 0) return 1.0;
+
+  long end = std::chrono::duration_cast< std::chrono::milliseconds >(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+
+  long difference = end - start;
+
+  double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
+
+  return weightModifier + (1 - weightModifier)*((double)difference)/((double)intervalValue);
 }
 
 void MainWindow::setupValidators()
@@ -739,6 +779,9 @@ void MainWindow::on_pushButton_animate_clicked()
 
       // Ensure that it will be refreshed.
       qApp->processEvents();
+
+      start = std::chrono::duration_cast< std::chrono::milliseconds >(
+          std::chrono::system_clock::now().time_since_epoch()).count();
 
       delay(ui->lineEdit_milisecondsDelay->text().toInt());
     }
