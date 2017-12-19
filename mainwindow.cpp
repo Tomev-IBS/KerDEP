@@ -617,8 +617,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-    std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
-
     groupingThread gt(std::make_shared<std::vector<std::vector<std::shared_ptr<cluster>>>>(storedMedoids));
 
     gt.setAttributesData(&attributesData);
@@ -656,6 +654,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
+      updateWeights();
 
       algorithm->performSingleStep(&objects, stepNumber);
 
@@ -1005,4 +1004,21 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
     ui->tableWidget_targetFunctions->setRowCount(newRowsNumber);
 
     refreshTargetFunctionTable();
+}
+
+void MainWindow::updateWeights()
+{
+  double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
+
+  for(unsigned int level = 0; level < storedMedoids.size(); ++level)
+  {
+    for(unsigned int medoidNumber = 0; medoidNumber < storedMedoids[level].size(); ++medoidNumber)
+    {
+      storedMedoids[level][medoidNumber]->setWeight(
+        weightModifier * storedMedoids[level][medoidNumber]->getWeight()
+      );
+    }
+  }
+
+  qDebug() << "Weights updated.";
 }

@@ -48,6 +48,8 @@ class MainWindow : public QMainWindow
     const qreal DEFAULT_MIN_Y   = -0.05;
     const qreal DEFAULT_MAX_Y   = 1;
 
+    std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
+
     Ui::MainWindow *ui;
 
     QVector<std::shared_ptr<QVector<qreal>>> samples;
@@ -111,6 +113,8 @@ class MainWindow : public QMainWindow
     void on_pushButton_addTargetFunction_clicked();
 
     void on_pushButton_removeTargetFunction_clicked();
+
+    void updateWeights();
 
 };
 
