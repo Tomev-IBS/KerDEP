@@ -44,7 +44,8 @@ void groupingThread::run()
 {
   qDebug() << "Wątek totalnie działa.";
 
-  storingAlgorithm.get()->findAndStoreMedoids(&objects, medoidsStorage);
+  //storingAlgorithm->findAndStoreMedoidsFromObjects(&objects, medoidsStorage);
+  storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
 
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
@@ -52,7 +53,7 @@ void groupingThread::run()
              << medoidsStorage->at(i).size();
   }
 
-  qDebug() << "Grouping finished and stored.";
+  qDebug() << "Grouping finished and medoids stored.";
 }
 
 int groupingThread::getObjectsForGrouping(std::vector<std::shared_ptr<sample>> samples)
@@ -60,11 +61,18 @@ int groupingThread::getObjectsForGrouping(std::vector<std::shared_ptr<sample>> s
   objects.clear();
 
   for(auto object : samples)
-  {
     objects.push_back(std::shared_ptr<sample>(object));
-  }
 
   return objects.size();
+}
+
+int groupingThread::getClustersForGrouping(std::vector<std::shared_ptr<cluster> > clusters)
+{
+  this->clusters.clear();
+
+  this->clusters.insert(this->clusters.end(), clusters.begin(), clusters.end());
+
+  return this->clusters.size();
 }
 
 int groupingThread::setAttributesData(std::unordered_map<std::string, attributeData *> *attributesData)

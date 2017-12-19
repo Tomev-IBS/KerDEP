@@ -57,20 +57,48 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
   }
 }
 
-int MainWindow::insertObjectsBetweenIntervals(int objectsNumber)
+int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
 {
+  std::vector<std::shared_ptr<sample>> interIntervalObjects;
+
+  generateInterIntervalObjects(&interIntervalObjects, objectsNumber);
+  selectDesiredNumberOfInterIntervalObjects(&interIntervalObjects);
+
+  objects.insert(objects.end(), interIntervalObjects.begin(), interIntervalObjects.end());
+
   qDebug() << "Inter interval objects inserterd: " << objectsNumber;
+
+  return interIntervalObjects.size();
+}
+
+int MainWindow::generateInterIntervalObjects(std::vector<std::shared_ptr<sample> > *interIntervalObjects, unsigned int objectsNumber)
+{
+  //TR TODO: Check if reader and parser are initialized
 
   for(unsigned int i = 0; i < objectsNumber; ++i)
   {
     reader->getNextRawDatum(parser->buffer);
 
-    parser->addDatumToContainer(&objects);
+    parser->addDatumToContainer(interIntervalObjects);
 
-    parser->writeDatumOnPosition(&objects, objects.size()-1);
+    parser->writeDatumOnPosition(interIntervalObjects, interIntervalObjects->size()-1);
   }
 
-  return objectsNumber;
+  return interIntervalObjects->size();
+}
+
+int MainWindow::selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample> > *interIntervalObjects)
+{
+  unsigned int desiredNumberOfClusters =
+      ui->lineEdit_interIntervalClusters->text().toInt();
+
+  while(interIntervalObjects->size() > desiredNumberOfClusters)
+    interIntervalObjects->erase(interIntervalObjects->begin() + (rand() % interIntervalObjects->size()));
+
+  for(unsigned int i = 0; i < interIntervalObjects->size(); ++i)
+    clusters.push_back(std::shared_ptr<cluster>(new cluster(clusters.size()+i, (*interIntervalObjects)[i])));
+
+  return interIntervalObjects->size();
 }
 
 void MainWindow::setupValidators()
@@ -667,6 +695,7 @@ void MainWindow::on_pushButton_animate_clicked()
       algorithm->performSingleStep(&objects, stepNumber);
 
       samples.clear();
+      clusters.push_back(std::shared_ptr<cluster>(new cluster(stepNumber, objects.back())));
 
       foreach(auto object, objects)
       {
@@ -679,13 +708,14 @@ void MainWindow::on_pushButton_animate_clicked()
       }
 
       qDebug() << "Reservoir size in step " << stepNumber
-               << " is: " << objects.size();
+               << " is: " << clusters.size();
 
 
-      if(objects.size() == algorithm->getReservoidMaxSize())
+      if(objects.size() >= algorithm->getReservoidMaxSize())
       {
 
         gt.getObjectsForGrouping(objects);
+        gt.getClustersForGrouping(clusters);
 
         qDebug() << "Got objects for grouping.";
 
@@ -693,11 +723,10 @@ void MainWindow::on_pushButton_animate_clicked()
 
         qDebug() << "Thread run.";
 
-
         objects.clear();
+        clusters.clear();
 
         qDebug() << "Objects cleared.";
-
 
         estimator->setClusters(storedMedoids.back());
       }
@@ -1025,6 +1054,9 @@ void MainWindow::updateWeights()
       );
     }
   }
+
+  for(unsigned int i = 0; i < clusters.size(); ++i)
+    clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
 
   qDebug() << "Weights updated.";
 }

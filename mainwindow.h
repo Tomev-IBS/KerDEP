@@ -54,6 +54,7 @@ class MainWindow : public QMainWindow
 
     QVector<std::shared_ptr<QVector<qreal>>> samples;
     std::vector<std::shared_ptr<sample>> objects;
+    std::vector<std::shared_ptr<cluster>> clusters;
 
     std::unordered_map<std::string, attributeData*> attributesData;
 
@@ -62,7 +63,10 @@ class MainWindow : public QMainWindow
 
     QStringList kernelTypes;
 
-    int insertObjectsBetweenIntervals(int objectsNumber);
+    int insertObjectsBetweenIntervals(unsigned int objectsNumber);
+      int generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
+                                       unsigned int objectsNumber);
+      int selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
 
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
       void clearPlot();
@@ -104,7 +108,6 @@ class MainWindow : public QMainWindow
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       void delay(int ms);
-
 
     void on_pushButton_clear_clicked();
 
