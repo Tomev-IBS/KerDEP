@@ -61,7 +61,14 @@ int MainWindow::insertObjectsBetweenIntervals(int objectsNumber)
 {
   qDebug() << "Inter interval objects inserterd: " << objectsNumber;
 
+  for(unsigned int i = 0; i < objectsNumber; ++i)
+  {
+    reader->getNextRawDatum(parser->buffer);
 
+    parser->addDatumToContainer(&objects);
+
+    parser->writeDatumOnPosition(&objects, objects.size()-1);
+  }
 
   return objectsNumber;
 }
@@ -603,15 +610,16 @@ void MainWindow::on_pushButton_animate_clicked()
 
     std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(&means, &stDevs));
 
-    dataParser *parser = new distributionDataParser(&attributesData);
+    parser.reset(new distributionDataParser(&attributesData));
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
-    dataReader *reader = new progressiveDistributionDataReader(targetDistribution.get(), progressionSize);
+
+    reader.reset(new progressiveDistributionDataReader(targetDistribution.get(), progressionSize));
 
     reader->gatherAttributesData(&attributesData);
     parser->setAttributesOrder(reader->getAttributesOrder());
 
-    reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader, parser);
+    reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
     objects.clear();
 
@@ -691,9 +699,7 @@ void MainWindow::on_pushButton_animate_clicked()
         qDebug() << "Objects cleared.";
 
 
-        //estimator->setClusters(storedMedoids.back());
-
-
+        estimator->setClusters(storedMedoids.back());
       }
 
       estimator->setSamples(&samples);

@@ -57,6 +57,9 @@ class MainWindow : public QMainWindow
 
     std::unordered_map<std::string, attributeData*> attributesData;
 
+    std::shared_ptr<dataParser> parser;
+    std::shared_ptr<dataReader> reader;
+
     QStringList kernelTypes;
 
     int insertObjectsBetweenIntervals(int objectsNumber);
