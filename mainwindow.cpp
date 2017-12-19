@@ -693,7 +693,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-    groupingThread gt(std::make_shared<std::vector<std::vector<std::shared_ptr<cluster>>>>(storedMedoids));
+    groupingThread gt(&storedMedoids);
 
     gt.setAttributesData(&attributesData);
 
@@ -753,9 +753,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
       if(objects.size() >= algorithm->getReservoidMaxSize())
       {
-
-        gt.getObjectsForGrouping(objects);
         gt.getClustersForGrouping(clusters);
+        gt.getObjectsForGrouping(objects);
 
         qDebug() << "Got objects for grouping.";
 

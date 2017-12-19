@@ -17,7 +17,7 @@ class groupingThread  : public QThread
 {
   public:
 
-    groupingThread(std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster> >> > medoidsStorage);
+    groupingThread(std::vector<std::vector<std::shared_ptr<cluster> > > *medoidsStorage);
     void run();
     int initialize();
 

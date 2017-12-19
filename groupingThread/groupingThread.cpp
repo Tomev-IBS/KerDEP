@@ -12,9 +12,9 @@
 
 
 
-groupingThread::groupingThread(std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>> medoidsStorage)
+groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage)
 {
-  this->medoidsStorage = medoidsStorage;
+  this->medoidsStorage =std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>>(medoidsStorage);
 }
 
 int groupingThread::initialize()
@@ -44,8 +44,8 @@ void groupingThread::run()
 {
   qDebug() << "Wątek totalnie działa.";
 
-  //storingAlgorithm->findAndStoreMedoidsFromObjects(&objects, medoidsStorage);
-  storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
+  //storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
+  storingAlgorithm->findAndStoreMedoidsFromObjects(&objects, medoidsStorage);
 
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
