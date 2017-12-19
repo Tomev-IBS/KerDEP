@@ -44,8 +44,7 @@ void groupingThread::run()
 {
   qDebug() << "Wątek totalnie działa.";
 
-  //storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
-  storingAlgorithm->findAndStoreMedoidsFromObjects(&objects, medoidsStorage);
+  storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
 
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {

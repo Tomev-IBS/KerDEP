@@ -74,6 +74,9 @@ class MainWindow : public QMainWindow
         double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
           double countInterIntervalClustersWeight();
 
+    int insertMassiveData();
+      int generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
+
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
       void clearPlot();
       void resizePlot();
@@ -113,6 +116,7 @@ class MainWindow : public QMainWindow
       int canAnimationBePerformed(int dimensionsNumber);
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
+      std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
       void delay(int ms);
 
     void on_pushButton_clear_clicked();

@@ -55,6 +55,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
     insertObjectsBetweenIntervals(objectsNumber);
   }
+
+  // If m is pressed
+  if(keyCode == 77) insertMassiveData();
 }
 
 int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
@@ -139,6 +142,80 @@ double MainWindow::countInterIntervalClustersWeight()
   double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
 
   return weightModifier + (1 - weightModifier)*((double)difference)/((double)intervalValue);
+}
+
+int MainWindow::insertMassiveData()
+{
+  std::vector<std::shared_ptr<sample>> massiveData;
+
+  qDebug() << "Generating data.";
+
+  generateMassiveData(&massiveData);
+
+  qDebug() << "Massive data generated.";
+
+  clusterMassiveData(&massiveData, &storedMedoids);
+
+  qDebug() << "Massive data clustered.";
+
+  return massiveData.size();
+}
+
+int MainWindow::generateMassiveData(std::vector<std::shared_ptr<sample>> *dataContainer)
+{
+  long dataSize = 10000;
+
+  dataContainer->clear();
+
+  for(int i = 0; i < dataSize; ++i)
+  {
+    reader->getNextRawDatum(parser->buffer);
+
+    parser->addDatumToContainer(dataContainer);
+
+    parser->writeDatumOnPosition(dataContainer, dataContainer->size()-1);
+  }
+
+  return dataContainer->size();
+}
+
+void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
+                                    std::vector<std::vector<std::shared_ptr<cluster>>> *storage)
+{
+  // Select medoids
+  std::set<int> medoidsIndexes;
+
+  // TODO TR: Add ui control
+  unsigned int medoidsNumber = 10;
+
+  do
+  {
+    medoidsIndexes.insert(rand() % objects->size());
+  } while(medoidsIndexes.size() < medoidsNumber);
+
+  // Create clusters from medoids
+  std::set<int>::iterator it = medoidsIndexes.begin();
+
+  if(storage->size() == 0) storage->push_back(std::vector<std::shared_ptr<cluster>>());
+
+  for(unsigned int i = 0; i < medoidsNumber; ++i)
+  {
+    storage->at(0).push_back(std::make_shared<cluster>(cluster(i, objects->at(*it))));
+    storage->at(0).back().get()->setWeight(objects->size() / medoidsNumber);
+    std::advance(it, 1);
+  }
+}
+
+std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
+{
+  std::vector<std::shared_ptr<cluster>> c;
+
+  c.insert(c.end(), clusters.begin(), clusters.end());
+
+  for(unsigned int level = 0; level < storedMedoids.size(); ++level)
+      c.insert(c.end(), storedMedoids[level].begin(), storedMedoids[level].end());
+
+  return c;
 }
 
 void MainWindow::setupValidators()
@@ -701,33 +778,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
     gt.initialize();
 
-    // Massive data occurrence test
-      // Generate massive data
-
-    qDebug() << "Generating data.";
-
-    for(int i = 0; i < 10000; ++i)
-    {
-      reader->getNextRawDatum(parser->buffer);
-
-      parser->addDatumToContainer(&objects);
-
-      parser->writeDatumOnPosition(&objects, objects.size()-1);
-    }
-
-    qDebug() << "Massive data generated.";
-
-    // Randomly select medoids from massive data
-
-    clusterMassiveData(&objects, &storedMedoids);
-    estimator->setClusters(storedMedoids.back());
-
-    qDebug() << "Massive data clustered.";
-
-    objects.clear();
-
-    // End test
-
     for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
@@ -750,27 +800,21 @@ void MainWindow::on_pushButton_animate_clicked()
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
 
-
       if(objects.size() >= algorithm->getReservoidMaxSize())
       {
         gt.getClustersForGrouping(clusters);
-        gt.getObjectsForGrouping(objects);
 
         qDebug() << "Got objects for grouping.";
 
         gt.run();
 
-        qDebug() << "Thread run.";
-
         objects.clear();
         clusters.clear();
 
         qDebug() << "Objects cleared.";
-
-        estimator->setClusters(storedMedoids.back());
       }
 
-      estimator->setSamples(&samples);
+      estimator->setClusters(getClustersForEstimator());
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -800,33 +844,6 @@ int MainWindow::canAnimationBePerformed(int dimensionsNumber)
   }
 
   return 0;
-}
-
-void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
-                                    std::vector<std::vector<std::shared_ptr<cluster>>> *storage)
-{
-  // Select medoids
-  std::set<int> medoidsIndexes;
-
-  // TODO TR: Add ui control
-  unsigned int medoidsNumber = 10;
-
-  do
-  {
-    medoidsIndexes.insert(rand() % objects->size());
-  } while(medoidsIndexes.size() < medoidsNumber);
-
-  // Create clusters from medoids
-  std::set<int>::iterator it = medoidsIndexes.begin();
-
-  if(storage->size() == 0) storage->push_back(std::vector<std::shared_ptr<cluster>>());
-
-  for(unsigned int i = 0; i < medoidsNumber; ++i)
-  {
-    storage->at(0).push_back(std::make_shared<cluster>(cluster(i, objects->at(*it))));
-    storage->at(0).back().get()->setWeight(objects->size() / medoidsNumber);
-    std::advance(it, 1);
-  }
 }
 
 void MainWindow::delay( int ms )

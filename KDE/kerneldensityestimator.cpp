@@ -100,7 +100,7 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
     addend = getProductKernelAddendFromSample(&sample, x);
     addend *= c.get()->getWeight();
 
-    weight += c.get()->getWeight();
+    weight += (c.get()->getWeight());
 
     result += addend;
   }

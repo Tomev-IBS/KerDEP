@@ -29,7 +29,7 @@ class kernelDensityEstimator
     private:
 
         int kernelType;
-        long weight;
+        double weight;
 
         QVector<std::shared_ptr<QVector<qreal>>>    samples;
         QVector<kernelPtr>                          kernels;
