@@ -141,7 +141,19 @@ double MainWindow::countInterIntervalClustersWeight()
 
   double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
 
-  return weightModifier + (1 - weightModifier)*((double)difference)/((double)intervalValue);
+  double power = 1 -((double)difference)/((double)intervalValue);
+
+
+  // TR TODO: This is neccessary for proper functionality when intervals are low.
+
+  if(power < 0)
+  {
+    qDebug() << "Power is below 0.";
+    return 0.0;
+  }
+
+
+  return pow(weightModifier,(1-((double)difference)/((double)intervalValue)));
 }
 
 int MainWindow::insertMassiveData()
