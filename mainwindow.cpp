@@ -796,18 +796,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       algorithm->performSingleStep(&objects, stepNumber);
 
-      samples.clear();
       clusters.push_back(std::shared_ptr<cluster>(new cluster(stepNumber, objects.back())));
-
-      foreach(auto object, objects)
-      {
-        samples.push_back(std::make_shared<QVector<qreal>>());
-
-        for(auto nameValue : static_cast<distributionDataSample*>(object.get())->attributesValues)
-        {
-          samples.last()->push_back(stod(nameValue.second));
-        }
-      }
 
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
