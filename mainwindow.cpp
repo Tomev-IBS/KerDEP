@@ -308,8 +308,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // Generate a vector of values from selected KDE
     QVector<qreal> KDEEstimationY;
 
-
-
     // TODO: Place counting in another thread
     foreach(std::shared_ptr<point> x, domain)
     {
@@ -626,41 +624,41 @@ function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qre
                                              QVector<std::shared_ptr<QVector<qreal>>>* stDevs)
 
 {
-    QVector<qreal> contributions;
-    QVector<std::shared_ptr<function>> elementalFunctions;
+  QVector<qreal> contributions;
+  QVector<std::shared_ptr<function>> elementalFunctions;
 
-    int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+  int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
-    // Check if contributions are set correctly. If they are, then last contribution is >= 0;
-    if(((QLineEdit*)(ui
-                     ->tableWidget_targetFunctions
-                     ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX))
-                    )
-            ->text().toDouble() <= 0)
-    {
-        // If not then uniform distributions and log error
-        qDebug() << "Contributions aren't set correctly. Uniforming contributions.";
-        uniformContributions();
-    }
-
-
-
-    for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-    {
-
-        contributions.append
-        (
-            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
-            ->text().toDouble()
-        );
+  // Check if contributions are set correctly. If they are, then last contribution is >= 0;
+  if(((QLineEdit*)(ui
+                   ->tableWidget_targetFunctions
+                   ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX))
+                  )
+          ->text().toDouble() <= 0)
+  {
+      // If not then uniform distributions and log error
+      qDebug() << "Contributions aren't set correctly. Uniforming contributions.";
+      uniformContributions();
+  }
 
 
-        elementalFunctions.append(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->last().get(),
-                                                                                                            stDevs->last().get())));
-    }
 
-    return new complexFunction(&contributions, &elementalFunctions);
-    return NULL;
+  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
+  {
+
+      contributions.append
+      (
+          ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+          ->text().toDouble()
+      );
+
+
+      elementalFunctions.append(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->last().get(),
+                                                                                                          stDevs->last().get())));
+  }
+
+  return new complexFunction(&contributions, &elementalFunctions);
+  return NULL;
 }
 
 QColor MainWindow::getRandomColor()

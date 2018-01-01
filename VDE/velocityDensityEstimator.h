@@ -11,13 +11,16 @@ class velocityDensityEstimator
 {
   public:
 
-    velocityDensityEstimator(std::shared_ptr<kernelDensityEstimator> kde);
+    velocityDensityEstimator(kernelDensityEstimator *kde, long time);
 
     double countVelocitiDensityFromClusters(std::vector<std::shared_ptr<cluster>> clusters);
+
+    long setTime(long time);
 
   protected:
 
     long temporalWindow;
+    long time;
 
     std::shared_ptr<kernelDensityEstimator> KDE;
 
@@ -28,8 +31,7 @@ class velocityDensityEstimator
       std::vector<std::shared_ptr<cluster>> clusters
     );
       double countSpatiotemporalKernelValueFromCluster(
-        std::shared_ptr<cluster> c
-      );
+        std::shared_ptr<cluster> c, long moment);
     double countReverseTimeSliceDensityFromClusters(
       std::vector<std::shared_ptr<cluster>> clusters
     );

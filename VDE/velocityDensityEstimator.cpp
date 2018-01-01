@@ -1,8 +1,11 @@
 #include "velocityDensityEstimator.h"
 
-velocityDensityEstimator::velocityDensityEstimator(std::shared_ptr<kernelDensityEstimator> kde)
+velocityDensityEstimator::velocityDensityEstimator(
+    std::shared_ptr<kernelDensityEstimator> kde,
+    long time)
 {
-  KDE = kde;
+  KDE.reset(kde);
+  this->time = time;
 }
 
 double velocityDensityEstimator::countVelocitiDensityFromClusters(
@@ -13,6 +16,11 @@ double velocityDensityEstimator::countVelocitiDensityFromClusters(
   double result = 0.0;
 
   return result;
+}
+
+long velocityDensityEstimator::setTime(long time)
+{
+  this->time = time;
 }
 
 long velocityDensityEstimator::countTemporalWindowFromClusters(std::vector<std::shared_ptr<cluster> > clusters)
@@ -50,9 +58,13 @@ double velocityDensityEstimator::countForwardTimeSliceDensityFromClusters(
 }
 
 double velocityDensityEstimator::countSpatiotemporalKernelValueFromCluster(
-    std::shared_ptr<cluster> c)
+    std::shared_ptr<cluster> c, long moment)
 {
   double result = 0.0;
+
+
+
+  result *= (1.0 - (double) moment / (double) temporalWindow);
 
   return result;
 }
