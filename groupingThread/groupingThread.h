@@ -13,7 +13,7 @@
 #include <vector>
 #include <memory>
 
-class groupingThread  : public QThread
+class groupingThread : public QThread
 {
   public:
 
