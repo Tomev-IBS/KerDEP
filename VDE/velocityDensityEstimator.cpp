@@ -17,11 +17,11 @@ double velocityDensityEstimator::countTemporalVelocityDensityProfileFromClusters
 
   for(std::shared_ptr<point> pt : domain)
   {
-    ptForwardTimeSliceDensity = countForwardTimeSliceDensityFromClusters(clusters, pt);
-    ptReverseTimeSliceDensity = countReverseTimeSliceDensityFromClusters(clusters, pt);
+    ptForwardTimeSliceDensity = countForwardTimeSliceDensityInPoint(clusters, pt);
+    ptReverseTimeSliceDensity = countReverseTimeSliceDensityInPoint(clusters, pt);
     ptVelocityDensity = (ptForwardTimeSliceDensity - ptReverseTimeSliceDensity);
     ptVelocityDensity /= temporalWindow;
-    temporalVelocityDensityProfile[time][*pt.get()] = temporalWindow;
+    temporalVelocityDensityProfile[time][*pt.get()] = ptVelocityDensity;
   }
 
   return 0.0;
@@ -37,6 +37,11 @@ long velocityDensityEstimator::setTime(long time)
 QVector<std::shared_ptr<point> > *velocityDensityEstimator::getDomainPtr()
 {
   return &domain;
+}
+
+std::map<long, std::map<point, double> >* velocityDensityEstimator::getTemporalVelocityDensityProfilePtr()
+{
+  return &temporalVelocityDensityProfile;
 }
 
 long velocityDensityEstimator::countTemporalWindowFromClusters
@@ -61,7 +66,7 @@ long velocityDensityEstimator::countTemporalWindowFromClusters
   return this->temporalWindow;
 }
 
-double velocityDensityEstimator::countForwardTimeSliceDensityFromClusters
+double velocityDensityEstimator::countForwardTimeSliceDensityInPoint
   (std::vector<std::shared_ptr<cluster> > clusters, std::shared_ptr<point> pt)
 {
   double result = 0.0;
@@ -72,9 +77,9 @@ double velocityDensityEstimator::countForwardTimeSliceDensityFromClusters
   for(std::shared_ptr<cluster> c: clusters)
   {
     moment = time - c->getTimestamp();
-    spatialLocation = countSpatialLocationForComputation(pt, c);
+    spatialLocation = countSpatialLocationForTimeSliceComputation(pt, c);
 
-    result +=countSpatiotemporalKernelValue(pt, moment);
+    result += countSpatiotemporalKernelValue(pt, moment);
   }
 
   return result;
@@ -110,11 +115,21 @@ double velocityDensityEstimator::countSpatiotemporalKernelValue(
   return result;
 }
 
-double velocityDensityEstimator::countReverseTimeSliceDensityFromClusters
+double velocityDensityEstimator::countReverseTimeSliceDensityInPoint
   (std::vector<std::shared_ptr<cluster> > clusters, std::shared_ptr<point> pt)
 {
   double result = 0.0;
 
+  point spatialLocation;
+  long moment;
+
+  for(std::shared_ptr<cluster> c: clusters)
+  {
+    moment = c->getTimestamp() - (time - temporalWindow);
+    spatialLocation = countSpatialLocationForTimeSliceComputation(pt, c);
+
+    result += countSpatiotemporalKernelValue(pt, moment);
+  }
 
   return result;
 }

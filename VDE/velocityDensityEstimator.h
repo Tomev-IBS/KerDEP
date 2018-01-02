@@ -21,10 +21,11 @@ class velocityDensityEstimator
 
     QVector<std::shared_ptr<point>>* getDomainPtr();
 
+    std::map<long, std::map<point, double> > *getTemporalVelocityDensityProfilePtr();
+
   protected:
 
-    long temporalWindow;
-    long time;
+    long temporalWindow, time;
 
     QVector<std::shared_ptr<point>> domain;
 
@@ -34,12 +35,15 @@ class velocityDensityEstimator
 
     long countTemporalWindowFromClusters
       (std::vector<std::shared_ptr<cluster>> clusters);
-    double countForwardTimeSliceDensityFromClusters
-      (std::vector<std::shared_ptr<cluster>> clusters, std::shared_ptr<point> pt);
+
+    double countForwardTimeSliceDensityInPoint(std::vector<std::shared_ptr<cluster>> clusters, std::shared_ptr<point> pt);
+
       QVector<qreal> countSpatialLocationForTimeSliceComputation
         (std::shared_ptr<point> pt, std::shared_ptr<cluster> c);
+
       double countSpatiotemporalKernelValue(std::shared_ptr<point> pt, long moment);
-    double countReverseTimeSliceDensityFromClusters
+
+    double countReverseTimeSliceDensityInPoint
       (std::vector<std::shared_ptr<cluster>> clusters, std::shared_ptr<point> pt);
 };
 
