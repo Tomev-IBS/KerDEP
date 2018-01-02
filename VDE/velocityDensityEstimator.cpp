@@ -1,29 +1,46 @@
 #include "velocityDensityEstimator.h"
 
 velocityDensityEstimator::velocityDensityEstimator(
-    std::shared_ptr<kernelDensityEstimator> kde,
-    long time)
+    kernelDensityEstimator *kde, long time)
 {
   KDE.reset(kde);
   this->time = time;
 }
 
-double velocityDensityEstimator::countVelocitiDensityFromClusters(
+double velocityDensityEstimator::countTemporalVelocityDensityProfileFromClusters(
     std::vector<std::shared_ptr<cluster> > clusters)
 {
+  KDE->setClusters(clusters);
   countTemporalWindowFromClusters(clusters);
 
-  double result = 0.0;
+  double ptForwardTimeSliceDensity, ptReverseTimeSliceDensity, ptVelocityDensity;
 
-  return result;
+  for(std::shared_ptr<point> pt : domain)
+  {
+    ptForwardTimeSliceDensity = countForwardTimeSliceDensityFromClusters(clusters, pt);
+    ptReverseTimeSliceDensity = countReverseTimeSliceDensityFromClusters(clusters, pt);
+    ptVelocityDensity = (ptForwardTimeSliceDensity - ptReverseTimeSliceDensity);
+    ptVelocityDensity /= temporalWindow;
+    temporalVelocityDensityProfile[time][*pt.get()] = temporalWindow;
+  }
+
+  return 0.0;
 }
 
 long velocityDensityEstimator::setTime(long time)
 {
   this->time = time;
+
+  return this->time;
 }
 
-long velocityDensityEstimator::countTemporalWindowFromClusters(std::vector<std::shared_ptr<cluster> > clusters)
+QVector<std::shared_ptr<point> > *velocityDensityEstimator::getDomainPtr()
+{
+  return &domain;
+}
+
+long velocityDensityEstimator::countTemporalWindowFromClusters
+  (std::vector<std::shared_ptr<cluster> > clusters)
 {
   long largestTimestamp, smallestTimestamp = largestTimestamp = clusters[0]->getTimestamp();
   long clustersTimestamp;
@@ -44,27 +61,60 @@ long velocityDensityEstimator::countTemporalWindowFromClusters(std::vector<std::
   return this->temporalWindow;
 }
 
-double velocityDensityEstimator::countForwardTimeSliceDensityFromClusters(
-    std::vector<std::shared_ptr<cluster> > clusters)
+double velocityDensityEstimator::countForwardTimeSliceDensityFromClusters
+  (std::vector<std::shared_ptr<cluster> > clusters, std::shared_ptr<point> pt)
 {
   double result = 0.0;
 
+  point spatialLocation;
+  long moment;
+
   for(std::shared_ptr<cluster> c: clusters)
   {
+    moment = time - c->getTimestamp();
+    spatialLocation = countSpatialLocationForComputation(pt, c);
 
+    result +=countSpatiotemporalKernelValue(pt, moment);
   }
 
   return result;
 }
 
-double velocityDensityEstimator::countSpatiotemporalKernelValueFromCluster(
-    std::shared_ptr<cluster> c, long moment)
+QVector<qreal> velocityDensityEstimator::countSpatialLocationForTimeSliceComputation
+  (std::shared_ptr<point> pt, std::shared_ptr<cluster> c)
+{
+  QVector<qreal> location;
+
+  std::string dimensionAccessor;
+  std::unordered_map<std::string, std::string> clustersData = c->getObject()->attributesValues;
+
+  for(unsigned int i = 0; i < clustersData.size(); ++i)
+  {
+    dimensionAccessor = "Val" + std::to_string(i);
+
+    location.push_back(pt->at(i) - std::stod(clustersData[dimensionAccessor]));
+  }
+
+  return location;
+}
+
+double velocityDensityEstimator::countSpatiotemporalKernelValue(
+    std::shared_ptr<point> pt, long moment)
 {
   double result = 0.0;
 
-
+  result = KDE->getValue(pt.get());
 
   result *= (1.0 - (double) moment / (double) temporalWindow);
+
+  return result;
+}
+
+double velocityDensityEstimator::countReverseTimeSliceDensityFromClusters
+  (std::vector<std::shared_ptr<cluster> > clusters, std::shared_ptr<point> pt)
+{
+  double result = 0.0;
+
 
   return result;
 }

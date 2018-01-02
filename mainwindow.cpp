@@ -295,7 +295,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
 
     fillDomain(&domain, NULL);
 
-
     foreach(auto x, domain)
     {
         normalDistributionY.append(targetFunction->getValue(x.get()));
