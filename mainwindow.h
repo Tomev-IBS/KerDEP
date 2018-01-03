@@ -32,6 +32,8 @@ class MainWindow : public QMainWindow
   protected:
     void keyPressEvent(QKeyEvent* event);
 
+    int stepNumber = 0;
+
   private:
     void setupValidators();
     void setupPlot();
@@ -58,6 +60,7 @@ class MainWindow : public QMainWindow
     QVector<std::shared_ptr<QVector<qreal>>> samples;
     std::vector<std::shared_ptr<sample>> objects;
     std::vector<std::shared_ptr<cluster>> clusters;
+    std::vector<std::shared_ptr<cluster>> clustersForVDE;
 
     std::unordered_map<std::string, attributeData*> attributesData;
 

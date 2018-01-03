@@ -1,10 +1,9 @@
 #include "velocityDensityEstimator.h"
 
-velocityDensityEstimator::velocityDensityEstimator(
-    kernelDensityEstimator *kde, long time)
+velocityDensityEstimator::velocityDensityEstimator(kernelDensityEstimator *kde, std::map<long, std::map<point, double> > *temporalVelocityDensityProfile)
 {
   KDE.reset(kde);
-  this->time = time;
+  this->temporalVelocityDensityProfile = temporalVelocityDensityProfile;
 }
 
 double velocityDensityEstimator::countTemporalVelocityDensityProfileFromClusters(
@@ -13,15 +12,23 @@ double velocityDensityEstimator::countTemporalVelocityDensityProfileFromClusters
   KDE->setClusters(clusters);
   countTemporalWindowFromClusters(clusters);
 
-  double ptForwardTimeSliceDensity, ptReverseTimeSliceDensity, ptVelocityDensity;
+  double ptVelocityDensity;
+  std::vector<double> forwardTimeSliceDensity, reverseTimeSliceDensity;
 
   for(std::shared_ptr<point> pt : domain)
   {
-    ptForwardTimeSliceDensity = countForwardTimeSliceDensityInPoint(clusters, pt);
-    ptReverseTimeSliceDensity = countReverseTimeSliceDensityInPoint(clusters, pt);
-    ptVelocityDensity = (ptForwardTimeSliceDensity - ptReverseTimeSliceDensity);
+    forwardTimeSliceDensity.push_back(countForwardTimeSliceDensityInPoint(clusters, pt));
+    reverseTimeSliceDensity.push_back(countReverseTimeSliceDensityInPoint(clusters, pt));
+  }
+
+  normalizeTimeSliceDensity(&forwardTimeSliceDensity);
+  normalizeTimeSliceDensity(&reverseTimeSliceDensity);
+
+  for(unsigned int i = 0; i < forwardTimeSliceDensity.size(); ++i)
+  {
+    ptVelocityDensity = forwardTimeSliceDensity[i] - reverseTimeSliceDensity[i];
     ptVelocityDensity /= temporalWindow;
-    temporalVelocityDensityProfile[time][*pt.get()] = ptVelocityDensity;
+    (*temporalVelocityDensityProfile)[time][*(domain[i].get())] = ptVelocityDensity;
   }
 
   return 0.0;
@@ -41,7 +48,7 @@ QVector<std::shared_ptr<point> > *velocityDensityEstimator::getDomainPtr()
 
 std::map<long, std::map<point, double> >* velocityDensityEstimator::getTemporalVelocityDensityProfilePtr()
 {
-  return &temporalVelocityDensityProfile;
+  return temporalVelocityDensityProfile;
 }
 
 long velocityDensityEstimator::countTemporalWindowFromClusters
@@ -132,4 +139,17 @@ double velocityDensityEstimator::countReverseTimeSliceDensityInPoint
   }
 
   return result;
+}
+
+int velocityDensityEstimator::normalizeTimeSliceDensity(std::vector<double> *timeSliceDensity)
+{
+  double sum = 0.0;
+
+  for(double value : *timeSliceDensity)
+    sum += value;
+
+  for(unsigned int i = 0; i < timeSliceDensity->size(); ++i)
+    (*timeSliceDensity)[i] /= sum;
+
+  return timeSliceDensity->size();
 }

@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "math.h"
-#include "climits"
-#include "set"
+
+#include <math.h>
+#include <climits>
+#include <set>
+#include <QDebug>
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -19,8 +21,8 @@
 
 #include "Detectors/rareElementsDetector.h"
 
-#include "QDebug"
-
+#include "VDE/velocityDensityEstimator.h"
+#include "VDE/VDEThread.h"
 
 #include "groupingThread/groupingThread.h"
 
@@ -107,11 +109,15 @@ int MainWindow::insertClustersFromInterIntervalObjects(std::vector<std::shared_p
   std::vector<std::shared_ptr<cluster>> newClusters;
 
   for(unsigned int i = 0; i < interIntervalObjects->size(); ++i)
+  {
     newClusters.push_back(std::shared_ptr<cluster>(new cluster(clusters.size()+i, (*interIntervalObjects)[i])));
+    newClusters.back()->setTimestamp(stepNumber);
+  }
 
   setInterIntervalClustersWeights(&newClusters);
 
   clusters.insert(clusters.end(), newClusters.begin(), newClusters.end());
+  clustersForVDE.insert(clustersForVDE.end(), newClusters.begin(), newClusters.end());
 
   return newClusters.size();
 }
@@ -213,7 +219,9 @@ void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *object
   for(unsigned int i = 0; i < medoidsNumber; ++i)
   {
     storage->at(0).push_back(std::make_shared<cluster>(cluster(i, objects->at(*it))));
-    storage->at(0).back().get()->setWeight(objects->size() / medoidsNumber);
+    storage->at(0).back()->setTimestamp(stepNumber);
+    clustersForVDE.push_back(storage->at(0).back());
+    storage->at(0).back()->setWeight(objects->size() / medoidsNumber);
     std::advance(it, 1);
   }
 }
@@ -787,13 +795,20 @@ void MainWindow::on_pushButton_animate_clicked()
 
     gt.initialize();
 
-    for(int stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
+    std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
+
+    velocityDensityEstimator VDE(generateKernelDensityEstimator(dimensionsNumber), &temporalVelocityDensityProfile);
+    fillDomain(VDE.getDomainPtr(), NULL);
+
+    for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
 
       algorithm->performSingleStep(&objects, stepNumber);
 
       clusters.push_back(std::shared_ptr<cluster>(new cluster(stepNumber, objects.back())));
+      clusters.back()->setTimestamp(stepNumber);
+      clustersForVDE.push_back(clusters.back());
 
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
@@ -806,8 +821,22 @@ void MainWindow::on_pushButton_animate_clicked()
 
         gt.run();
 
+        //VDE.setTime(stepNumber);
+        //VDE.countTemporalVelocityDensityProfileFromClusters(clustersForVDE);
+
+        VDEThread velocityDensityCountingThread(
+          generateKernelDensityEstimator(dimensionsNumber),
+          &temporalVelocityDensityProfile,
+          clustersForVDE
+        );
+
+        fillDomain(velocityDensityCountingThread.getDomainPtr(), NULL);
+
+        velocityDensityCountingThread.run();
+
         objects.clear();
         clusters.clear();
+        clustersForVDE.clear();
 
         qDebug() << "Objects cleared.";
       }
@@ -819,7 +848,7 @@ void MainWindow::on_pushButton_animate_clicked()
       drawPlots(estimator.get(), targetFunction.get());
 
       // Ensure that it will be refreshed.
-      qApp->processEvents();
+      // qApp->processEvents();
 
       start = std::chrono::duration_cast< std::chrono::milliseconds >(
           std::chrono::system_clock::now().time_since_epoch()).count();

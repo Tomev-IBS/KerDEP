@@ -49,7 +49,8 @@ SOURCES     +=  main.cpp\
                 groupingThread/kMedoidsAlgorithm/kMedoidsAlgorithm.cpp \
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp \
-    VDE/velocityDensityEstimator.cpp
+    VDE/velocityDensityEstimator.cpp \
+    VDE/VDEThread.cpp
 
 HEADERS     +=  mainwindow.h \
                 QCustomPlot/qcustomplot.h \
@@ -105,7 +106,8 @@ HEADERS     +=  mainwindow.h \
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.h \
                 groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h \
-    VDE/velocityDensityEstimator.h
+    VDE/velocityDensityEstimator.h \
+    VDE/VDEThread.h
 
 FORMS       +=  mainwindow.ui
 

@@ -12,7 +12,7 @@ class velocityDensityEstimator
 {
   public:
 
-    velocityDensityEstimator(kernelDensityEstimator *kde, long time);
+    velocityDensityEstimator(kernelDensityEstimator *kde, std::map<long, std::map<point, double>>* temporalVelocityDensityProfile);
 
     double countTemporalVelocityDensityProfileFromClusters(
         std::vector<std::shared_ptr<cluster>> clusters);
@@ -29,7 +29,7 @@ class velocityDensityEstimator
 
     QVector<std::shared_ptr<point>> domain;
 
-    std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
+    std::map<long, std::map<point, double>>* temporalVelocityDensityProfile;
 
     std::shared_ptr<kernelDensityEstimator> KDE;
 
@@ -45,6 +45,8 @@ class velocityDensityEstimator
 
     double countReverseTimeSliceDensityInPoint
       (std::vector<std::shared_ptr<cluster>> clusters, std::shared_ptr<point> pt);
+
+    int normalizeTimeSliceDensity(std::vector<double>* timeSliceDensity);
 };
 
 #endif // VELOCITYDENSITYESTIMATOR_H
