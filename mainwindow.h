@@ -62,6 +62,8 @@ class MainWindow : public QMainWindow
     std::vector<std::shared_ptr<cluster>> clusters;
     std::vector<std::shared_ptr<cluster>> clustersForVDE;
 
+    std::vector<std::shared_ptr<QThread>> runningSubthreads;
+
     std::unordered_map<std::string, attributeData*> attributesData;
 
     std::shared_ptr<dataParser> parser;

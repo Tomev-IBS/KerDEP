@@ -797,9 +797,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
     std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
 
-    velocityDensityEstimator VDE(generateKernelDensityEstimator(dimensionsNumber), &temporalVelocityDensityProfile);
-    fillDomain(VDE.getDomainPtr(), NULL);
-
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
@@ -815,24 +812,39 @@ void MainWindow::on_pushButton_animate_clicked()
 
       if(objects.size() >= algorithm->getReservoidMaxSize())
       {
-        gt.getClustersForGrouping(clusters);
+        std::shared_ptr<groupingThread> gThread(
+              new groupingThread(&storedMedoids)
+        );
+
+        gThread->setAttributesData(&attributesData);
+        gThread->getClustersForGrouping(clusters);
+
+        runningSubthreads.push_back(gThread);
 
         qDebug() << "Got objects for grouping.";
 
+        //runningSubthreads.back()->start();
+
+        gt.getClustersForGrouping(clusters);
         gt.run();
 
-        //VDE.setTime(stepNumber);
-        //VDE.countTemporalVelocityDensityProfileFromClusters(clustersForVDE);
-
-        VDEThread velocityDensityCountingThread(
-          generateKernelDensityEstimator(dimensionsNumber),
-          &temporalVelocityDensityProfile,
-          clustersForVDE
+        std::shared_ptr<VDEThread> velocityDensityEstimatorThread
+        (
+          new VDEThread (
+              generateKernelDensityEstimator(dimensionsNumber),
+              &temporalVelocityDensityProfile,
+              clustersForVDE
+          )
         );
 
-        fillDomain(velocityDensityCountingThread.getDomainPtr(), NULL);
+        fillDomain(velocityDensityEstimatorThread->getDomainPtr(), NULL);
 
-        velocityDensityCountingThread.run();
+        runningSubthreads.push_back(
+          velocityDensityEstimatorThread
+        );
+
+        qDebug() << "VDE start.";
+        runningSubthreads.back()->start();
 
         objects.clear();
         clusters.clear();

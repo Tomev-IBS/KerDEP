@@ -1,5 +1,7 @@
 #include "velocityDensityEstimator.h"
 
+#include <QDebug>
+
 velocityDensityEstimator::velocityDensityEstimator(kernelDensityEstimator *kde, std::map<long, std::map<point, double> > *temporalVelocityDensityProfile)
 {
   KDE.reset(kde);

@@ -1,4 +1,5 @@
 #include "VDEThread.h"
+#include <QDebug>
 
 VDEThread::VDEThread
   (kernelDensityEstimator *kde,
@@ -12,6 +13,8 @@ VDEThread::VDEThread
 void VDEThread::run()
 {
   VDE->countTemporalVelocityDensityProfileFromClusters(clusters);
+
+  qDebug() << "VDE counting finished.";
 }
 
 long VDEThread::setTime(long time)
