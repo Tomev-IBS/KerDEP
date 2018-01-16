@@ -65,7 +65,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
   if(keyCode == 77) insertMassiveData();
 
   // If left arrow pressed
-  if(keyCode == 16777234) qDebug() << "Left arrow pressed.";
+  if(keyCode == 16777234)
+  {
+    qDebug() << "Left arrow pressed.";
+    moveTargetFunctionLeft();
+  }
 
   // If right arrow pressed
   if(keyCode == 16777236) qDebug() << "Right arrow pressed.";
@@ -844,7 +848,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     srand(ui->lineEdit_seed->text().toDouble());
 
-    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
+    //QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
@@ -1239,4 +1243,12 @@ void MainWindow::updateWeights()
     clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
 
   qDebug() << "Weights updated.";
+}
+
+void MainWindow::moveTargetFunctionLeft()
+{
+  //QVector<std::shared_ptr<QVector<qreal>>> newMeans;
+  //newMeans.push_back(std::shared_ptr<QVector<qreal>>(new QVector<qreal>({-1})));
+  //means = newMeans;
+  //means = QVector<std::shared_ptr<QVector<qreal>>>(std::shared_ptr<QVector<qreal>>());
 }

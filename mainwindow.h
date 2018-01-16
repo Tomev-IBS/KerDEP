@@ -74,6 +74,8 @@ class MainWindow : public QMainWindow
     QVector<qreal> oldKerernelY;
     QVector<qreal> newKernelY;
 
+    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
+
     QStringList kernelTypes;
 
     int insertObjectsBetweenIntervals(unsigned int objectsNumber);
@@ -145,6 +147,8 @@ class MainWindow : public QMainWindow
     void on_pushButton_removeTargetFunction_clicked();
 
     void updateWeights();
+
+    void moveTargetFunctionLeft();
 
 };
 
