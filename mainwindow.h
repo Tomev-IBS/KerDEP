@@ -49,11 +49,13 @@ class MainWindow : public QMainWindow
     const qreal MAX_SMOOTHING_P = 2.0;
     const int   DECIMAL_NUMBERS = 3;
     const qreal DEFAULT_MIN_X   = -5;
-    const qreal DEFAULT_MAX_X   = 5;
-    const qreal DEFAULT_MIN_Y   = -0.05;
-    const qreal DEFAULT_MAX_Y   = 1;
+    const qreal DEFAULT_MAX_X   = 15;
+    const qreal DEFAULT_MIN_Y   = -0.5;
+    const qreal DEFAULT_MAX_Y   = 0.8;
 
     std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
+
+    std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
 
     Ui::MainWindow *ui;
 
@@ -68,6 +70,9 @@ class MainWindow : public QMainWindow
 
     std::shared_ptr<dataParser> parser;
     std::shared_ptr<dataReader> reader;
+
+    QVector<qreal> oldKerernelY;
+    QVector<qreal> newKernelY;
 
     QStringList kernelTypes;
 
@@ -88,6 +93,10 @@ class MainWindow : public QMainWindow
       void addPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+      double countNewtonianDerivative(int i, const QVector<qreal> *Y);
+
+    void addLatestTemporalVelocityDensityProfilePlot();
+    void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
     void fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
     void fillMeans(QVector<std::shared_ptr<QVector<qreal> > > *means);

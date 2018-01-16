@@ -252,7 +252,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minY">
            <property name="text">
-            <string>-0.05</string>
+            <string>-0.5</string>
            </property>
           </widget>
          </item>

@@ -5,6 +5,7 @@
 #include <climits>
 #include <set>
 #include <QDebug>
+#include <algorithm>
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -48,6 +49,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
   int keyCode = event->key();
 
+  //qDebug() << keyCode;
+
   // If key is a number
   if(keyCode >= 48 && keyCode <= 57)
   {
@@ -60,6 +63,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
   // If m is pressed
   if(keyCode == 77) insertMassiveData();
+
+  // If left arrow pressed
+  if(keyCode == 16777234) qDebug() << "Left arrow pressed.";
+
+  // If right arrow pressed
+  if(keyCode == 16777236) qDebug() << "Right arrow pressed.";
+
+  // If down arrow pressed
+  if(keyCode == 16777237) qDebug() << "Down arrow pressed.";
 }
 
 int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
@@ -309,25 +321,44 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
         X.append(x->at(0));
     }
 
-    // Generate plot of normal distribution using QCustomPlot
+    // Generate plot of normal distribution
     addModelPlot(&X, &normalDistributionY);
 
     // Generate a vector of values from selected KDE
     QVector<qreal> KDEEstimationY;
 
+    double val;
+
     // TODO: Place counting in another thread
     foreach(std::shared_ptr<point> x, domain)
     {
-        KDEEstimationY.append(estimator->getValue(x.get()));
+      val = estimator->getValue(x.get());
+
+      oldKerernelY.append(val);
+      KDEEstimationY.append(val);
+    }
+
+    QVector<qreal> KDETemporalDerivativeY;
+
+    if(oldKerernelY.size() != 0)
+    {
+      for(int i = 0; i < KDEEstimationY.size(); ++i)
+        KDETemporalDerivativeY.push_back(KDEEstimationY[i] - oldKerernelY[i]);
+        //KDETemporalDerivativeY.push_back(countNewtonianDerivative(i, &KDEEstimationY));
     }
 
     // Generate a plot of KDE
     addEstimatedPlot(&X, &KDEEstimationY);
 
+    // Generate a plot of temporal derivative
+    addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
+
+    addLatestTemporalVelocityDensityProfilePlot();
 
     // Draw plots
     ui->widget_plot->replot();
 
+    oldKerernelY = KDEEstimationY;
 }
 
 void MainWindow::resizePlot()
@@ -391,6 +422,58 @@ void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> 
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::blue));
+}
+
+double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
+{
+  if(i + 1 < Y->size())
+  {
+    double result = 0;
+
+    result += Y->at(i+1) - Y->at(i);
+
+    result /= this->ui->lineEdit_domainDensity->text().toDouble();
+
+    return result;
+  }
+  else return 0;
+
+}
+
+void MainWindow::addLatestTemporalVelocityDensityProfilePlot()
+{
+
+  std::vector<long> keys;
+
+  for(auto kv : temporalVelocityDensityProfile)
+    keys.push_back(kv.first);
+
+  std::vector<long>::iterator lastCountedTimestamp =
+      std::max_element(keys.begin(), keys.end());
+
+  QVector<qreal> X, Y;
+
+  if(!temporalVelocityDensityProfile.empty())
+  {
+    for(auto kv : temporalVelocityDensityProfile[*lastCountedTimestamp])
+    {
+      X.push_back(kv.first.back());
+      Y.push_back(kv.second);
+    }
+
+    temporalVelocityDensityProfile.end();
+  }
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, Y);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::green));
+}
+
+void MainWindow::addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y)
+{
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
 }
 
 void MainWindow::fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
@@ -795,14 +878,13 @@ void MainWindow::on_pushButton_animate_clicked()
 
     gt.initialize();
 
-    std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
-
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
 
       algorithm->performSingleStep(&objects, stepNumber);
 
+      // TR TODO: It's not working for biased algorithm
       clusters.push_back(std::shared_ptr<cluster>(new cluster(stepNumber, objects.back())));
       clusters.back()->setTimestamp(stepNumber);
       clustersForVDE.push_back(clusters.back());
