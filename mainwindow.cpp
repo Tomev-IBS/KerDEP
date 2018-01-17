@@ -462,7 +462,7 @@ void MainWindow::addLatestTemporalVelocityDensityProfilePlot()
     for(auto kv : temporalVelocityDensityProfile[*lastCountedTimestamp])
     {
       X.push_back(kv.first.back());
-      Y.push_back(kv.second);
+      Y.push_back(kv.second * 1e18);
     }
 
     temporalVelocityDensityProfile.end();
@@ -902,8 +902,8 @@ void MainWindow::on_pushButton_animate_clicked()
               new groupingThread(&storedMedoids)
         );
 
-        gThread->setAttributesData(&attributesData);
-        gThread->getClustersForGrouping(clusters);
+        //gThread->setAttributesData(&attributesData);
+        //gThread->getClustersForGrouping(clusters);
 
         runningSubthreads.push_back(gThread);
 
