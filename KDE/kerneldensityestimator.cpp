@@ -75,12 +75,12 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
     double result = 0.0;
 
     result += getProductValuesFromClusters(x);
-    result += getProductValuesFromSamples(x);
+    //result += getProductValuesFromSamples(x);
 
     for(double smoothingParameter : smoothingParameters)
         result /= smoothingParameter;
 
-    weight += samples.size();
+    //weight += samples.size();
 
     result /= weight;
 
