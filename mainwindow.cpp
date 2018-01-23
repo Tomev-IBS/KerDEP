@@ -359,6 +359,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
 
     addLatestTemporalVelocityDensityProfilePlot();
 
+    markUncommonClusters(estimator);
+
     // Draw plots
     ui->widget_plot->replot();
 
@@ -442,6 +444,143 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
   }
   else return 0;
 
+}
+
+int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
+{
+  std::vector<std::shared_ptr<cluster>> uncommonClusters;
+
+  findUncommonClusters(&uncommonClusters, estimator);
+
+  double x;
+
+  // Clear previously added markers
+  ui->widget_plot->clearItems();
+
+  // For each uncommon cluster add a red vertical line to the plot
+  for(std::shared_ptr<cluster> c : uncommonClusters)
+  {
+    // Only works for distribution data samples as programmed
+    x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+
+    QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
+    verticalLine->point1->setCoords(x, MIN_Y);
+    verticalLine->point2->setCoords(x, MAX_Y);
+    verticalLine->setPen(QPen(Qt::red));
+  }
+
+  return uncommonClusters.size();
+}
+
+int MainWindow::findUncommonClusters(std::vector<std::shared_ptr<cluster> > *uncommonClusters,
+                                     kernelDensityEstimator* estimator)
+{
+  std::vector<double> unsortedReducedEstimatorValuesOnClusters
+      = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator);
+
+  double positionalSecondGradeEstimator =
+    countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
+
+  QVector<qreal> x;
+
+  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
+  estimator->setClusters(consideredClusters);
+
+  for(std::shared_ptr<cluster> c : consideredClusters)
+  {
+    x.clear();
+    x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+    if(estimator->getValue(&x) < positionalSecondGradeEstimator)
+      uncommonClusters->push_back(c);
+  }
+
+  qDebug() << "Considered clusters number: " << consideredClusters.size();
+  qDebug() << "Uncommon clusters number: " << uncommonClusters->size();
+  qDebug() << "Positional estimator value: " << positionalSecondGradeEstimator;
+
+  return uncommonClusters->size();
+}
+
+std::vector<double> MainWindow::countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator *estimator)
+{
+  std::vector<double> unsortedReducedEstimatorValues;
+  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
+  std::shared_ptr<cluster> reducedCluster;
+  QVector<qreal> x;
+
+  if(consideredClusters.size() == 1)
+  {
+    unsortedReducedEstimatorValues.push_back(1.0);
+    return unsortedReducedEstimatorValues;
+  }
+
+  for(unsigned int i = 0; i < consideredClusters.size(); ++i)
+  {
+    reducedCluster = consideredClusters[0];
+    consideredClusters.erase(consideredClusters.begin());
+    estimator->setClusters(consideredClusters);
+    x.clear();
+    x.push_back(std::stod(reducedCluster->getRepresentative()->attributesValues["Val0"]));
+    unsortedReducedEstimatorValues.push_back(estimator->getValue(&x));
+    consideredClusters.push_back(reducedCluster);
+  }
+
+  return unsortedReducedEstimatorValues;
+}
+
+double MainWindow::countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
+{
+  double uncommonnessThreshold = ui->lineEdit_rarity->text().toDouble();
+  double mr = uncommonnessThreshold * unsortedReducedEstimatorValuesOnClusters->size();
+  double estimator = 0;
+
+  unsigned int j = floor(mr + 0.5);
+
+  std::vector<double> jSortedReducedEstimatorValues =
+      sortJReducedEstimatorValues(unsortedReducedEstimatorValuesOnClusters, j+1);
+
+  if(mr < 0.5)
+    estimator = jSortedReducedEstimatorValues[0];
+  else
+  {
+    estimator = (0.5 + j - mr) * jSortedReducedEstimatorValues[j-1];
+    estimator += (0.5 - j + mr) * jSortedReducedEstimatorValues[j];
+  }
+
+  return estimator;
+}
+
+std::vector<double> MainWindow::sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, unsigned int j)
+{
+  std::vector<double> jSortedReducedEstimatorValues;
+
+  if(unsortedReducedEstimatorValuesOnClusters->size() <= j) return *unsortedReducedEstimatorValuesOnClusters;
+
+  unsigned int smallestEstimatorValueIndex;
+
+  while(jSortedReducedEstimatorValues.size() < j)
+  {
+    smallestEstimatorValueIndex =
+      findSmallestEstimatorValueIndex(unsortedReducedEstimatorValuesOnClusters);
+    jSortedReducedEstimatorValues.push_back(
+      unsortedReducedEstimatorValuesOnClusters->at(smallestEstimatorValueIndex)
+    );
+    unsortedReducedEstimatorValuesOnClusters->erase(
+      unsortedReducedEstimatorValuesOnClusters->begin() + smallestEstimatorValueIndex
+    );
+  }
+
+  return jSortedReducedEstimatorValues;
+}
+
+unsigned int MainWindow::findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
+{
+  double result = 2;
+
+  for(double value : *unsortedReducedEstimatorValuesOnClusters)
+    if(value < result) result = value;
+
+  return result;
 }
 
 void MainWindow::addLatestTemporalVelocityDensityProfilePlot()
@@ -953,6 +1092,10 @@ void MainWindow::on_pushButton_animate_clicked()
 
       delay(ui->lineEdit_milisecondsDelay->text().toInt());
     }
+
+
+
+
 
     qDebug() << "Animation finished.";
 }

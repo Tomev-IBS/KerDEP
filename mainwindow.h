@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <chrono>
 
+#include "QCustomPlot/qcustomplot.h"
+
 #include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/sample.h"
 #include "Functions/Kernels/kernels.h"
@@ -96,6 +98,12 @@ class MainWindow : public QMainWindow
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
+      int markUncommonClusters(kernelDensityEstimator* estimator);
+        int findUncommonClusters(std::vector<std::shared_ptr<cluster> > *uncommonClusters, kernelDensityEstimator *estimator);
+          std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
+          double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
+            std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, unsigned int j);
+            unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
 
     void addLatestTemporalVelocityDensityProfilePlot();
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
