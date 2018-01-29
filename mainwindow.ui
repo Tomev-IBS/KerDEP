@@ -302,9 +302,9 @@
        <widget class="QWidget" name="verticalLayoutWidget">
         <property name="geometry">
          <rect>
-          <x>380</x>
+          <x>390</x>
           <y>10</y>
-          <width>381</width>
+          <width>531</width>
           <height>431</height>
          </rect>
         </property>
@@ -370,7 +370,7 @@
           <x>180</x>
           <y>160</y>
           <width>191</width>
-          <height>291</height>
+          <height>381</height>
          </rect>
         </property>
         <property name="title">
@@ -458,6 +458,13 @@
           <widget class="QLineEdit" name="lineEdit_interIntervalClusters">
            <property name="text">
             <string>5</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_minimalWeight">
+           <property name="text">
+            <string>Minimal weight</string>
            </property>
           </widget>
          </item>
@@ -584,8 +591,8 @@
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
-          <x>180</x>
-          <y>460</y>
+          <x>390</x>
+          <y>450</y>
           <width>191</width>
           <height>81</height>
          </rect>
