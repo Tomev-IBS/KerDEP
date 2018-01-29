@@ -1080,6 +1080,8 @@ void MainWindow::on_pushButton_animate_clicked()
     reader->gatherAttributesData(&attributesData);
     parser->setAttributesOrder(reader->getAttributesOrder());
 
+    positionalSecondGradeEstimatorCountingMethod = ui->comboBox_rareElementsMethod->currentIndex();
+
     reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
     objects.clear();

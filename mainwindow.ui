@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -302,7 +302,7 @@
        <widget class="QWidget" name="verticalLayoutWidget">
         <property name="geometry">
          <rect>
-          <x>390</x>
+          <x>380</x>
           <y>10</y>
           <width>381</width>
           <height>431</height>
@@ -524,7 +524,7 @@
           <x>10</x>
           <y>390</y>
           <width>161</width>
-          <height>91</height>
+          <height>151</height>
          </rect>
         </property>
         <property name="title">
@@ -543,6 +543,27 @@
            <property name="text">
             <string>0.1</string>
            </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_rareElemetsMethod">
+           <property name="text">
+            <string>Method</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_rareElementsMethod">
+           <item>
+            <property name="text">
+             <string>Standard</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Weighted</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
@@ -669,7 +690,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
