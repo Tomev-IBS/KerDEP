@@ -478,6 +478,7 @@ int MainWindow::findUncommonClusters(std::vector<std::shared_ptr<cluster> > *unc
   std::vector<double> unsortedReducedEstimatorValuesOnClusters
       = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator);
 
+
   double positionalSecondGradeEstimator =
     countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
 
@@ -531,10 +532,24 @@ std::vector<double> MainWindow::countUnsortedReducedEstimatorValuesOnEstimatorCl
 double MainWindow::countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
 {
   double uncommonnessThreshold = ui->lineEdit_rarity->text().toDouble();
-  double mr = uncommonnessThreshold * unsortedReducedEstimatorValuesOnClusters->size();
+  double mr = uncommonnessThreshold;
+
   double estimator = 0;
 
-  unsigned int j = floor(mr + 0.5);
+  unsigned int j;
+
+  switch (positionalSecondGradeEstimatorCountingMethod)
+  {
+    case WEIGHTED:
+      mr *= getSummaricClustersWeight(getClustersForEstimator());
+      j = floor(mr);
+    break;
+    case STANDARD:
+    default:
+      mr *= unsortedReducedEstimatorValuesOnClusters->size();
+      j = floor(mr + 0.5);
+    break;
+  }
 
   std::vector<double> jSortedReducedEstimatorValues =
       sortJReducedEstimatorValues(unsortedReducedEstimatorValuesOnClusters, j+1);
@@ -543,11 +558,29 @@ double MainWindow::countPositionalSecondGradeEstimator(std::vector<double> *unso
     estimator = jSortedReducedEstimatorValues[0];
   else
   {
-    estimator = (0.5 + j - mr) * jSortedReducedEstimatorValues[j-1];
-    estimator += (0.5 - j + mr) * jSortedReducedEstimatorValues[j];
+    switch (positionalSecondGradeEstimatorCountingMethod)
+    {
+      case WEIGHTED:
+        estimator = jSortedReducedEstimatorValues[jSortedReducedEstimatorValues.size() - 1];
+      break;
+      case STANDARD:
+      default:
+        estimator = (0.5 + j - mr) * jSortedReducedEstimatorValues[j-1];
+        estimator += (0.5 - j + mr) * jSortedReducedEstimatorValues[j];
+      break;
+    }
   }
 
   return estimator;
+}
+
+double MainWindow::getSummaricClustersWeight(std::vector<std::shared_ptr<cluster> > clusters)
+{
+  double result = 0.0;
+
+  for(std::shared_ptr<cluster> c : clusters) result += c->getWeight();
+
+  return result;
 }
 
 std::vector<double> MainWindow::sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, unsigned int j)

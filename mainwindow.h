@@ -18,6 +18,12 @@
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
 
+enum positionalSecondGradeEstimatorCountingMethods
+{
+  STANDARD = 0,
+  WEIGHTED = 1
+};
+
 namespace Ui
 {
     class MainWindow;
@@ -78,6 +84,8 @@ class MainWindow : public QMainWindow
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
+    unsigned short positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
+
     QStringList kernelTypes;
 
     int insertObjectsBetweenIntervals(unsigned int objectsNumber);
@@ -102,6 +110,7 @@ class MainWindow : public QMainWindow
         int findUncommonClusters(std::vector<std::shared_ptr<cluster> > *uncommonClusters, kernelDensityEstimator *estimator);
           std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
           double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
+          double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
             std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, unsigned int j);
             unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
 
