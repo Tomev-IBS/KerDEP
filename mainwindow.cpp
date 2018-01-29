@@ -1446,6 +1446,7 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
 void MainWindow::updateWeights()
 {
   double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
+  double weightDeletionThreshold = ui->lineEdit_deletionThreshold->text().toDouble();
 
   for(unsigned int level = 0; level < storedMedoids.size(); ++level)
   {
@@ -1454,11 +1455,19 @@ void MainWindow::updateWeights()
       storedMedoids[level][medoidNumber]->setWeight(
         weightModifier * storedMedoids[level][medoidNumber]->getWeight()
       );
+
+      if(storedMedoids[level][medoidNumber]->getWeight() < weightDeletionThreshold)
+        storedMedoids[level].erase(
+          storedMedoids[level].begin() + medoidNumber
+        );
     }
   }
 
   for(unsigned int i = 0; i < clusters.size(); ++i)
+  {
     clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
+    if(clusters[i]->getWeight() < weightDeletionThreshold) clusters.erase(clusters.begin() + i);
+  }
 
   qDebug() << "Weights updated.";
 }

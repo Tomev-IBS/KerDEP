@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -193,7 +193,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>110</y>
+          <y>10</y>
           <width>161</width>
           <height>271</height>
          </rect>
@@ -464,7 +464,14 @@
          <item>
           <widget class="QLabel" name="label_minimalWeight">
            <property name="text">
-            <string>Minimal weight</string>
+            <string>Weight deletion threshold</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_deletionThreshold">
+           <property name="text">
+            <string>0.00000000000001</string>
            </property>
           </widget>
          </item>
@@ -486,10 +493,10 @@
        <widget class="QGroupBox" name="groupBox_generalSettings">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>10</y>
+          <x>590</x>
+          <y>450</y>
           <width>161</width>
-          <height>91</height>
+          <height>81</height>
          </rect>
         </property>
         <property name="title">
@@ -529,7 +536,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>390</y>
+          <y>290</y>
           <width>161</width>
           <height>151</height>
          </rect>
