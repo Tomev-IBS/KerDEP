@@ -111,7 +111,7 @@ class MainWindow : public QMainWindow
           std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
           double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
           double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
-            std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, unsigned int j);
+            std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j);
             unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
 
     void addLatestTemporalVelocityDensityProfilePlot();

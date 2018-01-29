@@ -536,18 +536,18 @@ double MainWindow::countPositionalSecondGradeEstimator(std::vector<double> *unso
 
   double estimator = 0;
 
-  unsigned int j;
+  double j;
 
   switch (positionalSecondGradeEstimatorCountingMethod)
   {
     case WEIGHTED:
       mr *= getSummaricClustersWeight(getClustersForEstimator());
-      j = floor(mr);
+      j = mr;
     break;
     case STANDARD:
     default:
       mr *= unsortedReducedEstimatorValuesOnClusters->size();
-      j = floor(mr + 0.5);
+      j = mr + 0.5;
     break;
   }
 
@@ -583,13 +583,53 @@ double MainWindow::getSummaricClustersWeight(std::vector<std::shared_ptr<cluster
   return result;
 }
 
-std::vector<double> MainWindow::sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, unsigned int j)
+std::vector<double> MainWindow::sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j)
 {
   std::vector<double> jSortedReducedEstimatorValues;
+  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
 
   if(unsortedReducedEstimatorValuesOnClusters->size() <= j) return *unsortedReducedEstimatorValuesOnClusters;
 
   unsigned int smallestEstimatorValueIndex;
+
+  double summaricWeight = 0.0;
+
+  switch (positionalSecondGradeEstimatorCountingMethod)
+  {
+    case WEIGHTED:
+
+      while(summaricWeight < j)
+      {
+        smallestEstimatorValueIndex =
+          findSmallestEstimatorValueIndex(unsortedReducedEstimatorValuesOnClusters);
+        summaricWeight += consideredClusters[smallestEstimatorValueIndex]->getWeight();
+        jSortedReducedEstimatorValues.push_back(
+          unsortedReducedEstimatorValuesOnClusters->at(smallestEstimatorValueIndex)
+        );
+        unsortedReducedEstimatorValuesOnClusters->erase(
+          unsortedReducedEstimatorValuesOnClusters->begin() + smallestEstimatorValueIndex
+        );
+        consideredClusters.erase(
+          consideredClusters.begin() + smallestEstimatorValueIndex
+        );
+      }
+
+    break;
+    case STANDARD:
+    default:
+      while(jSortedReducedEstimatorValues.size() < floor(j))
+      {
+        smallestEstimatorValueIndex =
+          findSmallestEstimatorValueIndex(unsortedReducedEstimatorValuesOnClusters);
+        jSortedReducedEstimatorValues.push_back(
+          unsortedReducedEstimatorValuesOnClusters->at(smallestEstimatorValueIndex)
+        );
+        unsortedReducedEstimatorValuesOnClusters->erase(
+          unsortedReducedEstimatorValuesOnClusters->begin() + smallestEstimatorValueIndex
+        );
+      }
+    break;
+  }
 
   while(jSortedReducedEstimatorValues.size() < j)
   {
