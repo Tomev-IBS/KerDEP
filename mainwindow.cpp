@@ -357,7 +357,10 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // Generate a plot of temporal derivative
     addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
-    addLatestTemporalVelocityDensityProfilePlot();
+    //addLatestTemporalVelocityDensityProfilePlot();
+
+    // Generate plot for estimated KDE in the next iteration
+    addPrognosedEstimationPlots(&X, &KDEEstimationY);
 
     markUncommonClusters(estimator);
 
@@ -444,6 +447,80 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
   }
   else return 0;
 
+}
+
+void MainWindow::addPrognosedEstimationPlots(const QVector<qreal> *X, const QVector<qreal> *KDEY)
+{
+  predictKDEValues(X, KDEY);
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, predictedKDEValues);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::green));
+}
+
+int MainWindow::predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY)
+{
+
+  //qDebug() << "Updating predictions.";
+
+  updatePointsPredictionParameters(KDEY);
+
+  QVector<qreal> newPredictions;
+
+  //qDebug() << "Counting new predictions.";
+
+  for(unsigned int i = 0; i < pointsPredictionParameters.size(); ++i)
+    newPredictions.push_back(pointsPredictionParameters[i][0] + stepNumber * pointsPredictionParameters[i][1]);
+
+  //qDebug() << "Swapping old predictions with new.";
+
+  predictedKDEValues = newPredictions;
+
+  return predictedKDEValues.size();
+}
+
+int MainWindow::updatePointsPredictionParameters(const QVector<qreal> *KDEY)
+{
+  if(pointsPredictionParameters.size() == 0)
+  {
+    countInitialPredictionParameters(KDEY);
+    return pointsPredictionParameters.size();
+  }
+
+  std::vector<std::vector<double>> updatedParameters;
+
+  double upperValue, lowerValue;
+
+  for(unsigned int i = 0; i < pointsPredictionParameters.size(); ++i)
+  {
+    upperValue = pointsPredictionParameters[i][0] + pointsPredictionParameters[i][1];
+    lowerValue = pointsPredictionParameters[i][1];
+    upperValue += (1 - pow(deactualiationParameter, 2)) * (KDEY->at(i)- predictedKDEValues[i]);
+    lowerValue += pow(1 - deactualiationParameter, 2) * (KDEY->at(i) - predictedKDEValues[i]);
+    updatedParameters.push_back(std::vector<double>({
+      upperValue, lowerValue
+    }));
+  }
+
+  pointsPredictionParameters = updatedParameters;
+
+  return pointsPredictionParameters.size();
+}
+
+int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY)
+{
+  std::vector<std::vector<double>> reversedD = {{1-pow(deactualiationParameter,2), pow((1- deactualiationParameter), 2)},
+                                                {pow((1- deactualiationParameter), 2), pow((1- deactualiationParameter), 3)/ deactualiationParameter}};
+
+  for(unsigned int i = 0; i < KDEY->size(); ++i)
+  {
+    pointsPredictionParameters.push_back(std::vector<double>({
+      reversedD[0][0] * KDEY->at(i),
+      reversedD[1][0] * KDEY->at(i)
+    }));
+  }
+
+  return pointsPredictionParameters.size();
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
@@ -959,8 +1036,8 @@ function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qre
       );
 
 
-      elementalFunctions.append(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->last().get(),
-                                                                                                          stDevs->last().get())));
+      elementalFunctions.append(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->at(functionIndex).get(),
+                                                                                                          stDevs->at(functionIndex).get())));
   }
 
   return new complexFunction(&contributions, &elementalFunctions);
@@ -1128,6 +1205,7 @@ void MainWindow::on_pushButton_animate_clicked()
         gt.getClustersForGrouping(clusters);
         gt.run();
 
+        /*
         std::shared_ptr<VDEThread> velocityDensityEstimatorThread
         (
           new VDEThread (
@@ -1145,6 +1223,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
         qDebug() << "VDE start.";
         runningSubthreads.back()->start();
+        */
 
         objects.clear();
         clusters.clear();
@@ -1167,10 +1246,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
       delay(ui->lineEdit_milisecondsDelay->text().toInt());
     }
-
-
-
-
 
     qDebug() << "Animation finished.";
 }

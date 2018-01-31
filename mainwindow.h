@@ -76,6 +76,11 @@ class MainWindow : public QMainWindow
 
     std::unordered_map<std::string, attributeData*> attributesData;
 
+    // Prediction
+    QVector<qreal> predictedKDEValues;
+    std::vector<std::vector<double>> pointsPredictionParameters;
+    double deactualiationParameter = 0.99;
+
     std::shared_ptr<dataParser> parser;
     std::shared_ptr<dataReader> reader;
 
@@ -106,6 +111,10 @@ class MainWindow : public QMainWindow
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
+      void addPrognosedEstimationPlots(const QVector<qreal> *X, const QVector<qreal> *KDEY);
+        int predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY);
+          int updatePointsPredictionParameters(const QVector<qreal> *KDEY);
+            int countInitialPredictionParameters(const QVector<qreal> *KDEY);
       int markUncommonClusters(kernelDensityEstimator* estimator);
         int findUncommonClusters(std::vector<std::shared_ptr<cluster> > *uncommonClusters, kernelDensityEstimator *estimator);
           std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
