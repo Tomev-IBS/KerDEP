@@ -325,7 +325,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
         X.append(x->at(0));
     }
 
-    // Generate plot of normal distribution
+    // Generate plot of model function
+    if(ui->checkBox_showEstimatedPlot->isChecked())
     addModelPlot(&X, &normalDistributionY);
 
     // Generate a vector of values from selected KDE
@@ -352,17 +353,20 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     }
 
     // Generate a plot of KDE
-    addEstimatedPlot(&X, &KDEEstimationY);
+    if(ui->checkBox_showEstimatedPlot->isChecked())
+      addEstimatedPlot(&X, &KDEEstimationY);
 
     // Generate a plot of temporal derivative
-    addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
-    //addLatestTemporalVelocityDensityProfilePlot();
+    if(ui->checkBox_showTimeDerivativePlot->isChecked())
+      addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
     // Generate plot for estimated KDE in the next iteration
-    addPrognosedEstimationPlots(&X, &KDEEstimationY);
+    if(ui->checkBox_showPrognosedPlot->isChecked())
+      addPrognosedEstimationPlots(&X, &KDEEstimationY);
 
-    markUncommonClusters(estimator);
+    if(ui->checkBox_showUnusualClusters)
+      markUncommonClusters(estimator);
 
     // Draw plots
     ui->widget_plot->replot();
@@ -525,9 +529,7 @@ int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY)
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
 {
-  std::vector<std::shared_ptr<cluster>> uncommonClusters;
-
-  findUncommonClusters(&uncommonClusters, estimator);
+  findUncommonClusters(estimator);
 
   double x;
 
@@ -549,9 +551,10 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
   return uncommonClusters.size();
 }
 
-int MainWindow::findUncommonClusters(std::vector<std::shared_ptr<cluster> > *uncommonClusters,
-                                     kernelDensityEstimator* estimator)
+int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
 {
+  uncommonClusters.clear();
+
   std::vector<double> unsortedReducedEstimatorValuesOnClusters
       = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator);
 
@@ -569,14 +572,14 @@ int MainWindow::findUncommonClusters(std::vector<std::shared_ptr<cluster> > *unc
     x.clear();
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
     if(estimator->getValue(&x) < positionalSecondGradeEstimator)
-      uncommonClusters->push_back(c);
+      uncommonClusters.push_back(c);
   }
 
   qDebug() << "Considered clusters number: " << consideredClusters.size();
-  qDebug() << "Uncommon clusters number: " << uncommonClusters->size();
+  qDebug() << "Uncommon clusters number: " << uncommonClusters.size();
   qDebug() << "Positional estimator value: " << positionalSecondGradeEstimator;
 
-  return uncommonClusters->size();
+  return uncommonClusters.size();
 }
 
 std::vector<double> MainWindow::countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator *estimator)

@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -657,7 +657,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_10">
          <item>
-          <widget class="QCheckBox" name="checkBox_2">
+          <widget class="QCheckBox" name="checkBox_showEstimatedPlot">
            <property name="text">
             <string>Estimated Plot</string>
            </property>
@@ -667,7 +667,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_3">
+          <widget class="QCheckBox" name="checkBox_showEstimationPlot">
            <property name="text">
             <string>Estimation Plot</string>
            </property>
@@ -677,7 +677,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_4">
+          <widget class="QCheckBox" name="checkBox_showPrognosedPlot">
            <property name="text">
             <string>Prognosed Plot</string>
            </property>
@@ -687,7 +687,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_5">
+          <widget class="QCheckBox" name="checkBox_showTimeDerivativePlot">
            <property name="text">
             <string>Time Derivative</string>
            </property>
@@ -697,7 +697,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_6">
+          <widget class="QCheckBox" name="checkBox_showUnusualClusters">
            <property name="text">
             <string>Unusual clusters</string>
            </property>
@@ -707,7 +707,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_7">
+          <widget class="QCheckBox" name="checkBox_showNewTrends">
            <property name="text">
             <string>New trends</string>
            </property>

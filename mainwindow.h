@@ -42,6 +42,8 @@ class MainWindow : public QMainWindow
 
     int stepNumber = 0;
 
+    std::vector<std::shared_ptr<cluster>> uncommonClusters;
+
   private:
     void setupValidators();
     void setupPlot();
@@ -116,7 +118,7 @@ class MainWindow : public QMainWindow
           int updatePointsPredictionParameters(const QVector<qreal> *KDEY);
             int countInitialPredictionParameters(const QVector<qreal> *KDEY);
       int markUncommonClusters(kernelDensityEstimator* estimator);
-        int findUncommonClusters(std::vector<std::shared_ptr<cluster> > *uncommonClusters, kernelDensityEstimator *estimator);
+        int findUncommonClusters(kernelDensityEstimator *estimator);
           std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
           double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
           double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
