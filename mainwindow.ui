@@ -305,7 +305,7 @@
           <x>390</x>
           <y>10</y>
           <width>531</width>
-          <height>431</height>
+          <height>291</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -345,6 +345,12 @@
          </item>
          <item>
           <widget class="QTableWidget" name="tableWidget_dimensionKernels">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <column>
             <property name="text">
              <string>Kernel type</string>
@@ -493,8 +499,8 @@
        <widget class="QGroupBox" name="groupBox_generalSettings">
         <property name="geometry">
          <rect>
-          <x>590</x>
-          <y>450</y>
+          <x>560</x>
+          <y>310</y>
           <width>161</width>
           <height>81</height>
          </rect>
@@ -538,7 +544,7 @@
           <x>10</x>
           <y>290</y>
           <width>161</width>
-          <height>151</height>
+          <height>131</height>
          </rect>
         </property>
         <property name="title">
@@ -598,10 +604,10 @@
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
-          <x>390</x>
-          <y>450</y>
-          <width>191</width>
-          <height>81</height>
+          <x>10</x>
+          <y>430</y>
+          <width>161</width>
+          <height>111</height>
          </rect>
         </property>
         <property name="title">
@@ -634,6 +640,81 @@
             </size>
            </property>
           </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="geometry">
+         <rect>
+          <x>390</x>
+          <y>310</y>
+          <width>161</width>
+          <height>161</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Elements Shown</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <widget class="QCheckBox" name="checkBox_2">
+           <property name="text">
+            <string>Estimated Plot</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_3">
+           <property name="text">
+            <string>Estimation Plot</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_4">
+           <property name="text">
+            <string>Prognosed Plot</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_5">
+           <property name="text">
+            <string>Time Derivative</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_6">
+           <property name="text">
+            <string>Unusual clusters</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_7">
+           <property name="text">
+            <string>New trends</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
