@@ -529,8 +529,6 @@ int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY)
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
 {
-  findUncommonClusters(estimator);
-
   double x;
 
   // Clear previously added markers
@@ -1234,6 +1232,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
         qDebug() << "Objects cleared.";
       }
+
+      findUncommonClusters(estimator.get());
 
       estimator->setClusters(getClustersForEstimator());
 
