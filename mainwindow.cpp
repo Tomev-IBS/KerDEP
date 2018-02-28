@@ -244,14 +244,33 @@ void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *object
 
 std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
 {
-  std::vector<std::shared_ptr<cluster>> c;
+  std::vector<std::shared_ptr<cluster>> consideredClusters;
 
-  c.insert(c.end(), clusters.begin(), clusters.end());
+  //consideredClusters.insert(consideredClusters.end(), clusters.begin(), clusters.end());
 
+  for(std::shared_ptr<cluster> c : clusters)
+  {
+    if(c->getWeight() > positionalSecondGradeEstimator)
+      consideredClusters.push_back(c);
+  }
+
+  /*
   for(unsigned int level = 0; level < storedMedoids.size(); ++level)
-      c.insert(c.end(), storedMedoids[level].begin(), storedMedoids[level].end());
+  {
+      consideredClusters.insert(consideredClusters.end(), storedMedoids[level].begin(), storedMedoids[level].end());
+  }
+  */
 
-  return c;
+  for(std::vector<std::shared_ptr<cluster>> level : storedMedoids)
+  {
+    for(std::shared_ptr<cluster> c : level)
+    {
+      if(c->getWeight() > positionalSecondGradeEstimator)
+        consideredClusters.push_back(c);
+    }
+  }
+
+  return consideredClusters;
 }
 
 void MainWindow::setupValidators()
@@ -343,7 +362,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       KDEEstimationY.append(val);
     }
 
-    QVector<qreal> KDETemporalDerivativeY;
+
 
     if(oldKerernelY.size() != 0)
     {
@@ -358,6 +377,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
 
     // Generate a plot of temporal derivative
 
+    KDETemporalDerivativeY.clear();
+
     if(ui->checkBox_showTimeDerivativePlot->isChecked())
       addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
@@ -365,8 +386,11 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_showPrognosedPlot->isChecked())
       addPrognosedEstimationPlots(&X, &KDEEstimationY);
 
-    if(ui->checkBox_showUnusualClusters)
+    if(ui->checkBox_showUnusualClusters->isChecked())
       markUncommonClusters(estimator);
+
+    if(ui->checkBox_showNewTrends->isChecked())
+      markNewTrends();
 
     // Draw plots
     ui->widget_plot->replot();
@@ -549,16 +573,30 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
   return uncommonClusters.size();
 }
 
+int MainWindow::markNewTrends()
+{
+  double x;
+
+  // For each uncommon cluster add a red vertical line to the plot
+  for(std::shared_ptr<cluster> c : uncommonClusters)
+  {
+    if(c->positiveTemporalDerivativeTimesInARow >= ui->spinBox_trendStep->value())
+    {
+      // Only works for distribution data samples as programmed
+      x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+
+      QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
+      verticalLine->point1->setCoords(x, MIN_Y);
+      verticalLine->point2->setCoords(x, MAX_Y);
+      verticalLine->setPen(QPen(Qt::green));
+    }
+  }
+
+}
+
 int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
 {
   uncommonClusters.clear();
-
-  std::vector<double> unsortedReducedEstimatorValuesOnClusters
-      = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator);
-
-
-  double positionalSecondGradeEstimator =
-    countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
 
   QVector<qreal> x;
 
@@ -732,6 +770,84 @@ unsigned int MainWindow::findSmallestEstimatorValueIndex(std::vector<double> *un
     if(value < result) result = value;
 
   return result;
+}
+
+int MainWindow::updateClustersTemporalDerivativeTimesInARow()
+{
+  for(std::shared_ptr<cluster> c : clusters)
+  {
+    if(hasPositiveTemporalDerivative(c))
+      c->positiveTemporalDerivativeTimesInARow += 1;
+    else
+      c->positiveTemporalDerivativeTimesInARow = 0;
+  }
+
+  for(std::vector<std::shared_ptr<cluster>> level: storedMedoids)
+  {
+    for(std::shared_ptr<cluster> c : level)
+    {
+      if(hasPositiveTemporalDerivative(c))
+        c->positiveTemporalDerivativeTimesInARow += 1;
+      else
+        c->positiveTemporalDerivativeTimesInARow = 0;
+    }
+  }
+
+  return 1;
+}
+
+bool MainWindow::hasPositiveTemporalDerivative(std::shared_ptr<cluster> c)
+{
+  if(KDETemporalDerivativeY.size() == 0) return true;
+
+  unsigned int clusterPositionIndex = findClusterPositionIndex(c);
+
+  if(clusterPositionIndex == 0)
+    return KDETemporalDerivativeY[0] > 0;
+  if(clusterPositionIndex == KDETemporalDerivativeY.size()-1)
+    return KDETemporalDerivativeY[KDETemporalDerivativeY.size() - 1] > 0;
+
+  return (KDETemporalDerivativeY[clusterPositionIndex] + KDETemporalDerivativeY[clusterPositionIndex + 1]) > 0;
+}
+
+unsigned int MainWindow::findClusterPositionIndex(std::shared_ptr<cluster> c)
+{
+  double clusterPosition =
+      std::stod(c->getRepresentative()->attributesValues["Val0"]);
+
+  unsigned int result = 0;
+
+  while((double)(result * ui->lineEdit_domainDensity->text().toDouble()) < clusterPosition ) ++ result;
+
+  return result;
+}
+
+int MainWindow::removeUnpromissingClusters()
+{
+  for(int index = clusters.size() - 1; index >= 0; --index)
+  {
+    // Remove cluster if its temporal derivative is not equal to 0 and
+    // it's weight is insignificant
+    if(clusters[index]->getWeight() < positionalSecondGradeEstimator &&
+       clusters[index]->positiveTemporalDerivativeTimesInARow == 0)
+    {
+      clusters.erase(clusters.begin() + index);
+    }
+  }
+
+  for(std::vector<std::shared_ptr<cluster>> level: storedMedoids)
+  {
+    for(int index = level.size() - 1; index >= 0; --index)
+    {
+      // Remove cluster if its temporal derivative is not equal to 0 and
+      // it's weight is insignificant
+      if(level[index]->getWeight() < positionalSecondGradeEstimator &&
+         level[index]->positiveTemporalDerivativeTimesInARow == 0)
+      {
+        level.erase(level.begin() + index);
+      }
+    }
+  }
 }
 
 void MainWindow::addLatestTemporalVelocityDensityProfilePlot()
@@ -1233,6 +1349,16 @@ void MainWindow::on_pushButton_animate_clicked()
         qDebug() << "Objects cleared.";
       }
 
+      std::vector<double> unsortedReducedEstimatorValuesOnClusters
+          = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator.get());
+
+      positionalSecondGradeEstimator =
+        countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
+
+      updateClustersTemporalDerivativeTimesInARow();
+
+      removeUnpromissingClusters();
+
       findUncommonClusters(estimator.get());
 
       estimator->setClusters(getClustersForEstimator());
@@ -1534,11 +1660,14 @@ void MainWindow::updateWeights()
         weightModifier * storedMedoids[level][medoidNumber]->getWeight()
       );
 
+      /*
       if(storedMedoids[level][medoidNumber]->getWeight() < weightDeletionThreshold)
         storedMedoids[level].erase(
           storedMedoids[level].begin() + medoidNumber
         );
+      */
     }
+
   }
 
   for(unsigned int i = 0; i < clusters.size(); ++i)

@@ -74,6 +74,8 @@ class MainWindow : public QMainWindow
     std::vector<std::shared_ptr<cluster>> clusters;
     std::vector<std::shared_ptr<cluster>> clustersForVDE;
 
+    QVector<qreal> KDETemporalDerivativeY;
+
     std::vector<std::shared_ptr<QThread>> runningSubthreads;
 
     std::unordered_map<std::string, attributeData*> attributesData;
@@ -82,6 +84,7 @@ class MainWindow : public QMainWindow
     QVector<qreal> predictedKDEValues;
     std::vector<std::vector<double>> pointsPredictionParameters;
     double deactualiationParameter = 0.99;
+    double positionalSecondGradeEstimator;
 
     std::shared_ptr<dataParser> parser;
     std::shared_ptr<dataReader> reader;
@@ -118,12 +121,7 @@ class MainWindow : public QMainWindow
           int updatePointsPredictionParameters(const QVector<qreal> *KDEY);
             int countInitialPredictionParameters(const QVector<qreal> *KDEY);
       int markUncommonClusters(kernelDensityEstimator* estimator);
-        int findUncommonClusters(kernelDensityEstimator *estimator);
-          std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
-          double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
-          double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
-            std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j);
-            unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
+      int markNewTrends();
 
     void addLatestTemporalVelocityDensityProfilePlot();
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
@@ -161,6 +159,18 @@ class MainWindow : public QMainWindow
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
+      std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
+      double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
+        double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
+        std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j);
+        unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
+      int updateClustersTemporalDerivativeTimesInARow();
+        bool hasPositiveTemporalDerivative(std::shared_ptr<cluster> c);
+          unsigned int findClusterPositionIndex(std::shared_ptr<cluster> c);
+      int removeUnpromissingClusters();
+      int findUncommonClusters(kernelDensityEstimator *estimator);
+
+
       void delay(int ms);
 
     void on_pushButton_clear_clicked();
