@@ -18,6 +18,8 @@
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
 
+#include "clusterStorage.h"
+
 enum positionalSecondGradeEstimatorCountingMethods
 {
   STANDARD = 0,
@@ -64,6 +66,7 @@ class MainWindow : public QMainWindow
     const qreal DEFAULT_MAX_Y   = 0.8;
 
     std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
+    clusterStorage storage;
 
     std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
 

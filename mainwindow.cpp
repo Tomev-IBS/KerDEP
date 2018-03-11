@@ -250,7 +250,7 @@ std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
 
   for(std::shared_ptr<cluster> c : clusters)
   {
-    if(c->getWeight() > positionalSecondGradeEstimator)
+    if(c->getWeight() >= positionalSecondGradeEstimator)
       consideredClusters.push_back(c);
   }
 
@@ -1299,7 +1299,7 @@ void MainWindow::on_pushButton_animate_clicked()
       // TR TODO: It's not working for biased algorithm
       clusters.push_back(std::shared_ptr<cluster>(new cluster(stepNumber, objects.back())));
       clusters.back()->setTimestamp(stepNumber);
-      clustersForVDE.push_back(clusters.back());
+      //clustersForVDE.push_back(clusters.back());
 
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
