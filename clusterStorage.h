@@ -20,6 +20,12 @@ class clusterStorage
         double weightThreshold);
 
     unsigned int size();
+    void clear();
+    void clearLevel(unsigned int level);
+
+    int addCluster(std::shared_ptr<cluster> c, unsigned int level);
+
+    layer operator [](int layerIndex);
 
   protected:
 

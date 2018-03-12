@@ -2,7 +2,7 @@
 
 clusterStorage::clusterStorage()
 {
-
+  storage.push_back(layer());
 }
 
 unsigned int clusterStorage::removeUnpromisingClusters(double weightThreshold)
@@ -71,6 +71,34 @@ std::vector<std::shared_ptr<cluster> > clusterStorage::getWeightyClusters(
 unsigned int clusterStorage::size()
 {
   return getAllClusters().size();
+}
+
+void clusterStorage::clear()
+{
+  storage.clear();
+}
+
+void clusterStorage::clearLevel(unsigned int level)
+{
+  if(storage.size() >= level) return;
+
+  storage[level].clear();
+}
+
+int clusterStorage::addCluster(std::shared_ptr<cluster> c, unsigned int level)
+{
+  while(storage.size() <= level)
+    storage.push_back(layer());
+
+  if(storage.size() > level) storage[level].push_back(c);
+  else return 0;
+
+  return 1;
+}
+
+layer clusterStorage::operator [](int layerIndex)
+{
+  return storage[layerIndex];
 }
 
 bool clusterStorage::shouldClusterBeRemoved(std::shared_ptr<cluster> c,

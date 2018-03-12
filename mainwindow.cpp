@@ -363,6 +363,13 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     }
 
 
+    // Generate a plot of KDE
+    if(ui->checkBox_showEstimatedPlot->isChecked())
+      addEstimatedPlot(&X, &KDEEstimationY);
+
+    // Generate a plot of temporal derivative
+    KDETemporalDerivativeY.clear();
+
 
     if(oldKerernelY.size() != 0)
     {
@@ -370,14 +377,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
         KDETemporalDerivativeY.push_back(KDEEstimationY[i] - oldKerernelY[i]);
         //KDETemporalDerivativeY.push_back(countNewtonianDerivative(i, &KDEEstimationY));
     }
-
-    // Generate a plot of KDE
-    if(ui->checkBox_showEstimatedPlot->isChecked())
-      addEstimatedPlot(&X, &KDEEstimationY);
-
-    // Generate a plot of temporal derivative
-
-    KDETemporalDerivativeY.clear();
 
     if(ui->checkBox_showTimeDerivativePlot->isChecked())
       addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
@@ -621,7 +620,8 @@ int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
 std::vector<double> MainWindow::countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator *estimator)
 {
   std::vector<double> unsortedReducedEstimatorValues;
-  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
+  std::vector<std::shared_ptr<cluster>> consideredClusters =
+      getClustersForEstimator();
   std::shared_ptr<cluster> reducedCluster;
   QVector<qreal> x;
 
@@ -645,7 +645,8 @@ std::vector<double> MainWindow::countUnsortedReducedEstimatorValuesOnEstimatorCl
   return unsortedReducedEstimatorValues;
 }
 
-double MainWindow::countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
+double MainWindow::countPositionalSecondGradeEstimator(
+    std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
 {
   double uncommonnessThreshold = ui->lineEdit_rarity->text().toDouble();
   double mr = uncommonnessThreshold;
@@ -699,12 +700,14 @@ double MainWindow::getSummaricClustersWeight(std::vector<std::shared_ptr<cluster
   return result;
 }
 
-std::vector<double> MainWindow::sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j)
+std::vector<double> MainWindow::sortJReducedEstimatorValues(
+    std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j)
 {
   std::vector<double> jSortedReducedEstimatorValues;
   std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
 
-  if(unsortedReducedEstimatorValuesOnClusters->size() <= j) return *unsortedReducedEstimatorValuesOnClusters;
+  if(unsortedReducedEstimatorValuesOnClusters->size() <= j)
+    return *unsortedReducedEstimatorValuesOnClusters;
 
   unsigned int smallestEstimatorValueIndex;
 
@@ -1254,8 +1257,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
     srand(ui->lineEdit_seed->text().toDouble());
 
-    //QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
-
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
 
@@ -1279,6 +1280,7 @@ void MainWindow::on_pushButton_animate_clicked()
     reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
     objects.clear();
+    storage.clear();
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
@@ -1290,21 +1292,30 @@ void MainWindow::on_pushButton_animate_clicked()
 
     gt.initialize();
 
+    double weightUpdateCoefficient =
+        ui->lineEdit_weightModifier->text().toDouble();
+
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
+      storage.updateWeights(weightUpdateCoefficient);
 
       algorithm->performSingleStep(&objects, stepNumber);
 
       // TR TODO: It's not working for biased algorithm
-      clusters.push_back(std::shared_ptr<cluster>(new cluster(stepNumber, objects.back())));
-      clusters.back()->setTimestamp(stepNumber);
-      //clustersForVDE.push_back(clusters.back());
+      std::shared_ptr<cluster> newCluster =
+          std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
+      newCluster->setTimestamp(stepNumber);
+
+      clusters.push_back(newCluster);
+      storage.addCluster(newCluster, 0);
 
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
+      qDebug() << "Storage size in step " << stepNumber
+               << " is: " << storage.size();
 
-      if(objects.size() >= algorithm->getReservoidMaxSize())
+      if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
         std::shared_ptr<groupingThread> gThread(
               new groupingThread(&storedMedoids)
@@ -1321,26 +1332,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
         gt.getClustersForGrouping(clusters);
         gt.run();
-
-        /*
-        std::shared_ptr<VDEThread> velocityDensityEstimatorThread
-        (
-          new VDEThread (
-              generateKernelDensityEstimator(dimensionsNumber),
-              &temporalVelocityDensityProfile,
-              clustersForVDE
-          )
-        );
-
-        fillDomain(velocityDensityEstimatorThread->getDomainPtr(), NULL);
-
-        runningSubthreads.push_back(
-          velocityDensityEstimatorThread
-        );
-
-        qDebug() << "VDE start.";
-        runningSubthreads.back()->start();
-        */
 
         objects.clear();
         clusters.clear();
