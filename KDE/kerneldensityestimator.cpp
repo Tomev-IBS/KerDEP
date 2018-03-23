@@ -30,6 +30,15 @@ int kernelDensityEstimator::setClusters(std::vector<std::shared_ptr<cluster>> cl
   return this->clusters.size();
 }
 
+int kernelDensityEstimator::setSmoothingParameters(std::vector<double> smoothingParams)
+{
+  smoothingParameters.clear();
+
+  for(double param : smoothingParams) smoothingParameters.append(param);
+
+  return smoothingParameters.size();
+}
+
 qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
 {
     if(x == NULL)

@@ -24,6 +24,8 @@ class kernelDensityEstimator
         void setSamples(QVector<std::shared_ptr<QVector<qreal>>>* samples);
         int setClusters(std::vector<std::shared_ptr<cluster> > clusters);
 
+        int setSmoothingParameters(std::vector<double> smoothingParams);
+
         qreal getValue(QVector<qreal>* x);
 
     private:

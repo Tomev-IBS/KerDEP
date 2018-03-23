@@ -13,16 +13,17 @@ class weightedSilvermanSmoothingParameterCounter
   public:
 
     weightedSilvermanSmoothingParameterCounter(QVector<qreal> *samples,
-                                               QVector<int> *weights);
+                                               QVector<double> *weights);
 
-    weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster> > *clusters, int dimension);
+    weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster> > *clusters,
+                                               int dimension);
 
     double countSmoothingParameterValue();
 
   protected:
 
     QVector<qreal> *samples;
-    QVector<int> *weights;
+    QVector<double> *weights;
 
     double countWeightedStandardDeviation();
 

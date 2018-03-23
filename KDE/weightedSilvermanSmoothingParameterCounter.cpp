@@ -4,13 +4,13 @@
 #include "iostream"
 
 weightedSilvermanSmoothingParameterCounter::weightedSilvermanSmoothingParameterCounter
-(QVector<qreal> *samples, QVector<int> *weights) : samples(samples), weights(weights)
+(QVector<qreal> *samples, QVector<double> *weights) : samples(samples), weights(weights)
 {}
 
 weightedSilvermanSmoothingParameterCounter::weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster>> *clusters, int dimension)
 {
   samples = new QVector<qreal>();
-  weights = new QVector<int>();
+  weights = new QVector<double>();
 
   for(std::shared_ptr<cluster> c : *clusters)
   {
@@ -53,7 +53,7 @@ double weightedSilvermanSmoothingParameterCounter::countWeightedStandardDeviatio
   }
 
   double stDev = 0;
-  int weightsSum = 0;
+  double weightsSum = 0;
 
   for(int i = 0; i < samples->size(); ++i)
   {

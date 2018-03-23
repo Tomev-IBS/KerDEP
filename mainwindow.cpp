@@ -246,20 +246,11 @@ std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
 {
   std::vector<std::shared_ptr<cluster>> consideredClusters;
 
-  //consideredClusters.insert(consideredClusters.end(), clusters.begin(), clusters.end());
-
   for(std::shared_ptr<cluster> c : clusters)
   {
     if(c->getWeight() >= positionalSecondGradeEstimator)
       consideredClusters.push_back(c);
   }
-
-  /*
-  for(unsigned int level = 0; level < storedMedoids.size(); ++level)
-  {
-      consideredClusters.insert(consideredClusters.end(), storedMedoids[level].begin(), storedMedoids[level].end());
-  }
-  */
 
   for(std::vector<std::shared_ptr<cluster>> level : storedMedoids)
   {
@@ -334,7 +325,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     QVector<qreal> normalDistributionY;
 
     // Fill domain with points
-    // To keep things simple let's consider only these domains wherein each dimension has equal size
+    // To keep things simple let's consider only these domains wherein
+    // each dimension has equal size.
 
     fillDomain(&domain, NULL);
 
@@ -362,20 +354,20 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       KDEEstimationY.append(val);
     }
 
-
     // Generate a plot of KDE
     if(ui->checkBox_showEstimatedPlot->isChecked())
       addEstimatedPlot(&X, &KDEEstimationY);
 
     // Generate a plot of temporal derivative
-    KDETemporalDerivativeY.clear();
 
+    KDETemporalDerivativeY.clear();
+    double visibilityEnchantCoefficient = 10;
 
     if(oldKerernelY.size() != 0)
     {
       for(int i = 0; i < KDEEstimationY.size(); ++i)
-        KDETemporalDerivativeY.push_back(KDEEstimationY[i] - oldKerernelY[i]);
-        //KDETemporalDerivativeY.push_back(countNewtonianDerivative(i, &KDEEstimationY));
+        KDETemporalDerivativeY.push_back(visibilityEnchantCoefficient*
+                                         (KDEEstimationY[i] - oldKerernelY[i]));
     }
 
     if(ui->checkBox_showTimeDerivativePlot->isChecked())
@@ -563,9 +555,9 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
     // Only works for distribution data samples as programmed
     x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
 
-    QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
-    verticalLine->point1->setCoords(x, MIN_Y);
-    verticalLine->point2->setCoords(x, MAX_Y);
+    QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
+    verticalLine->start->setCoords(x, 0.05);
+    verticalLine->end->setCoords(x, -0.05);
     verticalLine->setPen(QPen(Qt::red));
   }
 
@@ -575,11 +567,12 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
 int MainWindow::markNewTrends()
 {
   double x;
+  int trendStepsRequired = ui->spinBox_trendStep->value();
 
   // For each uncommon cluster add a red vertical line to the plot
   for(std::shared_ptr<cluster> c : uncommonClusters)
   {
-    if(c->positiveTemporalDerivativeTimesInARow >= ui->spinBox_trendStep->value())
+    if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired)
     {
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
@@ -1317,6 +1310,31 @@ void MainWindow::on_pushButton_animate_clicked()
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
+        std::vector<double> unsortedReducedEstimatorValuesOnClusters
+            = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator.get());
+
+        positionalSecondGradeEstimator =
+          countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
+
+        updateClustersTemporalDerivativeTimesInARow();
+
+        findUncommonClusters(estimator.get());
+
+        removeUnpromissingClusters();
+
+        std::vector<std::shared_ptr<cluster>> currentClusters
+            = getClustersForEstimator();
+
+        std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
+          smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
+
+        std::vector<double> smoothingParameters;
+
+        smoothingParameters
+          .push_back(smoothingParamCounter->countSmoothingParameterValue());
+
+        estimator->setSmoothingParameters(smoothingParameters);
+
         std::shared_ptr<groupingThread> gThread(
               new groupingThread(&storedMedoids)
         );
@@ -1340,26 +1358,14 @@ void MainWindow::on_pushButton_animate_clicked()
         qDebug() << "Objects cleared.";
       }
 
-      std::vector<double> unsortedReducedEstimatorValuesOnClusters
-          = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator.get());
+      std::vector<std::shared_ptr<cluster>> currentClusters
+          = getClustersForEstimator();
 
-      positionalSecondGradeEstimator =
-        countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
-
-      updateClustersTemporalDerivativeTimesInARow();
-
-      removeUnpromissingClusters();
-
-      findUncommonClusters(estimator.get());
-
-      estimator->setClusters(getClustersForEstimator());
+      estimator->setClusters(currentClusters);
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
       drawPlots(estimator.get(), targetFunction.get());
-
-      // Ensure that it will be refreshed.
-      // qApp->processEvents();
 
       start = std::chrono::duration_cast< std::chrono::milliseconds >(
           std::chrono::system_clock::now().time_since_epoch()).count();
