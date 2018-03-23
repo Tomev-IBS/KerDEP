@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -421,7 +421,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.0</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -435,7 +435,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_iterationsNumber">
            <property name="text">
-            <string>10000</string>
+            <string>1000000</string>
            </property>
           </widget>
          </item>
@@ -649,7 +649,7 @@
           <x>390</x>
           <y>310</y>
           <width>161</width>
-          <height>161</height>
+          <height>191</height>
          </rect>
         </property>
         <property name="title">
@@ -710,6 +710,16 @@
           <widget class="QCheckBox" name="checkBox_showNewTrends">
            <property name="text">
             <string>New trends</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
+           <property name="text">
+            <string>Kernel prognosed Plot</string>
            </property>
            <property name="checked">
             <bool>true</bool>
