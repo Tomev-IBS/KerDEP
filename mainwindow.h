@@ -53,17 +53,19 @@ class MainWindow : public QMainWindow
 
     long start;
 
-    const qreal MAX_X           = 999.0;
-    const qreal MIN_X           = -999.0;
-    const qreal MAX_Y           = 99.0;
-    const qreal MIN_Y           = -99.0;
-    const qreal MIN_SMOOTHING_P = 0.0;
-    const qreal MAX_SMOOTHING_P = 2.0;
-    const int   DECIMAL_NUMBERS = 3;
-    const qreal DEFAULT_MIN_X   = -5;
-    const qreal DEFAULT_MAX_X   = 15;
-    const qreal DEFAULT_MIN_Y   = -0.5;
-    const qreal DEFAULT_MAX_Y   = 0.8;
+    const qreal MAX_X                 = 999.0;
+    const qreal MIN_X                 = -999.0;
+    const qreal MAX_Y                 = 99.0;
+    const qreal MIN_Y                 = -99.0;
+    const qreal MIN_SMOOTHING_P       = 0.0;
+    const qreal MAX_SMOOTHING_P       = 2.0;
+    const int   DECIMAL_NUMBERS       = 3;
+    const qreal DEFAULT_MIN_X         = -5;
+    const qreal DEFAULT_MAX_X         = 15;
+    const qreal DEFAULT_MIN_Y         = -0.5;
+    const qreal DEFAULT_MAX_Y         = 0.8;
+
+    const unsigned int MEDOIDS_NUMBER = 10;
 
     std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
     clusterStorage storage;
@@ -84,9 +86,9 @@ class MainWindow : public QMainWindow
     std::unordered_map<std::string, attributeData*> attributesData;
 
     // Prediction
-    QVector<qreal> predictedKDEValues;
+    QVector<double> predictedKDEValues;
     std::vector<std::vector<double>> pointsPredictionParameters;
-    double deactualiationParameter = 0.99;
+    double deactualizationParameter = 0.99;
     double positionalSecondGradeEstimator;
 
     std::shared_ptr<dataParser> parser;
@@ -94,6 +96,10 @@ class MainWindow : public QMainWindow
 
     QVector<qreal> oldKerernelY;
     QVector<qreal> newKernelY;
+
+    std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
+    QVector<sample*> kernelPrognoserDomain;
+    QVector<double> kernelPrognoserWeights;
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
@@ -121,8 +127,9 @@ class MainWindow : public QMainWindow
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
       void addPrognosedEstimationPlots(const QVector<qreal> *X, const QVector<qreal> *KDEY);
         int predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY);
-          int updatePointsPredictionParameters(const QVector<qreal> *KDEY);
-            int countInitialPredictionParameters(const QVector<qreal> *KDEY);
+          int updatePointsPredictionParameters(const QVector<qreal> *KDEY, QVector<double> *predictedValues, std::vector<std::vector<double>>* target);
+            int countInitialPredictionParameters(const QVector<qreal> *KDEY, std::vector<std::vector<double>>* target);
+      void addKernelPrognosedEstimationPlot();
       int markUncommonClusters(kernelDensityEstimator* estimator);
       int markNewTrends();
 

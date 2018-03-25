@@ -377,6 +377,9 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_showPrognosedPlot->isChecked())
       addPrognosedEstimationPlots(&X, &KDEEstimationY);
 
+    if(ui->checkBox_kernelPrognosedPlot->isChecked())
+      addKernelPrognosedEstimationPlot();
+
     if(ui->checkBox_showUnusualClusters->isChecked())
       markUncommonClusters(estimator);
 
@@ -482,7 +485,7 @@ int MainWindow::predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *
 
   //qDebug() << "Updating predictions.";
 
-  updatePointsPredictionParameters(KDEY);
+  updatePointsPredictionParameters(KDEY, &predictedKDEValues, &pointsPredictionParameters);
 
   QVector<qreal> newPredictions;
 
@@ -498,11 +501,13 @@ int MainWindow::predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *
   return predictedKDEValues.size();
 }
 
-int MainWindow::updatePointsPredictionParameters(const QVector<qreal> *KDEY)
+int MainWindow::updatePointsPredictionParameters(const QVector<qreal> *KDEY,
+                                                 QVector<double>* predictedValues,
+                                                 std::vector<std::vector<double>>* target)
 {
-  if(pointsPredictionParameters.size() == 0)
+  if(target->size() == 0)
   {
-    countInitialPredictionParameters(KDEY);
+    countInitialPredictionParameters(KDEY, &pointsPredictionParameters);
     return pointsPredictionParameters.size();
   }
 
@@ -514,8 +519,8 @@ int MainWindow::updatePointsPredictionParameters(const QVector<qreal> *KDEY)
   {
     upperValue = pointsPredictionParameters[i][0] + pointsPredictionParameters[i][1];
     lowerValue = pointsPredictionParameters[i][1];
-    upperValue += (1 - pow(deactualiationParameter, 2)) * (KDEY->at(i)- predictedKDEValues[i]);
-    lowerValue += pow(1 - deactualiationParameter, 2) * (KDEY->at(i) - predictedKDEValues[i]);
+    upperValue += (1 - pow(deactualizationParameter, 2)) * (KDEY->at(i)- predictedKDEValues[i]);
+    lowerValue += pow(1 - deactualizationParameter, 2) * (KDEY->at(i) - predictedKDEValues[i]);
     updatedParameters.push_back(std::vector<double>({
       upperValue, lowerValue
     }));
@@ -526,20 +531,44 @@ int MainWindow::updatePointsPredictionParameters(const QVector<qreal> *KDEY)
   return pointsPredictionParameters.size();
 }
 
-int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY)
+int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY,
+                                                 std::vector<std::vector<double>>* target)
 {
-  std::vector<std::vector<double>> reversedD = {{1-pow(deactualiationParameter,2), pow((1- deactualiationParameter), 2)},
-                                                {pow((1- deactualiationParameter), 2), pow((1- deactualiationParameter), 3)/ deactualiationParameter}};
+  std::vector<std::vector<double>> reversedD =
+    { {1-pow(deactualizationParameter,2), pow((1- deactualizationParameter), 2)},
+      {pow((1- deactualizationParameter), 2), pow((1- deactualizationParameter), 3)/ deactualizationParameter}};
 
   for(unsigned int i = 0; i < KDEY->size(); ++i)
   {
-    pointsPredictionParameters.push_back(std::vector<double>({
+    target->push_back(std::vector<double>({
       reversedD[0][0] * KDEY->at(i),
       reversedD[1][0] * KDEY->at(i)
     }));
   }
 
-  return pointsPredictionParameters.size();
+  return target->size();
+}
+
+void MainWindow::addKernelPrognosedEstimationPlot()
+{
+  qDebug() << "Adding Kernel estimation plot.";
+
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
+  std::vector<std::shared_ptr<cluster>> prognosedClusters;
+
+  for(std::shared_ptr<cluster> c : currentClusters)
+  {
+    prognosedClusters.push_back(
+      std::shared_ptr<cluster>(new cluster(c->getObject()))
+    );
+  }
+
+  std::vector<double> prognosisCoefficients;
+
+  //ui->widget_plot->addGraph();
+  //ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, predictedKDEValues);
+  //ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::yellow));
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
@@ -1256,6 +1285,7 @@ void MainWindow::on_pushButton_animate_clicked()
     std::shared_ptr<function> targetFunction(generateTargetFunction(&means, &stDevs));
 
     std::shared_ptr<kernelDensityEstimator> estimator(generateKernelDensityEstimator(dimensionsNumber));
+    kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
 
     std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(&means, &stDevs));
 
@@ -1291,7 +1321,7 @@ void MainWindow::on_pushButton_animate_clicked()
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
-      storage.updateWeights(weightUpdateCoefficient);
+      //storage.updateWeights(weightUpdateCoefficient);
 
       algorithm->performSingleStep(&objects, stepNumber);
 
@@ -1316,11 +1346,11 @@ void MainWindow::on_pushButton_animate_clicked()
         positionalSecondGradeEstimator =
           countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
 
-        updateClustersTemporalDerivativeTimesInARow();
-
         findUncommonClusters(estimator.get());
 
         removeUnpromissingClusters();
+
+        if(clusters.size() < MEDOIDS_NUMBER) continue;
 
         std::vector<std::shared_ptr<cluster>> currentClusters
             = getClustersForEstimator();
@@ -1357,6 +1387,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
         qDebug() << "Objects cleared.";
       }
+
+      updateClustersTemporalDerivativeTimesInARow();
 
       std::vector<std::shared_ptr<cluster>> currentClusters
           = getClustersForEstimator();
