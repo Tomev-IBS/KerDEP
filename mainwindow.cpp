@@ -1289,6 +1289,20 @@ void MainWindow::on_pushButton_animate_clicked()
 
     std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(&means, &stDevs));
 
+    qDebug() << "Adding alternative distribution.";
+
+    // Alternative distribution created solely for presentation*****************
+    QVector<std::shared_ptr<QVector<qreal>>> alternativeMeans, alternativeStDevs;
+
+    std::shared_ptr<QVector<qreal>> alternativeMean;
+    alternativeMean.reset(new QVector<qreal>(10));
+
+    alternativeMeans.push_back(alternativeMean);
+    alternativeStDevs = stDevs;
+
+    std::shared_ptr<distribution> alternativeDistribution(generateTargetDistribution(&alternativeMeans, &alternativeStDevs));
+    //**************************************************************************
+
     parser.reset(new distributionDataParser(&attributesData));
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
@@ -1322,6 +1336,8 @@ void MainWindow::on_pushButton_animate_clicked()
     {
       updateWeights();
       //storage.updateWeights(weightUpdateCoefficient);
+
+      qDebug() << "Performing a step";
 
       algorithm->performSingleStep(&objects, stepNumber);
 
