@@ -449,7 +449,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_weightModifier">
            <property name="text">
-            <string>0.99</string>
+            <string>0.9</string>
            </property>
           </widget>
          </item>

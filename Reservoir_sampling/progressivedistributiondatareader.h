@@ -19,6 +19,8 @@ class progressiveDistributionDataReader : public dataReader
 
         std::vector<std::string>* getAttributesOrder();
 
+        void setNewSource(distribution *source);
+
     protected:
         distribution *sourceDistribution;
         qreal progressionSize = 0.0;

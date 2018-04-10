@@ -51,3 +51,8 @@ std::vector<std::__cxx11::string> *progressiveDistributionDataReader::getAttribu
 {
   return &attributesOrder;
 }
+
+void progressiveDistributionDataReader::setNewSource(distribution *source)
+{
+  this->sourceDistribution = source;
+}

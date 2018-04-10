@@ -175,7 +175,7 @@ double MainWindow::countInterIntervalClustersWeight()
   }
 
 
-  return pow(weightModifier,(1-((double)difference)/((double)intervalValue)));
+  return pow(weightModifier, power);
 }
 
 int MainWindow::insertMassiveData()
@@ -361,7 +361,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // Generate a plot of temporal derivative
 
     KDETemporalDerivativeY.clear();
-    double visibilityEnchantCoefficient = 10;
+    double visibilityEnchantCoefficient = 1;
 
     if(oldKerernelY.size() != 0)
     {
@@ -1295,12 +1295,15 @@ void MainWindow::on_pushButton_animate_clicked()
     QVector<std::shared_ptr<QVector<qreal>>> alternativeMeans, alternativeStDevs;
 
     std::shared_ptr<QVector<qreal>> alternativeMean;
-    alternativeMean.reset(new QVector<qreal>(10));
+    alternativeMean.reset(new QVector<qreal>());
+    alternativeMean->push_back(10);
 
     alternativeMeans.push_back(alternativeMean);
     alternativeStDevs = stDevs;
 
-    std::shared_ptr<distribution> alternativeDistribution(generateTargetDistribution(&alternativeMeans, &alternativeStDevs));
+    std::shared_ptr<distribution>
+        alternativeDistribution(generateTargetDistribution(&alternativeMeans,
+                                                           &alternativeStDevs));
     //**************************************************************************
 
     parser.reset(new distributionDataParser(&attributesData));
@@ -1338,6 +1341,16 @@ void MainWindow::on_pushButton_animate_clicked()
       //storage.updateWeights(weightUpdateCoefficient);
 
       qDebug() << "Performing a step";
+
+      if(stepNumber == 290)
+      {
+        ((progressiveDistributionDataReader*)(reader.get()))->setNewSource(alternativeDistribution.get());
+        //reader.reset(new progressiveDistributionDataReader(alternativeDistribution.get(), 0));
+        //reader.reset(new progressiveDistributionDataReader(targetDistribution.get(), progressionSize));
+        //algorithm = generateReservoirSamplingAlgorithm(reader.get(), parser.get());
+      }
+
+      qDebug() << "After if";
 
       algorithm->performSingleStep(&objects, stepNumber);
 
@@ -1712,7 +1725,6 @@ void MainWindow::updateWeights()
         );
       */
     }
-
   }
 
   for(unsigned int i = 0; i < clusters.size(); ++i)
