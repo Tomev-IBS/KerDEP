@@ -6,6 +6,7 @@
 #include "../groupingThread/kMedoidsAlgorithm/attributeData.h"
 
 #include "medoidStoringAlgorithm/medoidStoringAlgorithm.h"
+#include "kMeansAlgorithm.h"
 
 #include <QThread>
 

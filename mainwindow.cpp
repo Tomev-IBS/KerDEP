@@ -1291,7 +1291,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     qDebug() << "Adding alternative distribution.";
 
-    // Alternative distribution created solely for presentation*****************
+    //*** Alternative distribution created solely for presentation *************
     QVector<std::shared_ptr<QVector<qreal>>> alternativeMeans, alternativeStDevs;
 
     std::shared_ptr<QVector<qreal>> alternativeMean;

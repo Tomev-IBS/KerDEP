@@ -8,15 +8,16 @@
 
 #include <unordered_map>
 
-enum initialMeansFindingStrategy
-{
-  RANDOM = 0,
-  RANDOM_ACCORDING_TO_DISTANCE = 1
-};
 
 class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
 {
   public:
+
+    enum initialMeansFindingStrategy
+    {
+      RANDOM = 0,
+      RANDOM_ACCORDING_TO_DISTANCE = 1
+    };
 
     kMeansAlgorithm(    int numberOfClusters,
                         std::shared_ptr<clustersDistanceMeasure> clusDistanceMeasure,
