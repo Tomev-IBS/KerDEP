@@ -7,6 +7,7 @@
 #include "./kMedoidsAlgorithm/clustersDistanceMeasure.h"
 
 #include <unordered_map>
+#include "./kMedoidsAlgorithm/dataParser.h"
 
 
 class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
@@ -21,7 +22,8 @@ class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
 
     kMeansAlgorithm(    int numberOfClusters,
                         std::shared_ptr<clustersDistanceMeasure> clusDistanceMeasure,
-                        int initialMeansFindingStrategy);
+                        int initialMeansFindingStrategy,
+                        std::shared_ptr<dataParser> parser);
 
     void groupObjects(std::vector<std::shared_ptr<sample>>* objects,
                       std::vector<std::shared_ptr<cluster>>* target);
@@ -42,6 +44,8 @@ class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
     int           initialMeansFindingStrategy = RANDOM;
 
     time_t countStart;
+
+    std::shared_ptr<dataParser> parser;
 
     std::vector<std::shared_ptr<cluster>> clusters;
     std::vector<std::shared_ptr<cluster>> means;

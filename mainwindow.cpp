@@ -1324,7 +1324,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-    groupingThread gt(&storedMedoids);
+    groupingThread gt(&storedMedoids, parser);
 
     gt.setAttributesData(&attributesData);
 
@@ -1395,7 +1395,7 @@ void MainWindow::on_pushButton_animate_clicked()
         estimator->setSmoothingParameters(smoothingParameters);
 
         std::shared_ptr<groupingThread> gThread(
-              new groupingThread(&storedMedoids)
+              new groupingThread(&storedMedoids, parser)
         );
 
         //gThread->setAttributesData(&attributesData);

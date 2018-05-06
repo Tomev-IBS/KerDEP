@@ -12,15 +12,16 @@
 
 
 
-groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage)
+groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage, std::shared_ptr<dataParser> parser)
 {
-  this->medoidsStorage =std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>>(medoidsStorage);
+  this->medoidsStorage = std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>>(medoidsStorage);
+  this->parser = parser;
 }
 
 int groupingThread::initialize()
 {
   int NUMBER_OF_MEDOIDS = 10;
-  int MEDOIDS_FINDING_STRATEGY = RANDOM_ACCORDING_TO_DISTANCE;
+  int MEDOIDS_FINDING_STRATEGY = kMeansAlgorithm::RANDOM_ACCORDING_TO_DISTANCE;
 
   attributesDistanceMeasure* CADM = new smdCategoricalAttributesDistanceMeasure();
   attributesDistanceMeasure* NADM = new gowersNumericalAttributesDistanceMeasure(attributesData);
@@ -41,7 +42,8 @@ int groupingThread::initialize()
                                                (
                                                  NUMBER_OF_MEDOIDS,
                                                  CDM,
-                                                 MEDOIDS_FINDING_STRATEGY
+                                                 MEDOIDS_FINDING_STRATEGY,
+                                                 parser
                                                )
                                               );
 

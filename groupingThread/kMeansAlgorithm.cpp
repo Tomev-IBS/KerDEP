@@ -2,14 +2,17 @@
 
 #include <random>
 #include <iostream>
+#include <math.h>
 
 kMeansAlgorithm::kMeansAlgorithm(int numberOfClusters,
     std::shared_ptr<clustersDistanceMeasure> clusDistanceMeasure,
-    int initialMeansFindingStrategy)
+    int initialMeansFindingStrategy,
+    std::shared_ptr<dataParser> parser)
 {
   this->numberOfClusters = numberOfClusters;
   this->initialMeansFindingStrategy = initialMeansFindingStrategy;
   this->clusDistanceMeasure = clusDistanceMeasure;
+  this->parser = parser;
 }
 
 void kMeansAlgorithm::groupObjects(
@@ -67,18 +70,33 @@ int kMeansAlgorithm::performGrouping(
 {
   findInitialMeans();
 
-  double oldError = 0;
-  double newError = 0;
-  double errorThreshold = 1.0e-5;
+  double oldError = 0.0f;
+  double newError = 0.0f;
+  double errorThreshold = 0.01;
 
   do
   {
+    std::cout << "Appling new means...\n";
+
     applyNewMeans(target);
+
+    std::cout << "Assigning clusters to means...\n";
+
     assignClustersToMeans(target);
+
+    std::cout << "Counting errors...\n";
+
     oldError = newError;
     newError = countAssigmentError(target);
+
+    std::cout << "Finding new means...\n";
+
     findNewMeans(target);
-  } while( abs(oldError - newError) > errorThreshold);
+
+    std::cout << "While condition: "
+              << (fabs(oldError - newError) > errorThreshold)<< std::endl;
+
+  } while( fabs(oldError - newError) > errorThreshold);
 
   std::cout << "Grouping finished.\nClusters:" << std::endl;
 
@@ -272,7 +290,8 @@ int kMeansAlgorithm::assignClustersToMeans(
 double kMeansAlgorithm::countAssigmentError(
   std::vector<std::shared_ptr<cluster> > *target)
 {
-  double error = 0.0;
+  double error = 0.0f;
+
   std::vector<std::shared_ptr<cluster>> subclusters;
 
   for(std::shared_ptr<cluster> c : *target)
