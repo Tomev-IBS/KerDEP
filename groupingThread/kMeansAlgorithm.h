@@ -71,6 +71,10 @@ class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
       int findNewMeans(std::vector<std::shared_ptr<cluster> > *target);
         int getAttributesKeysFromObjects(std::vector<std::string> *keys,
             std::vector<std::shared_ptr<sample> > *currentClusterObjects);
+        double getAttributesMeanFromObjects(std::string attributesName,
+               std::vector<std::shared_ptr<sample> > *currentClusterObjects);
+        double getAttributesMeanFromSubclusters(std::string attributesName,
+               std::vector<std::shared_ptr<cluster> > *currentClusterSubclusters);
 };
 
 #endif // KMEANSALGORITHM_H

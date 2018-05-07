@@ -73,7 +73,7 @@ int kMeansAlgorithm::performGrouping(
 
   double oldError = 0.0f;
   double newError = 0.0f;
-  double errorThreshold = 1.0e-5;
+  double errorThreshold = 1.0e-2;
 
   do
   {
@@ -95,9 +95,12 @@ int kMeansAlgorithm::performGrouping(
     findNewMeans(target);
 
     std::cout << "While condition: "
-              << (fabs(oldError - newError) > errorThreshold)<< std::endl;
+              << (oldError - newError > errorThreshold)<< std::endl;
 
-  } while( fabs(oldError - newError) > errorThreshold);
+    std::cout << "Old error: " << oldError << std::endl
+              << "New error: " << newError << std::endl;
+
+  } while( oldError - newError > errorThreshold);
 
   std::cout << "Grouping finished.\nClusters:" << std::endl;
 
@@ -110,7 +113,6 @@ int kMeansAlgorithm::performGrouping(
   }
 
   return target->size();
-
 }
 
 int kMeansAlgorithm::findInitialMeans()
@@ -327,22 +329,41 @@ int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target
 {
   std::vector<std::string> keys;
   std::vector<std::shared_ptr<sample>> newMeans;
+  std::shared_ptr<sample> currentMean;
   std::vector<std::shared_ptr<sample>> currentClusterObjects;
+  std::vector<std::shared_ptr<cluster>> currentClusterSubclusters;
+  double attributesMean = 0.0f;
+
+  means.clear();
 
   for(int i = 0; i < target->size(); ++i)
   {
     currentClusterObjects.clear();
     target->at(i)->getObjects(&currentClusterObjects);
+    target->at(i)->getSubclusters(&currentClusterSubclusters);
 
     keys.clear();
     getAttributesKeysFromObjects(&keys, &currentClusterObjects);
 
+    parser->addDatumToContainer(&newMeans);
+    currentMean = newMeans[newMeans.size() - 1];
 
+    /* As kmeans only works for continous (numerical) values, it can be
+     * assumed that only numerical values are considered and I can count
+     * means directly, for each attribute. */
 
+    for(std::string key : keys)
+    {
+      attributesMean = getAttributesMeanFromSubclusters(key, &currentClusterSubclusters);
+      currentMean->attributesValues[key] = std::to_string(attributesMean);
+    }
 
   }
 
-  return 0;
+  for(std::shared_ptr<sample> mean : newMeans)
+    means.push_back(std::shared_ptr<cluster>(new cluster(std::shared_ptr<sample>(mean))));
+
+  return means.size();
 }
 
 int kMeansAlgorithm::getAttributesKeysFromObjects(std::vector<std::string> *keys,
@@ -358,5 +379,37 @@ int kMeansAlgorithm::getAttributesKeysFromObjects(std::vector<std::string> *keys
   }
 
   return keys->size();
+}
+
+
+
+double kMeansAlgorithm::getAttributesMeanFromObjects(std::string attributesName,
+       std::vector<std::shared_ptr<sample> > *currentClusterObjects)
+{
+  double mean = 0.0;
+
+  for(std::shared_ptr<sample> currentObject : *currentClusterObjects)
+    mean += stod(currentObject->attributesValues[attributesName]);
+
+  return mean / currentClusterObjects->size();
+}
+
+double kMeansAlgorithm::getAttributesMeanFromSubclusters(std::string attributesName,
+       std::vector<std::shared_ptr<cluster>> *currentClusterSubclusters)
+{
+  double mean = 0.0;
+  double weightsSum = 0.0;
+  double currentClusterWeight = 0.0;
+
+  for(std::shared_ptr<cluster> c : *currentClusterSubclusters)
+  {
+    if(!c->representsObject()) continue;
+
+    currentClusterWeight = c->getWeight();
+    weightsSum += currentClusterWeight;
+    mean = currentClusterWeight * stod(c->getObject()->attributesValues[attributesName]);
+  }
+
+  return mean / weightsSum;
 }
 
