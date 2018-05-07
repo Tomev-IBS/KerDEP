@@ -3,6 +3,7 @@
 #include <random>
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 
 kMeansAlgorithm::kMeansAlgorithm(int numberOfClusters,
     std::shared_ptr<clustersDistanceMeasure> clusDistanceMeasure,
@@ -326,9 +327,36 @@ int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target
 {
   std::vector<std::string> keys;
   std::vector<std::shared_ptr<sample>> newMeans;
+  std::vector<std::shared_ptr<sample>> currentClusterObjects;
 
-  for(int i = 0; i < target->size(); ++i);
+  for(int i = 0; i < target->size(); ++i)
+  {
+    currentClusterObjects.clear();
+    target->at(i)->getObjects(&currentClusterObjects);
+
+    keys.clear();
+    getAttributesKeysFromObjects(&keys, &currentClusterObjects);
+
+
+
+
+  }
 
   return 0;
+}
+
+int kMeansAlgorithm::getAttributesKeysFromObjects(std::vector<std::string> *keys,
+    std::vector<std::shared_ptr<sample> > *currentClusterObjects)
+{
+  for(std::shared_ptr<sample> currentObject : *currentClusterObjects)
+  {
+    for(auto kv : currentObject->attributesValues)
+    {
+      if(std::find(keys->begin(), keys->end(), kv.first) == keys->end())
+        keys->push_back(kv.first); // add key if it doesn't
+    }
+  }
+
+  return keys->size();
 }
 
