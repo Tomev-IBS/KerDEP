@@ -72,7 +72,7 @@ int kMeansAlgorithm::performGrouping(
 
   double oldError = 0.0f;
   double newError = 0.0f;
-  double errorThreshold = 0.01;
+  double errorThreshold = 1.0e-5;
 
   do
   {
@@ -145,6 +145,14 @@ int kMeansAlgorithm::findRandomMeans()
     possibleMeans.erase(possibleMeans.begin() + meanPosition);
   }
 
+  // Create distinct, new clusters for means
+  for(int i = 0; i < numberOfClusters; ++i)
+  {
+    means.push_back(std::shared_ptr<cluster>(new cluster(i, means.at(0)->getObject())));
+    means.at(means.size() - 1)->setRepresentative(means.at(0)->getRepresentative());
+    means.erase(means.begin());
+  }
+
   return means.size();
 }
 
@@ -168,6 +176,14 @@ int kMeansAlgorithm::findMeansAccordingToDistance()
 
   while(means.size() < numberOfClusters)
     addNewMedoidAccordingToDistanceToMeansVector(&nonMeanIndexes);
+
+  // Create distinct, new clusters for means
+  for(int i = 0; i < numberOfClusters; ++i)
+  {
+    means.push_back(std::shared_ptr<cluster>(new cluster(i, means.at(0)->getObject())));
+    means.at(means.size() - 1)->setRepresentative(means.at(0)->getRepresentative());
+    means.erase(means.begin());
+  }
 
   return means.size();
 }
@@ -270,7 +286,7 @@ int kMeansAlgorithm::assignClustersToMeans(
                                                  c.get());
     closestMeanIndex = 0;
 
-    for(int meanIndex = 1; meanIndex < means.size(); ++meanIndex)
+    for(int meanIndex = 1; meanIndex < target->size(); ++meanIndex)
     {
       currentMeanDistance =
         clusDistanceMeasure->countClustersDistance(target->at(meanIndex).get(),
@@ -308,7 +324,10 @@ double kMeansAlgorithm::countAssigmentError(
 
 int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target)
 {
-  //for(std::shared_ptr<cluster> )
+  std::vector<std::string> keys;
+  std::vector<std::shared_ptr<sample>> newMeans;
+
+  for(int i = 0; i < target->size(); ++i);
 
   return 0;
 }

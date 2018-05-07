@@ -1379,6 +1379,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
         removeUnpromissingClusters();
 
+        qDebug() << "Clusters size after reduction: " << clusters.size();
+
         if(clusters.size() < MEDOIDS_NUMBER) continue;
 
         std::vector<std::shared_ptr<cluster>> currentClusters
