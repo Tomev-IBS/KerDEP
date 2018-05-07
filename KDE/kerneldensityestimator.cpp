@@ -39,6 +39,11 @@ int kernelDensityEstimator::setSmoothingParameters(std::vector<double> smoothing
   return smoothingParameters.size();
 }
 
+void kernelDensityEstimator::setAdditionalMultipliers(std::vector<double> multipliers)
+{
+  this->additionalMultipliers = multipliers;
+}
+
 qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
 {
     if(x == NULL)
@@ -100,6 +105,7 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
 {
   double result = 0.f, addend;
   QVector<qreal> sample;
+  int i = 0;
 
   for(std::shared_ptr<cluster> c : clusters)
   {
@@ -107,6 +113,9 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
 
     addend = getProductKernelAddendFromSample(&sample, x);
     addend *= c.get()->getWeight();
+
+    if(clusters.size() == additionalMultipliers.size())
+      addend *= additionalMultipliers[i++];
 
     weight += (c.get()->getWeight());
 

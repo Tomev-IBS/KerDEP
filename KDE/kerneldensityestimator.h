@@ -26,6 +26,8 @@ class kernelDensityEstimator
 
         int setSmoothingParameters(std::vector<double> smoothingParams);
 
+        void setAdditionalMultipliers(std::vector<double> multipliers);
+
         qreal getValue(QVector<qreal>* x);
 
     private:
@@ -37,6 +39,7 @@ class kernelDensityEstimator
         QVector<kernelPtr>                          kernels;
         QVector<qreal>                              smoothingParameters;
         QVector<QString>                            carriersRestrictions;
+        std::vector<double>                    additionalMultipliers;
 
         std::vector<std::shared_ptr<cluster>> clusters;
 

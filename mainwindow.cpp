@@ -1342,6 +1342,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       qDebug() << "Performing a step";
 
+      /*
       if(stepNumber == 290)
       {
         ((progressiveDistributionDataReader*)(reader.get()))->setNewSource(alternativeDistribution.get());
@@ -1351,6 +1352,7 @@ void MainWindow::on_pushButton_animate_clicked()
       }
 
       qDebug() << "After if";
+      */
 
       algorithm->performSingleStep(&objects, stepNumber);
 
