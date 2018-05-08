@@ -384,7 +384,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       markUncommonClusters(estimator);
 
     if(ui->checkBox_showNewTrends->isChecked())
-      markNewTrends();
+      markNewTrends(estimator);
 
     // Draw plots
     ui->widget_plot->replot();
@@ -635,6 +635,8 @@ int MainWindow::updateClusterPredictionParameter(std::string clusID, double KDEV
 
   clustersPredictionParameters[clusID] = updatedParameters;
 
+  clustersLastEstimatorValues[clusID] = KDEValue;
+
   return 0;
 }
 
@@ -649,6 +651,8 @@ int MainWindow::initializeClusterPredictionParameter(std::string clusID, double 
       reversedD[0][0] * KDEValue,
       reversedD[1][0] * KDEValue
     });
+
+  clustersLastEstimatorValues[clusID] = KDEValue;
 
   return 0;
 }
@@ -675,15 +679,31 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
   return uncommonClusters.size();
 }
 
-int MainWindow::markNewTrends()
+int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
 {
   double x;
   int trendStepsRequired = ui->spinBox_trendStep->value();
 
+  QVector<std::string> clustersPredictionParamsKeys;
+
+  for(auto kv : clustersPredictionParameters)
+    clustersPredictionParamsKeys.push_back(kv.first);
+
   // For each uncommon cluster add a red vertical line to the plot
   for(std::shared_ptr<cluster> c : uncommonClusters)
   {
-    if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired)
+    if(!clustersPredictionParamsKeys.contains(c->getClustersId()))
+    {
+      double KDEValue = 0.0f;
+      QVector<qreal> pt;
+
+      pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+      KDEValue = estimator->getValue(&pt);
+      initializeClusterPredictionParameter(c->getClustersId(), KDEValue);
+    }
+
+    if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired ||
+       clustersPredictionParameters[c->getClustersId()][1] > 0.01)
     {
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
