@@ -1470,8 +1470,6 @@ void MainWindow::on_pushButton_animate_clicked()
         std::vector<std::shared_ptr<cluster>> currentClusters
             = getClustersForEstimator();
 
-
-
         std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
           smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
 
@@ -1501,6 +1499,8 @@ void MainWindow::on_pushButton_animate_clicked()
         objects.clear();
         clusters.clear();
         clustersForVDE.clear();
+        clustersPredictionParameters.clear();
+        clustersLastEstimatorValues.clear();
 
         qDebug() << "Objects cleared.";
       }
