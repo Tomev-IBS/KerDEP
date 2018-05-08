@@ -4,6 +4,7 @@
 #include <iostream>
 #include <math.h>
 #include <algorithm>
+#include <limits>
 
 kMeansAlgorithm::kMeansAlgorithm(int numberOfClusters,
     std::shared_ptr<clustersDistanceMeasure> clusDistanceMeasure,
@@ -72,7 +73,7 @@ int kMeansAlgorithm::performGrouping(
   findInitialMeans();
 
   double oldError = 0.0f;
-  double newError = 0.0f;
+  double newError = std::numeric_limits<double>::max();
   double errorThreshold = 1.0e-2;
 
   do
