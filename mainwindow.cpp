@@ -378,7 +378,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       addPrognosedEstimationPlots(&X, &KDEEstimationY);
 
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
-      addKernelPrognosedEstimationPlot();
+      addKernelPrognosedEstimationPlot(&X, estimator);
 
     if(ui->checkBox_showUnusualClusters->isChecked())
       markUncommonClusters(estimator);
@@ -549,26 +549,108 @@ int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY,
   return target->size();
 }
 
-void MainWindow::addKernelPrognosedEstimationPlot()
+void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
   qDebug() << "Adding Kernel estimation plot.";
 
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
-  std::vector<std::shared_ptr<cluster>> prognosedClusters;
 
-  for(std::shared_ptr<cluster> c : currentClusters)
-  {
-    prognosedClusters.push_back(
-      std::shared_ptr<cluster>(new cluster(c->getObject()))
-    );
-  }
+  QVector<std::string> currentClustersPredictionParametersKeys;
+
+  for(auto kv : clustersPredictionParameters)
+    currentClustersPredictionParametersKeys.push_back(kv.first);
 
   std::vector<double> prognosisCoefficients;
 
-  //ui->widget_plot->addGraph();
-  //ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, predictedKDEValues);
-  //ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::yellow));
+  double KDEValue = 0.0f;
+
+  for(std::shared_ptr<cluster> c : currentClusters)
+  {
+    QVector<qreal> pt;
+
+    // Assuming it has object (as it should). Also assuming only
+    // numerical values.
+    for(auto kv : c->getObject()->attributesValues)
+      pt.append(std::stod(kv.second));
+
+    KDEValue = estimator->getValue(&pt);
+
+    if(currentClustersPredictionParametersKeys.contains(c->getClustersId()))
+      updateClusterPredictionParameter(c->getClustersId(), KDEValue);
+    else
+      initializeClusterPredictionParameter(c->getClustersId(), KDEValue);
+
+    prognosisCoefficients.push_back(
+          clustersPredictionParameters[c->getClustersId()][1]
+        );
+  }
+
+  QVector<double> kernelPredictedKDEValues;
+
+  if(prognosisCoefficients.size() == currentClusters.size())
+  {
+    kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
+    kernelPrognoser->setClusters(currentClusters);
+
+    for(qreal x: *X)
+    {
+      QVector<qreal> pt;
+      pt.push_back(x);
+
+      kernelPredictedKDEValues.push_back(
+        kernelPrognoser->getValue(&pt)
+      );
+    }
+  }
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, kernelPredictedKDEValues);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::yellow));
+}
+
+int MainWindow::updateClusterPredictionParameter(std::string clusID, double KDEValue)
+{
+  std::vector<double> updatedParameters;
+
+  QVector<std::string> currentClustersEstimationValuesKeys;
+
+  for(auto kv : clustersLastEstimatorValues)
+    currentClustersEstimationValuesKeys.push_back(kv.first);
+
+  double currentClusterLastEstimatorValue = 0.0f;
+
+  if(currentClustersEstimationValuesKeys.contains(clusID))
+    currentClusterLastEstimatorValue = clustersLastEstimatorValues[clusID];
+
+  double upperValue, lowerValue;
+
+  upperValue = clustersPredictionParameters[clusID][0] + clustersPredictionParameters[clusID][1];
+  lowerValue = clustersPredictionParameters[clusID][1];
+  upperValue += (1 - pow(deactualizationParameter, 2)) * (KDEValue - currentClusterLastEstimatorValue);
+  lowerValue += pow(1 - deactualizationParameter, 2) * (KDEValue - currentClusterLastEstimatorValue);
+
+  updatedParameters.push_back(upperValue);
+  updatedParameters.push_back(lowerValue);
+
+  clustersPredictionParameters[clusID] = updatedParameters;
+
+  return 0;
+}
+
+int MainWindow::initializeClusterPredictionParameter(std::string clusID, double KDEValue)
+{
+  std::vector<std::vector<double>> reversedD =
+    { {1-pow(deactualizationParameter,2), pow((1- deactualizationParameter), 2)},
+      {pow((1- deactualizationParameter), 2), pow((1- deactualizationParameter), 3)/ deactualizationParameter}};
+
+  clustersPredictionParameters[clusID] =
+    std::vector<double>({
+      reversedD[0][0] * KDEValue,
+      reversedD[1][0] * KDEValue
+    });
+
+  return 0;
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
@@ -1387,6 +1469,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
         std::vector<std::shared_ptr<cluster>> currentClusters
             = getClustersForEstimator();
+
+
 
         std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
           smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));

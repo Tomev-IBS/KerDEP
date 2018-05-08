@@ -100,6 +100,8 @@ class MainWindow : public QMainWindow
     std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
     QVector<sample*> kernelPrognoserDomain;
     QVector<double> kernelPrognoserWeights;
+    std::unordered_map<std::string, std::vector<double>> clustersPredictionParameters;
+    std::unordered_map<std::string, double> clustersLastEstimatorValues;
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
@@ -129,7 +131,9 @@ class MainWindow : public QMainWindow
         int predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY);
           int updatePointsPredictionParameters(const QVector<qreal> *KDEY, QVector<double> *predictedValues, std::vector<std::vector<double>>* target);
             int countInitialPredictionParameters(const QVector<qreal> *KDEY, std::vector<std::vector<double>>* target);
-      void addKernelPrognosedEstimationPlot();
+      void addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
+        int updateClusterPredictionParameter(std::string clusID, double KDEValue);
+        int initializeClusterPredictionParameter(std::string clusID, double KDEValue);
       int markUncommonClusters(kernelDensityEstimator* estimator);
       int markNewTrends();
 
