@@ -703,7 +703,7 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
     }
 
     if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired ||
-       clustersPredictionParameters[c->getClustersId()][1] > 0.01)
+       clustersPredictionParameters[c->getClustersId()][1] > 0.000001)
     {
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
@@ -1444,7 +1444,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       qDebug() << "Performing a step";
 
-      /*
+
       if(stepNumber == 290)
       {
         ((progressiveDistributionDataReader*)(reader.get()))->setNewSource(alternativeDistribution.get());
@@ -1454,7 +1454,7 @@ void MainWindow::on_pushButton_animate_clicked()
       }
 
       qDebug() << "After if";
-      */
+
 
       algorithm->performSingleStep(&objects, stepNumber);
 
