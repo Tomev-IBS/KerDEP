@@ -192,7 +192,7 @@ qreal pluginSmoothingParameterCounter::countStandardDeviationEstimator()
 
     if(samples == NULL)
     {
-        qDebug() << "Samples pointer is numm.";
+        qDebug() << "Samples pointer is null.";
         return -1.0;
     }
 

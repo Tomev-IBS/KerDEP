@@ -1492,9 +1492,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
         if(clusters.size() < MEDOIDS_NUMBER) continue;
 
-        std::vector<std::shared_ptr<cluster>> currentClusters
-            = getClustersForEstimator();
-
+        /* Count smoothing param using Weighted Silverman Method
         std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
           smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
 
@@ -1504,6 +1502,34 @@ void MainWindow::on_pushButton_animate_clicked()
           .push_back(smoothingParamCounter->countSmoothingParameterValue());
 
         estimator->setSmoothingParameters(smoothingParameters);
+        */
+
+        //* Count smooting parameter using 2nd rank plugin method
+
+        QVector<qreal> samplesForPlugin;
+        std::vector<std::shared_ptr<cluster>> currentClusters
+            = getClustersForEstimator();
+
+        // This only works for distributions samples as programmed.
+        for(std::shared_ptr<cluster> c : currentClusters)
+        {
+          samplesForPlugin.push_back(
+            std::stod(c->getRepresentative()->attributesValues["Val0"])
+          );
+        }
+
+        std::shared_ptr<pluginSmoothingParameterCounter> smoothingParamCounter
+            (new pluginSmoothingParameterCounter(&samplesForPlugin, 2));
+
+        std::vector<double> smoothingParameters;
+
+        smoothingParameters.push_back(
+          smoothingParamCounter->count2ndRankPluginSmoothingParameter()
+         );
+
+        estimator->setSmoothingParameters(smoothingParameters);
+
+        //*/
 
         std::shared_ptr<groupingThread> gThread(
               new groupingThread(&storedMedoids, parser)
