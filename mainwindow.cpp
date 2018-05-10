@@ -703,7 +703,7 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
     }
 
     if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired ||
-       clustersPredictionParameters[c->getClustersId()][1] > 0.000001)
+       clustersPredictionParameters[c->getClustersId()][1] > 0.00001)
     {
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
@@ -1393,7 +1393,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
     qDebug() << "Adding alternative distribution.";
 
-    //*** Alternative distribution created solely for presentation *************
+    /*** Alternative distribution created solely for presentation *************
     QVector<std::shared_ptr<QVector<qreal>>> alternativeMeans, alternativeStDevs;
 
     std::shared_ptr<QVector<qreal>> alternativeMean;
@@ -1403,10 +1403,11 @@ void MainWindow::on_pushButton_animate_clicked()
     alternativeMeans.push_back(alternativeMean);
     alternativeStDevs = stDevs;
 
+    /*
     std::shared_ptr<distribution>
         alternativeDistribution(generateTargetDistribution(&alternativeMeans,
                                                            &alternativeStDevs));
-    //**************************************************************************
+    //*************************************************************************/
 
     parser.reset(new distributionDataParser(&attributesData));
 
@@ -1444,7 +1445,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       qDebug() << "Performing a step";
 
-
+      /*
       if(stepNumber == 290)
       {
         ((progressiveDistributionDataReader*)(reader.get()))->setNewSource(alternativeDistribution.get());
@@ -1454,7 +1455,7 @@ void MainWindow::on_pushButton_animate_clicked()
       }
 
       qDebug() << "After if";
-
+      */
 
       algorithm->performSingleStep(&objects, stepNumber);
 
