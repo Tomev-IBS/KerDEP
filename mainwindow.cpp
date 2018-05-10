@@ -588,6 +588,10 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
   QVector<double> kernelPredictedKDEValues;
 
+  // This should be set to 1 if original values should be used
+  double plotVisibilityCoefficient = 1.0e4;
+
+
   if(prognosisCoefficients.size() == currentClusters.size())
   {
     kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
@@ -599,7 +603,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
       pt.push_back(x);
 
       kernelPredictedKDEValues.push_back(
-        kernelPrognoser->getValue(&pt)
+        kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient
       );
     }
   }

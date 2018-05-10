@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -561,7 +561,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_rarity">
            <property name="text">
-            <string>0.1</string>
+            <string>0.01</string>
            </property>
           </widget>
          </item>
