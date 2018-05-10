@@ -1518,11 +1518,25 @@ void MainWindow::on_pushButton_animate_clicked()
 
         //runningSubthreads.back()->start();
 
-        gt.getClustersForGrouping(clusters);
+
+        // Instead of using all clusters (in general), using only part of them
+        // is required (for consistent work of KDE).
+        std::vector<std::shared_ptr<cluster>> clustersForGrouping;
+        int numberOfClustersForGrouping = 100;
+
+        for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
+        {
+          clustersForGrouping.push_back(clusters[0]);
+          clusters.erase(clusters.begin(), clusters.begin()+1);
+        }
+
+        objects.erase(objects.begin(), objects.begin() + numberOfClustersForGrouping);
+
+        gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
 
-        objects.clear();
-        clusters.clear();
+        //objects.clear();
+        //clusters.clear();
         clustersForVDE.clear();
         clustersPredictionParameters.clear();
         clustersLastEstimatorValues.clear();
