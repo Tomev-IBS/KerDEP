@@ -382,8 +382,6 @@ int kMeansAlgorithm::getAttributesKeysFromObjects(std::vector<std::string> *keys
   return keys->size();
 }
 
-
-
 double kMeansAlgorithm::getAttributesMeanFromObjects(std::string attributesName,
        std::vector<std::shared_ptr<sample> > *currentClusterObjects)
 {
@@ -408,9 +406,11 @@ double kMeansAlgorithm::getAttributesMeanFromSubclusters(std::string attributesN
 
     currentClusterWeight = c->getWeight();
     weightsSum += currentClusterWeight;
-    mean = currentClusterWeight * stod(c->getObject()->attributesValues[attributesName]);
+    mean += currentClusterWeight * stod(c->getObject()->attributesValues[attributesName]);
   }
 
-  return mean / weightsSum;
+  mean /= weightsSum;
+
+  return mean;
 }
 
