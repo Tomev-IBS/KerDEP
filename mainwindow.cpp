@@ -1493,6 +1493,9 @@ void MainWindow::on_pushButton_animate_clicked()
         if(clusters.size() < MEDOIDS_NUMBER) continue;
 
         /* Count smoothing param using Weighted Silverman Method
+        std::vector<std::shared_ptr<cluster>> currentClusters
+            = getClustersForEstimator();
+
         std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
           smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
 
@@ -1567,10 +1570,16 @@ void MainWindow::on_pushButton_animate_clicked()
         clustersPredictionParameters.clear();
         clustersLastEstimatorValues.clear();
 
+        estimator->setClusters(getClustersForEstimator());
+
+        targetFunction.reset(generateTargetFunction(&means, &stDevs));
+
+        drawPlots(estimator.get(), targetFunction.get());
+
         qDebug() << "Objects cleared.";
       }
 
-      updateClustersTemporalDerivativeTimesInARow();
+      //updateClustersTemporalDerivativeTimesInARow();
 
       std::vector<std::shared_ptr<cluster>> currentClusters
           = getClustersForEstimator();
@@ -1579,7 +1588,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      drawPlots(estimator.get(), targetFunction.get());
+      //drawPlots(estimator.get(), targetFunction.get());
 
       start = std::chrono::duration_cast< std::chrono::milliseconds >(
           std::chrono::system_clock::now().time_since_epoch()).count();

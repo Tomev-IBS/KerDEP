@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -393,7 +393,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
-            <string>1000</string>
+            <string>500</string>
            </property>
           </widget>
          </item>
@@ -421,7 +421,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -449,7 +449,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_weightModifier">
            <property name="text">
-            <string>0.99999999</string>
+            <string>0.999</string>
            </property>
           </widget>
          </item>
@@ -827,7 +827,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
