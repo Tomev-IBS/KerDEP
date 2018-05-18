@@ -19,6 +19,8 @@ void distributionDataParser::parseData(void *target)
   for(int i = 0; i < data->size(); ++i)
     sample->attributesValues[attributesOrder->at(i)] = std::to_string(data->at(i));
 
+  sample->attributesData = attributesData;
+
   updateAttributesData(sample);
 }
 

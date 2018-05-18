@@ -70,6 +70,8 @@ void kMeansAlgorithm::clusterObjects(std::vector<std::shared_ptr<sample>> *objec
 int kMeansAlgorithm::performGrouping(
     std::vector<std::shared_ptr<cluster> > *target)
 {
+  std::cout << "Finding initial means.";
+
   findInitialMeans();
 
   double oldError = 0.0f;

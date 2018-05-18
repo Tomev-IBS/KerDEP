@@ -1579,7 +1579,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      drawPlots(estimator.get(), targetFunction.get());
+      //drawPlots(estimator.get(), targetFunction.get());
 
       start = std::chrono::duration_cast< std::chrono::milliseconds >(
           std::chrono::system_clock::now().time_since_epoch()).count();
