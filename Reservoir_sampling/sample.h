@@ -4,11 +4,13 @@
 #include <string>
 #include <unordered_map>
 
+#include "../groupingThread/kMedoidsAlgorithm/attributeData.h"
+
 class sample
 {
   public:
     std::unordered_map<std::string, std::string> attributesValues;
-    virtual void print() = 0;
+    std::unordered_map<std::string, attributeData*> *attributesData;
 };
 
 

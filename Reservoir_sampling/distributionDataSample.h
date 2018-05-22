@@ -2,7 +2,6 @@
 #define DISTRIBUTIONDATASAMPLE_H
 
 #include <QVector>
-
 #include "sample.h"
 
 class distributionDataSample : public sample
