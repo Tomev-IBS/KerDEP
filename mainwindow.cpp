@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <climits>
+#include <float.h>
 #include <set>
 #include <QDebug>
 #include <algorithm>
@@ -895,12 +896,23 @@ std::vector<double> MainWindow::sortJReducedEstimatorValues(
 
 unsigned int MainWindow::findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
 {
-  double result = 2;
+  double smallestValueFound = DBL_MAX;
+  unsigned int desiredIndex = 0;
+  double currentValue = 0.0f;
 
-  for(double value : *unsortedReducedEstimatorValuesOnClusters)
-    if(value < result) result = value;
+  for(unsigned int i = 0; i < unsortedReducedEstimatorValuesOnClusters->size(); ++i)
+  {
+    currentValue = unsortedReducedEstimatorValuesOnClusters->at(i);
 
-  return result;
+    if(currentValue < smallestValueFound)
+    {
+      smallestValueFound = currentValue;
+      desiredIndex = i;
+    }
+
+  }
+
+  return desiredIndex;
 }
 
 int MainWindow::updateClustersTemporalDerivativeTimesInARow()
