@@ -238,7 +238,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>9</string>
+            <string>13</string>
            </property>
           </widget>
          </item>
@@ -421,7 +421,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.000</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -561,7 +561,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_rarity">
            <property name="text">
-            <string>0.002</string>
+            <string>0.01</string>
            </property>
           </widget>
          </item>
@@ -698,7 +698,7 @@
             <string>Time Derivative</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -718,7 +718,7 @@
             <string>New trends</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -728,7 +728,7 @@
             <string>Kernel prognosed Plot</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>

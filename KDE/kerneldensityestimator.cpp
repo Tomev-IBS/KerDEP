@@ -125,17 +125,26 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
   return result;
 }
 
-int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *sample)
+int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *smpl)
 {
   // This method assumes, that clustered sample has numerical values only
-  sample->clear();
+  smpl->clear();
 
   if(c.get()->getObject().get() == nullptr) return -1;
 
-  for(auto attrVal : c.get()->getObject().get()->attributesValues)
-    sample->append(stod(attrVal.second));
+  std::shared_ptr<sample> obj = c->getObject();
 
-  return sample->size();
+  //qDebug() << (obj->attributesValues)["Val0"];
+
+  std::unordered_map<std::string, std::string> attrVals
+      = obj->attributesValues;
+
+
+
+  for(auto attrVal : attrVals)
+    smpl->append(std::stod(attrVal.second));
+
+  return smpl->size();
 }
 
 double kernelDensityEstimator::getProductKernelAddendFromSample(QVector<qreal> *sample, QVector<qreal> *x)

@@ -362,13 +362,14 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // Generate a plot of temporal derivative
 
     KDETemporalDerivativeY.clear();
-    double visibilityEnchantCoefficient = 1;
+    double visibilityEnchantCoefficient = 3;
+    double derivativeYOffset = 0.1;
 
     if(oldKerernelY.size() != 0)
     {
       for(int i = 0; i < KDEEstimationY.size(); ++i)
         KDETemporalDerivativeY.push_back(visibilityEnchantCoefficient*
-                                         (KDEEstimationY[i] - oldKerernelY[i]));
+                                         (KDEEstimationY[i] - oldKerernelY[i]) - derivativeYOffset);
     }
 
     if(ui->checkBox_showTimeDerivativePlot->isChecked())
@@ -590,7 +591,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   QVector<double> kernelPredictedKDEValues;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1.0e4;
+  double plotVisibilityCoefficient = 1.0e5;
 
 
   if(prognosisCoefficients.size() == currentClusters.size())
@@ -598,13 +599,15 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
     kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
     kernelPrognoser->setClusters(currentClusters);
 
+    double yPlotOffset = - 0.05;
+
     for(qreal x: *X)
     {
       QVector<qreal> pt;
       pt.push_back(x);
 
       kernelPredictedKDEValues.push_back(
-        kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient
+        kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient + yPlotOffset
       );
     }
   }
@@ -1173,7 +1176,7 @@ void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *mean
         return;
     }
 
-    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
+    td::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
 
     dataParser *parser = new distributionDataParser(&attributesData);
 
