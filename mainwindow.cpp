@@ -363,7 +363,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
 
     KDETemporalDerivativeY.clear();
     double visibilityEnchantCoefficient = 3;
-    double derivativeYOffset = 0.1;
+    double derivativeYOffset = 0.0;
 
     if(oldKerernelY.size() != 0)
     {
@@ -614,7 +614,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, kernelPredictedKDEValues);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::yellow));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
 }
 
 int MainWindow::updateClusterPredictionParameter(std::string clusID, double KDEValue)
@@ -681,7 +681,7 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
     QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
     verticalLine->start->setCoords(x, 0.05);
     verticalLine->end->setCoords(x, -0.05);
-    verticalLine->setPen(QPen(Qt::red));
+    verticalLine->setPen(QPen(Qt::green));
   }
 
   return uncommonClusters.size();
@@ -1029,7 +1029,7 @@ void MainWindow::addTemporalDerivativePlot(const QVector<qreal> *X, const QVecto
 {
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::yellow));
 }
 
 void MainWindow::fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
@@ -1176,7 +1176,7 @@ void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *mean
         return;
     }
 
-    td::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
+    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
 
     dataParser *parser = new distributionDataParser(&attributesData);
 
