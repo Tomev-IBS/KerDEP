@@ -45,7 +45,7 @@ class kernelDensityEstimator
 
         qreal getProductKernelValue(QVector<qreal>* x);
           double getProductValuesFromClusters(QVector<qreal> *x);
-            int extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *sample);
+            int extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *smpl);
             double getProductKernelAddendFromSample(QVector<qreal> *sample, QVector<qreal> *x);
           double getProductValuesFromSamples(QVector<qreal> *x);
         qreal getRadialKernelValue(QVector<qreal>* x);

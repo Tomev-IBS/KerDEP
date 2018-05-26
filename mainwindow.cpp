@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <climits>
+#include <float.h>
 #include <set>
 #include <QDebug>
 #include <algorithm>
@@ -361,13 +362,14 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // Generate a plot of temporal derivative
 
     KDETemporalDerivativeY.clear();
-    double visibilityEnchantCoefficient = 1;
+    double visibilityEnchantCoefficient = 3;
+    double derivativeYOffset = 0.1;
 
     if(oldKerernelY.size() != 0)
     {
       for(int i = 0; i < KDEEstimationY.size(); ++i)
         KDETemporalDerivativeY.push_back(visibilityEnchantCoefficient*
-                                         (KDEEstimationY[i] - oldKerernelY[i]));
+                                         (KDEEstimationY[i] - oldKerernelY[i]) - derivativeYOffset);
     }
 
     if(ui->checkBox_showTimeDerivativePlot->isChecked())
@@ -589,7 +591,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   QVector<double> kernelPredictedKDEValues;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1.0e4;
+  double plotVisibilityCoefficient = 1.0e5;
 
 
   if(prognosisCoefficients.size() == currentClusters.size())
@@ -597,13 +599,15 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
     kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
     kernelPrognoser->setClusters(currentClusters);
 
+    double yPlotOffset = - 0.05;
+
     for(qreal x: *X)
     {
       QVector<qreal> pt;
       pt.push_back(x);
 
       kernelPredictedKDEValues.push_back(
-        kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient
+        kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient + yPlotOffset
       );
     }
   }
@@ -895,12 +899,23 @@ std::vector<double> MainWindow::sortJReducedEstimatorValues(
 
 unsigned int MainWindow::findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
 {
-  double result = 2;
+  double smallestValueFound = DBL_MAX;
+  unsigned int desiredIndex = 0;
+  double currentValue = 0.0f;
 
-  for(double value : *unsortedReducedEstimatorValuesOnClusters)
-    if(value < result) result = value;
+  for(unsigned int i = 0; i < unsortedReducedEstimatorValuesOnClusters->size(); ++i)
+  {
+    currentValue = unsortedReducedEstimatorValuesOnClusters->at(i);
 
-  return result;
+    if(currentValue < smallestValueFound)
+    {
+      smallestValueFound = currentValue;
+      desiredIndex = i;
+    }
+
+  }
+
+  return desiredIndex;
 }
 
 int MainWindow::updateClustersTemporalDerivativeTimesInARow()
@@ -1161,7 +1176,7 @@ void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *mean
         return;
     }
 
-    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
+    td::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
 
     dataParser *parser = new distributionDataParser(&attributesData);
 
@@ -1493,6 +1508,9 @@ void MainWindow::on_pushButton_animate_clicked()
         if(clusters.size() < MEDOIDS_NUMBER) continue;
 
         /* Count smoothing param using Weighted Silverman Method
+        std::vector<std::shared_ptr<cluster>> currentClusters
+            = getClustersForEstimator();
+
         std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
           smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
 
@@ -1567,10 +1585,16 @@ void MainWindow::on_pushButton_animate_clicked()
         clustersPredictionParameters.clear();
         clustersLastEstimatorValues.clear();
 
+        estimator->setClusters(getClustersForEstimator());
+
+        targetFunction.reset(generateTargetFunction(&means, &stDevs));
+
+        drawPlots(estimator.get(), targetFunction.get());
+
         qDebug() << "Objects cleared.";
       }
 
-      updateClustersTemporalDerivativeTimesInARow();
+      //updateClustersTemporalDerivativeTimesInARow();
 
       std::vector<std::shared_ptr<cluster>> currentClusters
           = getClustersForEstimator();

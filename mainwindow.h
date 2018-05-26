@@ -62,8 +62,8 @@ class MainWindow : public QMainWindow
     const int   DECIMAL_NUMBERS       = 3;
     const qreal DEFAULT_MIN_X         = -5;
     const qreal DEFAULT_MAX_X         = 15;
-    const qreal DEFAULT_MIN_Y         = -0.5;
-    const qreal DEFAULT_MAX_Y         = 0.8;
+    const qreal DEFAULT_MIN_Y         = -0.2;
+    const qreal DEFAULT_MAX_Y         = 0.5;
 
     const unsigned int MEDOIDS_NUMBER = 10;
 
@@ -89,7 +89,7 @@ class MainWindow : public QMainWindow
     QVector<double> predictedKDEValues;
     std::vector<std::vector<double>> pointsPredictionParameters;
     double deactualizationParameter = 0.99;
-    double positionalSecondGradeEstimator;
+    double positionalSecondGradeEstimator = 0.0f;
 
     std::shared_ptr<dataParser> parser;
     std::shared_ptr<dataReader> reader;
