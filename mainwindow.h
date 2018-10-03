@@ -52,6 +52,8 @@ class MainWindow : public QMainWindow
     void setupKernelsTable();
 
     long start;
+    double a                          = 1;
+    double maxEstimatorValueOnDomain  = 0;
 
     const qreal MAX_X                 = 999.0;
     const qreal MIN_X                 = -999.0;
@@ -84,6 +86,9 @@ class MainWindow : public QMainWindow
     std::vector<std::shared_ptr<QThread>> runningSubthreads;
 
     std::unordered_map<std::string, attributeData*> attributesData;
+
+    // Tests
+    void testNewFunctionalities();
 
     // Prediction
     QVector<double> predictedKDEValues;

@@ -39,6 +39,13 @@ MainWindow::MainWindow(QWidget *parent) :
     setupValidators();
     setupPlot();
     setupKernelsTable();
+
+    testNewFunctionalities();
+}
+
+void MainWindow::testNewFunctionalities()
+{
+
 }
 
 MainWindow::~MainWindow()
