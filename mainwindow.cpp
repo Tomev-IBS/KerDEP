@@ -316,6 +316,17 @@ void MainWindow::setupKernelsTable()
     refreshTargetFunctionTable();
 }
 
+void MainWindow::updateA()
+{
+  std::vector<std::shared_ptr<cluster>> allConsideredClusters = getClustersForEstimator();
+
+  double currentUncommonClusterWeight =
+      (double) uncommonClusters.size() / allConsideredClusters.size();
+
+  _a += (_previousUncommonClustersWeight - currentUncommonClusterWeight)
+            * _maxEstimatorValueOnDomain;
+}
+
 void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFunction)
 {
     // Check if prior plots should be saved
@@ -352,11 +363,14 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     QVector<qreal> KDEEstimationY;
 
     double val;
+    _maxEstimatorValueOnDomain = 0;
 
     // TODO: Place counting in another thread
     foreach(std::shared_ptr<point> x, domain)
     {
       val = estimator->getValue(x.get());
+
+      if (val > _maxEstimatorValueOnDomain) _maxEstimatorValueOnDomain = val;
 
       oldKerernelY.append(val);
       KDEEstimationY.append(val);

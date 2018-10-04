@@ -52,9 +52,16 @@ class MainWindow : public QMainWindow
     void setupKernelsTable();
 
     long start;
-    double a                          = 1;
-    double maxEstimatorValueOnDomain  = 0;
 
+    // Uncommon clusters dynamic parameter
+    const double MAX_A                = 1.5;
+    const double MIN_A                = 0.01;
+    double _a                         = 1;
+    double _maxEstimatorValueOnDomain = 0;
+    double _previousUncommonClustersWeight = 0.0;
+    void updateA();
+
+    // Default settings
     const qreal MAX_X                 = 999.0;
     const qreal MIN_X                 = -999.0;
     const qreal MAX_Y                 = 99.0;
