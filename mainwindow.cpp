@@ -319,15 +319,26 @@ void MainWindow::setupKernelsTable()
 void MainWindow::updateA()
 {
   std::vector<std::shared_ptr<cluster>> allConsideredClusters = getClustersForEstimator();
+  double summaricClustersWeight = 0.0;
 
-  double currentUncommonClusterWeight =
-      (double) uncommonClusters.size() / allConsideredClusters.size();
+  for(std::shared_ptr<cluster> c : allConsideredClusters)
+  {
+    summaricClustersWeight += c->getWeight();
+  }
+
+  double currentUncommonClusterWeight = 0.0;
+
+  for(std::shared_ptr<cluster> uc : uncommonClusters)
+  {
+    currentUncommonClusterWeight += uc->getWeight();
+  }
+
+  currentUncommonClusterWeight /= summaricClustersWeight;
 
   qDebug() << "Previous uncommon clusters part: " << _previousUncommonClustersWeight;
   qDebug() << "Current uncommon clusters part: " << currentUncommonClusterWeight;
   qDebug() << "Desired uncommon clusters part: " << ui->lineEdit_rarity->text().toDouble();
   qDebug() << "Previous a value: " << _a;
-
 
   _a += (ui->lineEdit_rarity->text().toDouble() - currentUncommonClusterWeight)
             * _maxEstimatorValueOnDomain;
