@@ -323,8 +323,21 @@ void MainWindow::updateA()
   double currentUncommonClusterWeight =
       (double) uncommonClusters.size() / allConsideredClusters.size();
 
-  _a += (_previousUncommonClustersWeight - currentUncommonClusterWeight)
+  qDebug() << "Previous uncommon clusters part: " << _previousUncommonClustersWeight;
+  qDebug() << "Current uncommon clusters part: " << currentUncommonClusterWeight;
+  qDebug() << "Desired uncommon clusters part: " << ui->lineEdit_rarity->text().toDouble();
+  qDebug() << "Previous a value: " << _a;
+
+
+  _a += (ui->lineEdit_rarity->text().toDouble() - currentUncommonClusterWeight)
             * _maxEstimatorValueOnDomain;
+
+  if(_a > MAX_A) _a = MAX_A;
+  if(_a < MIN_A) _a = MIN_A;
+
+  qDebug() << "Current a value: " << _a;
+
+  _previousUncommonClustersWeight = currentUncommonClusterWeight;
 }
 
 void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFunction)
@@ -759,13 +772,15 @@ int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
   {
     x.clear();
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    if(estimator->getValue(&x) < positionalSecondGradeEstimator)
+    //if(estimator->getValue(&x) < positionalSecondGradeEstimator)
+    if(estimator->getValue(&x) < _maxEstimatorValueOnDomain * _a)
       uncommonClusters.push_back(c);
   }
 
   qDebug() << "Considered clusters number: " << consideredClusters.size();
   qDebug() << "Uncommon clusters number: " << uncommonClusters.size();
   qDebug() << "Positional estimator value: " << positionalSecondGradeEstimator;
+  qDebug() << "Dynamic comparitor value: " << _a * _maxEstimatorValueOnDomain;
 
   return uncommonClusters.size();
 }
@@ -1483,7 +1498,7 @@ void MainWindow::on_pushButton_animate_clicked()
       updateWeights();
       //storage.updateWeights(weightUpdateCoefficient);
 
-      qDebug() << "Performing a step";
+      //qDebug() << "Performing a step";
 
       /*
       if(stepNumber == 290)
@@ -1507,10 +1522,12 @@ void MainWindow::on_pushButton_animate_clicked()
       clusters.push_back(newCluster);
       storage.addCluster(newCluster, 0);
 
+      /*
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
       qDebug() << "Storage size in step " << stepNumber
                << " is: " << storage.size();
+      */
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
@@ -1611,6 +1628,7 @@ void MainWindow::on_pushButton_animate_clicked()
         targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
         drawPlots(estimator.get(), targetFunction.get());
+        updateA();
 
         qDebug() << "Objects cleared.";
       }
@@ -1931,7 +1949,7 @@ void MainWindow::updateWeights()
     if(clusters[i]->getWeight() < weightDeletionThreshold) clusters.erase(clusters.begin() + i);
   }
 
-  qDebug() << "Weights updated.";
+  //qDebug() << "Weights updated.";
 }
 
 void MainWindow::moveTargetFunctionLeft()
