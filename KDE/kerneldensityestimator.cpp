@@ -1,5 +1,7 @@
 #include "kerneldensityestimator.h"
 
+#include <cmath>
+
 #include "QDebug"
 
 kernelDensityEstimator::kernelDensityEstimator(QVector<std::shared_ptr<QVector<qreal>>>* samples, QVector<qreal>* smoothingParameters, QVector<QString> *carriersRestrictions, int kernelType, QVector<int>* kernelsIDs)
@@ -73,6 +75,69 @@ qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
     }
 }
 
+void kernelDensityEstimator::updateSPModifyingParameters()
+{
+  _spModifyingParameters.clear();
+
+  std::vector<double> s = getSParameter();
+
+  std::unordered_map<std::string, double> currentVar;
+
+  for(std::shared_ptr<cluster> c : clusters)
+  {
+    std::vector<double> modParam;
+    currentVar = c->getVariation();
+    int i = 0;
+
+    for(auto kv : currentVar)
+      modParam.push_back(pow(kv.second / s[i++] , -_modificationIntensivity));
+
+    _spModifyingParameters.push_back(modParam);
+  }
+
+
+}
+
+std::vector<double> kernelDensityEstimator::getSParameter()
+{
+  double summaricWeight = 0;
+
+  std::unordered_map<std::string, double> s;
+
+  // initialize variance
+
+  for(std::shared_ptr<cluster> c : clusters)
+    summaricWeight += c->getWeight();
+
+  // Initialize
+  for(auto kv : *(clusters[0]->getRepresentative()->attributesData))
+  {
+    if(kv.second->getName() == "numerical") s[kv.first] = 0;
+  }
+
+  for(std::shared_ptr<cluster> c : clusters)
+  {
+    std::unordered_map<std::string, double> currentVar = c->getVariation();
+
+    for(auto kv : currentVar)
+    {
+      s[kv.first] = s[kv.first] + log(currentVar[kv.first]);
+    }
+  }
+
+  for(auto kv : s)
+  {
+    kv.second = kv.second / summaricWeight;
+    kv.second = exp(kv.second);
+  }
+
+  std::vector<double> result;
+
+  for(auto kv : s) result.push_back(kv.second);
+
+  return result;
+}
+
 qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
 {  
     weight = 0;
@@ -93,9 +158,6 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
     for(double smoothingParameter : smoothingParameters)
         result /= smoothingParameter;
 
-    //result += getProductValuesFromSamples(x);
-    //weight += samples.size();
-
     result /= weight;
 
     return result;
@@ -106,6 +168,8 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
   double result = 0.f, addend;
   QVector<qreal> sample;
   int i = 0;
+
+  //updateSPModifyingParameters();
 
   for(std::shared_ptr<cluster> c : clusters)
   {
@@ -159,7 +223,7 @@ double kernelDensityEstimator::getProductKernelAddendFromSample(QVector<qreal> *
   for(int i = 0; i < kernels.size(); ++i)
   {
       tempValueHolder->clear();
-      tempValueHolder->append((x->at(i)-sample->at(i))/smoothingParameters.at(i));
+      tempValueHolder->append((x->at(i) - sample->at(i))/smoothingParameters.at(i));
 
       component = kernels.at(i)->getValue(tempValueHolder.get());
 

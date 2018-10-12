@@ -35,6 +35,11 @@ class kernelDensityEstimator
         int kernelType;
         double weight;
 
+        std::vector<std::vector<double>> _spModifyingParameters;
+        double _modificationIntensivity = 0.5;
+        void updateSPModifyingParameters();
+        std::vector<double> getSParameter();
+
         QVector<std::shared_ptr<QVector<qreal>>>    samples;
         QVector<kernelPtr>                          kernels;
         QVector<qreal>                              smoothingParameters;

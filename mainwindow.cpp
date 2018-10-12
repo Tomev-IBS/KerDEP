@@ -28,6 +28,8 @@
 
 #include "groupingThread/groupingThread.h"
 
+#include "groupingThread/kMedoidsAlgorithm/numericalAttributeData.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -45,7 +47,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::testNewFunctionalities()
 {
+  qDebug() << "Start test.";
 
+  qDebug() << "Finish test.";
 }
 
 MainWindow::~MainWindow()
