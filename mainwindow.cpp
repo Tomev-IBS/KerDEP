@@ -1515,18 +1515,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
       //qDebug() << "Performing a step";
 
-      /*
-      if(stepNumber == 290)
-      {
-        ((progressiveDistributionDataReader*)(reader.get()))->setNewSource(alternativeDistribution.get());
-        //reader.reset(new progressiveDistributionDataReader(alternativeDistribution.get(), 0));
-        //reader.reset(new progressiveDistributionDataReader(targetDistribution.get(), progressionSize));
-        //algorithm = generateReservoirSamplingAlgorithm(reader.get(), parser.get());
-      }
-
-      qDebug() << "After if";
-      */
-
       algorithm->performSingleStep(&objects, stepNumber);
 
       // TR TODO: It's not working for biased algorithm
@@ -1537,20 +1525,20 @@ void MainWindow::on_pushButton_animate_clicked()
       clusters.push_back(newCluster);
       storage.addCluster(newCluster, 0);
 
-      /*
+
       qDebug() << "Reservoir size in step " << stepNumber
                << " is: " << clusters.size();
-      qDebug() << "Storage size in step " << stepNumber
-               << " is: " << storage.size();
-      */
+      //qDebug() << "Storage size in step " << stepNumber
+      //         << " is: " << storage.size();
+
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
-        std::vector<double> unsortedReducedEstimatorValuesOnClusters
-            = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator.get());
+        //std::vector<double> unsortedReducedEstimatorValuesOnClusters
+        //    = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator.get());
 
-        positionalSecondGradeEstimator =
-          countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
+        //positionalSecondGradeEstimator =
+        //  countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
 
         findUncommonClusters(estimator.get());
 
@@ -1632,8 +1620,6 @@ void MainWindow::on_pushButton_animate_clicked()
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
 
-        //objects.clear();
-        //clusters.clear();
         clustersForVDE.clear();
         clustersPredictionParameters.clear();
         clustersLastEstimatorValues.clear();

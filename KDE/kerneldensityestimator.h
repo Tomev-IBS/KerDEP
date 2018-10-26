@@ -30,6 +30,8 @@ class kernelDensityEstimator
 
         qreal getValue(QVector<qreal>* x);
 
+
+
     private:
 
         int kernelType;
@@ -37,14 +39,16 @@ class kernelDensityEstimator
 
         std::vector<std::vector<double>> _spModifyingParameters;
         double _modificationIntensivity = 0.5;
+
         void updateSPModifyingParameters();
+
         std::vector<double> getSParameter();
 
-        QVector<std::shared_ptr<QVector<qreal>>>    samples;
-        QVector<kernelPtr>                          kernels;
-        QVector<qreal>                              smoothingParameters;
-        QVector<QString>                            carriersRestrictions;
-        std::vector<double>                    additionalMultipliers;
+        QVector<std::shared_ptr<QVector<qreal>>>   samples;
+        QVector<kernelPtr>                         kernels;
+        QVector<qreal>                             smoothingParameters;
+        QVector<QString>                           carriersRestrictions;
+        std::vector<double>                        additionalMultipliers;
 
         std::vector<std::shared_ptr<cluster>> clusters;
 
@@ -52,6 +56,7 @@ class kernelDensityEstimator
           double getProductValuesFromClusters(QVector<qreal> *x);
             int extractSampleFromCluster(std::shared_ptr<cluster> c, QVector<qreal> *smpl);
             double getProductKernelAddendFromSample(QVector<qreal> *sample, QVector<qreal> *x);
+            double getProductKernelAddendFromClusterIndex(int i, QVector<qreal> *x);
           double getProductValuesFromSamples(QVector<qreal> *x);
         qreal getRadialKernelValue(QVector<qreal>* x);
 

@@ -346,10 +346,12 @@ int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target
     target->at(i)->getSubclusters(&currentClusterSubclusters);
 
     keys.clear();
+
     getAttributesKeysFromObjects(&keys, &currentClusterObjects);
 
     parser->addDatumToContainer(&newMeans);
     currentMean = newMeans[newMeans.size() - 1];
+    currentMean->attributesData = currentClusterObjects[0]->attributesData;
 
     /* As kmeans only works for continous (numerical) values, it can be
      * assumed that only numerical values are considered and I can count
