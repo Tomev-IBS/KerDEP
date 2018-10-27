@@ -113,7 +113,11 @@ class MainWindow : public QMainWindow
     QVector<sample*> kernelPrognoserDomain;
     QVector<double> kernelPrognoserWeights;
     std::unordered_map<std::string, std::vector<double>> clustersPredictionParameters;
+    std::unordered_map<std::string, double> clustersPredictedValues;
     std::unordered_map<std::string, double> clustersLastEstimatorValues;
+    double uPredictionParameter = 0.9;
+    double doubleTildedZ = 0;
+    double tildedZ = 0;
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
@@ -144,8 +148,8 @@ class MainWindow : public QMainWindow
           int updatePointsPredictionParameters(const QVector<qreal> *KDEY, QVector<double> *predictedValues, std::vector<std::vector<double>>* target);
             int countInitialPredictionParameters(const QVector<qreal> *KDEY, std::vector<std::vector<double>>* target);
       void addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
-        int updateClusterPredictionParameter(std::string clusID, double KDEValue);
-        int initializeClusterPredictionParameter(std::string clusID, double KDEValue);
+        int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
+        int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
       int markUncommonClusters(kernelDensityEstimator* estimator);
       int markNewTrends(kernelDensityEstimator *estimator);
 
@@ -164,7 +168,6 @@ class MainWindow : public QMainWindow
         qreal countLastContribution();
     void updateLastContribution();
 
-    void on_pushButton_generate_clicked();
       void fillDomain(QVector<std::shared_ptr<point> > *domain, std::shared_ptr<point> *prototypePoint);
       void generateSamples(QVector<std::shared_ptr<QVector<qreal> > > *means,
                            QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
@@ -175,9 +178,6 @@ class MainWindow : public QMainWindow
       kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
       function *generateTargetFunction(QVector<std::shared_ptr<QVector<qreal> > > *means, QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
       QColor getRandomColor();
-      void testKDE(kernelDensityEstimator* KDE, function* targetFunction);
-        int testKDEError(kernelDensityEstimator *KDE, function *targetFunction);
-        int testRareElementsDetector(kernelDensityEstimator *KDE);
         void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
     void on_pushButton_animate_clicked();
@@ -190,7 +190,6 @@ class MainWindow : public QMainWindow
         double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
         std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j);
         unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
-      int updateClustersTemporalDerivativeTimesInARow();
         bool hasPositiveTemporalDerivative(std::shared_ptr<cluster> c);
           unsigned int findClusterPositionIndex(std::shared_ptr<cluster> c);
       int removeUnpromissingClusters();
@@ -212,7 +211,6 @@ class MainWindow : public QMainWindow
 
     void updateWeights();
 
-    void moveTargetFunctionLeft();
 
 };
 

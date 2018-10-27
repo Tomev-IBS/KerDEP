@@ -75,19 +75,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
   // If m is pressed
   if(keyCode == 77) insertMassiveData();
-
-  // If left arrow pressed
-  if(keyCode == 16777234)
-  {
-    qDebug() << "Left arrow pressed.";
-    moveTargetFunctionLeft();
-  }
-
-  // If right arrow pressed
-  if(keyCode == 16777236) qDebug() << "Right arrow pressed.";
-
-  // If down arrow pressed
-  if(keyCode == 16777237) qDebug() << "Down arrow pressed.";
 }
 
 int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
@@ -533,19 +520,12 @@ void MainWindow::addPrognosedEstimationPlots(const QVector<qreal> *X, const QVec
 
 int MainWindow::predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY)
 {
-
-  //qDebug() << "Updating predictions.";
-
   updatePointsPredictionParameters(KDEY, &predictedKDEValues, &pointsPredictionParameters);
 
   QVector<qreal> newPredictions;
 
-  //qDebug() << "Counting new predictions.";
-
   for(unsigned int i = 0; i < pointsPredictionParameters.size(); ++i)
-    newPredictions.push_back(pointsPredictionParameters[i][0] + stepNumber * pointsPredictionParameters[i][1]);
-
-  //qDebug() << "Swapping old predictions with new.";
+    newPredictions.push_back(pointsPredictionParameters[i][0] + pointsPredictionParameters[i][1]);
 
   predictedKDEValues = newPredictions;
 
@@ -604,6 +584,8 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 {
   qDebug() << "Adding Kernel estimation plot.";
 
+  QVector<qreal> additionalPoints;
+
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
 
@@ -614,7 +596,10 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
   std::vector<double> prognosisCoefficients;
 
-  double KDEValue = 0.0f;
+  double KDEValue = 0;
+
+  double eParameter = 0;
+  int eParameterAddendsCounter = 0;
 
   for(std::shared_ptr<cluster> c : currentClusters)
   {
@@ -627,15 +612,51 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
     KDEValue = estimator->getValue(&pt);
 
-    if(currentClustersPredictionParametersKeys.contains(c->getClustersId()))
-      updateClusterPredictionParameter(c->getClustersId(), KDEValue);
+    std::string cId = c->getClustersId();
+
+    //if(currentClustersPredictionParametersKeys.contains(cId))
+    if(c->predictionParameters.size() > 0)
+    {
+      eParameter += clustersPredictedValues[cId] - KDEValue;
+      updateClusterPredictionParameter(c, KDEValue);
+      clustersPredictedValues[cId] =
+         c->predictionParameters[0] + c->predictionParameters[1];
+      ++eParameterAddendsCounter;
+    }
     else
-      initializeClusterPredictionParameter(c->getClustersId(), KDEValue);
+      initializeClusterPredictionParameter(c, KDEValue);
 
     prognosisCoefficients.push_back(
           clustersPredictionParameters[c->getClustersId()][1]
         );
   }
+
+  qDebug() << "Ye Olde deactualization param: " << deactualizationParameter;
+
+  if(eParameterAddendsCounter > 0)
+    eParameter /= eParameterAddendsCounter;
+
+  if(doubleTildedZ < 1e-5)
+  {
+    doubleTildedZ = eParameter;
+    deactualizationParameter = 1;
+  }
+  else
+  {
+    doubleTildedZ = (1.0 - uPredictionParameter) * eParameter + uPredictionParameter * doubleTildedZ;
+    tildedZ = (1.0 - uPredictionParameter) * eParameter + uPredictionParameter * tildedZ;
+    double z = fabs(tildedZ / doubleTildedZ);
+    deactualizationParameter = pow(1.0 - z, 1.0 / eParameterAddendsCounter);
+  }
+
+  qDebug() << "Ye newe deactualization param: " << deactualizationParameter;
+
+
+
+  // TODO
+
+
+
 
   QVector<double> kernelPredictedKDEValues;
 
@@ -666,8 +687,10 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
 }
 
-int MainWindow::updateClusterPredictionParameter(std::string clusID, double KDEValue)
+int MainWindow::updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue)
 {
+  std::string clusID = c->getClustersId();
+
   std::vector<double> updatedParameters;
 
   QVector<std::string> currentClustersEstimationValuesKeys;
@@ -683,22 +706,26 @@ int MainWindow::updateClusterPredictionParameter(std::string clusID, double KDEV
   double upperValue, lowerValue;
 
   upperValue = clustersPredictionParameters[clusID][0] + clustersPredictionParameters[clusID][1];
-  lowerValue = clustersPredictionParameters[clusID][1];
   upperValue += (1 - pow(deactualizationParameter, 2)) * (KDEValue - currentClusterLastEstimatorValue);
+
+  lowerValue = clustersPredictionParameters[clusID][1];
   lowerValue += pow(1 - deactualizationParameter, 2) * (KDEValue - currentClusterLastEstimatorValue);
 
   updatedParameters.push_back(upperValue);
   updatedParameters.push_back(lowerValue);
 
   clustersPredictionParameters[clusID] = updatedParameters;
+  c->predictionParameters = updatedParameters;
 
   clustersLastEstimatorValues[clusID] = KDEValue;
 
   return 0;
 }
 
-int MainWindow::initializeClusterPredictionParameter(std::string clusID, double KDEValue)
+int MainWindow::initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue)
 {
+  std::string clusID = c->getClustersId();
+
   std::vector<std::vector<double>> reversedD =
     { {1-pow(deactualizationParameter,2), pow((1- deactualizationParameter), 2)},
       {pow((1- deactualizationParameter), 2), pow((1- deactualizationParameter), 3)/ deactualizationParameter}};
@@ -710,6 +737,9 @@ int MainWindow::initializeClusterPredictionParameter(std::string clusID, double 
     });
 
   clustersLastEstimatorValues[clusID] = KDEValue;
+  clustersPredictedValues[clusID] = KDEValue;
+
+  c->predictionParameters = clustersPredictionParameters[clusID];
 
   return 0;
 }
@@ -756,7 +786,7 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
 
       pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
       KDEValue = estimator->getValue(&pt);
-      initializeClusterPredictionParameter(c->getClustersId(), KDEValue);
+      initializeClusterPredictionParameter(c, KDEValue);
     }
 
     if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired ||
@@ -969,30 +999,6 @@ unsigned int MainWindow::findSmallestEstimatorValueIndex(std::vector<double> *un
   return desiredIndex;
 }
 
-int MainWindow::updateClustersTemporalDerivativeTimesInARow()
-{
-  for(std::shared_ptr<cluster> c : clusters)
-  {
-    if(hasPositiveTemporalDerivative(c))
-      c->positiveTemporalDerivativeTimesInARow += 1;
-    else
-      c->positiveTemporalDerivativeTimesInARow = 0;
-  }
-
-  for(std::vector<std::shared_ptr<cluster>> level: storedMedoids)
-  {
-    for(std::shared_ptr<cluster> c : level)
-    {
-      if(hasPositiveTemporalDerivative(c))
-        c->positiveTemporalDerivativeTimesInARow += 1;
-      else
-        c->positiveTemporalDerivativeTimesInARow = 0;
-    }
-  }
-
-  return 1;
-}
-
 bool MainWindow::hasPositiveTemporalDerivative(std::shared_ptr<cluster> c)
 {
   if(KDETemporalDerivativeY.size() == 0) return true;
@@ -1127,45 +1133,6 @@ void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
             );
         }
     }
-}
-
-void MainWindow::on_pushButton_generate_clicked()
-{
-    // Log that application started generating KDE
-    qDebug() << "KDE generation started.";
-    qDebug() << "Seed: " + ui->lineEdit_seed->text() +
-                ", Sample size: " + ui->lineEdit_sampleSize->text();
-
-    srand(ui->lineEdit_seed->text().toDouble());
-
-    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
-
-    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
-
-    fillMeans(&means);
-    fillStandardDeviations(&stDevs);
-
-    qDebug() << "Means and stDevs filled.";
-
-    // Generate samples
-    generateSamples(&means, &stDevs);
-
-    qDebug() << "Samples generated.";
-
-    std::shared_ptr<function> targetFunction(generateTargetFunction(&means, &stDevs));
-
-    kernelDensityEstimator* estimator
-        = generateKernelDensityEstimator(dimensionsNumber);
-
-    qDebug() << "Testing...";
-
-    // Test estimator
-    testKDE(estimator, targetFunction.get());
-
-    qDebug() << samples.size();
-
-    // Run plot related tasks if dimension number is equal to 1
-    if(dimensionsNumber == 1) drawPlots(estimator, targetFunction.get());
 }
 
 void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain, std::shared_ptr<point> *prototypePoint)
@@ -1363,53 +1330,6 @@ QColor MainWindow::getRandomColor()
     return QColor(rand()%110 + 50, rand()%110 + 50, rand()%110 + 50);
 }
 
-void MainWindow::testKDE(kernelDensityEstimator *KDE, function *targetFunction)
-{
-  testKDEError(KDE, targetFunction);
-  testRareElementsDetector(KDE);
-}
-
-int MainWindow::testKDEError(kernelDensityEstimator *KDE, function *targetFunction)
-{
-  QVector<point *> testDomain;
-  fillTestDomain(&testDomain, NULL);
-
-  qreal error = 0;
-
-  foreach(auto arg, testDomain)
-  {
-    qDebug()  << "Point: " << *arg
-              << "Target: " << targetFunction->getValue(arg)
-              << "Estimated: " << KDE->getValue(arg)
-              << "Difference: " << qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
-    error += qAbs(targetFunction->getValue(arg) - KDE->getValue(arg));
-  }
-
-  qDebug() << "Error: " << error;
-  qDebug() << "Average error: " << error/testDomain.size();
-
-  return 0;
-}
-
-int MainWindow::testRareElementsDetector(kernelDensityEstimator *KDE)
-{
-  QVector<point *> testDomain;
-  fillTestDomain(&testDomain, NULL);
-
-  qreal r = ui->lineEdit_rarity->text().toDouble();
-
-  QVector<int> atypicalElementsIndexes;
-
-  rareElementsDetector* detector = new rareElementsDetector(KDE, r);
-
-  detector->findAtypicalElementsInDomain(&testDomain, &atypicalElementsIndexes);
-
-  qDebug() << "Atypical elements indexes:";
-  qDebug() << atypicalElementsIndexes;
-
-  return 0;
-}
-
 void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
 {
     // Check if domain is nullpointer
@@ -1461,24 +1381,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
     std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(&means, &stDevs));
 
-    qDebug() << "Adding alternative distribution.";
-
-    /*** Alternative distribution created solely for presentation *************
-    QVector<std::shared_ptr<QVector<qreal>>> alternativeMeans, alternativeStDevs;
-
-    std::shared_ptr<QVector<qreal>> alternativeMean;
-    alternativeMean.reset(new QVector<qreal>());
-    alternativeMean->push_back(10);
-
-    alternativeMeans.push_back(alternativeMean);
-    alternativeStDevs = stDevs;
-
-    /*
-    std::shared_ptr<distribution>
-        alternativeDistribution(generateTargetDistribution(&alternativeMeans,
-                                                           &alternativeStDevs));
-    //*************************************************************************/
-
     parser.reset(new distributionDataParser(&attributesData));
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
@@ -1511,9 +1413,6 @@ void MainWindow::on_pushButton_animate_clicked()
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
-      //storage.updateWeights(weightUpdateCoefficient);
-
-      //qDebug() << "Performing a step";
 
       algorithm->performSingleStep(&objects, stepNumber);
 
@@ -1523,23 +1422,11 @@ void MainWindow::on_pushButton_animate_clicked()
       newCluster->setTimestamp(stepNumber);
 
       clusters.push_back(newCluster);
-      storage.addCluster(newCluster, 0);
 
-
-      qDebug() << "Reservoir size in step " << stepNumber
-               << " is: " << clusters.size();
-      //qDebug() << "Storage size in step " << stepNumber
-      //         << " is: " << storage.size();
-
+      //qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
-        //std::vector<double> unsortedReducedEstimatorValuesOnClusters
-        //    = countUnsortedReducedEstimatorValuesOnEstimatorClusters(estimator.get());
-
-        //positionalSecondGradeEstimator =
-        //  countPositionalSecondGradeEstimator(&unsortedReducedEstimatorValuesOnClusters);
-
         findUncommonClusters(estimator.get());
 
         removeUnpromissingClusters();
@@ -1594,15 +1481,9 @@ void MainWindow::on_pushButton_animate_clicked()
               new groupingThread(&storedMedoids, parser)
         );
 
-        //gThread->setAttributesData(&attributesData);
-        //gThread->getClustersForGrouping(clusters);
-
         runningSubthreads.push_back(gThread);
 
         qDebug() << "Got objects for grouping.";
-
-        //runningSubthreads.back()->start();
-
 
         // Instead of using all clusters (in general), using only part of them
         // is required (for consistent work of KDE).
@@ -1622,6 +1503,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
         clustersForVDE.clear();
         clustersPredictionParameters.clear();
+
         clustersLastEstimatorValues.clear();
 
         estimator->setClusters(getClustersForEstimator());
@@ -1633,8 +1515,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
         qDebug() << "Objects cleared.";
       }
-
-      //updateClustersTemporalDerivativeTimesInARow();
 
       std::vector<std::shared_ptr<cluster>> currentClusters
           = getClustersForEstimator();
@@ -1951,12 +1831,4 @@ void MainWindow::updateWeights()
   }
 
   //qDebug() << "Weights updated.";
-}
-
-void MainWindow::moveTargetFunctionLeft()
-{
-  //QVector<std::shared_ptr<QVector<qreal>>> newMeans;
-  //newMeans.push_back(std::shared_ptr<QVector<qreal>>(new QVector<qreal>({-1})));
-  //means = newMeans;
-  //means = QVector<std::shared_ptr<QVector<qreal>>>(std::shared_ptr<QVector<qreal>>());
 }

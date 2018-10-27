@@ -67,13 +67,6 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_generate">
-             <property name="text">
-              <string>Generate</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="pushButton_animate">
              <property name="text">
               <string>Animate</string>
@@ -688,7 +681,7 @@
             <string>Prognosed Plot</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
