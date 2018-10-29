@@ -645,8 +645,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   {
     doubleTildedZ = (1.0 - uPredictionParameter) * eParameter + uPredictionParameter * doubleTildedZ;
     tildedZ = (1.0 - uPredictionParameter) * eParameter + uPredictionParameter * tildedZ;
-    double z = fabs(tildedZ / doubleTildedZ);
-    deactualizationParameter = pow(1.0 - z, 1.0 / eParameterAddendsCounter);
+    deactualizationParameter = 1.0 - fabs(tildedZ / doubleTildedZ);;
   }
 
   qDebug() << "Ye newe deactualization param: " << deactualizationParameter;
