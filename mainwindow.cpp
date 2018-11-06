@@ -589,79 +589,21 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
 
-  QVector<std::string> currentClustersPredictionParametersKeys;
-
-  for(auto kv : clustersPredictionParameters)
-    currentClustersPredictionParametersKeys.push_back(kv.first);
-
   std::vector<double> prognosisCoefficients;
 
-  double KDEValue = 0;
-
-  double eParameter = 0;
-  int eParameterAddendsCounter = 0;
-
-  for(std::shared_ptr<cluster> c : currentClusters)
-  {
-    QVector<qreal> pt;
-
-    // Assuming it has object (as it should). Also assuming only
-    // numerical values.
-    for(auto kv : c->getObject()->attributesValues)
-      pt.append(std::stod(kv.second));
-
-    KDEValue = estimator->getValue(&pt);
-
-    std::string cId = c->getClustersId();
-
-    //if(currentClustersPredictionParametersKeys.contains(cId))
-    if(c->predictionParameters.size() > 0)
-    {
-      eParameter += clustersPredictedValues[cId] - KDEValue;
-      updateClusterPredictionParameter(c, KDEValue);
-      clustersPredictedValues[cId] =
-         c->predictionParameters[0] + c->predictionParameters[1];
-      ++eParameterAddendsCounter;
-    }
-    else
-      initializeClusterPredictionParameter(c, KDEValue);
-
-    prognosisCoefficients.push_back(
-          clustersPredictionParameters[c->getClustersId()][1]
-        );
-  }
-
-  qDebug() << "Ye Olde deactualization param: " << deactualizationParameter;
-
-  if(eParameterAddendsCounter > 0)
-    eParameter /= eParameterAddendsCounter;
-
-  if(doubleTildedZ < 1e-5)
-  {
-    doubleTildedZ = eParameter;
-    deactualizationParameter = 1;
-  }
-  else
-  {
-    doubleTildedZ = (1.0 - uPredictionParameter) * eParameter + uPredictionParameter * doubleTildedZ;
-    tildedZ = (1.0 - uPredictionParameter) * eParameter + uPredictionParameter * tildedZ;
-    deactualizationParameter = 1.0 - fabs(tildedZ / doubleTildedZ);;
-  }
-
-  qDebug() << "Ye newe deactualization param: " << deactualizationParameter;
-
-
-
   // TODO
-
-
-
 
   QVector<double> kernelPredictedKDEValues;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1.0e5;
+  double plotVisibilityCoefficient = 1e3;
 
+  prognosisCoefficients.clear();
+
+  for(auto c : currentClusters)
+  {
+    prognosisCoefficients.push_back(c->predictionParameters[1]);
+  }
 
   if(prognosisCoefficients.size() == currentClusters.size())
   {
@@ -707,7 +649,7 @@ int MainWindow::updateClusterPredictionParameter(std::shared_ptr<cluster> c, dou
   upperValue = clustersPredictionParameters[clusID][0] + clustersPredictionParameters[clusID][1];
   upperValue += (1 - pow(deactualizationParameter, 2)) * (KDEValue - currentClusterLastEstimatorValue);
 
-  lowerValue = clustersPredictionParameters[clusID][1];
+  lowerValue = clustersPredictionParameters[clusID][0];
   lowerValue += pow(1 - deactualizationParameter, 2) * (KDEValue - currentClusterLastEstimatorValue);
 
   updatedParameters.push_back(upperValue);
@@ -726,8 +668,8 @@ int MainWindow::initializeClusterPredictionParameter(std::shared_ptr<cluster> c,
   std::string clusID = c->getClustersId();
 
   std::vector<std::vector<double>> reversedD =
-    { {1-pow(deactualizationParameter,2), pow((1- deactualizationParameter), 2)},
-      {pow((1- deactualizationParameter), 2), pow((1- deactualizationParameter), 3)/ deactualizationParameter}};
+    { {1-pow(c->_deactualizationParameter,2), pow((1- c->_deactualizationParameter), 2)},
+      {pow((1- c->_deactualizationParameter), 2), pow((1- c->_deactualizationParameter), 3)/ c->_deactualizationParameter}};
 
   clustersPredictionParameters[clusID] =
     std::vector<double>({
@@ -1421,8 +1363,9 @@ void MainWindow::on_pushButton_animate_clicked()
       newCluster->setTimestamp(stepNumber);
 
       clusters.push_back(newCluster);
+      //updatePrognosisParameters(estimator.get());
 
-      //qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
+      qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
@@ -1506,6 +1449,7 @@ void MainWindow::on_pushButton_animate_clicked()
         clustersLastEstimatorValues.clear();
 
         estimator->setClusters(getClustersForEstimator());
+        updatePrognosisParameters(estimator.get());
 
         targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -1828,6 +1772,43 @@ void MainWindow::updateWeights()
     clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
     if(clusters[i]->getWeight() < weightDeletionThreshold) clusters.erase(clusters.begin() + i);
   }
+}
 
-  //qDebug() << "Weights updated.";
+void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
+{
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
+
+  if(currentClusters.size() == 0) return;
+
+  double KDEValue = 0;
+
+  for(std::shared_ptr<cluster> c : currentClusters)
+  {
+    QVector<qreal> pt;
+
+    // Assuming it has object (as it should). Also assuming only
+    // numerical values.
+    for(auto kv : c->getObject()->attributesValues)
+      pt.append(std::stod(kv.second));
+
+    //qDebug() << "Getting estimator value.";
+
+    KDEValue = estimator->getValue(&pt);
+
+    //qDebug() << "Got estimator value.";
+
+    std::string cId = c->getClustersId();
+
+    if(c->predictionParameters.size() > 0)
+    {
+      c->updateDeactualizationParameter(KDEValue);
+      c->updatePredictionParameters(KDEValue);
+    }
+    else
+    {
+      c->initializePredictionParameters(KDEValue);
+    }
+  }
+
 }

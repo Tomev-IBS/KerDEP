@@ -101,7 +101,7 @@ class MainWindow : public QMainWindow
     QVector<double> predictedKDEValues;
     std::vector<std::vector<double>> pointsPredictionParameters;
     double deactualizationParameter = 0.99;
-    double positionalSecondGradeEstimator = 0.0f;
+    double positionalSecondGradeEstimator = 0.0;
 
     std::shared_ptr<dataParser> parser;
     std::shared_ptr<dataReader> reader;
@@ -210,6 +210,7 @@ class MainWindow : public QMainWindow
     void on_pushButton_removeTargetFunction_clicked();
 
     void updateWeights();
+    void updatePrognosisParameters(kernelDensityEstimator *estimator);
 
 
 };
