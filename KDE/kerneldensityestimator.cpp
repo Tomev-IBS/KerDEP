@@ -120,14 +120,12 @@ std::vector<double> kernelDensityEstimator::getSParameter()
       = clusters[0]->getRepresentative()->attributesData;
 
   std::string attrType;
-  bool isAttributeNumerical;
 
   // Initialize
   for(auto kv : *(attrsData))
   {
     attrType = kv.second->getType();
-    isAttributeNumerical = attrType == "numerical";
-    if(isAttributeNumerical) s[kv.first] = 0;
+    if(attrType == "numerical") s[kv.first] = 0;
   }
 
   for(std::shared_ptr<cluster> c : clusters)
@@ -137,7 +135,7 @@ std::vector<double> kernelDensityEstimator::getSParameter()
     for(auto kv : currentVar)
     {
       if(currentVar[kv.first] < 1e-5) continue;
-      s[kv.first] = s[kv.first] + log(currentVar[kv.first]);
+      s[kv.first] = s[kv.first] + c->getWeight() * log(currentVar[kv.first]);
     }
   }
 
@@ -211,8 +209,6 @@ int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c,
 
   std::unordered_map<std::string, std::string> attrVals
       = obj->attributesValues;
-
-
 
   for(auto attrVal : attrVals)
     smpl->append(std::stod(attrVal.second));

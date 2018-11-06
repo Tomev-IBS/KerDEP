@@ -1250,6 +1250,7 @@ void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
 void MainWindow::on_pushButton_animate_clicked()
 {
     int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+    bool wereSmoothingParamsCount = false;
 
     if(!canAnimationBePerformed(dimensionsNumber)) return;
 
@@ -1354,16 +1355,20 @@ void MainWindow::on_pushButton_animate_clicked()
           );
         }
 
-        std::shared_ptr<pluginSmoothingParameterCounter> smoothingParamCounter
-            (new pluginSmoothingParameterCounter(&samplesForPlugin, 2));
+        if(!wereSmoothingParamsCount)
+        {
+          std::shared_ptr<pluginSmoothingParameterCounter> smoothingParamCounter
+              (new pluginSmoothingParameterCounter(&samplesForPlugin, 2));
 
-        std::vector<double> smoothingParameters;
+          std::vector<double> smoothingParameters;
 
-        smoothingParameters.push_back(
-          smoothingParamCounter->count2ndRankPluginSmoothingParameter()
-         );
+          smoothingParameters.push_back(
+            smoothingParamCounter->count2ndRankPluginSmoothingParameter()
+           );
 
-        estimator->setSmoothingParameters(smoothingParameters);
+          estimator->setSmoothingParameters(smoothingParameters);
+          wereSmoothingParamsCount = true;
+        }
 
         //estimator->setClusters(getClustersForEstimator());
 
