@@ -628,41 +628,6 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
 }
 
-int MainWindow::updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue)
-{
-  std::string clusID = c->getClustersId();
-
-  std::vector<double> updatedParameters;
-
-  QVector<std::string> currentClustersEstimationValuesKeys;
-
-  for(auto kv : clustersLastEstimatorValues)
-    currentClustersEstimationValuesKeys.push_back(kv.first);
-
-  double currentClusterLastEstimatorValue = 0.0f;
-
-  if(currentClustersEstimationValuesKeys.contains(clusID))
-    currentClusterLastEstimatorValue = clustersLastEstimatorValues[clusID];
-
-  double upperValue, lowerValue;
-
-  upperValue = clustersPredictionParameters[clusID][0] + clustersPredictionParameters[clusID][1];
-  upperValue += (1 - pow(deactualizationParameter, 2)) * (KDEValue - currentClusterLastEstimatorValue);
-
-  lowerValue = clustersPredictionParameters[clusID][0];
-  lowerValue += pow(1 - deactualizationParameter, 2) * (KDEValue - currentClusterLastEstimatorValue);
-
-  updatedParameters.push_back(upperValue);
-  updatedParameters.push_back(lowerValue);
-
-  clustersPredictionParameters[clusID] = updatedParameters;
-  c->predictionParameters = updatedParameters;
-
-  clustersLastEstimatorValues[clusID] = KDEValue;
-
-  return 0;
-}
-
 int MainWindow::initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue)
 {
   std::string clusID = c->getClustersId();
@@ -710,28 +675,11 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
 int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
 {
   double x;
-  int trendStepsRequired = ui->spinBox_trendStep->value();
-
-  QVector<std::string> clustersPredictionParamsKeys;
-
-  for(auto kv : clustersPredictionParameters)
-    clustersPredictionParamsKeys.push_back(kv.first);
 
   // For each uncommon cluster add a red vertical line to the plot
   for(std::shared_ptr<cluster> c : uncommonClusters)
   {
-    if(!clustersPredictionParamsKeys.contains(c->getClustersId()))
-    {
-      double KDEValue = 0.0f;
-      QVector<qreal> pt;
-
-      pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-      KDEValue = estimator->getValue(&pt);
-      initializeClusterPredictionParameter(c, KDEValue);
-    }
-
-    if(c->positiveTemporalDerivativeTimesInARow >= trendStepsRequired ||
-       clustersPredictionParameters[c->getClustersId()][1] > 0.00001)
+    if(c->predictionParameters[1] * c->_lastKDEValue > 1e-5)
     {
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
@@ -1416,6 +1364,9 @@ void MainWindow::on_pushButton_animate_clicked()
          );
 
         estimator->setSmoothingParameters(smoothingParameters);
+
+        //estimator->setClusters(getClustersForEstimator());
+
 
         //*/
 

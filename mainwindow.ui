@@ -414,7 +414,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -442,7 +442,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_weightModifier">
            <property name="text">
-            <string>0.999</string>
+            <string>0.99</string>
            </property>
           </widget>
          </item>
@@ -680,8 +680,11 @@
            <property name="text">
             <string>Prognosed Plot</string>
            </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -711,7 +714,7 @@
             <string>New trends</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -722,35 +725,6 @@
            </property>
            <property name="checked">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="geometry">
-         <rect>
-          <x>560</x>
-          <y>400</y>
-          <width>161</width>
-          <height>74</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Trends settings</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_11">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Trend step</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spinBox_trendStep">
-           <property name="value">
-            <number>5</number>
            </property>
           </widget>
          </item>
