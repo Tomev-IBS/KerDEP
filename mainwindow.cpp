@@ -596,14 +596,23 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   QVector<double> kernelPredictedKDEValues;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1e3;
+  double plotVisibilityCoefficient = 1e0;
 
   prognosisCoefficients.clear();
+
+  int predictionBelowZero = 0;
 
   for(auto c : currentClusters)
   {
     prognosisCoefficients.push_back(c->predictionParameters[1]);
+    qDebug() << c->predictionParameters[1];
+    if(c->predictionParameters[1] < 0)
+    {
+      ++predictionBelowZero;
+    }
   }
+
+  qDebug() << "Predictions below 0:" << predictionBelowZero;
 
   if(prognosisCoefficients.size() == currentClusters.size())
   {
