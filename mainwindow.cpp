@@ -591,21 +591,28 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
   std::vector<double> prognosisCoefficients;
 
-  // TODO
-
   QVector<double> kernelPredictedKDEValues;
+  QVector<double> additionalAxis;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1e1;
+  double plotVisibilityCoefficient = 1e5;
 
   prognosisCoefficients.clear();
 
   int predictionBelowZero = 0;
 
+  int clusI = 0;
+
   for(auto c : currentClusters)
   {
     prognosisCoefficients.push_back(c->predictionParameters[1]);
-    //qDebug() << c->predictionParameters[1];
+    if(c->predictionParameters[1] > 1)
+    {
+      //qDebug() << clusI << " c2: " << c->predictionParameters[1];
+      //qDebug() << clusI << " u: " << c->_uPredictionParameter;
+    }
+
+    ++clusI;
     if(c->predictionParameters[1] < 0)
     {
       ++predictionBelowZero;
@@ -621,13 +628,16 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
     double yPlotOffset = - 0.05;
 
+
     int kernelValuesBelowZero = 0;
     double valueAtX = 0;
 
     for(qreal x: *X)
     {
       QVector<qreal> pt;
+
       pt.push_back(x);
+      additionalAxis.push_back(yPlotOffset);
 
       valueAtX = kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient;
 
@@ -639,6 +649,10 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
     qDebug() << "Kernel values below zero: " << kernelValuesBelowZero;
   }
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, additionalAxis);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::black, Qt::PenStyle::DashLine));
 
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, kernelPredictedKDEValues);
@@ -655,8 +669,8 @@ int MainWindow::initializeClusterPredictionParameter(std::shared_ptr<cluster> c,
 
   clustersPredictionParameters[clusID] =
     std::vector<double>({
-      reversedD[0][0] * KDEValue,
-      reversedD[1][0] * KDEValue
+      KDEValue,
+      0
     });
 
   clustersLastEstimatorValues[clusID] = KDEValue;
@@ -729,14 +743,12 @@ int MainWindow::markClustersWithNegativeDerivative()
       double x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
 
       QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
-      verticalLine->start->setCoords(x, 0.05);
-      verticalLine->end->setCoords(x, -0.05);
+      verticalLine->start->setCoords(x, 0.01);
+      verticalLine->end->setCoords(x, -0.01);
       verticalLine->setPen(QPen(Qt::red));
     }
   }
 }
-
-
 
 int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
 {
