@@ -1328,6 +1328,8 @@ void MainWindow::on_pushButton_animate_clicked()
     double weightUpdateCoefficient =
         ui->lineEdit_weightModifier->text().toDouble();
 
+    _a = MIN_A;
+
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       updateWeights();
