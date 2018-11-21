@@ -693,6 +693,8 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
 {
   double x;
 
+  markClustersWithNegativeDerivative();
+
   // For each uncommon cluster add a red vertical line to the plot
   for(std::shared_ptr<cluster> c : uncommonClusters)
   {
@@ -701,25 +703,40 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
 
+      /*
       QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
       verticalLine->point1->setCoords(x, MIN_Y);
       verticalLine->point2->setCoords(x, MAX_Y);
       verticalLine->setPen(QPen(Qt::green));
+      */
+      QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
+      verticalLine->start->setCoords(x, 0.1);
+      verticalLine->end->setCoords(x, -0.1);
+      verticalLine->setPen(QPen(Qt::blue));
     }
+  }
+}
 
-    if(c->predictionParameters[1] < 0)
+int MainWindow::markClustersWithNegativeDerivative()
+{
+  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
+
+  for(auto c : consideredClusters)
+  {
+    if(c->predictionParameters[1] < 0) // Mark with
     {
       // Only works for distribution data samples as programmed
-      x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+      double x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
 
-      QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
-      verticalLine->point1->setCoords(x, MIN_Y);
-      verticalLine->point2->setCoords(x, MAX_Y);
+      QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
+      verticalLine->start->setCoords(x, 0.05);
+      verticalLine->end->setCoords(x, -0.05);
       verticalLine->setPen(QPen(Qt::red));
     }
   }
-
 }
+
+
 
 int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
 {

@@ -152,6 +152,8 @@ class MainWindow : public QMainWindow
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
       int markUncommonClusters(kernelDensityEstimator* estimator);
       int markNewTrends(kernelDensityEstimator *estimator);
+      int markClustersWithNegativeDerivative();
+
 
     void addLatestTemporalVelocityDensityProfilePlot();
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
