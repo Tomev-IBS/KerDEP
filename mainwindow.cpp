@@ -596,7 +596,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   QVector<double> kernelPredictedKDEValues;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1e0;
+  double plotVisibilityCoefficient = 1e1;
 
   prognosisCoefficients.clear();
 
@@ -605,7 +605,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   for(auto c : currentClusters)
   {
     prognosisCoefficients.push_back(c->predictionParameters[1]);
-    qDebug() << c->predictionParameters[1];
+    //qDebug() << c->predictionParameters[1];
     if(c->predictionParameters[1] < 0)
     {
       ++predictionBelowZero;
@@ -621,15 +621,23 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
     double yPlotOffset = - 0.05;
 
+    int kernelValuesBelowZero = 0;
+    double valueAtX = 0;
+
     for(qreal x: *X)
     {
       QVector<qreal> pt;
       pt.push_back(x);
 
-      kernelPredictedKDEValues.push_back(
-        kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient + yPlotOffset
-      );
+      valueAtX = kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient;
+
+      kernelPredictedKDEValues.push_back(valueAtX + yPlotOffset);
+
+      if(valueAtX < 0) ++kernelValuesBelowZero;
+
     }
+
+    qDebug() << "Kernel values below zero: " << kernelValuesBelowZero;
   }
 
   ui->widget_plot->addGraph();
@@ -697,6 +705,17 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
       verticalLine->point1->setCoords(x, MIN_Y);
       verticalLine->point2->setCoords(x, MAX_Y);
       verticalLine->setPen(QPen(Qt::green));
+    }
+
+    if(c->predictionParameters[1] < 0)
+    {
+      // Only works for distribution data samples as programmed
+      x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+
+      QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
+      verticalLine->point1->setCoords(x, MIN_Y);
+      verticalLine->point2->setCoords(x, MAX_Y);
+      verticalLine->setPen(QPen(Qt::red));
     }
   }
 
@@ -1323,10 +1342,12 @@ void MainWindow::on_pushButton_animate_clicked()
       clusters.push_back(newCluster);
       //updatePrognosisParameters(estimator.get());
 
-      qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
+      //qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
+        qDebug() << "============ Main function started ============";
+
         findUncommonClusters(estimator.get());
 
         removeUnpromissingClusters();

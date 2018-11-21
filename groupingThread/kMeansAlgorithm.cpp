@@ -105,7 +105,10 @@ int kMeansAlgorithm::performGrouping(
 
   } while( oldError - newError > errorThreshold);
 
-  std::cout << "Grouping finished.\nClusters:" << std::endl;
+  std::cout << "Grouping finished.\n";
+
+  /*
+  std::cout << "Grouping finished.\nClusters:\n";
 
   for(unsigned int i = 0; i < target->size(); ++i)
   {
@@ -114,6 +117,7 @@ int kMeansAlgorithm::performGrouping(
     std::cout << i << ". cluster's weight: " << target->at(i)->getWeight()
               << std::endl;
   }
+  */
 
   return target->size();
 }

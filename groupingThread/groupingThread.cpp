@@ -54,10 +54,11 @@ int groupingThread::initialize()
 
 void groupingThread::run()
 {
-  qDebug() << "Wątek totalnie działa.";
+  //qDebug() << "Wątek totalnie działa.";
 
   storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
 
+  /*
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
     qDebug() << "Level: " << i << ". Custers number: "
@@ -65,6 +66,7 @@ void groupingThread::run()
   }
 
   qDebug() << "Grouping finished and medoids stored.";
+  */
 }
 
 int groupingThread::getObjectsForGrouping(std::vector<std::shared_ptr<sample>> samples)
