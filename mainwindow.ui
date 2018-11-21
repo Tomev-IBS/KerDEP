@@ -645,7 +645,7 @@
           <x>390</x>
           <y>310</y>
           <width>161</width>
-          <height>191</height>
+          <height>231</height>
          </rect>
         </property>
         <property name="title">
@@ -678,7 +678,7 @@
             <string>Time Derivative</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -703,9 +703,29 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="checkBox_negativeC2Clusters">
+           <property name="text">
+            <string>Negative c2 clusters</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
            <property name="text">
             <string>Kernel prognosed Plot</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_overtakingEstimator">
+           <property name="text">
+            <string>Overtaking estimator</string>
            </property>
            <property name="checked">
             <bool>true</bool>

@@ -174,20 +174,12 @@ class MainWindow : public QMainWindow
       kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
       function *generateTargetFunction(QVector<std::shared_ptr<QVector<qreal> > > *means, QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
       QColor getRandomColor();
-        void fillTestDomain(QVector<point *> *domain, point* prototypePoint);
 
     void on_pushButton_animate_clicked();
       int canAnimationBePerformed(int dimensionsNumber);
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
-      std::vector<double> countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator* estimator);
-      double countPositionalSecondGradeEstimator(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
-        double getSummaricClustersWeight(std::vector<std::shared_ptr<cluster>> clusters);
-        std::vector<double> sortJReducedEstimatorValues(std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j);
-        unsigned int findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters);
-        bool hasPositiveTemporalDerivative(std::shared_ptr<cluster> c);
-          unsigned int findClusterPositionIndex(std::shared_ptr<cluster> c);
       int removeUnpromissingClusters();
       int findUncommonClusters(kernelDensityEstimator *estimator);
 

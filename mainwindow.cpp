@@ -396,7 +396,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       addEstimatedPlot(&X, &KDEEstimationY);
 
     // Generate a plot of temporal derivative
-
     KDETemporalDerivativeY.clear();
     double visibilityEnchantCoefficient = 3;
     double derivativeYOffset = 0.0;
@@ -411,10 +410,15 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_showTimeDerivativePlot->isChecked())
       addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
-    // Generate plot for estimated KDE in the next iteration
-
+    // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
       addKernelPrognosedEstimationPlot(&X, estimator);
+
+
+
+
+    if(ui->checkBox_negativeC2Clusters->isChecked())
+      markClustersWithNegativeDerivative();
 
     if(ui->checkBox_showUnusualClusters->isChecked())
       markUncommonClusters(estimator);
@@ -584,8 +588,6 @@ int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
 {
   double x;
 
-  markClustersWithNegativeDerivative();
-
   // For each uncommon cluster add a red vertical line to the plot
   for(std::shared_ptr<cluster> c : uncommonClusters)
   {
@@ -612,12 +614,14 @@ int MainWindow::markClustersWithNegativeDerivative()
 {
   std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
 
+  double x = 0;
+
   for(auto c : consideredClusters)
   {
     if(c->predictionParameters[1] < 0) // Mark with
     {
       // Only works for distribution data samples as programmed
-      double x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+      x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
 
       QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
       verticalLine->start->setCoords(x, 0.01);
@@ -979,9 +983,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
     gt.initialize();
 
-    double weightUpdateCoefficient =
-        ui->lineEdit_weightModifier->text().toDouble();
-
     _a = MIN_A;
 
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
@@ -1107,8 +1108,6 @@ void MainWindow::on_pushButton_animate_clicked()
       estimator->setClusters(currentClusters);
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
-
-      //drawPlots(estimator.get(), targetFunction.get());
 
       start = std::chrono::duration_cast< std::chrono::milliseconds >(
           std::chrono::system_clock::now().time_since_epoch()).count();
