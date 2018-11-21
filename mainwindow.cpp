@@ -1821,6 +1821,8 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
     {
       c->updateDeactualizationParameter(KDEValue);
       c->updatePredictionParameters(KDEValue);
+
+      qDebug() << c->_deactualizationParameter;
     }
     else
     {
