@@ -595,7 +595,7 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   QVector<double> additionalAxis;
 
   // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1e5;
+  double plotVisibilityCoefficient = 1e3;
 
   prognosisCoefficients.clear();
 
@@ -608,8 +608,8 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
     prognosisCoefficients.push_back(c->predictionParameters[1]);
     if(c->predictionParameters[1] > 1)
     {
-      //qDebug() << clusI << " c2: " << c->predictionParameters[1];
-      //qDebug() << clusI << " u: " << c->_uPredictionParameter;
+      qDebug() << clusI << " c2: " << c->predictionParameters[1];
+      qDebug() << clusI << " u: " << c->_uPredictionParameter;
     }
 
     ++clusI;
@@ -646,8 +646,6 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
       if(valueAtX < 0) ++kernelValuesBelowZero;
 
     }
-
-    qDebug() << "Kernel values below zero: " << kernelValuesBelowZero;
   }
 
   ui->widget_plot->addGraph();
@@ -1822,7 +1820,7 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
       c->updateDeactualizationParameter(KDEValue);
       c->updatePredictionParameters(KDEValue);
 
-      qDebug() << c->_deactualizationParameter;
+      //qDebug() << c->_deactualizationParameter;
     }
     else
     {
