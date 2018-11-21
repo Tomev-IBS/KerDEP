@@ -7,6 +7,7 @@
 #include <set>
 #include <QDebug>
 #include <algorithm>
+#include <cmath>
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -375,7 +376,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     addModelPlot(&X, &normalDistributionY);
 
     // Generate a vector of values from selected KDE
-    QVector<qreal> KDEEstimationY;
+    KDEEstimationY.clear();
 
     double val;
     _maxEstimatorValueOnDomain = 0;
@@ -411,11 +412,13 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
     // Generate plot for kernel prognosis derivative
+    countKernelPrognosisDerivativeY(&X);
+
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
-      addKernelPrognosedEstimationPlot(&X, estimator);
+      addKernelPrognosisDerivativePlot(&X, estimator);
 
-
-
+    if(ui->checkBox_overtakingEstimator->isChecked())
+      addOvertakingEstimationPlot(&X);
 
     if(ui->checkBox_negativeC2Clusters->isChecked())
       markClustersWithNegativeDerivative();
@@ -511,20 +514,39 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
 
 }
 
-void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
+void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
-  qDebug() << "Adding Kernel estimation plot.";
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
 
+  QVector<double> offsetKernelPrognosisPlotValues;
+  QVector<double> additionalAxis;
+
+  double yPlotOffset = - 0.05;
+
+  for(int i = 0; i < _kernelPrognosisDerivativeValues.size(); ++i)
+  {
+    offsetKernelPrognosisPlotValues.push_back(_kernelPrognosisDerivativeValues[i] + yPlotOffset);
+    additionalAxis.push_back(yPlotOffset);
+  }
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, additionalAxis);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::black, Qt::PenStyle::DashLine));
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, offsetKernelPrognosisPlotValues);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
+}
+
+void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
+{
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
 
   std::vector<double> prognosisCoefficients;
 
-  QVector<double> kernelPredictedKDEValues;
-  QVector<double> additionalAxis;
-
-  // This should be set to 1 if original values should be used
-  double plotVisibilityCoefficient = 1e3;
+  _kernelPrognosisDerivativeValues.clear();
 
   prognosisCoefficients.clear();
 
@@ -536,30 +558,27 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
     kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
     kernelPrognoser->setClusters(currentClusters);
 
-    double yPlotOffset = - 0.05;
-
-    double valueAtX = 0;
-
     for(qreal x: *X)
     {
       QVector<qreal> pt;
-
       pt.push_back(x);
-      additionalAxis.push_back(yPlotOffset);
-
-      valueAtX = kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient;
-
-      kernelPredictedKDEValues.push_back(valueAtX + yPlotOffset);
+      _kernelPrognosisDerivativeValues.push_back(
+            kernelPrognoser->getValue(&pt)  * _prognosisDerivativePlotVisibilityCoefficient
+      );
     }
   }
+}
+
+void MainWindow::addOvertakingEstimationPlot(const QVector<qreal> *X)
+{
+  QVector<qreal> overtakingPlotY;
+
+  for(int i = 0; i < KDEEstimationY.size(); ++i)
+    overtakingPlotY.push_back(std::max(KDEEstimationY[i] + _kernelPrognosisDerivativeValues[i], 0.0));
 
   ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, additionalAxis);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::black, Qt::PenStyle::DashLine));
-
-  ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, kernelPredictedKDEValues);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, overtakingPlotY);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)

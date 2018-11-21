@@ -97,7 +97,12 @@ class MainWindow : public QMainWindow
     // Tests
     void testNewFunctionalities();
 
+    QVector<qreal> KDEEstimationY;
+
     // Prediction
+    QVector<double> _kernelPrognosisDerivativeValues;
+    double _prognosisDerivativePlotVisibilityCoefficient = 1e3;
+
     QVector<double> predictedKDEValues;
     std::vector<std::vector<double>> pointsPredictionParameters;
     double deactualizationParameter = 0.99;
@@ -143,7 +148,9 @@ class MainWindow : public QMainWindow
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
-      void addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
+      void addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
+      void countKernelPrognosisDerivativeY(const QVector<qreal> *X);
+      void addOvertakingEstimationPlot(const QVector<qreal> *X);
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
       int markUncommonClusters(kernelDensityEstimator* estimator);
