@@ -245,7 +245,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minY">
            <property name="text">
-            <string>-0.1</string>
+            <string>-0.2</string>
            </property>
           </widget>
          </item>
@@ -669,22 +669,6 @@
            </property>
            <property name="checked">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_showPrognosedPlot">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Prognosed Plot</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
            </property>
           </widget>
          </item>

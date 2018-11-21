@@ -412,8 +412,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
     // Generate plot for estimated KDE in the next iteration
-    if(ui->checkBox_showPrognosedPlot->isChecked())
-      addPrognosedEstimationPlots(&X, &KDEEstimationY);
 
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
       addKernelPrognosedEstimationPlot(&X, estimator);
@@ -509,82 +507,9 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
 
 }
 
-void MainWindow::addPrognosedEstimationPlots(const QVector<qreal> *X, const QVector<qreal> *KDEY)
-{
-  predictKDEValues(X, KDEY);
-
-  ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, predictedKDEValues);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::green));
-}
-
-int MainWindow::predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY)
-{
-  updatePointsPredictionParameters(KDEY, &predictedKDEValues, &pointsPredictionParameters);
-
-  QVector<qreal> newPredictions;
-
-  for(unsigned int i = 0; i < pointsPredictionParameters.size(); ++i)
-    newPredictions.push_back(pointsPredictionParameters[i][0] + pointsPredictionParameters[i][1]);
-
-  predictedKDEValues = newPredictions;
-
-  return predictedKDEValues.size();
-}
-
-int MainWindow::updatePointsPredictionParameters(const QVector<qreal> *KDEY,
-                                                 QVector<double>* predictedValues,
-                                                 std::vector<std::vector<double>>* target)
-{
-  if(target->size() == 0)
-  {
-    countInitialPredictionParameters(KDEY, &pointsPredictionParameters);
-    return pointsPredictionParameters.size();
-  }
-
-  std::vector<std::vector<double>> updatedParameters;
-
-  double upperValue, lowerValue;
-
-  for(unsigned int i = 0; i < pointsPredictionParameters.size(); ++i)
-  {
-    upperValue = pointsPredictionParameters[i][0] + pointsPredictionParameters[i][1];
-    lowerValue = pointsPredictionParameters[i][1];
-    upperValue += (1 - pow(deactualizationParameter, 2)) * (KDEY->at(i)- predictedKDEValues[i]);
-    lowerValue += pow(1 - deactualizationParameter, 2) * (KDEY->at(i) - predictedKDEValues[i]);
-    updatedParameters.push_back(std::vector<double>({
-      upperValue, lowerValue
-    }));
-  }
-
-  pointsPredictionParameters = updatedParameters;
-
-  return pointsPredictionParameters.size();
-}
-
-int MainWindow::countInitialPredictionParameters(const QVector<qreal> *KDEY,
-                                                 std::vector<std::vector<double>>* target)
-{
-  std::vector<std::vector<double>> reversedD =
-    { {1-pow(deactualizationParameter,2), pow((1- deactualizationParameter), 2)},
-      {pow((1- deactualizationParameter), 2), pow((1- deactualizationParameter), 3)/ deactualizationParameter}};
-
-  for(unsigned int i = 0; i < KDEY->size(); ++i)
-  {
-    target->push_back(std::vector<double>({
-      reversedD[0][0] * KDEY->at(i),
-      reversedD[1][0] * KDEY->at(i)
-    }));
-  }
-
-  return target->size();
-}
-
 void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
   qDebug() << "Adding Kernel estimation plot.";
-
-  QVector<qreal> additionalPoints;
 
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
@@ -599,27 +524,8 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
   prognosisCoefficients.clear();
 
-  int predictionBelowZero = 0;
-
-  int clusI = 0;
-
   for(auto c : currentClusters)
-  {
     prognosisCoefficients.push_back(c->predictionParameters[1]);
-    if(c->predictionParameters[1] > 1)
-    {
-      qDebug() << clusI << " c2: " << c->predictionParameters[1];
-      qDebug() << clusI << " u: " << c->_uPredictionParameter;
-    }
-
-    ++clusI;
-    if(c->predictionParameters[1] < 0)
-    {
-      ++predictionBelowZero;
-    }
-  }
-
-  qDebug() << "Predictions below 0:" << predictionBelowZero;
 
   if(prognosisCoefficients.size() == currentClusters.size())
   {
@@ -628,8 +534,6 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
 
     double yPlotOffset = - 0.05;
 
-
-    int kernelValuesBelowZero = 0;
     double valueAtX = 0;
 
     for(qreal x: *X)
@@ -642,9 +546,6 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
       valueAtX = kernelPrognoser->getValue(&pt) * plotVisibilityCoefficient;
 
       kernelPredictedKDEValues.push_back(valueAtX + yPlotOffset);
-
-      if(valueAtX < 0) ++kernelValuesBelowZero;
-
     }
   }
 
@@ -655,28 +556,6 @@ void MainWindow::addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kerne
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, kernelPredictedKDEValues);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
-}
-
-int MainWindow::initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue)
-{
-  std::string clusID = c->getClustersId();
-
-  std::vector<std::vector<double>> reversedD =
-    { {1-pow(c->_deactualizationParameter,2), pow((1- c->_deactualizationParameter), 2)},
-      {pow((1- c->_deactualizationParameter), 2), pow((1- c->_deactualizationParameter), 3)/ c->_deactualizationParameter}};
-
-  clustersPredictionParameters[clusID] =
-    std::vector<double>({
-      KDEValue,
-      0
-    });
-
-  clustersLastEstimatorValues[clusID] = KDEValue;
-  clustersPredictedValues[clusID] = KDEValue;
-
-  c->predictionParameters = clustersPredictionParameters[clusID];
-
-  return 0;
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
@@ -761,7 +640,7 @@ int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
   {
     x.clear();
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    //if(estimator->getValue(&x) < positionalSecondGradeEstimator)
+
     if(estimator->getValue(&x) < _maxEstimatorValueOnDomain * _a)
       uncommonClusters.push_back(c);
   }
@@ -772,201 +651,6 @@ int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
   qDebug() << "Dynamic comparitor value: " << _a * _maxEstimatorValueOnDomain;
 
   return uncommonClusters.size();
-}
-
-std::vector<double> MainWindow::countUnsortedReducedEstimatorValuesOnEstimatorClusters(kernelDensityEstimator *estimator)
-{
-  std::vector<double> unsortedReducedEstimatorValues;
-  std::vector<std::shared_ptr<cluster>> consideredClusters =
-      getClustersForEstimator();
-  std::shared_ptr<cluster> reducedCluster;
-  QVector<qreal> x;
-
-  if(consideredClusters.size() == 1)
-  {
-    unsortedReducedEstimatorValues.push_back(1.0);
-    return unsortedReducedEstimatorValues;
-  }
-
-  for(unsigned int i = 0; i < consideredClusters.size(); ++i)
-  {
-    reducedCluster = consideredClusters[0];
-    consideredClusters.erase(consideredClusters.begin());
-    estimator->setClusters(consideredClusters);
-    x.clear();
-    x.push_back(std::stod(reducedCluster->getRepresentative()->attributesValues["Val0"]));
-    unsortedReducedEstimatorValues.push_back(estimator->getValue(&x));
-    consideredClusters.push_back(reducedCluster);
-  }
-
-  return unsortedReducedEstimatorValues;
-}
-
-double MainWindow::countPositionalSecondGradeEstimator(
-    std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
-{
-  double uncommonnessThreshold = ui->lineEdit_rarity->text().toDouble();
-  double mr = uncommonnessThreshold;
-
-  double estimator = 0;
-
-  double j;
-
-  switch (positionalSecondGradeEstimatorCountingMethod)
-  {
-    case WEIGHTED:
-      mr *= getSummaricClustersWeight(getClustersForEstimator());
-      j = mr;
-    break;
-    case STANDARD:
-    default:
-      mr *= unsortedReducedEstimatorValuesOnClusters->size();
-      j = mr + 0.5;
-    break;
-  }
-
-  std::vector<double> jSortedReducedEstimatorValues =
-      sortJReducedEstimatorValues(unsortedReducedEstimatorValuesOnClusters, j+1);
-
-  if(mr < 0.5)
-    estimator = jSortedReducedEstimatorValues[0];
-  else
-  {
-    switch (positionalSecondGradeEstimatorCountingMethod)
-    {
-      case WEIGHTED:
-        estimator = jSortedReducedEstimatorValues[jSortedReducedEstimatorValues.size() - 1];
-      break;
-      case STANDARD:
-      default:
-        estimator = (0.5 + j - mr) * jSortedReducedEstimatorValues[j-1];
-        estimator += (0.5 - j + mr) * jSortedReducedEstimatorValues[j];
-      break;
-    }
-  }
-
-  return estimator;
-}
-
-double MainWindow::getSummaricClustersWeight(std::vector<std::shared_ptr<cluster> > clusters)
-{
-  double result = 0.0;
-
-  for(std::shared_ptr<cluster> c : clusters) result += c->getWeight();
-
-  return result;
-}
-
-std::vector<double> MainWindow::sortJReducedEstimatorValues(
-    std::vector<double> *unsortedReducedEstimatorValuesOnClusters, double j)
-{
-  std::vector<double> jSortedReducedEstimatorValues;
-  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
-
-  if(unsortedReducedEstimatorValuesOnClusters->size() <= j)
-    return *unsortedReducedEstimatorValuesOnClusters;
-
-  unsigned int smallestEstimatorValueIndex;
-
-  double summaricWeight = 0.0;
-
-  switch (positionalSecondGradeEstimatorCountingMethod)
-  {
-    case WEIGHTED:
-
-      while(summaricWeight < j)
-      {
-        smallestEstimatorValueIndex =
-          findSmallestEstimatorValueIndex(unsortedReducedEstimatorValuesOnClusters);
-        summaricWeight += consideredClusters[smallestEstimatorValueIndex]->getWeight();
-        jSortedReducedEstimatorValues.push_back(
-          unsortedReducedEstimatorValuesOnClusters->at(smallestEstimatorValueIndex)
-        );
-        unsortedReducedEstimatorValuesOnClusters->erase(
-          unsortedReducedEstimatorValuesOnClusters->begin() + smallestEstimatorValueIndex
-        );
-        consideredClusters.erase(
-          consideredClusters.begin() + smallestEstimatorValueIndex
-        );
-      }
-
-    break;
-    case STANDARD:
-    default:
-      while(jSortedReducedEstimatorValues.size() < floor(j))
-      {
-        smallestEstimatorValueIndex =
-          findSmallestEstimatorValueIndex(unsortedReducedEstimatorValuesOnClusters);
-        jSortedReducedEstimatorValues.push_back(
-          unsortedReducedEstimatorValuesOnClusters->at(smallestEstimatorValueIndex)
-        );
-        unsortedReducedEstimatorValuesOnClusters->erase(
-          unsortedReducedEstimatorValuesOnClusters->begin() + smallestEstimatorValueIndex
-        );
-      }
-    break;
-  }
-
-  while(jSortedReducedEstimatorValues.size() < j)
-  {
-    smallestEstimatorValueIndex =
-      findSmallestEstimatorValueIndex(unsortedReducedEstimatorValuesOnClusters);
-    jSortedReducedEstimatorValues.push_back(
-      unsortedReducedEstimatorValuesOnClusters->at(smallestEstimatorValueIndex)
-    );
-    unsortedReducedEstimatorValuesOnClusters->erase(
-      unsortedReducedEstimatorValuesOnClusters->begin() + smallestEstimatorValueIndex
-    );
-  }
-
-  return jSortedReducedEstimatorValues;
-}
-
-unsigned int MainWindow::findSmallestEstimatorValueIndex(std::vector<double> *unsortedReducedEstimatorValuesOnClusters)
-{
-  double smallestValueFound = DBL_MAX;
-  unsigned int desiredIndex = 0;
-  double currentValue = 0.0f;
-
-  for(unsigned int i = 0; i < unsortedReducedEstimatorValuesOnClusters->size(); ++i)
-  {
-    currentValue = unsortedReducedEstimatorValuesOnClusters->at(i);
-
-    if(currentValue < smallestValueFound)
-    {
-      smallestValueFound = currentValue;
-      desiredIndex = i;
-    }
-
-  }
-
-  return desiredIndex;
-}
-
-bool MainWindow::hasPositiveTemporalDerivative(std::shared_ptr<cluster> c)
-{
-  if(KDETemporalDerivativeY.size() == 0) return true;
-
-  unsigned int clusterPositionIndex = findClusterPositionIndex(c);
-
-  if(clusterPositionIndex == 0)
-    return KDETemporalDerivativeY[0] > 0;
-  if(clusterPositionIndex == KDETemporalDerivativeY.size()-1)
-    return KDETemporalDerivativeY[KDETemporalDerivativeY.size() - 1] > 0;
-
-  return (KDETemporalDerivativeY[clusterPositionIndex] + KDETemporalDerivativeY[clusterPositionIndex + 1]) > 0;
-}
-
-unsigned int MainWindow::findClusterPositionIndex(std::shared_ptr<cluster> c)
-{
-  double clusterPosition =
-      std::stod(c->getRepresentative()->attributesValues["Val0"]);
-
-  unsigned int result = 0;
-
-  while((double)(result * ui->lineEdit_domainDensity->text().toDouble()) < clusterPosition ) ++ result;
-
-  return result;
 }
 
 int MainWindow::removeUnpromissingClusters()
@@ -997,40 +681,11 @@ int MainWindow::removeUnpromissingClusters()
   }
 }
 
-void MainWindow::addLatestTemporalVelocityDensityProfilePlot()
-{
-
-  std::vector<long> keys;
-
-  for(auto kv : temporalVelocityDensityProfile)
-    keys.push_back(kv.first);
-
-  std::vector<long>::iterator lastCountedTimestamp =
-      std::max_element(keys.begin(), keys.end());
-
-  QVector<qreal> X, Y;
-
-  if(!temporalVelocityDensityProfile.empty())
-  {
-    for(auto kv : temporalVelocityDensityProfile[*lastCountedTimestamp])
-    {
-      X.push_back(kv.first.back());
-      Y.push_back(kv.second * 1e18);
-    }
-
-    temporalVelocityDensityProfile.end();
-  }
-
-  ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(X, Y);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::green));
-}
-
 void MainWindow::addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::yellow));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::magenta));
 }
 
 void MainWindow::fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
@@ -1272,34 +927,6 @@ function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qre
 QColor MainWindow::getRandomColor()
 {
     return QColor(rand()%110 + 50, rand()%110 + 50, rand()%110 + 50);
-}
-
-void MainWindow::fillTestDomain(QVector<point *> *domain, point *prototypePoint)
-{
-    // Check if domain is nullpointer
-    if(domain == NULL) return;
-
-   // Check if prototype is a null pointer
-    if(prototypePoint == NULL)
-    {
-        // If so make it a point pointer
-        prototypePoint = new point();
-    }
-
-    for(int i = -1; i <= 1; ++i)
-    {
-        prototypePoint->append(i);
-
-        if(prototypePoint->size() == ui->spinBox_dimensionsNumber->value())
-        {
-            domain->append(new point());
-
-            foreach(qreal dimensionVal, *prototypePoint) domain->last()->append(dimensionVal);
-        }
-        else fillTestDomain(domain, prototypePoint);
-
-        prototypePoint->removeLast();
-    }
 }
 
 void MainWindow::on_pushButton_animate_clicked()
@@ -1807,20 +1434,13 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
     for(auto kv : c->getObject()->attributesValues)
       pt.append(std::stod(kv.second));
 
-    //qDebug() << "Getting estimator value.";
-
     KDEValue = estimator->getValue(&pt);
 
-    //qDebug() << "Got estimator value.";
-
-    std::string cId = c->getClustersId();
 
     if(c->predictionParameters.size() > 0)
     {
       c->updateDeactualizationParameter(KDEValue);
       c->updatePredictionParameters(KDEValue);
-
-      //qDebug() << c->_deactualizationParameter;
     }
     else
     {

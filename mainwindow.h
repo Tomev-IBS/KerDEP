@@ -71,7 +71,7 @@ class MainWindow : public QMainWindow
     const int   DECIMAL_NUMBERS       = 3;
     const qreal DEFAULT_MIN_X         = -5;
     const qreal DEFAULT_MAX_X         = 15;
-    const qreal DEFAULT_MIN_Y         = -0.2;
+    const qreal DEFAULT_MIN_Y         = -0.3;
     const qreal DEFAULT_MAX_Y         = 0.5;
 
     const unsigned int MEDOIDS_NUMBER = 10;
@@ -143,10 +143,6 @@ class MainWindow : public QMainWindow
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
-      void addPrognosedEstimationPlots(const QVector<qreal> *X, const QVector<qreal> *KDEY);
-        int predictKDEValues(const QVector<qreal> *X, const QVector<qreal> *KDEY);
-          int updatePointsPredictionParameters(const QVector<qreal> *KDEY, QVector<double> *predictedValues, std::vector<std::vector<double>>* target);
-            int countInitialPredictionParameters(const QVector<qreal> *KDEY, std::vector<std::vector<double>>* target);
       void addKernelPrognosedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
@@ -154,8 +150,6 @@ class MainWindow : public QMainWindow
       int markNewTrends(kernelDensityEstimator *estimator);
       int markClustersWithNegativeDerivative();
 
-
-    void addLatestTemporalVelocityDensityProfilePlot();
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
     void fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
