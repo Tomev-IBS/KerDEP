@@ -188,7 +188,8 @@ class MainWindow : public QMainWindow
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
       int removeUnpromissingClusters();
-      int findUncommonClusters(kernelDensityEstimator *estimator);
+      void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
+      int findUncommonClusters();
 
 
       void delay(int ms);

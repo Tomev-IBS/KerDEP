@@ -650,21 +650,15 @@ int MainWindow::markClustersWithNegativeDerivative()
   }
 }
 
-int MainWindow::findUncommonClusters(kernelDensityEstimator* estimator)
+int MainWindow::findUncommonClusters()
 {
   uncommonClusters.clear();
 
-  QVector<qreal> x;
-
   std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
-  estimator->setClusters(consideredClusters);
 
   for(std::shared_ptr<cluster> c : consideredClusters)
   {
-    x.clear();
-    x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-
-    if(estimator->getValue(&x) < _maxEstimatorValueOnDomain * _a)
+    if(c->_lastKDEValue < _maxEstimatorValueOnDomain * _a)
       uncommonClusters.push_back(c);
   }
 
@@ -682,8 +676,7 @@ int MainWindow::removeUnpromissingClusters()
   {
     // Remove cluster if its temporal derivative is not equal to 0 and
     // it's weight is insignificant
-    if(clusters[index]->getWeight() < positionalSecondGradeEstimator &&
-       clusters[index]->positiveTemporalDerivativeTimesInARow == 0)
+    if(clusters[index]->getWeight() < positionalSecondGradeEstimator)
     {
       clusters.erase(clusters.begin() + index);
     }
@@ -695,12 +688,27 @@ int MainWindow::removeUnpromissingClusters()
     {
       // Remove cluster if its temporal derivative is not equal to 0 and
       // it's weight is insignificant
-      if(level[index]->getWeight() < positionalSecondGradeEstimator &&
-         level[index]->positiveTemporalDerivativeTimesInARow == 0)
+      if(level[index]->getWeight() < positionalSecondGradeEstimator)
       {
         level.erase(level.begin() + index);
       }
     }
+  }
+}
+
+void MainWindow::countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator)
+{
+  QVector<qreal> x;
+
+  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
+  estimator->setClusters(consideredClusters);
+
+  for(std::shared_ptr<cluster> c : consideredClusters)
+  {
+    x.clear();
+    x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+    double estimatorValueOnCluster = estimator->getValue(&x);
+    c->_lastKDEValue = estimatorValueOnCluster;
   }
 }
 
@@ -1016,53 +1024,40 @@ void MainWindow::on_pushButton_animate_clicked()
       newCluster->setTimestamp(stepNumber);
 
       clusters.push_back(newCluster);
-      //updatePrognosisParameters(estimator.get());
 
       //qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
         qDebug() << "============ Main function started ============";
-
-        findUncommonClusters(estimator.get());
-
+        qDebug() << "Counting KDE values on clusters.";
+        countKDEValuesOnClusters(estimator);
+        qDebug() << "Counted. Finding uncommon clusters.";
+        findUncommonClusters();
+        qDebug() << "Found. Removing unpromissing clusters.";
         removeUnpromissingClusters();
 
         qDebug() << "Clusters size after reduction: " << clusters.size();
 
         if(clusters.size() < MEDOIDS_NUMBER) continue;
 
-        /* Count smoothing param using Weighted Silverman Method
-        std::vector<std::shared_ptr<cluster>> currentClusters
-            = getClustersForEstimator();
-
-        std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
-          smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
-
-        std::vector<double> smoothingParameters;
-
-        smoothingParameters
-          .push_back(smoothingParamCounter->countSmoothingParameterValue());
-
-        estimator->setSmoothingParameters(smoothingParameters);
-        */
-
-        //* Count smooting parameter using 2nd rank plugin method
-
-        QVector<qreal> samplesForPlugin;
-        std::vector<std::shared_ptr<cluster>> currentClusters
-            = getClustersForEstimator();
-
-        // This only works for distributions samples as programmed.
-        for(std::shared_ptr<cluster> c : currentClusters)
-        {
-          samplesForPlugin.push_back(
-            std::stod(c->getRepresentative()->attributesValues["Val0"])
-          );
-        }
-
         if(!wereSmoothingParamsCount)
         {
+          qDebug() << "Initial counting of smoothing parameters.";
+          //* Count smooting parameter using 2nd rank plugin method
+          /*
+          QVector<qreal> samplesForPlugin;
+          std::vector<std::shared_ptr<cluster>> currentClusters
+              = getClustersForEstimator();
+
+          // This only works for distributions samples as programmed.
+          for(std::shared_ptr<cluster> c : currentClusters)
+          {
+            samplesForPlugin.push_back(
+              std::stod(c->getRepresentative()->attributesValues["Val0"])
+            );
+          }
+
           std::shared_ptr<pluginSmoothingParameterCounter> smoothingParamCounter
               (new pluginSmoothingParameterCounter(&samplesForPlugin, 2));
 
@@ -1073,13 +1068,26 @@ void MainWindow::on_pushButton_animate_clicked()
            );
 
           estimator->setSmoothingParameters(smoothingParameters);
+          */
+
+          //* Count smoothing param using Weighted Silverman Method
+          std::vector<std::shared_ptr<cluster>> currentClusters
+              = getClustersForEstimator();
+
+          std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
+            smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
+
+          std::vector<double> smoothingParameters;
+
+          smoothingParameters
+            .push_back(smoothingParamCounter->countSmoothingParameterValue());
+
+          estimator->setSmoothingParameters(smoothingParameters);
+          //*/
+
           wereSmoothingParamsCount = true;
+          qDebug() << "Params counted.";
         }
-
-        //estimator->setClusters(getClustersForEstimator());
-
-
-        //*/
 
         std::shared_ptr<groupingThread> gThread(
               new groupingThread(&storedMedoids, parser)
@@ -1111,7 +1119,9 @@ void MainWindow::on_pushButton_animate_clicked()
         clustersLastEstimatorValues.clear();
 
         estimator->setClusters(getClustersForEstimator());
+        qDebug() << "Updating prognosis.";
         updatePrognosisParameters(estimator.get());
+        qDebug() << "Updated.";
 
         targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -1371,18 +1381,13 @@ smoothingParameterCounter *MainWindow::generateSmoothingParameterCounter(QVector
   switch (smoothingParameterCounterID)
   {
     case WEIGHTED_SILVERMAN:
-      return new weightedSilvermanSmoothingParameterCounter(samplesColumn, NULL);
-    break;
+      return new weightedSilvermanSmoothingParameterCounter(samplesColumn, nullptr);
     case RANK_3_PLUG_IN:
       return new pluginSmoothingParameterCounter(samplesColumn, 3);
-    break;
     case RANK_2_PLUG_IN:
     default:
       return new pluginSmoothingParameterCounter(samplesColumn, 2);
-    break;
   }
-
-  return NULL;
 }
 
 void MainWindow::on_pushButton_addTargetFunction_clicked()
@@ -1452,8 +1457,8 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
     for(auto kv : c->getObject()->attributesValues)
       pt.append(std::stod(kv.second));
 
-    KDEValue = estimator->getValue(&pt);
-
+    //KDEValue = estimator->getValue(&pt);
+    KDEValue = c->_lastKDEValue; // It's count during uncommon clusters locating
 
     if(c->predictionParameters.size() > 0)
     {
