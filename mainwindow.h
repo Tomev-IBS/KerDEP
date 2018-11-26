@@ -124,6 +124,8 @@ class MainWindow : public QMainWindow
     double doubleTildedZ = 0;
     double tildedZ = 0;
 
+    double adaptivePredictionPowerParameter = 0.5;
+
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
     unsigned short positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
@@ -151,6 +153,7 @@ class MainWindow : public QMainWindow
       void addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
       void countKernelPrognosisDerivativeY(const QVector<qreal> *X);
       void addOvertakingEstimationPlot(const QVector<qreal> *X);
+      void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
       int markUncommonClusters(kernelDensityEstimator* estimator);

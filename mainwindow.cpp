@@ -420,6 +420,9 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_overtakingEstimator->isChecked())
       addOvertakingEstimationPlot(&X);
 
+    if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked())
+      addSigmoidallyEnhancedEstimationPlot(&X, estimator);
+
     if(ui->checkBox_negativeC2Clusters->isChecked())
       markClustersWithNegativeDerivative();
 
@@ -579,6 +582,41 @@ void MainWindow::addOvertakingEstimationPlot(const QVector<qreal> *X)
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, overtakingPlotY);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
+}
+
+void MainWindow::addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
+{
+  auto currentClusters = getClustersForEstimator();
+
+  QVector<qreal> sigmoidallyEnhancedPlotY;
+  QVector<double> starredVs;
+  std::vector<double> vs;
+  double starredVsSum = 0.0;
+
+  for(auto c : currentClusters)
+  {
+    starredVs.push_back( 2.0 / (1.0 + exp(- c->predictionParameters[1] * adaptivePredictionPowerParameter )));
+    starredVsSum += starredVs.last();
+  }
+
+  for(auto starredV : starredVs)
+  {
+    vs.push_back(starredVs.length() * starredV / starredVsSum);
+  }
+
+  estimator->setAdditionalMultipliers(vs);
+
+  for(auto x : *X)
+  {
+    QVector<qreal> pt = {x};
+    sigmoidallyEnhancedPlotY.push_back(estimator->getValue(&pt));
+  }
+
+  estimator->setAdditionalMultipliers({});
+
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, sigmoidallyEnhancedPlotY);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkGreen));
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)

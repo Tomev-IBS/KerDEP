@@ -492,7 +492,7 @@
        <widget class="QGroupBox" name="groupBox_generalSettings">
         <property name="geometry">
          <rect>
-          <x>560</x>
+          <x>580</x>
           <y>310</y>
           <width>161</width>
           <height>81</height>
@@ -644,7 +644,7 @@
          <rect>
           <x>390</x>
           <y>310</y>
-          <width>161</width>
+          <width>181</width>
           <height>231</height>
          </rect>
         </property>
@@ -726,6 +726,16 @@
           <widget class="QCheckBox" name="checkBox_overtakingEstimator">
            <property name="text">
             <string>Overtaking estimator</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
+           <property name="text">
+            <string>Sigmoidally Enhanced KDE</string>
            </property>
            <property name="checked">
             <bool>true</bool>
