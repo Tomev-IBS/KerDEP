@@ -658,7 +658,7 @@ int MainWindow::findUncommonClusters()
 
   for(std::shared_ptr<cluster> c : consideredClusters)
   {
-    if(c->_lastKDEValue < _maxEstimatorValueOnDomain * _a)
+    if(c->_currentKDEValue < _maxEstimatorValueOnDomain * _a)
       uncommonClusters.push_back(c);
   }
 
@@ -708,7 +708,7 @@ void MainWindow::countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator
     x.clear();
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
     double estimatorValueOnCluster = estimator->getValue(&x);
-    c->_lastKDEValue = estimatorValueOnCluster;
+    c->_currentKDEValue = estimatorValueOnCluster;
   }
 }
 
@@ -1446,8 +1446,6 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
 
   if(currentClusters.size() == 0) return;
 
-  double KDEValue = 0;
-
   for(std::shared_ptr<cluster> c : currentClusters)
   {
     QVector<qreal> pt;
@@ -1457,18 +1455,17 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
     for(auto kv : c->getObject()->attributesValues)
       pt.append(std::stod(kv.second));
 
-    //KDEValue = estimator->getValue(&pt);
-    KDEValue = c->_lastKDEValue; // It's count during uncommon clusters locating
-
     if(c->predictionParameters.size() > 0)
     {
-      c->updateDeactualizationParameter(KDEValue);
-      c->updatePredictionParameters(KDEValue);
+      c->updateDeactualizationParameter(c->_currentKDEValue);
+      c->updatePredictionParameters(c->_currentKDEValue);
     }
     else
     {
-      c->initializePredictionParameters(KDEValue);
+      c->initializePredictionParameters(c->_currentKDEValue);
     }
+
+    c->_lastKDEValue = c->_currentKDEValue;
   }
 
 }
