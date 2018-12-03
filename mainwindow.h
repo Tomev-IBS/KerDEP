@@ -101,7 +101,7 @@ class MainWindow : public QMainWindow
 
     // Prediction
     QVector<double> _kernelPrognosisDerivativeValues;
-    double _prognosisDerivativePlotVisibilityCoefficient = 1e3;
+    double _prognosisDerivativePlotVisibilityCoefficient = 1e0;
 
     QVector<double> predictedKDEValues;
     std::vector<std::vector<double>> pointsPredictionParameters;
@@ -124,7 +124,7 @@ class MainWindow : public QMainWindow
     double doubleTildedZ = 0;
     double tildedZ = 0;
 
-    double adaptivePredictionPowerParameter = 0.5;
+    double adaptivePredictionPowerParameter = 1e15;
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
