@@ -133,7 +133,6 @@ int MainWindow::insertClustersFromInterIntervalObjects(std::vector<std::shared_p
   setInterIntervalClustersWeights(&newClusters);
 
   clusters.insert(clusters.end(), newClusters.begin(), newClusters.end());
-  clustersForVDE.insert(clustersForVDE.end(), newClusters.begin(), newClusters.end());
 
   return newClusters.size();
 }
@@ -236,7 +235,6 @@ void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *object
   {
     storage->at(0).push_back(std::make_shared<cluster>(cluster(i, objects->at(*it))));
     storage->at(0).back()->setTimestamp(stepNumber);
-    clustersForVDE.push_back(storage->at(0).back());
     storage->at(0).back()->setWeight(objects->size() / medoidsNumber);
     std::advance(it, 1);
   }
@@ -566,7 +564,7 @@ void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
       QVector<qreal> pt;
       pt.push_back(x);
       _kernelPrognosisDerivativeValues.push_back(
-            kernelPrognoser->getValue(&pt)  * _prognosisDerivativePlotVisibilityCoefficient
+            kernelPrognoser->getValue(&pt)
       );
     }
   }
@@ -1151,8 +1149,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
-
-        clustersForVDE.clear();
 
         estimator->setClusters(getClustersForEstimator());
         qDebug() << "Updating prognosis.";

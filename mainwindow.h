@@ -86,7 +86,6 @@ class MainWindow : public QMainWindow
     QVector<std::shared_ptr<QVector<qreal>>> samples;
     std::vector<std::shared_ptr<sample>> objects;
     std::vector<std::shared_ptr<cluster>> clusters;
-    std::vector<std::shared_ptr<cluster>> clustersForVDE;
 
     QVector<qreal> KDETemporalDerivativeY;
 
@@ -101,11 +100,8 @@ class MainWindow : public QMainWindow
 
     // Prediction
     QVector<double> _kernelPrognosisDerivativeValues;
-    double _prognosisDerivativePlotVisibilityCoefficient = 1e0;
 
     QVector<double> predictedKDEValues;
-    std::vector<std::vector<double>> pointsPredictionParameters;
-    double deactualizationParameter = 0.99;
     double positionalSecondGradeEstimator = 0.0;
 
     std::shared_ptr<dataParser> parser;
