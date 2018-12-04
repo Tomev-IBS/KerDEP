@@ -593,8 +593,7 @@ void MainWindow::addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, k
 
   for(auto c : currentClusters)
   {
-    // According to new idea 0.5 -> -1, but that caused negative values of estimator
-    starredVs.push_back(0.5 + 2.0 / (1.0 + exp(- c->predictionParameters[1] * adaptivePredictionPowerParameter )));
+    starredVs.push_back(2.0 / (1.0 + exp(- c->predictionParameters[1] * adaptivePredictionPowerParameter )));
     starredVsSum += starredVs.last();
   }
 
