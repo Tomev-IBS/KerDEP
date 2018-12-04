@@ -158,10 +158,10 @@ double MainWindow::countInterIntervalClustersWeight()
 
   if(intervalValue == 0) return 1.0;
 
-  long end = std::chrono::duration_cast< std::chrono::milliseconds >(
+  long long end = std::chrono::duration_cast< std::chrono::milliseconds >(
         std::chrono::system_clock::now().time_since_epoch()).count();
 
-  long difference = end - start;
+  long long difference = end - start;
 
   double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
 
@@ -1076,7 +1076,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
-        qDebug() << "============ Main function started ============";
+        qDebug() << "============ Clustering function started ============";
 
         if(!wereSmoothingParamsCount)
         {
@@ -1150,21 +1150,19 @@ void MainWindow::on_pushButton_animate_clicked()
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
 
-        estimator->setClusters(getClustersForEstimator());
-        qDebug() << "Updating prognosis.";
-        updatePrognosisParameters(estimator.get());
-        qDebug() << "Updated.";
-
-        targetFunction.reset(generateTargetFunction(&means, &stDevs));
-
-        drawPlots(estimator.get(), targetFunction.get());
-        updateA();
-
         qDebug() << "Objects cleared.";
       }
 
-      std::vector<std::shared_ptr<cluster>> currentClusters
-          = getClustersForEstimator();
+      updateA();
+
+      estimator->setClusters(getClustersForEstimator());
+      qDebug() << "Updating prognosis.";
+      updatePrognosisParameters(estimator.get());
+      qDebug() << "Updated.";
+
+      targetFunction.reset(generateTargetFunction(&means, &stDevs));
+
+      drawPlots(estimator.get(), targetFunction.get());
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 

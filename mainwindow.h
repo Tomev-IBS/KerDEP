@@ -51,7 +51,7 @@ class MainWindow : public QMainWindow
     void setupPlot();
     void setupKernelsTable();
 
-    long start;
+    long long start;
 
     // Uncommon clusters dynamic parameter
     const double MAX_A                = 1.5;
