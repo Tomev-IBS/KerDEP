@@ -1078,10 +1078,6 @@ void MainWindow::on_pushButton_animate_clicked()
       {
         qDebug() << "============ Main function started ============";
 
-
-
-        if(clusters.size() < MEDOIDS_NUMBER) continue;
-
         if(!wereSmoothingParamsCount)
         {
           qDebug() << "Initial counting of smoothing parameters.";
