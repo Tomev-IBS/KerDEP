@@ -1453,13 +1453,6 @@ void MainWindow::updateWeights()
       storedMedoids[level][medoidNumber]->setWeight(
         weightModifier * storedMedoids[level][medoidNumber]->getWeight()
       );
-
-      /*
-      if(storedMedoids[level][medoidNumber]->getWeight() < weightDeletionThreshold)
-        storedMedoids[level].erase(
-          storedMedoids[level].begin() + medoidNumber
-        );
-      */
     }
   }
 
