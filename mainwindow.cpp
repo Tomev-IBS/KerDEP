@@ -1153,7 +1153,6 @@ void MainWindow::on_pushButton_animate_clicked()
         gt.run();
 
         clustersForVDE.clear();
-        clustersPredictionParameters.clear();
 
         clustersLastEstimatorValues.clear();
 
