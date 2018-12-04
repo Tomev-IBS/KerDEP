@@ -1166,8 +1166,6 @@ void MainWindow::on_pushButton_animate_clicked()
       std::vector<std::shared_ptr<cluster>> currentClusters
           = getClustersForEstimator();
 
-      estimator->setClusters(currentClusters);
-
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
       start = std::chrono::duration_cast< std::chrono::milliseconds >(
