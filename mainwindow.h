@@ -115,9 +115,6 @@ class MainWindow : public QMainWindow
     QVector<qreal> newKernelY;
 
     std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
-    QVector<sample*> kernelPrognoserDomain;
-    QVector<double> kernelPrognoserWeights;
-    std::unordered_map<std::string, double> clustersLastEstimatorValues;
 
     double adaptivePredictionPowerParameter = 1e15;
 

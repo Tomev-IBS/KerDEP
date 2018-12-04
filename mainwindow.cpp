@@ -1154,8 +1154,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
         clustersForVDE.clear();
 
-        clustersLastEstimatorValues.clear();
-
         estimator->setClusters(getClustersForEstimator());
         qDebug() << "Updating prognosis.";
         updatePrognosisParameters(estimator.get());
