@@ -79,8 +79,6 @@ class MainWindow : public QMainWindow
     std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
     clusterStorage storage;
 
-    std::map<long, std::map<point, double>> temporalVelocityDensityProfile;
-
     Ui::MainWindow *ui;
 
     QVector<std::shared_ptr<QVector<qreal>>> samples;
@@ -101,7 +99,6 @@ class MainWindow : public QMainWindow
     // Prediction
     QVector<double> _kernelPrognosisDerivativeValues;
 
-    QVector<double> predictedKDEValues;
     double positionalSecondGradeEstimator = 0.0;
 
     std::shared_ptr<dataParser> parser;
@@ -198,8 +195,6 @@ class MainWindow : public QMainWindow
 
     void updateWeights();
     void updatePrognosisParameters(kernelDensityEstimator *estimator);
-
-
 };
 
 enum kernelSettingsColumns
