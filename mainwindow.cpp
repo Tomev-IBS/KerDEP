@@ -93,7 +93,9 @@ int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
   return interIntervalObjects.size();
 }
 
-int MainWindow::generateInterIntervalObjects(std::vector<std::shared_ptr<sample> > *interIntervalObjects, unsigned int objectsNumber)
+int MainWindow::generateInterIntervalObjects(
+    std::vector<std::shared_ptr<sample> > *interIntervalObjects,
+    unsigned int objectsNumber)
 {
   //TR TODO: Check if reader and parser are initialized
 
@@ -103,7 +105,8 @@ int MainWindow::generateInterIntervalObjects(std::vector<std::shared_ptr<sample>
 
     parser->addDatumToContainer(interIntervalObjects);
 
-    parser->writeDatumOnPosition(interIntervalObjects, interIntervalObjects->size()-1);
+    parser->writeDatumOnPosition(interIntervalObjects,
+                                 interIntervalObjects->size()-1);
   }
 
   return interIntervalObjects->size();
@@ -1063,17 +1066,19 @@ void MainWindow::on_pushButton_animate_clicked()
 
       //qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
 
+      qDebug() << "Counting KDE values on clusters.";
+      countKDEValuesOnClusters(estimator);
+      qDebug() << "Counted. Finding uncommon clusters.";
+      findUncommonClusters();
+      qDebug() << "Found. Removing unpromissing clusters.";
+      removeUnpromissingClusters();
+      qDebug() << "Clusters size after reduction: " << clusters.size();
+
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
         qDebug() << "============ Main function started ============";
-        qDebug() << "Counting KDE values on clusters.";
-        countKDEValuesOnClusters(estimator);
-        qDebug() << "Counted. Finding uncommon clusters.";
-        findUncommonClusters();
-        qDebug() << "Found. Removing unpromissing clusters.";
-        removeUnpromissingClusters();
 
-        qDebug() << "Clusters size after reduction: " << clusters.size();
+
 
         if(clusters.size() < MEDOIDS_NUMBER) continue;
 
