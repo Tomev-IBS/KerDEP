@@ -51,7 +51,6 @@ SOURCES     +=  main.cpp\
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp \
     VDE/velocityDensityEstimator.cpp \
     VDE/VDEThread.cpp \
-    clusterStorage.cpp \
     groupingThread/kMeansAlgorithm.cpp
 
 HEADERS     +=  mainwindow.h \
@@ -110,7 +109,6 @@ HEADERS     +=  mainwindow.h \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h \
     VDE/velocityDensityEstimator.h \
     VDE/VDEThread.h \
-    clusterStorage.h \
     groupingThread/kMeansAlgorithm.h
 
 FORMS       +=  mainwindow.ui

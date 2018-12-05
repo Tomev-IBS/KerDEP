@@ -78,7 +78,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
   if(keyCode == 77) insertMassiveData();
 }
 
-unsigned int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
+unsigned int MainWindow::insertObjectsBetweenIntervals(
+    unsigned int objectsNumber)
 {
   std::vector<std::shared_ptr<sample>> interIntervalObjects;
 
@@ -150,7 +151,8 @@ unsigned int MainWindow::insertClustersFromInterIntervalObjects(
   return newClusters.size();
 }
 
-double MainWindow::setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster> > *newClusters)
+double MainWindow::setInterIntervalClustersWeights(
+    std::vector<std::shared_ptr<cluster> > *newClusters)
 {
   double weight = countInterIntervalClustersWeight();
 
@@ -584,7 +586,8 @@ void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
   }
 }
 
-void MainWindow::addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
+void MainWindow::addSigmoidallyEnhancedEstimationPlot(
+    const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
   auto currentClusters = getClustersForEstimator();
 
@@ -730,7 +733,8 @@ void MainWindow::removeUnpromissingClusters()
   }
 }
 
-void MainWindow::countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator)
+void MainWindow::countKDEValuesOnClusters(
+  std::shared_ptr<kernelDensityEstimator> estimator)
 {
   QVector<qreal> x;
 
@@ -746,14 +750,16 @@ void MainWindow::countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator
   }
 }
 
-void MainWindow::addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y)
+void MainWindow::addTemporalDerivativePlot(
+  const QVector<qreal> *X, const QVector<qreal> *Y)
 {
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::magenta));
 }
 
-void MainWindow::fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
+void MainWindow::fillStandardDeviations(
+  QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
 {
     int dimensionsNumber                = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber    = ui->tableWidget_targetFunctions->rowCount();
@@ -799,7 +805,8 @@ void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
     }
 }
 
-void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain, std::shared_ptr<point> *prototypePoint)
+void MainWindow::fillDomain(
+  QVector<std::shared_ptr<point>>* domain, std::shared_ptr<point> *prototypePoint)
 {
     // Check if domain is nullpointer
     if(domain == nullptr) return;
@@ -844,8 +851,9 @@ void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain, std::shared
     }
 }
 
-void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *means,
-                                 QVector<std::shared_ptr<QVector<qreal>> > *stDevs)
+void MainWindow::generateSamples(
+  QVector<std::shared_ptr<QVector<qreal>> > *means,
+  QVector<std::shared_ptr<QVector<qreal>> > *stDevs)
 {
     samples.clear();
     objects.clear();
@@ -884,8 +892,9 @@ void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *mean
     }
 }
 
-distribution* MainWindow::generateTargetDistribution(QVector<std::shared_ptr<QVector<qreal>>> *means,
-                                                     QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
+distribution* MainWindow::generateTargetDistribution(
+  QVector<std::shared_ptr<QVector<qreal>>> *means,
+  QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
 {
     int seed = ui->lineEdit_seed->text().toInt();
 
@@ -1012,28 +1021,37 @@ void MainWindow::on_pushButton_animate_clicked()
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
 
-    std::shared_ptr<function> targetFunction(generateTargetFunction(&means, &stDevs));
+    std::shared_ptr<function>
+      targetFunction(generateTargetFunction(&means, &stDevs));
 
-    std::shared_ptr<kernelDensityEstimator> estimator(generateKernelDensityEstimator(dimensionsNumber));
+    std::shared_ptr<kernelDensityEstimator>
+      estimator(generateKernelDensityEstimator(dimensionsNumber));
+
     kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
 
-    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(&means, &stDevs));
+    std::shared_ptr<distribution>
+      targetDistribution(generateTargetDistribution(&means, &stDevs));
 
     parser.reset(new distributionDataParser(&attributesData));
 
-    qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
+    qreal progressionSize =
+        ui->lineEdit_distributionProgression->text().toDouble();
 
-    reader.reset(new progressiveDistributionDataReader(targetDistribution.get(), progressionSize));
+    reader.reset(
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            progressionSize)
+    );
 
     reader->gatherAttributesData(&attributesData);
     parser->setAttributesOrder(reader->getAttributesOrder());
 
-    positionalSecondGradeEstimatorCountingMethod = ui->comboBox_rareElementsMethod->currentIndex();
+    positionalSecondGradeEstimatorCountingMethod =
+      ui->comboBox_rareElementsMethod->currentIndex();
 
-    reservoirSamplingAlgorithm* algorithm = generateReservoirSamplingAlgorithm(reader.get(), parser.get());
+    reservoirSamplingAlgorithm* algorithm =
+      generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
     objects.clear();
-    storage.clear();
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
@@ -1147,7 +1165,7 @@ int MainWindow::canAnimationBePerformed(int dimensionsNumber)
   }
 }
 
-void MainWindow::delay( int ms )
+void MainWindow::delay(int ms)
 {
     QTime dieTime = QTime::currentTime().addMSecs( ms );
     while( QTime::currentTime() < dieTime )

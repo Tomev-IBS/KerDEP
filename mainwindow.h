@@ -18,8 +18,6 @@
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
 
-#include "clusterStorage.h"
-
 enum positionalSecondGradeEstimatorCountingMethods
 {
   STANDARD = 0,
@@ -77,7 +75,6 @@ class MainWindow : public QMainWindow
     const unsigned int MEDOIDS_NUMBER = 10;
 
     std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
-    clusterStorage storage;
 
     Ui::MainWindow *ui;
 
