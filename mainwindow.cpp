@@ -78,7 +78,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
   if(keyCode == 77) insertMassiveData();
 }
 
-int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
+unsigned int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
 {
   std::vector<std::shared_ptr<sample>> interIntervalObjects;
 
@@ -93,7 +93,7 @@ int MainWindow::insertObjectsBetweenIntervals(unsigned int objectsNumber)
   return interIntervalObjects.size();
 }
 
-int MainWindow::generateInterIntervalObjects(
+unsigned int MainWindow::generateInterIntervalObjects(
     std::vector<std::shared_ptr<sample> > *interIntervalObjects,
     unsigned int objectsNumber)
 {
@@ -112,18 +112,21 @@ int MainWindow::generateInterIntervalObjects(
   return interIntervalObjects->size();
 }
 
-int MainWindow::selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample> > *interIntervalObjects)
+unsigned int MainWindow::selectDesiredNumberOfInterIntervalObjects(
+    std::vector<std::shared_ptr<sample> > *interIntervalObjects)
 {
-  unsigned int desiredNumberOfClusters =
+  int desiredNumberOfClusters =
       ui->lineEdit_interIntervalClusters->text().toInt();
 
-  while(interIntervalObjects->size() > desiredNumberOfClusters)
+  while(interIntervalObjects->size()
+        > static_cast<unsigned int>(desiredNumberOfClusters))
     interIntervalObjects->erase(interIntervalObjects->begin() + (rand() % interIntervalObjects->size()));
 
   return interIntervalObjects->size();
 }
 
-int MainWindow::insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample> > *interIntervalObjects)
+int MainWindow::insertClustersFromInterIntervalObjects(
+    std::vector<std::shared_ptr<sample> > *interIntervalObjects)
 {
   std::vector<std::shared_ptr<cluster>> newClusters;
 
@@ -364,7 +367,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     // To keep things simple let's consider only these domains wherein
     // each dimension has equal size.
 
-    fillDomain(&domain, NULL);
+    fillDomain(&domain, nullptr);
 
     foreach(auto x, domain)
     {
@@ -416,13 +419,13 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     countKernelPrognosisDerivativeY(&X);
 
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
-      addKernelPrognosisDerivativePlot(&X, estimator);
+      addKernelPrognosisDerivativePlot(&X);
 
     if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked())
       addSigmoidallyEnhancedEstimationPlot(&X, estimator);
 
     if(ui->checkBox_showUnusualClusters->isChecked())
-      markUncommonClusters(estimator);
+      markUncommonClusters();
 
     if(ui->checkBox_showNewTrends->isChecked())
       markNewTrends();
@@ -482,21 +485,24 @@ void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(getRandomColor()));
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+        ->setPen(QPen(getRandomColor()));
 }
 
 void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::red));
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+        ->setPen(QPen(Qt::red));
 }
 
 void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::blue));
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+        ->setPen(QPen(Qt::blue));
 }
 
 double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
@@ -512,10 +518,9 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
     return result;
   }
   else return 0;
-
 }
 
-void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
+void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X)
 {
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
@@ -524,12 +529,16 @@ void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kerne
 
   for(int i = 0; i < _kernelPrognosisDerivativeValues.size(); ++i)
   {
-    offsetKernelPrognosisPlotValues.push_back(_kernelPrognosisDerivativeValues[i]);
+    offsetKernelPrognosisPlotValues.push_back(
+      _kernelPrognosisDerivativeValues[i]
+    );
   }
 
   ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, offsetKernelPrognosisPlotValues);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::cyan));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+      ->setData(*X, offsetKernelPrognosisPlotValues);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+      ->setPen(QPen(Qt::cyan));
 }
 
 void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
@@ -597,7 +606,7 @@ void MainWindow::addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, k
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
 }
 
-int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
+unsigned int MainWindow::markUncommonClusters()
 {
   double x;
 
@@ -639,7 +648,7 @@ void MainWindow::markNewTrends()
   }
 }
 
-int MainWindow::markClustersWithNegativeDerivative()
+void MainWindow::markClustersWithNegativeDerivative()
 {
   std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
 
@@ -680,13 +689,14 @@ int MainWindow::findUncommonClusters()
   return uncommonClusters.size();
 }
 
-int MainWindow::removeUnpromissingClusters()
+void MainWindow::removeUnpromissingClusters()
 {
-  for(int index = clusters.size() - 1; index >= 0; --index)
+  for(int index = static_cast<int>(clusters.size()) - 1; index >= 0; --index)
   {
     // Remove cluster if its temporal derivative is not equal to 0 and
     // it's weight is insignificant
-    if(clusters[index]->getWeight() < positionalSecondGradeEstimator)
+    if(clusters[static_cast<unsigned int>(index)]->getWeight()
+       < positionalSecondGradeEstimator)
     {
       clusters.erase(clusters.begin() + index);
     }
@@ -1098,7 +1108,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       estimator->setClusters(getClustersForEstimator());
       qDebug() << "Updating prognosis.";
-      updatePrognosisParameters(estimator.get());
+      updatePrognosisParameters();
       qDebug() << "Updated. Counting derivative values for clusters.";
       countKDEDerivativeValuesOnClusters();
 
@@ -1127,8 +1137,6 @@ int MainWindow::canAnimationBePerformed(int dimensionsNumber)
       qDebug() << "Dimensions number is not equal 1. Animation cannot be performed.";
       return -2;
   }
-
-  return 0;
 }
 
 void MainWindow::delay( int ms )
@@ -1272,12 +1280,21 @@ void MainWindow::refreshTargetFunctionTable()
 
 void MainWindow::uniformContributions()
 {
-    int numberOfRows = ui->tableWidget_targetFunctions->rowCount(), lastRowIndex = numberOfRows - 1;
+    int numberOfRows = ui->tableWidget_targetFunctions->rowCount(),
+        lastRowIndex = numberOfRows - 1;
 
     for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
-        ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(100.0/numberOfRows));
+    {
+      static_cast<QLineEdit*>(
+        ui->tableWidget_targetFunctions
+          ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)
+      )->setText(QString::number(100.0/numberOfRows));
+    }
 
-    ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)))->setText(QString::number(countLastContribution()));
+    static_cast<QLineEdit*>(
+      ui->tableWidget_targetFunctions
+        ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)
+    )->setText(QString::number(countLastContribution()));
 }
 
 qreal MainWindow::countLastContribution()
@@ -1287,7 +1304,10 @@ qreal MainWindow::countLastContribution()
     int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
 
     for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
-        result -= ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->text().toDouble();
+      result -= (static_cast<QLineEdit*>
+        (ui->tableWidget_targetFunctions
+           ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))
+      )->text().toDouble();
 
     return result;
 }
@@ -1297,10 +1317,10 @@ void MainWindow::updateLastContribution()
     int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
     qreal lastContributionValue = countLastContribution();
 
-    ((QLineEdit*)(ui
-                  ->tableWidget_targetFunctions
-                  ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)))
-                  ->setText(QString::number(lastContributionValue));
+    (static_cast<QLineEdit*>(ui
+      ->tableWidget_targetFunctions
+      ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX))
+    )->setText(QString::number(lastContributionValue));
 }
 
 void MainWindow::on_pushButton_countSmoothingParameters_clicked()
@@ -1334,10 +1354,10 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 
     value = counter->countSmoothingParameterValue();
 
-    ((QLineEdit*)(ui
+    (static_cast<QLineEdit*>((ui
                   ->tableWidget_dimensionKernels
                   ->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
-      ->setText(QString::number(value));
+      ->setText(QString::number(value)));
   }
 }
 
@@ -1397,11 +1417,12 @@ void MainWindow::updateWeights()
   for(unsigned int i = 0; i < clusters.size(); ++i)
   {
     clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
-    if(clusters[i]->getWeight() < weightDeletionThreshold) clusters.erase(clusters.begin() + i);
+    if(clusters[i]->getWeight() < weightDeletionThreshold)
+      clusters.erase(clusters.begin() + i);
   }
 }
 
-void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
+void MainWindow::updatePrognosisParameters()
 {
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();

@@ -14,7 +14,7 @@
 #include "Reservoir_sampling/sample.h"
 #include "Functions/Kernels/kernels.h"
 #include "KDE/kerneldensityestimator.h"
-#include "KDE/smoothingparametercounter.h"
+#include "KDE/smoothingParameterCounter.h"
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
 
@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
   public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
   protected:
@@ -117,10 +117,10 @@ class MainWindow : public QMainWindow
 
     QStringList kernelTypes;
 
-    int insertObjectsBetweenIntervals(unsigned int objectsNumber);
-      int generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
+    unsigned int insertObjectsBetweenIntervals(unsigned int objectsNumber);
+      unsigned int generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
                                        unsigned int objectsNumber);
-      int selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
+      unsigned int selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
       int insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
         double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
           double countInterIntervalClustersWeight();
@@ -135,14 +135,14 @@ class MainWindow : public QMainWindow
       void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
-      void addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
+      void addKernelPrognosisDerivativePlot(const QVector<qreal> *X);
       void countKernelPrognosisDerivativeY(const QVector<qreal> *X);
       void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
-      int markUncommonClusters(kernelDensityEstimator* estimator);
+      unsigned int markUncommonClusters();
       void markNewTrends();
-      int markClustersWithNegativeDerivative();
+      void markClustersWithNegativeDerivative();
 
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
@@ -174,7 +174,7 @@ class MainWindow : public QMainWindow
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
-      int removeUnpromissingClusters();
+      void removeUnpromissingClusters();
       void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
       int findUncommonClusters();
 
@@ -193,7 +193,7 @@ class MainWindow : public QMainWindow
     void on_pushButton_removeTargetFunction_clicked();
 
     void updateWeights();
-    void updatePrognosisParameters(kernelDensityEstimator *estimator);
+    void updatePrognosisParameters();
     void countKDEDerivativeValuesOnClusters();
 };
 
