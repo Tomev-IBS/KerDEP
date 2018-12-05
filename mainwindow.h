@@ -137,7 +137,6 @@ class MainWindow : public QMainWindow
       double countNewtonianDerivative(int i, const QVector<qreal> *Y);
       void addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
       void countKernelPrognosisDerivativeY(const QVector<qreal> *X);
-      void addOvertakingEstimationPlot(const QVector<qreal> *X);
       void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);

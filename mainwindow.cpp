@@ -418,20 +418,17 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
       addKernelPrognosisDerivativePlot(&X, estimator);
 
-    if(ui->checkBox_overtakingEstimator->isChecked())
-      addOvertakingEstimationPlot(&X);
-
     if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked())
       addSigmoidallyEnhancedEstimationPlot(&X, estimator);
-
-    if(ui->checkBox_negativeC2Clusters->isChecked())
-      markClustersWithNegativeDerivative();
 
     if(ui->checkBox_showUnusualClusters->isChecked())
       markUncommonClusters(estimator);
 
     if(ui->checkBox_showNewTrends->isChecked())
       markNewTrends(estimator);
+
+    if(ui->checkBox_negativeC2Clusters->isChecked())
+      markClustersWithNegativeDerivative();
 
     // Draw plots
     ui->widget_plot->replot();
@@ -524,19 +521,11 @@ void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X, kerne
       = getClustersForEstimator();
 
   QVector<double> offsetKernelPrognosisPlotValues;
-  QVector<double> additionalAxis;
-
-  double yPlotOffset = - 0.05;
 
   for(int i = 0; i < _kernelPrognosisDerivativeValues.size(); ++i)
   {
-    offsetKernelPrognosisPlotValues.push_back(_kernelPrognosisDerivativeValues[i] + yPlotOffset);
-    additionalAxis.push_back(yPlotOffset);
+    offsetKernelPrognosisPlotValues.push_back(_kernelPrognosisDerivativeValues[i]);
   }
-
-  ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, additionalAxis);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::black, Qt::PenStyle::DashLine));
 
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, offsetKernelPrognosisPlotValues);
@@ -573,18 +562,6 @@ void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
   }
 }
 
-void MainWindow::addOvertakingEstimationPlot(const QVector<qreal> *X)
-{
-  QVector<qreal> overtakingPlotY;
-
-  for(int i = 0; i < KDEEstimationY.size(); ++i)
-    overtakingPlotY.push_back(std::max(KDEEstimationY[i] + _kernelPrognosisDerivativeValues[i], 0.0));
-
-  ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, overtakingPlotY);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
-}
-
 void MainWindow::addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
   auto currentClusters = getClustersForEstimator();
@@ -617,7 +594,7 @@ void MainWindow::addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, k
 
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, sigmoidallyEnhancedPlotY);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkGreen));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
 }
 
 int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
@@ -1097,7 +1074,6 @@ void MainWindow::on_pushButton_animate_clicked()
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
         qDebug() << "============ Clustering function started ============";
-
 
         std::shared_ptr<groupingThread> gThread(
               new groupingThread(&storedMedoids, parser)

@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -716,16 +716,6 @@
           <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
            <property name="text">
             <string>Kernel prognosed Plot</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_overtakingEstimator">
-           <property name="text">
-            <string>Overtaking estimator</string>
            </property>
            <property name="checked">
             <bool>true</bool>
