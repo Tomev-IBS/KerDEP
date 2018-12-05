@@ -806,7 +806,8 @@ void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
 }
 
 void MainWindow::fillDomain(
-  QVector<std::shared_ptr<point>>* domain, std::shared_ptr<point> *prototypePoint)
+  QVector<std::shared_ptr<point>>* domain,
+  std::shared_ptr<point> *prototypePoint)
 {
     // Check if domain is nullpointer
     if(domain == nullptr) return;
@@ -1065,8 +1066,12 @@ void MainWindow::on_pushButton_animate_clicked()
 
     _a = MIN_A;
 
+    _longestStepExecutionInSecs = 0;
+
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
+      clock_t executionStartTime = clock();
+
       updateWeights();
 
       algorithm->performSingleStep(&objects, stepNumber);
@@ -1078,7 +1083,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
       clusters.push_back(newCluster);
 
-      //qDebug() << "Reservoir size in step " << stepNumber << " is: " << clusters.size();
+      //qDebug() << "Reservoir size in step "
+      //           << stepNumber << " is: " << clusters.size();
 
       qDebug() << "Counting KDE values on clusters.";
       countKDEValuesOnClusters(estimator);
@@ -1140,14 +1146,25 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
+      qDebug() << "Drawing.";
       drawPlots(estimator.get(), targetFunction.get());
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      start = std::chrono::duration_cast< std::chrono::milliseconds >(
-          std::chrono::system_clock::now().time_since_epoch()).count();
+      clock_t executionFinishTime = clock();
+      double stepExecutionTime =
+        static_cast<double>(executionFinishTime - executionStartTime);
+      stepExecutionTime /= CLOCKS_PER_SEC;
 
-      delay(ui->lineEdit_milisecondsDelay->text().toInt());
+      if(stepExecutionTime > _longestStepExecutionInSecs)
+        _longestStepExecutionInSecs = stepExecutionTime;
+
+      qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
+      qDebug() << "Current execution time: " << stepExecutionTime;
+
+      delay(static_cast<int>(
+        (_longestStepExecutionInSecs - stepExecutionTime) * 1000
+      ));
     }
 
     qDebug() << "Animation finished.";

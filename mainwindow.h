@@ -51,6 +51,8 @@ class MainWindow : public QMainWindow
 
     long long start;
 
+    double _longestStepExecutionInSecs = 0;
+
     // Uncommon clusters dynamic parameter
     const double MAX_A                = 1.5;
     const double MIN_A                = 0.01;
