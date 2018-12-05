@@ -87,8 +87,6 @@ class MainWindow : public QMainWindow
 
     QVector<qreal> KDETemporalDerivativeY;
 
-    std::vector<std::shared_ptr<QThread>> runningSubthreads;
-
     std::unordered_map<std::string, attributeData*> attributesData;
 
     // Tests
@@ -113,7 +111,7 @@ class MainWindow : public QMainWindow
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
-    unsigned short positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
+    int positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
 
     QStringList kernelTypes;
 
@@ -121,12 +119,12 @@ class MainWindow : public QMainWindow
       unsigned int generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
                                        unsigned int objectsNumber);
       unsigned int selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
-      int insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
+      unsigned int insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
         double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
           double countInterIntervalClustersWeight();
 
-    int insertMassiveData();
-      int generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
+    unsigned int insertMassiveData();
+      unsigned int generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
 
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
       void clearPlot();
@@ -176,7 +174,7 @@ class MainWindow : public QMainWindow
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
       void removeUnpromissingClusters();
       void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
-      int findUncommonClusters();
+      unsigned int findUncommonClusters();
 
 
       void delay(int ms);

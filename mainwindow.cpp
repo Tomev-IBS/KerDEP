@@ -60,14 +60,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-  int keyCode = event->key();
+  unsigned int keyCode = static_cast<unsigned int>(event->key());
 
   //qDebug() << keyCode;
 
   // If key is a number
   if(keyCode >= 48 && keyCode <= 57)
   {
-    int objectsNumber = keyCode - 48;
+    unsigned int objectsNumber = keyCode - 48;
 
     if(objectsNumber == 0) objectsNumber += 10;
 
@@ -105,8 +105,10 @@ unsigned int MainWindow::generateInterIntervalObjects(
 
     parser->addDatumToContainer(interIntervalObjects);
 
-    parser->writeDatumOnPosition(interIntervalObjects,
-                                 interIntervalObjects->size()-1);
+    parser->writeDatumOnPosition(
+      interIntervalObjects,
+      static_cast<int>(interIntervalObjects->size()) - 1
+    );
   }
 
   return interIntervalObjects->size();
@@ -120,19 +122,24 @@ unsigned int MainWindow::selectDesiredNumberOfInterIntervalObjects(
 
   while(interIntervalObjects->size()
         > static_cast<unsigned int>(desiredNumberOfClusters))
-    interIntervalObjects->erase(interIntervalObjects->begin() + (rand() % interIntervalObjects->size()));
+    interIntervalObjects->erase(interIntervalObjects->begin() + static_cast<int>(static_cast<unsigned int>(rand()) % interIntervalObjects->size()));
 
   return interIntervalObjects->size();
 }
 
-int MainWindow::insertClustersFromInterIntervalObjects(
+unsigned int MainWindow::insertClustersFromInterIntervalObjects(
     std::vector<std::shared_ptr<sample> > *interIntervalObjects)
 {
   std::vector<std::shared_ptr<cluster>> newClusters;
 
   for(unsigned int i = 0; i < interIntervalObjects->size(); ++i)
   {
-    newClusters.push_back(std::shared_ptr<cluster>(new cluster(clusters.size()+i, (*interIntervalObjects)[i])));
+    newClusters.push_back(
+      std::shared_ptr<cluster>(
+        new cluster(static_cast<long>(clusters.size()+i),
+                    (*interIntervalObjects)[i])
+      )
+    );
     newClusters.back()->setTimestamp(stepNumber);
   }
 
@@ -156,10 +163,9 @@ double MainWindow::setInterIntervalClustersWeights(std::vector<std::shared_ptr<c
 double MainWindow::countInterIntervalClustersWeight()
 {
   // All values in milliseconds.
+  double intervalValue = ui->lineEdit_milisecondsDelay->text().toInt();
 
-  long intervalValue = ui->lineEdit_milisecondsDelay->text().toInt();
-
-  if(intervalValue == 0) return 1.0;
+  if(intervalValue < 1e-10) return 1.0;
 
   long long end = std::chrono::duration_cast< std::chrono::milliseconds >(
         std::chrono::system_clock::now().time_since_epoch()).count();
@@ -168,7 +174,7 @@ double MainWindow::countInterIntervalClustersWeight()
 
   double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
 
-  double power = 1 -((double)difference)/((double)intervalValue);
+  double power = 1.0 -(difference/intervalValue);
 
 
   // TR TODO: This is neccessary for proper functionality when intervals are low.
@@ -183,7 +189,7 @@ double MainWindow::countInterIntervalClustersWeight()
   return pow(weightModifier, power);
 }
 
-int MainWindow::insertMassiveData()
+unsigned int MainWindow::insertMassiveData()
 {
   std::vector<std::shared_ptr<sample>> massiveData;
 
@@ -200,7 +206,8 @@ int MainWindow::insertMassiveData()
   return massiveData.size();
 }
 
-int MainWindow::generateMassiveData(std::vector<std::shared_ptr<sample>> *dataContainer)
+unsigned int MainWindow::generateMassiveData(
+  std::vector<std::shared_ptr<sample>> *dataContainer)
 {
   long dataSize = 10000;
 
@@ -212,14 +219,16 @@ int MainWindow::generateMassiveData(std::vector<std::shared_ptr<sample>> *dataCo
 
     parser->addDatumToContainer(dataContainer);
 
-    parser->writeDatumOnPosition(dataContainer, dataContainer->size()-1);
+    parser->writeDatumOnPosition(dataContainer,
+                                 static_cast<int>(dataContainer->size())-1);
   }
 
   return dataContainer->size();
 }
 
-void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
-                                    std::vector<std::vector<std::shared_ptr<cluster>>> *storage)
+void MainWindow::clusterMassiveData(
+  std::vector<std::shared_ptr<sample>> *objects,
+  std::vector<std::vector<std::shared_ptr<cluster>>> *storage)
 {
   // Select medoids
   std::set<int> medoidsIndexes;
@@ -229,7 +238,9 @@ void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *object
 
   do
   {
-    medoidsIndexes.insert(rand() % objects->size());
+    medoidsIndexes.insert(
+      static_cast<int>(static_cast<unsigned int>(rand()) % objects->size())
+    );
   } while(medoidsIndexes.size() < medoidsNumber);
 
   // Create clusters from medoids
@@ -239,7 +250,7 @@ void MainWindow::clusterMassiveData(std::vector<std::shared_ptr<sample>> *object
 
   for(unsigned int i = 0; i < medoidsNumber; ++i)
   {
-    storage->at(0).push_back(std::make_shared<cluster>(cluster(i, objects->at(*it))));
+    storage->at(0).push_back(std::make_shared<cluster>(cluster(static_cast<long>(i), objects->at(static_cast<unsigned int>(*it)))));
     storage->at(0).back()->setTimestamp(stepNumber);
     storage->at(0).back()->setWeight(objects->size() / medoidsNumber);
     std::advance(it, 1);
@@ -306,7 +317,8 @@ void MainWindow::setupPlot()
 
 void MainWindow::setupKernelsTable()
 {
-    ui->tableWidget_dimensionKernels->horizontalHeader()->setStretchLastSection(true);
+    ui->tableWidget_dimensionKernels
+      ->horizontalHeader()->setStretchLastSection(true);
 
     refreshKernelsTable();
     refreshTargetFunctionTable();
@@ -347,7 +359,8 @@ void MainWindow::updateA()
   _previousUncommonClustersWeight = currentUncommonClusterWeight;
 }
 
-void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFunction)
+void MainWindow::drawPlots(kernelDensityEstimator* estimator,
+                           function* targetFunction)
 {
     // Check if prior plots should be saved
     if(!ui->checkBox_keepPriorPlots->isChecked())
@@ -669,7 +682,7 @@ void MainWindow::markClustersWithNegativeDerivative()
   }
 }
 
-int MainWindow::findUncommonClusters()
+unsigned int MainWindow::findUncommonClusters()
 {
   uncommonClusters.clear();
 
@@ -704,11 +717,12 @@ void MainWindow::removeUnpromissingClusters()
 
   for(std::vector<std::shared_ptr<cluster>> level: storedMedoids)
   {
-    for(int index = level.size() - 1; index >= 0; --index)
+    for(int index = static_cast<int>(level.size()) - 1; index >= 0; --index)
     {
       // Remove cluster if its temporal derivative is not equal to 0 and
       // it's weight is insignificant
-      if(level[index]->getWeight() < positionalSecondGradeEstimator)
+      if(level[static_cast<unsigned int>(index)]->getWeight()
+         < positionalSecondGradeEstimator)
       {
         level.erase(level.begin() + index);
       }
@@ -752,8 +766,8 @@ void MainWindow::fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal>>>
         {
             stDevs->last().get()->append
             (
-                ((QLineEdit*)(
-                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
+                (static_cast<QLineEdit*>(
+                    (static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
                     ->cellWidget(dimensionIndex, 0)
                 ))
                 ->text().toDouble()
@@ -775,8 +789,8 @@ void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
         {
             means->last().get()->append
             (
-                ((QLineEdit*)(
-                    ((QTableWidget*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
+                (static_cast<QLineEdit*>(
+                    (static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
                     ->cellWidget(dimensionIndex, 0)
                 ))
                 ->text().toDouble()
@@ -788,12 +802,12 @@ void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
 void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain, std::shared_ptr<point> *prototypePoint)
 {
     // Check if domain is nullpointer
-    if(domain == NULL) return;
+    if(domain == nullptr) return;
 
     std::shared_ptr<point> pPoint;
 
    // Check if prototype is a null pointer
-    if(prototypePoint == NULL)
+    if(prototypePoint == nullptr)
     {
         // If so make it a point pointer
         pPoint = std::make_shared<point>();
@@ -873,7 +887,7 @@ void MainWindow::generateSamples(QVector<std::shared_ptr<QVector<qreal>> > *mean
 distribution* MainWindow::generateTargetDistribution(QVector<std::shared_ptr<QVector<qreal>>> *means,
                                                      QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
 {
-    qreal seed = ui->lineEdit_seed->text().toDouble();
+    int seed = ui->lineEdit_seed->text().toInt();
 
     QVector<qreal> contributions;
     QVector<std::shared_ptr<distribution>> elementalDistributions;
@@ -884,7 +898,7 @@ distribution* MainWindow::generateTargetDistribution(QVector<std::shared_ptr<QVe
     {
         contributions.append
         (
-            ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+            (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
             ->text().toDouble()
         );
 
@@ -898,21 +912,21 @@ reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataR
                                                                            dataParser *parser)
 {
     int sampleSize = ui->lineEdit_sampleSize->text().toInt(),
-        stepsNumber = ui->lineEdit_iterationsNumber->text().toDouble(),
+        stepsNumber = ui->lineEdit_iterationsNumber->text().toInt(),
         samplingAlgorithmID = ui->comboBox_samplingAlgorithm->currentIndex();
 
     switch(samplingAlgorithmID)
     {
         case BIASED_RESERVOIR_SAMPLING_ALGORITHM:
             return new biasedReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
-        break;
         case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
         default:
             return new basicReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
     }
 }
 
-kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimensionsNumber)
+kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(
+    int dimensionsNumber)
 {
     QVector<int> kernelsIDs;
     QVector<qreal> smoothingParameters;
@@ -920,9 +934,9 @@ kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimension
 
     for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber)
     {
-        kernelsIDs.append(((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
-        smoothingParameters.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
-        carriersRestrictions.append(((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text());
+        kernelsIDs.append((static_cast<QComboBox*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
+        smoothingParameters.append((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
+        carriersRestrictions.append((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text());
     }
 
     return new kernelDensityEstimator(
@@ -934,24 +948,27 @@ kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(int dimension
                 );
 }
 
-function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qreal>>>* means,
-                                             QVector<std::shared_ptr<QVector<qreal>>>* stDevs)
+function* MainWindow::generateTargetFunction(
+    QVector<std::shared_ptr<QVector<qreal>>>* means,
+    QVector<std::shared_ptr<QVector<qreal>>>* stDevs)
 
 {
   QVector<qreal> contributions;
   QVector<std::shared_ptr<function>> elementalFunctions;
 
-  int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+  int targetFunctionElementsNumber = ui->tableWidget_targetFunctions
+                                       ->rowCount();
 
-  // Check if contributions are set correctly. If they are, then last contribution is >= 0;
-  if(((QLineEdit*)(ui
-                   ->tableWidget_targetFunctions
-                   ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX))
-                  )
-          ->text().toDouble() <= 0)
+  // Check if contributions are set correctly. If they are, then last
+  // contribution is >= 0;
+  if(static_cast<QLineEdit*>(ui->tableWidget_targetFunctions
+       ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX)
+      )->text().toDouble() <= 0
+    )
   {
       // If not then uniform distributions and log error
-      qDebug() << "Contributions aren't set correctly. Uniforming contributions.";
+      qDebug() << "Contributions aren't set correctly. Uniforming "
+                  "contributions.";
       uniformContributions();
   }
 
@@ -962,7 +979,7 @@ function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qre
 
       contributions.append
       (
-          ((QLineEdit*)(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+          (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
           ->text().toDouble()
       );
 
@@ -972,7 +989,6 @@ function* MainWindow::generateTargetFunction(QVector<std::shared_ptr<QVector<qre
   }
 
   return new complexFunction(&contributions, &elementalFunctions);
-  return NULL;
 }
 
 QColor MainWindow::getRandomColor()
@@ -991,7 +1007,7 @@ void MainWindow::on_pushButton_animate_clicked()
     qDebug() << "Seed: " + ui->lineEdit_seed->text() +
                 ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-    srand(ui->lineEdit_seed->text().toDouble());
+    srand(static_cast<unsigned int>(ui->lineEdit_seed->text().toInt()));
 
     fillMeans(&means);
     fillStandardDeviations(&stDevs);
@@ -1079,12 +1095,6 @@ void MainWindow::on_pushButton_animate_clicked()
       {
         qDebug() << "============ Clustering function started ============";
 
-        std::shared_ptr<groupingThread> gThread(
-              new groupingThread(&storedMedoids, parser)
-        );
-
-        runningSubthreads.push_back(gThread);
-
         std::vector<std::shared_ptr<cluster>> clustersForGrouping;
         int numberOfClustersForGrouping = 100;
 
@@ -1100,8 +1110,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
-
-        qDebug() << "Objects cleared.";
       }
 
       updateA();
@@ -1187,23 +1195,20 @@ void MainWindow::addKernelToTable(int rowNumber,
 {
     // Add combobox with kernels
 
-    // TODO TR: Ensure that this doesn't result in memory leaks
     ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, KERNEL_COLUMN_INDEX, new QComboBox());
 
-    ((QComboBox*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->insertItems(0, kernelTypes);
+    (static_cast<QComboBox*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->insertItems(0, kernelTypes);
 
     // Add input box with validator for smoothing parameters
     ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX, new QLineEdit());
 
-    // TODO TR: Ensure that this doesn't result in memory leaks
-    ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
-    ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
+    (static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
+    (static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
 
     // Add input box for carrier restriction value
     ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
 
-    // TODO TR: Ensure that this doesn't result in memory leaks
-    ((QLineEdit*)(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
+    (static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
 }
 
 void MainWindow::refreshTargetFunctionTable()
@@ -1233,7 +1238,7 @@ void MainWindow::refreshTargetFunctionTable()
     contributionValidator->setLocale(locale);
     contributionValidator->setNotation(QDoubleValidator::StandardNotation);
 
-    QTableWidget *targetFunctionTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions,
+    QTableWidget *targetFunctionTablePointer = static_cast<QTableWidget*>(ui->tableWidget_targetFunctions),
                  *meansTablePointer, *stDevsTablePointer;
 
     for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex)
@@ -1241,7 +1246,7 @@ void MainWindow::refreshTargetFunctionTable()
         // TODO TR: Ensure that this doesn't result in memory leaks
         targetFunctionTablePointer->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QTableWidget());
 
-        meansTablePointer = ((QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
+        meansTablePointer = static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
         meansTablePointer->setRowCount(dimensionsNumber);
         meansTablePointer->setColumnCount(1);
         meansTablePointer->horizontalHeader()->hide();
@@ -1249,7 +1254,7 @@ void MainWindow::refreshTargetFunctionTable()
         // TODO TR: Ensure that this doesn't result in memory leaks
         targetFunctionTablePointer->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QTableWidget());
 
-        stDevsTablePointer = (QTableWidget*)ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX);
+        stDevsTablePointer = static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX));
         stDevsTablePointer->setRowCount(dimensionsNumber);
         stDevsTablePointer->setColumnCount(1);
         stDevsTablePointer->horizontalHeader()->hide();
@@ -1257,23 +1262,23 @@ void MainWindow::refreshTargetFunctionTable()
         for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber)
         {
            meansTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
-           ((QLineEdit*)(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
+           (static_cast<QLineEdit*>(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
+           (static_cast<QLineEdit*>(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
 
            stDevsTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-           ((QLineEdit*)(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
-           ((QLineEdit*)(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(stDevValidator);
+           (static_cast<QLineEdit*>(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
+           (static_cast<QLineEdit*>(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(stDevValidator);
         }
 
         // TODO TR: Ensure that this doesn't result in memory leaks
         targetFunctionTablePointer->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
-        ((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setMaxLength(6);
-        ((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
-        QObject::connect(((QLineEdit*)(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))), SIGNAL(textEdited(QString)), this, SLOT(updateLastContribution()));
+        (static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setMaxLength(6);
+        (static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
+        QObject::connect((static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))), SIGNAL(textEdited(QString)), this, SLOT(updateLastContribution()));
     }
 
     // Disable last contribution cell, as it's filled automatically
-    ((QLineEdit*)(targetFunctionTablePointer->cellWidget(numberOfRows -1, CONTRIBUTION_COLUMN_INDEX)))->setEnabled(false);
+    (static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(numberOfRows -1, CONTRIBUTION_COLUMN_INDEX)))->setEnabled(false);
 
     uniformContributions();
 }
@@ -1349,7 +1354,7 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
 
     samplesColumn.clear();
 
-    foreach(std::shared_ptr<QVector<qreal>> sample, samples)
+    for(std::shared_ptr<QVector<qreal>> sample : samples)
         samplesColumn.append(sample.get()->at(rowNumber));
 
     value = counter->countSmoothingParameterValue();
@@ -1361,7 +1366,8 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
   }
 }
 
-smoothingParameterCounter *MainWindow::generateSmoothingParameterCounter(QVector<qreal> *samplesColumn)
+smoothingParameterCounter *MainWindow::generateSmoothingParameterCounter(
+    QVector<qreal> *samplesColumn)
 {
   int smoothingParameterCounterID = ui
                                     ->comboBox_smoothingParameterCountingMethod
@@ -1370,7 +1376,8 @@ smoothingParameterCounter *MainWindow::generateSmoothingParameterCounter(QVector
   switch (smoothingParameterCounterID)
   {
     case WEIGHTED_SILVERMAN:
-      return new weightedSilvermanSmoothingParameterCounter(samplesColumn, nullptr);
+      return new weightedSilvermanSmoothingParameterCounter(samplesColumn,
+                                                            nullptr);
     case RANK_3_PLUG_IN:
       return new pluginSmoothingParameterCounter(samplesColumn, 3);
     case RANK_2_PLUG_IN:
@@ -1401,8 +1408,9 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
 
 void MainWindow::updateWeights()
 {
-  double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
-  double weightDeletionThreshold = ui->lineEdit_deletionThreshold->text().toDouble();
+  double weightModifier = ui->lineEdit_weightModifier->text().toDouble(),
+         weightDeletionThreshold = ui->lineEdit_deletionThreshold
+                                     ->text().toDouble();
 
   for(unsigned int level = 0; level < storedMedoids.size(); ++level)
   {
@@ -1418,7 +1426,7 @@ void MainWindow::updateWeights()
   {
     clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
     if(clusters[i]->getWeight() < weightDeletionThreshold)
-      clusters.erase(clusters.begin() + i);
+      clusters.erase(clusters.begin() + static_cast<int>(i));
   }
 }
 
