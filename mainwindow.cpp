@@ -425,7 +425,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       markUncommonClusters(estimator);
 
     if(ui->checkBox_showNewTrends->isChecked())
-      markNewTrends(estimator);
+      markNewTrends();
 
     if(ui->checkBox_negativeC2Clusters->isChecked())
       markClustersWithNegativeDerivative();
@@ -619,24 +619,18 @@ int MainWindow::markUncommonClusters(kernelDensityEstimator* estimator)
   return uncommonClusters.size();
 }
 
-int MainWindow::markNewTrends(kernelDensityEstimator* estimator)
+void MainWindow::markNewTrends()
 {
-  double x;
+  double x = 0.0;
 
   // For each uncommon cluster add a red vertical line to the plot
   for(std::shared_ptr<cluster> c : uncommonClusters)
   {
-    if(c->predictionParameters[1] * c->_lastKDEValue > 1e-5)
+    if(c->predictionParameters[1] > 0 && c->_KDEDerivativeValue > 0)
     {
       // Only works for distribution data samples as programmed
       x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
 
-      /*
-      QCPItemStraightLine *verticalLine = new QCPItemStraightLine(ui->widget_plot);
-      verticalLine->point1->setCoords(x, MIN_Y);
-      verticalLine->point2->setCoords(x, MAX_Y);
-      verticalLine->setPen(QPen(Qt::green));
-      */
       QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
       verticalLine->start->setCoords(x, 0.1);
       verticalLine->end->setCoords(x, -0.1);
@@ -1081,10 +1075,6 @@ void MainWindow::on_pushButton_animate_clicked()
 
         runningSubthreads.push_back(gThread);
 
-        qDebug() << "Got objects for grouping.";
-
-        // Instead of using all clusters (in general), using only part of them
-        // is required (for consistent work of KDE).
         std::vector<std::shared_ptr<cluster>> clustersForGrouping;
         int numberOfClustersForGrouping = 100;
 
@@ -1095,6 +1085,8 @@ void MainWindow::on_pushButton_animate_clicked()
         }
 
         objects.erase(objects.begin(), objects.begin() + numberOfClustersForGrouping);
+
+        qDebug() << "Got objects for grouping.";
 
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
@@ -1107,7 +1099,8 @@ void MainWindow::on_pushButton_animate_clicked()
       estimator->setClusters(getClustersForEstimator());
       qDebug() << "Updating prognosis.";
       updatePrognosisParameters(estimator.get());
-      qDebug() << "Updated.";
+      qDebug() << "Updated. Counting derivative values for clusters.";
+      countKDEDerivativeValuesOnClusters();
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -1339,7 +1332,6 @@ void MainWindow::on_pushButton_countSmoothingParameters_clicked()
     foreach(std::shared_ptr<QVector<qreal>> sample, samples)
         samplesColumn.append(sample.get()->at(rowNumber));
 
-    //value = (counter.*methodFunctionPointer)();
     value = counter->countSmoothingParameterValue();
 
     ((QLineEdit*)(ui
@@ -1420,8 +1412,7 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
   {
     QVector<qreal> pt;
 
-    // Assuming it has object (as it should). Also assuming only
-    // numerical values.
+    // Assuming it has object (as it should) and have only numerical values.
     for(auto kv : c->getObject()->attributesValues)
       pt.append(std::stod(kv.second));
 
@@ -1438,4 +1429,35 @@ void MainWindow::updatePrognosisParameters(kernelDensityEstimator *estimator)
     c->_lastKDEValue = c->_currentKDEValue;
   }
 
+}
+
+void MainWindow::countKDEDerivativeValuesOnClusters()
+{
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
+
+  std::vector<double> prognosisCoefficients;
+
+  _kernelPrognosisDerivativeValues.clear();
+
+  prognosisCoefficients.clear();
+
+  for(auto c : currentClusters)
+    prognosisCoefficients.push_back(c->predictionParameters[1]);
+
+  if(prognosisCoefficients.size() == currentClusters.size())
+  {
+    kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
+    kernelPrognoser->setClusters(currentClusters);
+
+    QVector<qreal> x;
+
+    for(auto c : currentClusters)
+    {
+      QVector<qreal> pt;
+      pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+
+      c->_KDEDerivativeValue = kernelPrognoser->getValue(&pt);
+    }
+  }
 }

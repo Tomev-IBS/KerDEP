@@ -141,7 +141,7 @@ class MainWindow : public QMainWindow
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
       int markUncommonClusters(kernelDensityEstimator* estimator);
-      int markNewTrends(kernelDensityEstimator *estimator);
+      void markNewTrends();
       int markClustersWithNegativeDerivative();
 
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
@@ -194,6 +194,7 @@ class MainWindow : public QMainWindow
 
     void updateWeights();
     void updatePrognosisParameters(kernelDensityEstimator *estimator);
+    void countKDEDerivativeValuesOnClusters();
 };
 
 enum kernelSettingsColumns
