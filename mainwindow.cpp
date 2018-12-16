@@ -24,9 +24,6 @@
 
 #include "Detectors/rareElementsDetector.h"
 
-#include "VDE/velocityDensityEstimator.h"
-#include "VDE/VDEThread.h"
-
 #include "groupingThread/groupingThread.h"
 
 #include "groupingThread/kMedoidsAlgorithm/numericalAttributeData.h"
@@ -431,9 +428,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
       addTemporalDerivativePlot(&X, &KDETemporalDerivativeY);
 
     // Generate plot for kernel prognosis derivative
-    countKernelPrognosisDerivativeY(&X);
-
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
+      countKernelPrognosisDerivativeY(&X);
       addKernelPrognosisDerivativePlot(&X);
 
     if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked())
@@ -1115,6 +1111,8 @@ void MainWindow::on_pushButton_animate_clicked()
         qDebug() << "Smoothing params counted.";
       }
 
+
+      /*
       if(clusters.size() >= algorithm->getReservoidMaxSize())
       {
         qDebug() << "============ Clustering function started ============";
@@ -1135,14 +1133,16 @@ void MainWindow::on_pushButton_animate_clicked()
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
       }
+      */
 
+      /*
       updateA();
-
       estimator->setClusters(getClustersForEstimator());
       qDebug() << "Updating prognosis.";
       updatePrognosisParameters();
       qDebug() << "Updated. Counting derivative values for clusters.";
       countKDEDerivativeValuesOnClusters();
+      */
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
