@@ -2,6 +2,7 @@
 #define DISTRIBUTION_H
 
 #include <QObject>
+#include <random>
 
 class distribution
 {
@@ -11,6 +12,7 @@ class distribution
         virtual void increaseMeans(qreal addend) = 0;
 
     protected:
+
         std::default_random_engine generator;
 };
 

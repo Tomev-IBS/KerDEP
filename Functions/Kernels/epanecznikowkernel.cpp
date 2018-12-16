@@ -1,6 +1,6 @@
 #include "epanecznikowkernel.h"
-
 #include "QDebug"
+#include <cmath>
 
 epanecznikowKernel::epanecznikowKernel()
 {}

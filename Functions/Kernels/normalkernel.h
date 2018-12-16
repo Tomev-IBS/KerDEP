@@ -2,6 +2,8 @@
 #define NORMALKERNEL_H
 
 #include "kernel.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 class normalKernel : public kernel
 {

@@ -28,8 +28,8 @@ int complexDistribution::randomizeDistributionIndex()
 {
     std::uniform_real_distribution<qreal> uniformDistribution(0,1);
 
-    qreal threshold = uniformDistribution(generator) * 100,
-          checker = contributions.at(0);
+    qreal threshold = uniformDistribution(generator) * 100;
+    qreal checker = contributions.at(0);
 
     int distributionIndex = 0;
 
