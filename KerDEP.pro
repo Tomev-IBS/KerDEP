@@ -33,7 +33,6 @@ SOURCES     +=  main.cpp\
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/progressivedistributiondatareader.cpp \
                 Reservoir_sampling/distributionDataSample.cpp \
-                Detectors/rareElementsDetector.cpp \
                 KDE/weightedSilvermanSmoothingParameterCounter.cpp \
                 groupingThread/groupingThread.cpp \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.cpp \
@@ -77,7 +76,6 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.h \
                 Reservoir_sampling/progressivedistributiondatareader.h \
                 Reservoir_sampling/distributionDataSample.h \
-                Detectors/rareElementsDetector.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
                 groupingThread/groupingThread.h \

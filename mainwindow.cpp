@@ -22,8 +22,6 @@
 #include "Reservoir_sampling/distributiondataparser.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
 
-#include "Detectors/rareElementsDetector.h"
-
 #include "groupingThread/groupingThread.h"
 
 #include "groupingThread/kMedoidsAlgorithm/numericalAttributeData.h"
@@ -429,8 +427,10 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
 
     // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
+    {
       countKernelPrognosisDerivativeY(&X);
       addKernelPrognosisDerivativePlot(&X);
+    }
 
     if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked())
       addSigmoidallyEnhancedEstimationPlot(&X, estimator);
