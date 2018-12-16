@@ -75,7 +75,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
   if(keyCode == 77) insertMassiveData();
 }
 
-unsigned int MainWindow::insertObjectsBetweenIntervals(
+unsigned long long MainWindow::insertObjectsBetweenIntervals(
     unsigned int objectsNumber)
 {
   std::vector<std::shared_ptr<sample>> interIntervalObjects;
@@ -91,7 +91,7 @@ unsigned int MainWindow::insertObjectsBetweenIntervals(
   return interIntervalObjects.size();
 }
 
-unsigned int MainWindow::generateInterIntervalObjects(
+unsigned long long MainWindow::generateInterIntervalObjects(
     std::vector<std::shared_ptr<sample> > *interIntervalObjects,
     unsigned int objectsNumber)
 {
@@ -112,7 +112,7 @@ unsigned int MainWindow::generateInterIntervalObjects(
   return interIntervalObjects->size();
 }
 
-unsigned int MainWindow::selectDesiredNumberOfInterIntervalObjects(
+unsigned long long MainWindow::selectDesiredNumberOfInterIntervalObjects(
     std::vector<std::shared_ptr<sample> > *interIntervalObjects)
 {
   int desiredNumberOfClusters =
@@ -125,7 +125,7 @@ unsigned int MainWindow::selectDesiredNumberOfInterIntervalObjects(
   return interIntervalObjects->size();
 }
 
-unsigned int MainWindow::insertClustersFromInterIntervalObjects(
+unsigned long long MainWindow::insertClustersFromInterIntervalObjects(
     std::vector<std::shared_ptr<sample> > *interIntervalObjects)
 {
   std::vector<std::shared_ptr<cluster>> newClusters;
@@ -188,7 +188,7 @@ double MainWindow::countInterIntervalClustersWeight()
   return pow(weightModifier, power);
 }
 
-unsigned int MainWindow::insertMassiveData()
+unsigned long long MainWindow::insertMassiveData()
 {
   std::vector<std::shared_ptr<sample>> massiveData;
 
@@ -205,7 +205,7 @@ unsigned int MainWindow::insertMassiveData()
   return massiveData.size();
 }
 
-unsigned int MainWindow::generateMassiveData(
+unsigned long long MainWindow::generateMassiveData(
   std::vector<std::shared_ptr<sample>> *dataContainer)
 {
   long dataSize = 10000;
@@ -618,7 +618,7 @@ void MainWindow::addSigmoidallyEnhancedEstimationPlot(
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
 }
 
-unsigned int MainWindow::markUncommonClusters()
+unsigned long long MainWindow::markUncommonClusters()
 {
   double x;
 
@@ -681,7 +681,7 @@ void MainWindow::markClustersWithNegativeDerivative()
   }
 }
 
-unsigned int MainWindow::findUncommonClusters()
+unsigned long long MainWindow::findUncommonClusters()
 {
   uncommonClusters.clear();
 

@@ -114,16 +114,16 @@ class MainWindow : public QMainWindow
 
     QStringList kernelTypes;
 
-    unsigned int insertObjectsBetweenIntervals(unsigned int objectsNumber);
-      unsigned int generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
+    unsigned long long insertObjectsBetweenIntervals(unsigned int objectsNumber);
+      unsigned long long generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
                                        unsigned int objectsNumber);
-      unsigned int selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
-      unsigned int insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
+      unsigned long long selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
+      unsigned long long insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
         double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
           double countInterIntervalClustersWeight();
 
-    unsigned int insertMassiveData();
-      unsigned int generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
+    unsigned long long insertMassiveData();
+      unsigned long long generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
 
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
       void clearPlot();
@@ -137,7 +137,7 @@ class MainWindow : public QMainWindow
       void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
         int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
         int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
-      unsigned int markUncommonClusters();
+      unsigned long long markUncommonClusters();
       void markNewTrends();
       void markClustersWithNegativeDerivative();
 
@@ -173,7 +173,7 @@ class MainWindow : public QMainWindow
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
       void removeUnpromissingClusters();
       void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
-      unsigned int findUncommonClusters();
+      unsigned long long findUncommonClusters();
 
 
       void delay(int ms);
