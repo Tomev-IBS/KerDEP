@@ -81,6 +81,20 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_h_parameter_text">
+             <property name="text">
+              <string>h = </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_h_parameter_value">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -414,7 +428,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.001</string>
+            <string>0</string>
            </property>
           </widget>
          </item>
@@ -442,7 +456,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_weightModifier">
            <property name="text">
-            <string>0.99</string>
+            <string>1</string>
            </property>
           </widget>
          </item>

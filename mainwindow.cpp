@@ -1096,7 +1096,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       auto currentClusters = getClustersForEstimator();
 
-      if(currentClusters.size() % 20 == 0)
+      if(currentClusters.size() > 4)
       {
         qDebug() << "Counting of smoothing parameters.";
 
