@@ -46,6 +46,8 @@ void MainWindow::testNewFunctionalities()
 {
   qDebug() << "Start test.";
 
+  qDebug() << "Size of int: " << sizeof(int);
+
   qDebug() << "Finish test.";
 }
 
@@ -1160,7 +1162,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      if(clusters.size() % 5000 == 0)
+      if(clusters.size() % 1000 == 0)
       {
         qDebug() << "Drawing.";
         drawPlots(estimator.get(), targetFunction.get());

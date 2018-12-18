@@ -80,42 +80,28 @@ double weightedSilvermanSmoothingParameterCounter::countWeightedStandardDeviatio
     return -2.0;
   }
 
-  // Weight's has to be normalized to n = number_of_samples, so...
-  double weightsNormalizationFactor = samples->size();
-  std::vector<double> normalizedWeights;
-  double weightsSum = 0;
+  double weightsSum = 0.0;
 
   for(auto weight : *weights)
     weightsSum += weight;
 
-  weightsNormalizationFactor /= weightsSum;
-  qDebug() << "factor = " << weightsNormalizationFactor;
+  double weightedMean = 0.0;
 
+  for(int i = 0; i < samples->size(); ++i)
+    weightedMean += (*samples)[i] * (*weights)[i];
 
-  // Normalizing all weights.
-  for(long i = 0; i < weights->size(); ++i)
-    normalizedWeights.push_back((*weights)[i] * weightsNormalizationFactor);
+  weightedMean /= weightsSum;
 
-  // Count weighted stDev
-  double stDev = 0;
+  double var = 0.0;
 
-  for(long i = 0; i < samples->size(); ++i)
-    stDev += pow(normalizedWeights[i] * (*samples)[i], 2);
+  for(int i = 0; i < samples->size(); ++i)
+    var += (*weights)[i] * pow((*samples)[i] - weightedMean, 2.0);
 
-  stDev /= samples->size() - 1;
+  double N = samples->size(); // So I don't have to cast during division
 
-  double substract = 0;
+  var /= weightsSum * (N - 1) / N;
 
-  for(long i = 0; i < samples->size(); ++i)
-    substract += normalizedWeights[i] * (*samples)[i];
-
-  substract = pow(substract, 2);
-
-  substract /= samples->size() * (samples->size() - 1);
-
-  stDev -= substract;
-
-  stDev = pow(stDev, 0.5);
-
-  return stDev;
+  return pow(var, 0.5);
 }
+
+
