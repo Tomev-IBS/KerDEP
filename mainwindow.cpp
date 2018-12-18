@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -1064,6 +1065,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
     _longestStepExecutionInSecs = 0;
 
+    weightedSilvermanSmoothingParameterCounter smoothingParamCounter(&clusters, 0);
+
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
       clock_t executionStartTime = clock();
@@ -1079,9 +1082,10 @@ void MainWindow::on_pushButton_animate_clicked()
 
       clusters.push_back(newCluster);
 
-      //qDebug() << "Reservoir size in step "
-      //           << stepNumber << " is: " << clusters.size();
+      qDebug() << "Reservoir size in step "
+                 << stepNumber << " is: " << clusters.size();
 
+      /*
       qDebug() << "Counting KDE values on clusters.";
       countKDEValuesOnClusters(estimator);
       qDebug() << "Counted. Finding uncommon clusters.";
@@ -1089,28 +1093,36 @@ void MainWindow::on_pushButton_animate_clicked()
       qDebug() << "Found. Removing unpromissing clusters.";
       removeUnpromissingClusters();
       qDebug() << "Clusters size after reduction: " << clusters.size();
+      */
 
       auto currentClusters = getClustersForEstimator();
 
-      if(currentClusters.size() > 4)
+      if(currentClusters.size() > 2)
       {
         qDebug() << "Counting of smoothing parameters.";
 
-        //* Count smoothing param using Weighted Silverman Method
-
-        std::shared_ptr<weightedSilvermanSmoothingParameterCounter>
-          smoothingParamCounter( new weightedSilvermanSmoothingParameterCounter(&currentClusters, 0));
+        smoothingParamCounter.setClusters(&currentClusters, 0);
 
         std::vector<double> smoothingParameters;
 
         smoothingParameters
-          .push_back(smoothingParamCounter->countSmoothingParameterValue());
+          .push_back(smoothingParamCounter.countSmoothingParameterValue());
 
         estimator->setSmoothingParameters(smoothingParameters);
 
-        qDebug() << "Smoothing params counted.";
-      }
+        ui->label_h_parameter_value->setText(
+          QString::number(smoothingParameters[0])
+        );
 
+        qDebug() << "Smoothing params counted.";
+        qDebug() << "h = " << smoothingParameters[0];
+
+        // Write h to file for data analysis
+        std::ofstream myfile;
+        myfile.open("h_params.csv", std::ios_base::app);
+        myfile << smoothingParameters[0] << ",";
+        myfile.close();
+      }
 
       /*
       if(clusters.size() >= algorithm->getReservoidMaxSize())
@@ -1135,9 +1147,11 @@ void MainWindow::on_pushButton_animate_clicked()
       }
       */
 
-      /*
-      updateA();
+
+      //updateA();
+
       estimator->setClusters(getClustersForEstimator());
+      /*
       qDebug() << "Updating prognosis.";
       updatePrognosisParameters();
       qDebug() << "Updated. Counting derivative values for clusters.";
@@ -1146,8 +1160,12 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      qDebug() << "Drawing.";
-      drawPlots(estimator.get(), targetFunction.get());
+      if(clusters.size() % 5000 == 0)
+      {
+        qDebug() << "Drawing.";
+        drawPlots(estimator.get(), targetFunction.get());
+        qApp->processEvents();
+      }
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -1162,9 +1180,11 @@ void MainWindow::on_pushButton_animate_clicked()
       qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
       qDebug() << "Current execution time: " << stepExecutionTime;
 
+      /*
       delay(static_cast<int>(
         (_longestStepExecutionInSecs - stepExecutionTime) * 1000
       ));
+      */
     }
 
     qDebug() << "Animation finished.";

@@ -18,7 +18,11 @@ class weightedSilvermanSmoothingParameterCounter
     weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster> > *clusters,
                                                int dimension);
 
-    double countSmoothingParameterValue();
+    void setClusters(std::vector<std::shared_ptr<cluster> > *clusters, int dimension);
+
+    ~weightedSilvermanSmoothingParameterCounter();
+
+    double countSmoothingParameterValue() override;
 
   protected:
 
