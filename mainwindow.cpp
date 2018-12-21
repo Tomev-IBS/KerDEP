@@ -1099,32 +1099,36 @@ void MainWindow::on_pushButton_animate_clicked()
 
       auto currentClusters = getClustersForEstimator();
 
-      if(currentClusters.size() > 2)
+      qDebug() << "Counting of smoothing parameters.";
+
+      //smoothingParamCounter.setClusters(&currentClusters, 0);
+
+      smoothingParamCounter.updateSmoothingParameterValue(
+        ui->lineEdit_weightModifier->text().toDouble(),
+        std::stod(objects.back()->attributesValues["Val0"])
+      );
+
+
+      std::vector<double> smoothingParameters =
       {
-        qDebug() << "Counting of smoothing parameters.";
+        smoothingParamCounter.getSmoothingParameterValue()
+      };
 
-        smoothingParamCounter.setClusters(&currentClusters, 0);
 
-        std::vector<double> smoothingParameters;
+      estimator->setSmoothingParameters(smoothingParameters);
 
-        smoothingParameters
-          .push_back(smoothingParamCounter.countSmoothingParameterValue());
+      ui->label_h_parameter_value->setText(
+        QString::number(smoothingParameters[0])
+      );
 
-        estimator->setSmoothingParameters(smoothingParameters);
+      qDebug() << "Smoothing params counted.";
+      qDebug() << "h = " << smoothingParameters[0];
 
-        ui->label_h_parameter_value->setText(
-          QString::number(smoothingParameters[0])
-        );
-
-        qDebug() << "Smoothing params counted.";
-        qDebug() << "h = " << smoothingParameters[0];
-
-        // Write h to file for data analysis
-        std::ofstream myfile;
-        myfile.open("h_params.csv", std::ios_base::app);
-        myfile << smoothingParameters[0] << ",";
-        myfile.close();
-      }
+      // Write h to file for data analysis
+      std::ofstream myfile;
+      myfile.open("h_params.csv", std::ios_base::app);
+      myfile << smoothingParameters[0] << ",";
+      myfile.close();
 
       /*
       if(clusters.size() >= algorithm->getReservoidMaxSize())

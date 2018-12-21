@@ -12,13 +12,19 @@ class weightedSilvermanSmoothingParameterCounter
 {
   public:
 
-    weightedSilvermanSmoothingParameterCounter(QVector<qreal> *samples,
-                                               QVector<double> *weights);
+    weightedSilvermanSmoothingParameterCounter(QVector<qreal> *_samples,
+                                               QVector<double> *_weights);
 
     weightedSilvermanSmoothingParameterCounter(std::vector<std::shared_ptr<cluster> > *clusters,
                                                int dimension);
 
     void setClusters(std::vector<std::shared_ptr<cluster> > *clusters, int dimension);
+
+
+    // NEW
+    double getSmoothingParameterValue();
+    void updateSmoothingParameterValue(double weightModifier, double newSample);
+
 
     ~weightedSilvermanSmoothingParameterCounter();
 
@@ -26,10 +32,19 @@ class weightedSilvermanSmoothingParameterCounter
 
   protected:
 
-    QVector<qreal> *samples;
-    QVector<double> *weights;
+    QVector<qreal> *_samples;
+    QVector<double> *_weights;
 
-    double countWeightedStandardDeviation();
+    // NEW
+    double _m = 0.0;
+    double _sampleSum = 0.0;
+    double _squaredSampleSum = 0.0;
+    double _stDev = 0.0;
+    double _h = 0.0;
+
+    void recountWeightedStandardDeviation();
+    void countStandardDeviation();
+    double updateWeightedStandardDeviation();
 
 };
 
