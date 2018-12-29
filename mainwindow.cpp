@@ -1148,10 +1148,12 @@ void MainWindow::on_pushButton_animate_clicked()
       //qDebug() << "Smoothing params counted.";
 
       // Write h to file for data analysis
+      /*
       std::ofstream myfile;
       //myfile.open("h_params.csv", std::ios_base::app);
       myfile << smoothingParameters[0] << ",";
       myfile.close();
+      */
 
       //updateA();
 
