@@ -12,8 +12,7 @@
 
 enum estimatorsKernelsType
 {
-    PRODUCT =   0,
-    RADIAL  =   1
+    PRODUCT =   0
 };
 
 class kernelDensityEstimator
@@ -22,7 +21,7 @@ class kernelDensityEstimator
         kernelDensityEstimator(QVector<std::shared_ptr<QVector<qreal>>>* samples, QVector<qreal>* smoothingParameter, QVector<QString>* carriersRestrictions, int kernelType, QVector<int>* kernelsIDs);
 
         void setSamples(QVector<std::shared_ptr<QVector<qreal>>>* samples);
-        int setClusters(std::vector<std::shared_ptr<cluster> > clusters);
+        unsigned long long setClusters(std::vector<std::shared_ptr<cluster> > clusters);
 
         int setSmoothingParameters(std::vector<double> smoothingParams);
 
@@ -57,11 +56,9 @@ class kernelDensityEstimator
             double getProductKernelAddendFromSample(QVector<qreal> *sample, QVector<qreal> *x);
             double getProductKernelAddendFromClusterIndex(int i, QVector<qreal> *x);
           double getProductValuesFromSamples(QVector<qreal> *x);
-        qreal getRadialKernelValue(QVector<qreal>* x);
 
         void fillKernelsList(QVector<int>* kernelsIDs);
             void addProductKernelsToTheList(QVector<int>* kernelsIDs);
-            void addRadialKernelsToTheList(QVector<int>* kernelsIDs);
 
         int partitionCharacteristicFunction(qreal carrier, qreal restriction);
 };

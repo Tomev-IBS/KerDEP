@@ -25,7 +25,7 @@ void kernelDensityEstimator::setSamples(QVector<std::shared_ptr<QVector<qreal> >
   this->samples = QVector<std::shared_ptr<QVector<qreal>>>(*samples);
 }
 
-int kernelDensityEstimator::setClusters(std::vector<std::shared_ptr<cluster>> clusters)
+unsigned long long kernelDensityEstimator::setClusters(std::vector<std::shared_ptr<cluster>> clusters)
 {
   this->clusters = clusters;
 
@@ -50,7 +50,7 @@ void kernelDensityEstimator::setAdditionalMultipliers(std::vector<double> multip
 
 qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
 {
-    if(x == NULL)
+    if(x == nullptr)
     {
         qDebug() << "Argument is null pointer.";
         return -1.0;
@@ -62,19 +62,7 @@ qreal kernelDensityEstimator::getValue(QVector<qreal>* x)
         return -1.0;
     }
 
-    switch(kernelType)
-    {
-        case PRODUCT:
-            return getProductKernelValue(x);
-        break;
-        case RADIAL:
-            return getRadialKernelValue(x);
-        break;
-        default:
-            qDebug() << "Kernel type not precised.";
-            return -1.0;
-        break;
-    }
+    return getProductKernelValue(x);
 }
 
 void kernelDensityEstimator::updateSPModifyingParameters()
@@ -174,7 +162,7 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
 
 double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
 {
-  double result = 0.f, addend;
+  double result = 0.0, addend;
   QVector<qreal> sample;
   int i = 0, index = 0;
 
@@ -295,7 +283,7 @@ double kernelDensityEstimator::getProductKernelAddendFromClusterIndex(int index,
 
 double kernelDensityEstimator::getProductValuesFromSamples(QVector<qreal> *x)
 {
-  double result = 0.f;
+  double result = 0.0;
 
   for(std::shared_ptr<QVector<qreal>> sample : samples)
     result += getProductKernelAddendFromSample(sample.get(), x);
@@ -303,27 +291,9 @@ double kernelDensityEstimator::getProductValuesFromSamples(QVector<qreal> *x)
   return result;
 }
 
-qreal kernelDensityEstimator::getRadialKernelValue(QVector<qreal> *x)
-{
-    // TODO TR: Code it when radial kernel is implemented
-    x->clear();
-
-    return -1.0;
-}
-
 void kernelDensityEstimator::fillKernelsList(QVector<int> *kernelsIDs)
 {
-    switch(kernelType)
-    {
-        case PRODUCT:
-            addProductKernelsToTheList(kernelsIDs);
-        break;
-        case RADIAL:
-            addRadialKernelsToTheList(kernelsIDs);
-        break;
-        default:
-        break;
-    }
+  addProductKernelsToTheList(kernelsIDs);
 }
 
 void kernelDensityEstimator::addProductKernelsToTheList(QVector<int> *kernelsIDs)
@@ -347,12 +317,6 @@ void kernelDensityEstimator::addProductKernelsToTheList(QVector<int> *kernelsIDs
             break;
         }
     }
-}
-
-void kernelDensityEstimator::addRadialKernelsToTheList(QVector<int> *kernelsIDs)
-{
-  // TR TODO: Fill when radial kernel will be used
-  kernelsIDs->clear();
 }
 
 int kernelDensityEstimator::partitionCharacteristicFunction(qreal carrier, qreal restriction)

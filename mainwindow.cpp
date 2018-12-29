@@ -271,7 +271,7 @@ std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
   {
     for(std::shared_ptr<cluster> c : level)
     {
-      if(c->getWeight() > positionalSecondGradeEstimator)
+      if(c->getWeight() >= positionalSecondGradeEstimator)
         consideredClusters.push_back(c);
     }
   }
@@ -1089,7 +1089,7 @@ void MainWindow::on_pushButton_animate_clicked()
 
       qDebug() << "Reservoir size in step "
                  << stepNumber << " is: " << currentClusters.size();
-      qDebug() << "O size: " << objects.size();
+      qDebug() << "Objects size: " << objects.size();
 
       /*
       qDebug() << "Counting KDE values on clusters.";
