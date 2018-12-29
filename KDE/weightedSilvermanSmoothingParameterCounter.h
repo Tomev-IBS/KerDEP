@@ -28,6 +28,8 @@ class weightedSilvermanSmoothingParameterCounter
 
     ~weightedSilvermanSmoothingParameterCounter();
 
+    double _stDev = 0.0;
+
     double countSmoothingParameterValue() override;
 
   protected:
@@ -39,7 +41,7 @@ class weightedSilvermanSmoothingParameterCounter
     double _m = 0.0;
     double _sampleSum = 0.0;
     double _squaredSampleSum = 0.0;
-    double _stDev = 0.0;
+
     double _h = 0.0;
 
     void recountWeightedStandardDeviation();

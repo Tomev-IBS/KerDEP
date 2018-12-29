@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -89,6 +89,20 @@
            </item>
            <item>
             <widget class="QLabel" name="label_h_parameter_value">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_sigma_text">
+             <property name="text">
+              <string>, sigma_i = </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_sigma_value">
              <property name="text">
               <string>0</string>
              </property>
@@ -245,7 +259,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>8</string>
+            <string>15</string>
            </property>
           </widget>
          </item>
@@ -400,7 +414,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
-            <string>100000</string>
+            <string>1000</string>
            </property>
           </widget>
          </item>
@@ -428,7 +442,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0</string>
+            <string>0.0001</string>
            </property>
           </widget>
          </item>

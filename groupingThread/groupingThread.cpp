@@ -20,7 +20,7 @@ groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>>
 
 int groupingThread::initialize()
 {
-  int NUMBER_OF_MEDOIDS = 10;
+  int NUMBER_OF_MEDOIDS = 50;
   int MEDOIDS_FINDING_STRATEGY = kMeansAlgorithm::RANDOM_ACCORDING_TO_DISTANCE;
 
   attributesDistanceMeasure* CADM = new smdCategoricalAttributesDistanceMeasure();
@@ -58,7 +58,7 @@ void groupingThread::run()
 
   storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
 
-  /*
+
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
     qDebug() << "Level: " << i << ". Custers number: "
@@ -66,7 +66,7 @@ void groupingThread::run()
   }
 
   qDebug() << "Grouping finished and medoids stored.";
-  */
+
 }
 
 int groupingThread::getObjectsForGrouping(std::vector<std::shared_ptr<sample>> samples)

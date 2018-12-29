@@ -872,7 +872,7 @@ void MainWindow::generateSamples(
 
     qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
 
-    dataReader *reader = new progressiveDistributionDataReader(targetDistribution.get(), progressionSize);
+    dataReader *reader = new progressiveDistributionDataReader(targetDistribution.get(), progressionSize, 1000);
 
     reader->gatherAttributesData(&attributesData);
     parser->setAttributesOrder(reader->getAttributesOrder());
@@ -1039,7 +1039,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
     reader.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
-                                            progressionSize)
+                                            progressionSize,
+                                            1000 /* delay */)
     );
 
     reader->gatherAttributesData(&attributesData);
@@ -1084,8 +1085,11 @@ void MainWindow::on_pushButton_animate_clicked()
 
       clusters.push_back(newCluster);
 
+      auto currentClusters = getClustersForEstimator();
+
       qDebug() << "Reservoir size in step "
-                 << stepNumber << " is: " << clusters.size();
+                 << stepNumber << " is: " << currentClusters.size();
+      qDebug() << "O size: " << objects.size();
 
       /*
       qDebug() << "Counting KDE values on clusters.";
@@ -1097,41 +1101,7 @@ void MainWindow::on_pushButton_animate_clicked()
       qDebug() << "Clusters size after reduction: " << clusters.size();
       */
 
-      auto currentClusters = getClustersForEstimator();
-
-      qDebug() << "Counting of smoothing parameters.";
-
-      //smoothingParamCounter.setClusters(&currentClusters, 0);
-
-      smoothingParamCounter.updateSmoothingParameterValue(
-        ui->lineEdit_weightModifier->text().toDouble(),
-        std::stod(objects.back()->attributesValues["Val0"])
-      );
-
-
-      std::vector<double> smoothingParameters =
-      {
-        smoothingParamCounter.getSmoothingParameterValue()
-      };
-
-
-      estimator->setSmoothingParameters(smoothingParameters);
-
-      ui->label_h_parameter_value->setText(
-        QString::number(smoothingParameters[0])
-      );
-
-      qDebug() << "Smoothing params counted.";
-      qDebug() << "h = " << smoothingParameters[0];
-
-      // Write h to file for data analysis
-      std::ofstream myfile;
-      myfile.open("h_params.csv", std::ios_base::app);
-      myfile << smoothingParameters[0] << ",";
-      myfile.close();
-
-      /*
-      if(clusters.size() >= algorithm->getReservoidMaxSize())
+      if(currentClusters.size() >= algorithm->getReservoidMaxSize())
       {
         qDebug() << "============ Clustering function started ============";
 
@@ -1150,13 +1120,43 @@ void MainWindow::on_pushButton_animate_clicked()
 
         gt.getClustersForGrouping(clustersForGrouping);
         gt.run();
+        currentClusters = getClustersForEstimator();
+        qDebug() << "C clusters size after clusering: " << currentClusters.size();
       }
-      */
 
+      //qDebug() << "Counting of smoothing parameters.";
+      smoothingParamCounter.updateSmoothingParameterValue(
+        ui->lineEdit_weightModifier->text().toDouble(),
+        std::stod(objects.back()->attributesValues["Val0"])
+      );
+
+      std::vector<double> smoothingParameters =
+      {
+        smoothingParamCounter.getSmoothingParameterValue()
+      };
+
+      estimator->setSmoothingParameters(smoothingParameters);
+
+      ui->label_h_parameter_value->setText(
+        QString::number(smoothingParameters[0])
+      );
+
+      ui->label_sigma_value->setText(
+        QString::number(smoothingParamCounter._stDev)
+      );
+
+      //qDebug() << "Smoothing params counted.";
+
+      // Write h to file for data analysis
+      std::ofstream myfile;
+      //myfile.open("h_params.csv", std::ios_base::app);
+      myfile << smoothingParameters[0] << ",";
+      myfile.close();
 
       //updateA();
 
-      estimator->setClusters(getClustersForEstimator());
+      estimator->setClusters(currentClusters);
+
       /*
       qDebug() << "Updating prognosis.";
       updatePrognosisParameters();
@@ -1166,9 +1166,13 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      if(clusters.size() % 1000 == 0)
+      if(stepNumber % 50 == 0)
+      // if(clusters.size() == 91000 || clusters.size() == 101000)
       {
-        qDebug() << "Drawing.";
+        qDebug() << "Drawing in step number " << stepNumber << ".";
+        qDebug() << "h_i = " << smoothingParameters[0];
+        qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
+
         drawPlots(estimator.get(), targetFunction.get());
         qApp->processEvents();
       }
@@ -1183,8 +1187,8 @@ void MainWindow::on_pushButton_animate_clicked()
       if(stepExecutionTime > _longestStepExecutionInSecs)
         _longestStepExecutionInSecs = stepExecutionTime;
 
-      qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
-      qDebug() << "Current execution time: " << stepExecutionTime;
+      //qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
+      //qDebug() << "Current execution time: " << stepExecutionTime;
 
       /*
       delay(static_cast<int>(

@@ -11,7 +11,7 @@ class progressiveDistributionDataReader : public dataReader
 {
     public:
 
-        progressiveDistributionDataReader(distribution *source, qreal progressionSize);
+        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay);
 
         void getNextRawDatum(void *target);
         void gatherAttributesData(void *attributes);
@@ -24,6 +24,8 @@ class progressiveDistributionDataReader : public dataReader
     protected:
         distribution *sourceDistribution;
         qreal progressionSize = 0.0;
+        int _delay = 0;
+        int _currentIteration = 0;
 
         std::vector<std::string> attributesOrder;
 

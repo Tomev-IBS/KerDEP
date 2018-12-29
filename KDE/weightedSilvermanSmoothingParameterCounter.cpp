@@ -129,6 +129,7 @@ void weightedSilvermanSmoothingParameterCounter::updateSmoothingParameterValue(d
     _m = 1.0;
     _sampleSum = newSample;
     _squaredSampleSum = pow(newSample, 2.0);
+    _h = pow(4.0 / (3 * _m), 0.2) * _stDev;
     return;
   }
 
