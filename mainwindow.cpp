@@ -1068,6 +1068,8 @@ void MainWindow::on_pushButton_animate_clicked()
 
     _longestStepExecutionInSecs = 0;
 
+    int medoidsNumber = 50;
+
     weightedSilvermanSmoothingParameterCounter smoothingParamCounter(&clusters, 0);
 
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
@@ -1108,13 +1110,14 @@ void MainWindow::on_pushButton_animate_clicked()
         std::vector<std::shared_ptr<cluster>> clustersForGrouping;
         int numberOfClustersForGrouping = 100;
 
+        qDebug() << "Erasing clusters.";
         for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
         {
           clustersForGrouping.push_back(clusters[0]);
           clusters.erase(clusters.begin(), clusters.begin()+1);
         }
 
-        objects.erase(objects.begin(), objects.begin() + numberOfClustersForGrouping);
+        objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
 
         qDebug() << "Got objects for grouping.";
 

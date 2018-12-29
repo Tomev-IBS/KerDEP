@@ -28,16 +28,6 @@ int groupingThread::initialize()
   objectsDistanceMeasure* ODM = new customObjectsDistanceMeasure(CADM, NADM, attributesData);
   std::shared_ptr<clustersDistanceMeasure> CDM(new completeLinkClusterDistanceMeasure(ODM));
 
-  /*
-  std::shared_ptr<groupingAlgorithm> algorithm(new kMedoidsAlgorithm
-                          (
-                            NUMBER_OF_MEDOIDS,
-                            CDM,
-                            MEDOIDS_FINDING_STRATEGY
-                          )
-                        );
-  */
-
   std::shared_ptr<groupingAlgorithm> algorithm(new kMeansAlgorithm
                                                (
                                                  NUMBER_OF_MEDOIDS,

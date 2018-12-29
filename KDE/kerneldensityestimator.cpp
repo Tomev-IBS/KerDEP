@@ -259,10 +259,10 @@ double kernelDensityEstimator::getProductKernelAddendFromClusterIndex(int index,
   {
     tempValueHolder->clear();
     tempValueHolder->append((x->at(i) - sample->at(i))/
-                            (smoothingParameters.at(i) * _spModifyingParameters[index][i]));
+                            (smoothingParameters.at(i) /** _spModifyingParameters[index][i]*/));
 
     component = kernels.at(i)->getValue(tempValueHolder.get());
-    component /= _spModifyingParameters[index][i];
+    //component /= _spModifyingParameters[index][i];
 
     restriction = carriersRestrictions.at(i).toDouble(&hasRestriction);
 
