@@ -82,7 +82,7 @@ class MainWindow : public QMainWindow
 
     QVector<std::shared_ptr<QVector<qreal>>> samples;
     std::vector<std::shared_ptr<sample>> objects;
-    std::vector<std::shared_ptr<cluster>> clusters;
+    std::vector<std::shared_ptr<cluster>> *clusters;
 
     QVector<qreal> KDETemporalDerivativeY;
 

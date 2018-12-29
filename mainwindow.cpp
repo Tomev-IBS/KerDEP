@@ -135,7 +135,7 @@ unsigned long long MainWindow::insertClustersFromInterIntervalObjects(
   {
     newClusters.push_back(
       std::shared_ptr<cluster>(
-        new cluster(static_cast<long>(clusters.size()+i),
+        new cluster(static_cast<long>(clusters->size() + i),
                     (*interIntervalObjects)[i])
       )
     );
@@ -144,7 +144,7 @@ unsigned long long MainWindow::insertClustersFromInterIntervalObjects(
 
   setInterIntervalClustersWeights(&newClusters);
 
-  clusters.insert(clusters.end(), newClusters.begin(), newClusters.end());
+  clusters->insert(clusters->end(), newClusters.begin(), newClusters.end());
 
   return newClusters.size();
 }
@@ -261,11 +261,14 @@ std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
 {
   std::vector<std::shared_ptr<cluster>> consideredClusters;
 
-  for(std::shared_ptr<cluster> c : clusters)
+  // Clusters are now pointer to 0 level of storedMedoids
+  /*
+  for(std::shared_ptr<cluster> c : *clusters)
   {
     if(c->getWeight() >= positionalSecondGradeEstimator)
       consideredClusters.push_back(c);
   }
+  */
 
   for(std::vector<std::shared_ptr<cluster>> level : storedMedoids)
   {
@@ -706,7 +709,9 @@ unsigned long long MainWindow::findUncommonClusters()
 
 void MainWindow::removeUnpromissingClusters()
 {
-  for(int index = static_cast<int>(clusters.size()) - 1; index >= 0; --index)
+  // Clusters are now pointer to 0 level of storedMedoids
+  /*
+  for(int index = static_cast<int>(clusters->size()) - 1; index >= 0; --index)
   {
     // Remove cluster if its temporal derivative is not equal to 0 and
     // it's weight is insignificant
@@ -716,6 +721,7 @@ void MainWindow::removeUnpromissingClusters()
       clusters.erase(clusters.begin() + index);
     }
   }
+  */
 
   for(std::vector<std::shared_ptr<cluster>> level: storedMedoids)
   {
@@ -1070,7 +1076,10 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int medoidsNumber = 50;
 
-    weightedSilvermanSmoothingParameterCounter smoothingParamCounter(&clusters, 0);
+    storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
+    clusters = &(storedMedoids[0]);
+
+    weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters, 0);
 
     for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
     {
@@ -1085,7 +1094,7 @@ void MainWindow::on_pushButton_animate_clicked()
           std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
       newCluster->setTimestamp(stepNumber);
 
-      clusters.push_back(newCluster);
+      clusters->push_back(newCluster);
 
       auto currentClusters = getClustersForEstimator();
 
@@ -1113,8 +1122,8 @@ void MainWindow::on_pushButton_animate_clicked()
         qDebug() << "Erasing clusters.";
         for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
         {
-          clustersForGrouping.push_back(clusters[0]);
-          clusters.erase(clusters.begin(), clusters.begin()+1);
+          clustersForGrouping.push_back((*clusters)[0]);
+          clusters->erase(clusters->begin(), clusters->begin()+1);
         }
 
         objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
@@ -1492,12 +1501,15 @@ void MainWindow::updateWeights()
     }
   }
 
+  // Clusters are now pointer to 0 level of storedMedoids
+  /*
   for(unsigned int i = 0; i < clusters.size(); ++i)
   {
     clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
     if(clusters[i]->getWeight() < weightDeletionThreshold)
       clusters.erase(clusters.begin() + static_cast<int>(i));
   }
+  */
 }
 
 void MainWindow::updatePrognosisParameters()
