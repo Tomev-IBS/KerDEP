@@ -442,7 +442,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.0001</string>
+            <string>0</string>
            </property>
           </widget>
          </item>
@@ -470,7 +470,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_weightModifier">
            <property name="text">
-            <string>1</string>
+            <string>0.9995</string>
            </property>
           </widget>
          </item>

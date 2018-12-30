@@ -48,12 +48,13 @@ void groupingThread::run()
 
   storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
 
-
+  /*
   for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
   {
     qDebug() << "Level: " << i << ". Custers number: "
              << medoidsStorage->at(i).size();
   }
+  */
 
   qDebug() << "Grouping finished and medoids stored.";
 

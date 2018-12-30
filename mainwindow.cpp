@@ -412,6 +412,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
       KDEEstimationY.append(val);
     }
 
+    qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
+
     // Generate a plot of KDE
     if(ui->checkBox_showEstimatedPlot->isChecked())
       addEstimatedPlot(&X, &KDEEstimationY);
@@ -1096,50 +1098,10 @@ void MainWindow::on_pushButton_animate_clicked()
 
       clusters->push_back(newCluster);
 
-      auto currentClusters = getClustersForEstimator();
-
-      qDebug() << "Reservoir size in step "
-                 << stepNumber << " is: " << currentClusters.size();
-      qDebug() << "Objects size: " << objects.size();
-
-      /*
-      qDebug() << "Counting KDE values on clusters.";
-      countKDEValuesOnClusters(estimator);
-      qDebug() << "Counted. Finding uncommon clusters.";
-      findUncommonClusters();
-      qDebug() << "Found. Removing unpromissing clusters.";
-      removeUnpromissingClusters();
-      qDebug() << "Clusters size after reduction: " << clusters.size();
-      */
-
-      if(currentClusters.size() >= algorithm->getReservoidMaxSize())
-      {
-        qDebug() << "============ Clustering function started ============";
-
-        std::vector<std::shared_ptr<cluster>> clustersForGrouping;
-        int numberOfClustersForGrouping = 100;
-
-        qDebug() << "Erasing clusters.";
-        for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
-        {
-          clustersForGrouping.push_back((*clusters)[0]);
-          clusters->erase(clusters->begin(), clusters->begin()+1);
-        }
-
-        objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
-
-        qDebug() << "Got objects for grouping.";
-
-        gt.getClustersForGrouping(clustersForGrouping);
-        gt.run();
-        currentClusters = getClustersForEstimator();
-        qDebug() << "C clusters size after clusering: " << currentClusters.size();
-      }
-
       //qDebug() << "Counting of smoothing parameters.";
       smoothingParamCounter.updateSmoothingParameterValue(
         ui->lineEdit_weightModifier->text().toDouble(),
-        std::stod(objects.back()->attributesValues["Val0"])
+        std::stod(clusters->back()->getObject()->attributesValues["Val0"])
       );
 
       std::vector<double> smoothingParameters =
@@ -1167,6 +1129,44 @@ void MainWindow::on_pushButton_animate_clicked()
       myfile.close();
       */
 
+      auto currentClusters = getClustersForEstimator();
+
+      qDebug() << "Reservoir size in step "
+                 << stepNumber << " is: " << currentClusters.size();
+      //qDebug() << "Objects size: " << objects.size();
+
+      /*
+      qDebug() << "Counting KDE values on clusters.";
+      countKDEValuesOnClusters(estimator);
+      qDebug() << "Counted. Finding uncommon clusters.";
+      findUncommonClusters();
+      qDebug() << "Found. Removing unpromissing clusters.";
+      removeUnpromissingClusters();
+      qDebug() << "Clusters size after reduction: " << clusters.size();
+      */
+
+      if(currentClusters.size() >= algorithm->getReservoidMaxSize())
+      {
+        qDebug() << "============ Clustering function started ============";
+
+        std::vector<std::shared_ptr<cluster>> clustersForGrouping;
+        int numberOfClustersForGrouping = 100;
+
+        for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
+        {
+          clustersForGrouping.push_back((*clusters)[0]);
+          clusters->erase(clusters->begin(), clusters->begin()+1);
+        }
+
+        objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
+        gt.getClustersForGrouping(clustersForGrouping);
+        gt.run();
+        currentClusters = getClustersForEstimator();
+        clusters = &(storedMedoids[0]); // Reassigment needed, as (probably) grouping algorithm resets it
+      }
+
+
+
       //updateA();
 
       estimator->setClusters(currentClusters);
@@ -1180,8 +1180,9 @@ void MainWindow::on_pushButton_animate_clicked()
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      if(stepNumber % 50 == 0)
-      // if(clusters.size() == 91000 || clusters.size() == 101000)
+      //if(stepNumber % 50 == 0 and stepNumber >= 13700)
+      if( stepNumber == 11001 || stepNumber == 21001 || stepNumber == 31001
+          || stepNumber == 41001 || stepNumber == 51001)
       {
         qDebug() << "Drawing in step number " << stepNumber << ".";
         qDebug() << "h_i = " << smoothingParameters[0];

@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <limits>
 
+#include <QDebug>
+
 kMeansAlgorithm::kMeansAlgorithm(int numberOfClusters,
     std::shared_ptr<clustersDistanceMeasure> clusDistanceMeasure,
     int initialMeansFindingStrategy,
@@ -63,49 +65,54 @@ void kMeansAlgorithm::clusterObjects(std::vector<std::shared_ptr<sample>> *objec
   for(unsigned long clusterNumber = 0; clusterNumber < objects->size(); ++clusterNumber)
   {
     clusters.push_back(
-      std::make_shared<cluster>(cluster(clusterNumber+1, objects->at(clusterNumber))));
+      std::make_shared<cluster>(cluster(clusterNumber + 1, objects->at(clusterNumber))));
   }
 }
 
 int kMeansAlgorithm::performGrouping(
     std::vector<std::shared_ptr<cluster> > *target)
 {
-  std::cout << "Finding initial means.";
+  //std::cout << "Finding initial means.";
+  // qDebug() << "Finding initial means.";
 
   findInitialMeans();
 
-  double oldError = 0.0f;
+  double oldError = 0.0;
   double newError = std::numeric_limits<double>::max();
   double errorThreshold = 1.0e-2;
 
   do
   {
-    std::cout << "Appling new means...\n";
+    //std::cout << "Appling new means...\n";
+    //qDebug() << "Appling new means...\n";
 
     applyNewMeans(target);
 
-    std::cout << "Assigning clusters to means...\n";
+    //std::cout << "Assigning clusters to means...\n";
+    //qDebug() << "Assigning clusters to means...\n";
 
     assignClustersToMeans(target);
 
-    std::cout << "Counting errors...\n";
+    //std::cout << "Counting errors...\n";
+    //qDebug() << "Counting errors...\n";
 
     oldError = newError;
     newError = countAssigmentError(target);
 
-    std::cout << "Finding new means...\n";
+    //std::cout << "Finding new means...\n";
+    //qDebug() << "Finding new means...\n";
 
     findNewMeans(target);
 
-    std::cout << "While condition: "
-              << (oldError - newError > errorThreshold)<< std::endl;
+    //std::cout << "While condition: "
+    //          << (oldError - newError > errorThreshold)<< std::endl;
 
-    std::cout << "Old error: " << oldError << std::endl
-              << "New error: " << newError << std::endl;
+    //std::cout << "Old error: " << oldError << std::endl
+    //          << "New error: " << newError << std::endl;
 
   } while( oldError - newError > errorThreshold);
 
-  std::cout << "Grouping finished.\n";
+  //std::cout << "Grouping finished.\n";
 
   /*
   std::cout << "Grouping finished.\nClusters:\n";
@@ -180,15 +187,21 @@ int kMeansAlgorithm::findMeansAccordingToDistance()
   int nonMeanPosition = rand() % nonMeanIndexes.size();
   int newMeanIndex = nonMeanIndexes.at(nonMeanPosition);
 
+  //qDebug() << "Adding mean.";
   addNewMeanToMeansVector(newMeanIndex);
 
+  //qDebug() << "Erasing index.";
   nonMeanIndexes.erase(nonMeanIndexes.begin() + nonMeanPosition);
 
+  //qDebug() << "Filling means indices.";
   while(means.size() < numberOfClusters)
+  {
     addNewMedoidAccordingToDistanceToMeansVector(&nonMeanIndexes);
+  }
 
+  //qDebug() << "Creating means clusters.";
   // Create distinct, new clusters for means
-  for(int i = 0; i < numberOfClusters; ++i)
+  for(int i = 0; i < means.size(); ++i)
   {
     means.push_back(std::shared_ptr<cluster>(new cluster(i, means.at(0)->getObject())));
     means.at(means.size() - 1)->setRepresentative(means.at(0)->getRepresentative());
@@ -216,10 +229,17 @@ int kMeansAlgorithm::addNewMedoidAccordingToDistanceToMeansVector(
   double r = ((double) rand() / (RAND_MAX));
   int newMeanIndexPosition = 0;
 
+  //qDebug() << "Getting means position.";
   while(r > probabilities.at(newMeanIndexPosition))
+  {
     ++newMeanIndexPosition;
+    if(newMeanIndexPosition == probabilities.size() - 1)
+      break;
+  }
 
+  //qDebug() << "Adding to means vector.";
   addNewMeanToMeansVector(nonMeanIndexes->at(newMeanIndexPosition));
+  //qDebug() << "Erasing from nonmean indexes.";
   nonMeanIndexes->erase(nonMeanIndexes->begin() + newMeanIndexPosition);
 
   return 0;
@@ -339,7 +359,7 @@ int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target
   std::shared_ptr<sample> currentMean;
   std::vector<std::shared_ptr<sample>> currentClusterObjects;
   std::vector<std::shared_ptr<cluster>> currentClusterSubclusters;
-  double attributesMean = 0.0f;
+  double attributesMean = 0.0;
 
   means.clear();
 
@@ -363,7 +383,11 @@ int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target
 
     for(std::string key : keys)
     {
-      attributesMean = getAttributesMeanFromSubclusters(key, &currentClusterSubclusters);
+      if(currentClusterSubclusters.size() == 0)
+        attributesMean =  std::stod(currentClusterObjects[0]->attributesValues[key]);
+      else
+        attributesMean = getAttributesMeanFromSubclusters(key, &currentClusterSubclusters);
+
       currentMean->attributesValues[key] = std::to_string(attributesMean);
     }
 

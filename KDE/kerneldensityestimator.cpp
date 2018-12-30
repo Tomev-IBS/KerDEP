@@ -181,7 +181,8 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
     else
       weight += (c.get()->getWeight());
 
-
+    if(index == 930)
+      index = 930;
     result += addend;
   }
 
