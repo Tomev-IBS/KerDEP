@@ -27,6 +27,8 @@
 
 #include "groupingThread/kMedoidsAlgorithm/numericalAttributeData.h"
 
+#include "DESDA.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -258,15 +260,6 @@ std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
 {
   std::vector<std::shared_ptr<cluster>> consideredClusters;
 
-  // Clusters are now pointer to 0 level of storedMedoids
-  /*
-  for(std::shared_ptr<cluster> c : *clusters)
-  {
-    if(c->getWeight() >= positionalSecondGradeEstimator)
-      consideredClusters.push_back(c);
-  }
-  */
-
   for(std::vector<std::shared_ptr<cluster>> level : storedMedoids)
   {
     for(std::shared_ptr<cluster> c : level)
@@ -326,35 +319,24 @@ void MainWindow::setupKernelsTable()
 
 void MainWindow::updateA()
 {
-  std::vector<std::shared_ptr<cluster>> allConsideredClusters = getClustersForEstimator();
+  auto allConsideredClusters = getClustersForEstimator();
   double summaricClustersWeight = 0.0;
 
   for(std::shared_ptr<cluster> c : allConsideredClusters)
-  {
     summaricClustersWeight += c->getWeight();
-  }
 
   double currentUncommonClusterWeight = 0.0;
 
   for(std::shared_ptr<cluster> uc : uncommonClusters)
-  {
     currentUncommonClusterWeight += uc->getWeight();
-  }
 
   currentUncommonClusterWeight /= summaricClustersWeight;
-
-  qDebug() << "Previous uncommon clusters part: " << _previousUncommonClustersWeight;
-  qDebug() << "Current uncommon clusters part: " << currentUncommonClusterWeight;
-  qDebug() << "Desired uncommon clusters part: " << ui->lineEdit_rarity->text().toDouble();
-  qDebug() << "Previous a value: " << _a;
 
   _a += (ui->lineEdit_rarity->text().toDouble() - currentUncommonClusterWeight)
             * _maxEstimatorValueOnDomain;
 
   if(_a > MAX_A) _a = MAX_A;
   if(_a < MIN_A) _a = MIN_A;
-
-  qDebug() << "Current a value: " << _a;
 
   _previousUncommonClustersWeight = currentUncommonClusterWeight;
 }
@@ -935,6 +917,7 @@ int MainWindow::canAnimationBePerformed(int dimensionsNumber)
 void MainWindow::delay(int ms)
 {
     QTime dieTime = QTime::currentTime().addMSecs( ms );
+
     while( QTime::currentTime() < dieTime )
     {
         QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
@@ -1274,10 +1257,24 @@ void MainWindow::on_pushButton_start_clicked()
 
   weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters, 0);
 
+  DESDA DESDAAlgorithm(
+    estimator,
+    kernelPrognoser,
+    ui->lineEdit_weightModifier->text().toDouble(),
+    &smoothingParamCounter,
+    algorithm,
+    clusters,
+    &storedMedoids,
+    ui->lineEdit_rarity->text().toDouble(),
+    &gt
+  );
+
   for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
   {
     clock_t executionStartTime = clock();
+    DESDAAlgorithm.performStep();
 
+    /*
     updateWeights();
 
     algorithm->performSingleStep(&objects, stepNumber);
@@ -1303,8 +1300,10 @@ void MainWindow::on_pushButton_start_clicked()
 
     estimator->setSmoothingParameters(smoothingParameters);
 
+    */
+
     ui->label_h_parameter_value->setText(
-      QString::number(smoothingParameters[0])
+      QString::number(smoothingParamCounter.getSmoothingParameterValue())
     );
 
     ui->label_sigma_value->setText(
@@ -1321,6 +1320,7 @@ void MainWindow::on_pushButton_start_clicked()
     myfile.close();
     */
 
+    /*
     auto currentClusters = getClustersForEstimator();
 
     qDebug() << "Reservoir size in step "
@@ -1359,6 +1359,7 @@ void MainWindow::on_pushButton_start_clicked()
     updatePrognosisParameters();
     //qDebug() << "Updated. Counting derivative values for clusters.";
     countKDEDerivativeValuesOnClusters();
+    */
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -1368,7 +1369,7 @@ void MainWindow::on_pushButton_start_clicked()
     if(stepNumber > 1000 && (stepNumber - 1) % 25 == 0)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
-      qDebug() << "h_i = " << smoothingParameters[0];
+      qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
       qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
 
       drawPlots(estimator.get(), targetFunction.get());
@@ -1380,7 +1381,7 @@ void MainWindow::on_pushButton_start_clicked()
       ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
     }
 
-    targetFunction.reset(generateTargetFunction(&means, &stDevs));
+    //targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
     clock_t executionFinishTime = clock();
     double stepExecutionTime =
@@ -1398,8 +1399,10 @@ void MainWindow::on_pushButton_start_clicked()
       (_longestStepExecutionInSecs - stepExecutionTime) * 1000
     ));
     */
+
   }
 
+  delete algorithm;
 
   qDebug() << "Animation finished.";
 }
