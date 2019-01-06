@@ -1198,13 +1198,6 @@ void MainWindow::delay(int ms)
     }
 }
 
-void MainWindow::on_pushButton_clear_clicked()
-{
-    clearPlot();
-
-    ui->widget_plot->replot();
-}
-
 void MainWindow::on_spinBox_dimensionsNumber_editingFinished()
 {
     refreshKernelsTable();
