@@ -492,14 +492,6 @@ void MainWindow::clearPlot()
         ui->widget_plot->removeGraph(0);
 }
 
-void MainWindow::addPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
-{
-    ui->widget_plot->addGraph();
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
-        ->setPen(QPen(getRandomColor()));
-}
-
 void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
     ui->widget_plot->addGraph();
@@ -820,47 +812,6 @@ void MainWindow::fillDomain(
     }
 }
 
-void MainWindow::generateSamples(
-  QVector<std::shared_ptr<QVector<qreal>> > *means,
-  QVector<std::shared_ptr<QVector<qreal>> > *stDevs)
-{
-    samples.clear();
-    objects.clear();
-
-    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-
-    if(sampleSize < 1)
-    {
-        qDebug() << "Sample size < 1.";
-        return;
-    }
-
-    std::shared_ptr<distribution> targetDistribution(generateTargetDistribution(means, stDevs));
-
-    dataParser *parser = new distributionDataParser(&attributesData);
-
-    qreal progressionSize = ui->lineEdit_distributionProgression->text().toDouble();
-
-    dataReader *reader = new progressiveDistributionDataReader(targetDistribution.get(), progressionSize, 1000);
-
-    reader->gatherAttributesData(&attributesData);
-    parser->setAttributesOrder(reader->getAttributesOrder());
-
-    reservoirSamplingAlgorithm *samplingAlgorithm = generateReservoirSamplingAlgorithm(reader, parser);
-
-    samplingAlgorithm->fillReservoir(&objects);
-
-    foreach(auto object, objects)
-    {
-      samples.push_back(std::make_shared<QVector<qreal>>());
-
-      for(auto nameValue : static_cast<distributionDataSample*>(object.get())->attributesValues)
-      {
-        samples.last()->push_back(stod(nameValue.second));
-      }
-    }
-}
-
 distribution* MainWindow::generateTargetDistribution(
   QVector<std::shared_ptr<QVector<qreal>>> *means,
   QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
@@ -967,214 +918,6 @@ function* MainWindow::generateTargetFunction(
   }
 
   return new complexFunction(&contributions, &elementalFunctions);
-}
-
-QColor MainWindow::getRandomColor()
-{
-    return QColor(rand()%110 + 50, rand()%110 + 50, rand()%110 + 50);
-}
-
-void MainWindow::on_pushButton_animate_clicked()
-{
-    int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
-
-    if(!canAnimationBePerformed(dimensionsNumber)) return;
-
-    // Log that application started generating KDE
-    qDebug() << "KDE animation started.";
-    qDebug() << "Seed: " + ui->lineEdit_seed->text() +
-                ", Sample size: " + ui->lineEdit_sampleSize->text();
-
-    srand(static_cast<unsigned int>(ui->lineEdit_seed->text().toInt()));
-
-    fillMeans(&means);
-    fillStandardDeviations(&stDevs);
-
-    std::shared_ptr<function>
-      targetFunction(generateTargetFunction(&means, &stDevs));
-
-    std::shared_ptr<kernelDensityEstimator>
-      estimator(generateKernelDensityEstimator(dimensionsNumber));
-
-    kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
-
-    std::shared_ptr<distribution>
-      targetDistribution(generateTargetDistribution(&means, &stDevs));
-
-    parser.reset(new distributionDataParser(&attributesData));
-
-    qreal progressionSize =
-        ui->lineEdit_distributionProgression->text().toDouble();
-
-    reader.reset(
-      new progressiveDistributionDataReader(targetDistribution.get(),
-                                            progressionSize,
-                                            1000 /* delay */)
-    );
-
-    reader->gatherAttributesData(&attributesData);
-    parser->setAttributesOrder(reader->getAttributesOrder());
-
-    positionalSecondGradeEstimatorCountingMethod =
-      ui->comboBox_rareElementsMethod->currentIndex();
-
-    reservoirSamplingAlgorithm* algorithm =
-      generateReservoirSamplingAlgorithm(reader.get(), parser.get());
-
-    objects.clear();
-
-    int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
-
-    int numberOfClustersForGrouping = 100;
-    int medoidsNumber = 50;
-
-    groupingThread gt(&storedMedoids, parser);
-
-    gt.setAttributesData(&attributesData);
-
-    qDebug() << "Attributes data set.";
-
-    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-    gt.initialize(medoidsNumber, sampleSize);
-
-    _a = MIN_A;
-
-    _longestStepExecutionInSecs = 0;
-
-    storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
-    clusters = &(storedMedoids[0]);
-
-    weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters, 0);
-
-    for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
-    {
-      clock_t executionStartTime = clock();
-
-      updateWeights();
-
-      algorithm->performSingleStep(&objects, stepNumber);
-
-      // TR TODO: It's not working for biased algorithm
-      std::shared_ptr<cluster> newCluster =
-          std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
-      newCluster->setTimestamp(stepNumber);
-
-      clusters->push_back(newCluster);
-
-      //qDebug() << "Counting of smoothing parameters.";
-      smoothingParamCounter.updateSmoothingParameterValue(
-        ui->lineEdit_weightModifier->text().toDouble(),
-        std::stod(clusters->back()->getObject()->attributesValues["Val0"])
-      );
-
-      double smoothingParameterMultiplier = 1;
-      std::vector<double> smoothingParameters =
-      {
-        smoothingParamCounter.getSmoothingParameterValue() * smoothingParameterMultiplier
-      };
-
-      estimator->setSmoothingParameters(smoothingParameters);
-
-      ui->label_h_parameter_value->setText(
-        QString::number(smoothingParameters[0])
-      );
-
-      ui->label_sigma_value->setText(
-        QString::number(smoothingParamCounter._stDev)
-      );
-
-      //qDebug() << "Smoothing params counted.";
-
-      // Write h to file for data analysis
-      /*
-      std::ofstream myfile;
-      //myfile.open("h_params.csv", std::ios_base::app);
-      myfile << smoothingParameters[0] << ",";
-      myfile.close();
-      */
-
-      auto currentClusters = getClustersForEstimator();
-
-      qDebug() << "Reservoir size in step "
-                 << stepNumber << " is: " << currentClusters.size();
-      //qDebug() << "Objects size: " << objects.size();
-
-      //qDebug() << "Counting KDE values on clusters.";
-      countKDEValuesOnClusters(estimator);
-      //qDebug() << "Counted. Finding uncommon clusters.";
-      findUncommonClusters();
-
-      if(currentClusters.size() >= algorithm->getReservoidMaxSize())
-      {
-        qDebug() << "============ Clustering function started ============";
-
-        std::vector<std::shared_ptr<cluster>> clustersForGrouping;
-
-        for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
-        {
-          clustersForGrouping.push_back((*clusters)[0]);
-          clusters->erase(clusters->begin(), clusters->begin()+1);
-        }
-
-        objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
-        gt.getClustersForGrouping(clustersForGrouping);
-        gt.run();
-        currentClusters = getClustersForEstimator();
-        clusters = &(storedMedoids[0]); // Reassigment needed, as (probably) grouping algorithm resets it
-      }
-
-      //updateA();
-
-      estimator->setClusters(currentClusters);
-
-      //qDebug() << "Updating prognosis.";
-      updatePrognosisParameters();
-      //qDebug() << "Updated. Counting derivative values for clusters.";
-      countKDEDerivativeValuesOnClusters();
-
-      targetFunction.reset(generateTargetFunction(&means, &stDevs));
-
-      //if(stepNumber < 10000)
-      //if( stepNumber == 1001 || stepNumber == 1101 || stepNumber == 2101
-      //    || stepNumber == 3101 || stepNumber == 4101 || stepNumber == 5101)
-      if(stepNumber > 1000 && (stepNumber - 1) % 25 == 0)
-      {
-        qDebug() << "Drawing in step number " << stepNumber << ".";
-        qDebug() << "h_i = " << smoothingParameters[0];
-        qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
-
-        drawPlots(estimator.get(), targetFunction.get());
-
-        qApp->processEvents();
-
-        QString imageName = "D:\\Dysk Google\\Badania\\v=0.01, b=0.999\\"
-            + QString::number(stepNumber - 1) + ".png";
-        ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
-      }
-      else break;
-
-      targetFunction.reset(generateTargetFunction(&means, &stDevs));
-
-      clock_t executionFinishTime = clock();
-      double stepExecutionTime =
-        static_cast<double>(executionFinishTime - executionStartTime);
-      stepExecutionTime /= CLOCKS_PER_SEC;
-
-      if(stepExecutionTime > _longestStepExecutionInSecs)
-        _longestStepExecutionInSecs = stepExecutionTime;
-
-      //qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
-      //qDebug() << "Current execution time: " << stepExecutionTime;
-
-      /*
-      delay(static_cast<int>(
-        (_longestStepExecutionInSecs - stepExecutionTime) * 1000
-      ));
-      */
-    }
-
-
-    qDebug() << "Animation finished.";
 }
 
 int MainWindow::canAnimationBePerformed(int dimensionsNumber)
@@ -1363,64 +1106,6 @@ void MainWindow::updateLastContribution()
     )->setText(QString::number(lastContributionValue));
 }
 
-void MainWindow::on_pushButton_countSmoothingParameters_clicked()
-{
-  QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
-
-  fillMeans(&means);
-  fillStandardDeviations(&stDevs);
-
-  generateSamples(&means, &stDevs);
-
-  // Count smoothing parameter for each dimension
-  int numberOfRows = ui->tableWidget_dimensionKernels->rowCount();
-
-  QVector<qreal> samplesColumn;
-  QVector<int> weights;
-
-  smoothingParameterCounter* counter
-      = generateSmoothingParameterCounter(&samplesColumn);
-
-  qreal value;
-
-  for(int rowNumber = 0; rowNumber < numberOfRows; ++rowNumber)
-  {
-    // Create vector that consists of variables inside this dimension
-
-    samplesColumn.clear();
-
-    for(std::shared_ptr<QVector<qreal>> sample : samples)
-        samplesColumn.append(sample.get()->at(rowNumber));
-
-    value = counter->countSmoothingParameterValue();
-
-    (static_cast<QLineEdit*>((ui
-                  ->tableWidget_dimensionKernels
-                  ->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
-      ->setText(QString::number(value)));
-  }
-}
-
-smoothingParameterCounter *MainWindow::generateSmoothingParameterCounter(
-    QVector<qreal> *samplesColumn)
-{
-  int smoothingParameterCounterID = ui
-                                    ->comboBox_smoothingParameterCountingMethod
-                                    ->currentIndex();
-
-  switch (smoothingParameterCounterID)
-  {
-    case WEIGHTED_SILVERMAN:
-      return new weightedSilvermanSmoothingParameterCounter(samplesColumn,
-                                                            nullptr);
-    case RANK_3_PLUG_IN:
-      return new pluginSmoothingParameterCounter(samplesColumn, 3);
-    case RANK_2_PLUG_IN:
-    default:
-      return new pluginSmoothingParameterCounter(samplesColumn, 2);
-  }
-}
-
 void MainWindow::on_pushButton_addTargetFunction_clicked()
 {
     int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() +1;
@@ -1443,9 +1128,7 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
 
 void MainWindow::updateWeights()
 {
-  double weightModifier = ui->lineEdit_weightModifier->text().toDouble(),
-         weightDeletionThreshold = ui->lineEdit_deletionThreshold
-                                     ->text().toDouble();
+  double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
 
   for(unsigned int level = 0; level < storedMedoids.size(); ++level)
   {
@@ -1456,16 +1139,6 @@ void MainWindow::updateWeights()
       );
     }
   }
-
-  // Clusters are now pointer to 0 level of storedMedoids
-  /*
-  for(unsigned int i = 0; i < clusters.size(); ++i)
-  {
-    clusters[i]->setWeight(weightModifier * clusters[i]->getWeight());
-    if(clusters[i]->getWeight() < weightDeletionThreshold)
-      clusters.erase(clusters.begin() + static_cast<int>(i));
-  }
-  */
 }
 
 void MainWindow::updatePrognosisParameters()
@@ -1527,4 +1200,206 @@ void MainWindow::countKDEDerivativeValuesOnClusters()
       c->_KDEDerivativeValue = kernelPrognoser->getValue(&pt);
     }
   }
+}
+
+void MainWindow::on_pushButton_start_clicked()
+{
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+  if(!canAnimationBePerformed(dimensionsNumber)) return;
+
+  // Log that application started generating KDE
+  qDebug() << "KDE animation started.";
+  qDebug() << "Seed: " + ui->lineEdit_seed->text() +
+              ", Sample size: " + ui->lineEdit_sampleSize->text();
+
+  srand(static_cast<unsigned int>(ui->lineEdit_seed->text().toInt()));
+
+  fillMeans(&means);
+  fillStandardDeviations(&stDevs);
+
+  std::shared_ptr<function>
+    targetFunction(generateTargetFunction(&means, &stDevs));
+
+  std::shared_ptr<kernelDensityEstimator>
+    estimator(generateKernelDensityEstimator(dimensionsNumber));
+
+  kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
+
+  std::shared_ptr<distribution>
+    targetDistribution(generateTargetDistribution(&means, &stDevs));
+
+  parser.reset(new distributionDataParser(&attributesData));
+
+  qreal progressionSize =
+      ui->lineEdit_distributionProgression->text().toDouble();
+
+  reader.reset(
+    new progressiveDistributionDataReader(targetDistribution.get(),
+                                          progressionSize,
+                                          1000 /* delay */)
+  );
+
+  reader->gatherAttributesData(&attributesData);
+  parser->setAttributesOrder(reader->getAttributesOrder());
+
+  positionalSecondGradeEstimatorCountingMethod =
+    ui->comboBox_rareElementsMethod->currentIndex();
+
+  reservoirSamplingAlgorithm* algorithm =
+    generateReservoirSamplingAlgorithm(reader.get(), parser.get());
+
+  objects.clear();
+
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+  int numberOfClustersForGrouping = 100;
+  int medoidsNumber = 50;
+
+  groupingThread gt(&storedMedoids, parser);
+
+  gt.setAttributesData(&attributesData);
+
+  qDebug() << "Attributes data set.";
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+  gt.initialize(medoidsNumber, sampleSize);
+
+  _a = MIN_A;
+
+  _longestStepExecutionInSecs = 0;
+
+  storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
+  clusters = &(storedMedoids[0]);
+
+  weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters, 0);
+
+  for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
+  {
+    clock_t executionStartTime = clock();
+
+    updateWeights();
+
+    algorithm->performSingleStep(&objects, stepNumber);
+
+    // TR TODO: It's not working for biased algorithm
+    std::shared_ptr<cluster> newCluster =
+        std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
+    newCluster->setTimestamp(stepNumber);
+
+    clusters->push_back(newCluster);
+
+    //qDebug() << "Counting of smoothing parameters.";
+    smoothingParamCounter.updateSmoothingParameterValue(
+      ui->lineEdit_weightModifier->text().toDouble(),
+      std::stod(clusters->back()->getObject()->attributesValues["Val0"])
+    );
+
+    double smoothingParameterMultiplier = 1;
+    std::vector<double> smoothingParameters =
+    {
+      smoothingParamCounter.getSmoothingParameterValue() * smoothingParameterMultiplier
+    };
+
+    estimator->setSmoothingParameters(smoothingParameters);
+
+    ui->label_h_parameter_value->setText(
+      QString::number(smoothingParameters[0])
+    );
+
+    ui->label_sigma_value->setText(
+      QString::number(smoothingParamCounter._stDev)
+    );
+
+    //qDebug() << "Smoothing params counted.";
+
+    // Write h to file for data analysis
+    /*
+    std::ofstream myfile;
+    //myfile.open("h_params.csv", std::ios_base::app);
+    myfile << smoothingParameters[0] << ",";
+    myfile.close();
+    */
+
+    auto currentClusters = getClustersForEstimator();
+
+    qDebug() << "Reservoir size in step "
+               << stepNumber << " is: " << currentClusters.size();
+    //qDebug() << "Objects size: " << objects.size();
+
+    //qDebug() << "Counting KDE values on clusters.";
+    countKDEValuesOnClusters(estimator);
+    //qDebug() << "Counted. Finding uncommon clusters.";
+    findUncommonClusters();
+
+    if(currentClusters.size() >= algorithm->getReservoidMaxSize())
+    {
+      qDebug() << "============ Clustering function started ============";
+
+      std::vector<std::shared_ptr<cluster>> clustersForGrouping;
+
+      for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
+      {
+        clustersForGrouping.push_back((*clusters)[0]);
+        clusters->erase(clusters->begin(), clusters->begin()+1);
+      }
+
+      objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
+      gt.getClustersForGrouping(clustersForGrouping);
+      gt.run();
+      currentClusters = getClustersForEstimator();
+      clusters = &(storedMedoids[0]); // Reassigment needed, as (probably) grouping algorithm resets it
+    }
+
+    //updateA();
+
+    estimator->setClusters(currentClusters);
+
+    //qDebug() << "Updating prognosis.";
+    updatePrognosisParameters();
+    //qDebug() << "Updated. Counting derivative values for clusters.";
+    countKDEDerivativeValuesOnClusters();
+
+    targetFunction.reset(generateTargetFunction(&means, &stDevs));
+
+    //if(stepNumber < 10000)
+    //if( stepNumber == 1001 || stepNumber == 1101 || stepNumber == 2101
+    //    || stepNumber == 3101 || stepNumber == 4101 || stepNumber == 5101)
+    if(stepNumber > 1000 && (stepNumber - 1) % 25 == 0)
+    {
+      qDebug() << "Drawing in step number " << stepNumber << ".";
+      qDebug() << "h_i = " << smoothingParameters[0];
+      qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
+
+      drawPlots(estimator.get(), targetFunction.get());
+
+      qApp->processEvents();
+
+      QString imageName = "D:\\Dysk Google\\Badania\\v=0.01, b=0.999\\"
+          + QString::number(stepNumber - 1) + ".png";
+      ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
+    }
+
+    targetFunction.reset(generateTargetFunction(&means, &stDevs));
+
+    clock_t executionFinishTime = clock();
+    double stepExecutionTime =
+      static_cast<double>(executionFinishTime - executionStartTime);
+    stepExecutionTime /= CLOCKS_PER_SEC;
+
+    if(stepExecutionTime > _longestStepExecutionInSecs)
+      _longestStepExecutionInSecs = stepExecutionTime;
+
+    //qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
+    //qDebug() << "Current execution time: " << stepExecutionTime;
+
+    /*
+    delay(static_cast<int>(
+      (_longestStepExecutionInSecs - stepExecutionTime) * 1000
+    ));
+    */
+  }
+
+
+  qDebug() << "Animation finished.";
 }

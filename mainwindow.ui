@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -30,85 +30,122 @@
           <property name="minimumSize">
            <size>
             <width>500</width>
-            <height>0</height>
+            <height>300</height>
            </size>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_visualizationSettings">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Controls</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QPushButton" name="pushButton_animate">
-             <property name="text">
-              <string>Animate</string>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QGroupBox" name="groupBox_visualizationSettings">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Controls</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="topMargin">
+              <number>0</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_h_parameter_text">
-             <property name="text">
-              <string>h = </string>
+             <property name="bottomMargin">
+              <number>0</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_h_parameter_value">
-             <property name="text">
-              <string>0</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_sigma_text">
-             <property name="text">
-              <string>, sigma_i = </string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_sigma_value">
-             <property name="text">
-              <string>0</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
+             <item>
+              <widget class="QPushButton" name="pushButton_start">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Start</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_3">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="title">
+             <string>Selected Parameters Values</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="label_h_parameter_text">
+               <property name="text">
+                <string>h = </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_h_parameter_value">
+               <property name="text">
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_sigma_text">
+               <property name="text">
+                <string>, sigma_i = </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_sigma_value">
+               <property name="text">
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -116,86 +153,6 @@
        <attribute name="title">
         <string>Settings</string>
        </attribute>
-       <widget class="QGroupBox" name="groupBox_smoothingParameterSettings">
-        <property name="geometry">
-         <rect>
-          <x>180</x>
-          <y>10</y>
-          <width>191</width>
-          <height>141</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Soothing parameter settings</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Counting method</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBox_smoothingParameterCountingMethod">
-           <item>
-            <property name="text">
-             <string>2nd Rank Plug-in</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>3rd Rank Plug-in</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Weighted Silverman</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox">
-           <property name="text">
-            <string>Count after sample's size change</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_countSmoothingParameters">
-           <property name="text">
-            <string>Count</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
        <widget class="QGroupBox" name="groupBox_plotSettings">
         <property name="geometry">
          <rect>
@@ -381,9 +338,9 @@
         <property name="geometry">
          <rect>
           <x>180</x>
-          <y>160</y>
+          <y>10</y>
           <width>191</width>
-          <height>381</height>
+          <height>351</height>
          </rect>
         </property>
         <property name="title">
@@ -496,7 +453,7 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>11</height>
+             <height>40</height>
             </size>
            </property>
           </spacer>
@@ -506,10 +463,10 @@
        <widget class="QGroupBox" name="groupBox_generalSettings">
         <property name="geometry">
          <rect>
-          <x>580</x>
-          <y>310</y>
-          <width>161</width>
-          <height>81</height>
+          <x>180</x>
+          <y>370</y>
+          <width>191</width>
+          <height>91</height>
          </rect>
         </property>
         <property name="title">
