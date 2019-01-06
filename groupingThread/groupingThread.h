@@ -21,7 +21,7 @@ class groupingThread : public QThread
     groupingThread(std::vector<std::vector<std::shared_ptr<cluster> > > *medoidsStorage,
                    std::shared_ptr<dataParser> parser);
     void run();
-    int initialize();
+    int initialize(int medoidsNumber, int bufferSize);
 
     int getObjectsForGrouping(std::vector<std::shared_ptr<sample> > samples);
     int getClustersForGrouping(std::vector<std::shared_ptr<cluster> > clusters);
@@ -38,7 +38,7 @@ class groupingThread : public QThread
 
     std::unique_ptr<medoidStoringAlgorithm> storingAlgorithm;
 
-    std::shared_ptr<std::vector<std::vector<std::shared_ptr<cluster>>>> medoidsStorage;
+    std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage;
 
 
 };

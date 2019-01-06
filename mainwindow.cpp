@@ -1064,19 +1064,21 @@ void MainWindow::on_pushButton_animate_clicked()
 
     int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
+    int numberOfClustersForGrouping = 100;
+    int medoidsNumber = 50;
+
     groupingThread gt(&storedMedoids, parser);
 
     gt.setAttributesData(&attributesData);
 
     qDebug() << "Attributes data set.";
 
-    gt.initialize();
+    int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+    gt.initialize(medoidsNumber, sampleSize);
 
     _a = MIN_A;
 
     _longestStepExecutionInSecs = 0;
-
-    int medoidsNumber = 50;
 
     storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
     clusters = &(storedMedoids[0]);
@@ -1104,9 +1106,10 @@ void MainWindow::on_pushButton_animate_clicked()
         std::stod(clusters->back()->getObject()->attributesValues["Val0"])
       );
 
+      double smoothingParameterMultiplier = 1;
       std::vector<double> smoothingParameters =
       {
-        smoothingParamCounter.getSmoothingParameterValue()
+        smoothingParamCounter.getSmoothingParameterValue() * smoothingParameterMultiplier
       };
 
       estimator->setSmoothingParameters(smoothingParameters);
@@ -1135,22 +1138,19 @@ void MainWindow::on_pushButton_animate_clicked()
                  << stepNumber << " is: " << currentClusters.size();
       //qDebug() << "Objects size: " << objects.size();
 
-      /*
-      qDebug() << "Counting KDE values on clusters.";
+      //qDebug() << "Counting KDE values on clusters.";
       countKDEValuesOnClusters(estimator);
-      qDebug() << "Counted. Finding uncommon clusters.";
+      //qDebug() << "Counted. Finding uncommon clusters.";
       findUncommonClusters();
-      qDebug() << "Found. Removing unpromissing clusters.";
+      //qDebug() << "Found. Removing unpromissing clusters.";
       removeUnpromissingClusters();
-      qDebug() << "Clusters size after reduction: " << clusters.size();
-      */
+      //qDebug() << "Clusters size after reduction: " << clusters.size();
 
       if(currentClusters.size() >= algorithm->getReservoidMaxSize())
       {
         qDebug() << "============ Clustering function started ============";
 
         std::vector<std::shared_ptr<cluster>> clustersForGrouping;
-        int numberOfClustersForGrouping = 100;
 
         for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
         {
@@ -1165,32 +1165,35 @@ void MainWindow::on_pushButton_animate_clicked()
         clusters = &(storedMedoids[0]); // Reassigment needed, as (probably) grouping algorithm resets it
       }
 
-
-
       //updateA();
 
       estimator->setClusters(currentClusters);
 
-      /*
-      qDebug() << "Updating prognosis.";
+      //qDebug() << "Updating prognosis.";
       updatePrognosisParameters();
-      qDebug() << "Updated. Counting derivative values for clusters.";
+      //qDebug() << "Updated. Counting derivative values for clusters.";
       countKDEDerivativeValuesOnClusters();
-      */
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-      //if(stepNumber % 50 == 0 and stepNumber >= 13700)
-      if( stepNumber == 11001 || stepNumber == 21001 || stepNumber == 31001
-          || stepNumber == 41001 || stepNumber == 51001)
+      //if(stepNumber < 10000)
+      //if( stepNumber == 1001 || stepNumber == 1101 || stepNumber == 2101
+      //    || stepNumber == 3101 || stepNumber == 4101 || stepNumber == 5101)
+      if(stepNumber > 1000 && (stepNumber - 1) % 25 == 0)
       {
         qDebug() << "Drawing in step number " << stepNumber << ".";
         qDebug() << "h_i = " << smoothingParameters[0];
         qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
 
         drawPlots(estimator.get(), targetFunction.get());
+
         qApp->processEvents();
+
+        QString imageName = "D:\\Dysk Google\\Badania\\v=0.01, b=0.999\\"
+            + QString::number(stepNumber - 1) + ".png";
+        ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
       }
+      else break;
 
       targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
@@ -1211,6 +1214,7 @@ void MainWindow::on_pushButton_animate_clicked()
       ));
       */
     }
+
 
     qDebug() << "Animation finished.";
 }

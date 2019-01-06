@@ -259,7 +259,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>15</string>
+            <string>8</string>
            </property>
           </widget>
          </item>
@@ -442,7 +442,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -470,7 +470,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_weightModifier">
            <property name="text">
-            <string>0.9995</string>
+            <string>0.999</string>
            </property>
           </widget>
          </item>

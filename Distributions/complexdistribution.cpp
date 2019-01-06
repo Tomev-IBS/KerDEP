@@ -18,7 +18,7 @@ void complexDistribution::getValue(QVector<qreal> *result)
 
 void complexDistribution::increaseMeans(qreal addend)
 {
-    foreach (std::shared_ptr<distribution> elementalDistribution, elementalDistributions)
+    for(std::shared_ptr<distribution> elementalDistribution : elementalDistributions)
     {
         elementalDistribution->increaseMeans(addend);
     }
