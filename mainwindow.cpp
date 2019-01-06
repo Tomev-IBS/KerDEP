@@ -362,12 +362,7 @@ void MainWindow::updateA()
 void MainWindow::drawPlots(kernelDensityEstimator* estimator,
                            function* targetFunction)
 {
-    // Check if prior plots should be saved
-    if(!ui->checkBox_keepPriorPlots->isChecked())
-    {
-        // If not clear plot
-        clearPlot();
-    }
+    clearPlot();
 
     resizePlot();
 

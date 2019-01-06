@@ -60,13 +60,6 @@
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QCheckBox" name="checkBox_keepPriorPlots">
-             <property name="text">
-              <string>Keep prior plots</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="pushButton_animate">
              <property name="text">
               <string>Animate</string>
