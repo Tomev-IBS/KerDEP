@@ -171,7 +171,6 @@ class MainWindow : public QMainWindow
       void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                               std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
       std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
-      void removeUnpromissingClusters();
       void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
       unsigned long long findUncommonClusters();
 

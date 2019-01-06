@@ -45,9 +45,6 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::testNewFunctionalities()
 {
   qDebug() << "Start test.";
-
-  qDebug() << "Size of int: " << sizeof(int);
-
   qDebug() << "Finish test.";
 }
 
@@ -709,37 +706,6 @@ unsigned long long MainWindow::findUncommonClusters()
   return uncommonClusters.size();
 }
 
-void MainWindow::removeUnpromissingClusters()
-{
-  // Clusters are now pointer to 0 level of storedMedoids
-  /*
-  for(int index = static_cast<int>(clusters->size()) - 1; index >= 0; --index)
-  {
-    // Remove cluster if its temporal derivative is not equal to 0 and
-    // it's weight is insignificant
-    if(clusters[static_cast<unsigned int>(index)]->getWeight()
-       < positionalSecondGradeEstimator)
-    {
-      clusters.erase(clusters.begin() + index);
-    }
-  }
-  */
-
-  for(std::vector<std::shared_ptr<cluster>> level: storedMedoids)
-  {
-    for(int index = static_cast<int>(level.size()) - 1; index >= 0; --index)
-    {
-      // Remove cluster if its temporal derivative is not equal to 0 and
-      // it's weight is insignificant
-      if(level[static_cast<unsigned int>(index)]->getWeight()
-         < positionalSecondGradeEstimator)
-      {
-        level.erase(level.begin() + index);
-      }
-    }
-  }
-}
-
 void MainWindow::countKDEValuesOnClusters(
   std::shared_ptr<kernelDensityEstimator> estimator)
 {
@@ -1142,9 +1108,6 @@ void MainWindow::on_pushButton_animate_clicked()
       countKDEValuesOnClusters(estimator);
       //qDebug() << "Counted. Finding uncommon clusters.";
       findUncommonClusters();
-      //qDebug() << "Found. Removing unpromissing clusters.";
-      removeUnpromissingClusters();
-      //qDebug() << "Clusters size after reduction: " << clusters.size();
 
       if(currentClusters.size() >= algorithm->getReservoidMaxSize())
       {
