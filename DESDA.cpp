@@ -242,7 +242,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
       QVector<qreal> pt;
       pt.push_back(x);
       kernelPrognosisDerivativeValues.push_back(
-        _estimatorDerivative->getValue(&pt) / pow(_v, 0.5)
+        _estimatorDerivative->getValue(&pt) / _v
       );
     }
   }
