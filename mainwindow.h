@@ -178,11 +178,6 @@ class MainWindow : public QMainWindow
     void on_pushButton_addTargetFunction_clicked();
 
     void on_pushButton_removeTargetFunction_clicked();
-
-    void updateWeights();
-    void updatePrognosisParameters();
-    void countKDEDerivativeValuesOnClusters();
-
 };
 
 enum kernelSettingsColumns

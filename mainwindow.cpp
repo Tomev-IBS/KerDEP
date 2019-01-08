@@ -317,30 +317,6 @@ void MainWindow::setupKernelsTable()
     refreshTargetFunctionTable();
 }
 
-void MainWindow::updateA()
-{
-  auto allConsideredClusters = getClustersForEstimator();
-  double summaricClustersWeight = 0.0;
-
-  for(std::shared_ptr<cluster> c : allConsideredClusters)
-    summaricClustersWeight += c->getWeight();
-
-  double currentUncommonClusterWeight = 0.0;
-
-  for(std::shared_ptr<cluster> uc : uncommonClusters)
-    currentUncommonClusterWeight += uc->getWeight();
-
-  currentUncommonClusterWeight /= summaricClustersWeight;
-
-  _a += (ui->lineEdit_rarity->text().toDouble() - currentUncommonClusterWeight)
-            * _maxEstimatorValueOnDomain;
-
-  if(_a > MAX_A) _a = MAX_A;
-  if(_a < MIN_A) _a = MIN_A;
-
-  _previousUncommonClustersWeight = currentUncommonClusterWeight;
-}
-
 void MainWindow::drawPlots(kernelDensityEstimator* estimator,
                            function* targetFunction)
 {
@@ -348,26 +324,25 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
 
     resizePlot();
 
-    QVector<std::shared_ptr<point>> domain;
-
     QVector<qreal> X;
-    QVector<qreal> normalDistributionY;
+    QVector<qreal> modelDistributionY;
 
     // Fill domain with points
     // To keep things simple let's consider only these domains wherein
     // each dimension has equal size.
 
+    QVector<std::shared_ptr<point>> domain;
     fillDomain(&domain, nullptr);
 
     foreach(auto x, domain)
     {
-        normalDistributionY.append(targetFunction->getValue(x.get()));
+        modelDistributionY.append(targetFunction->getValue(x.get()));
         X.append(x->at(0));
     }
 
     // Generate plot of model function
     if(ui->checkBox_showEstimatedPlot->isChecked())
-    addModelPlot(&X, &normalDistributionY);
+    addModelPlot(&X, &modelDistributionY);
 
     // Generate a vector of values from selected KDE
     KDEEstimationY.clear();
@@ -410,7 +385,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
     // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
     {
-      countKernelPrognosisDerivativeY(&X);
+      //countKernelPrognosisDerivativeY(&X);
       addKernelPrognosisDerivativePlot(&X);
     }
 
@@ -507,21 +482,9 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
 
 void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X)
 {
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  QVector<double> offsetKernelPrognosisPlotValues;
-
-  for(int i = 0; i < _kernelPrognosisDerivativeValues.size(); ++i)
-  {
-    offsetKernelPrognosisPlotValues.push_back(
-      _kernelPrognosisDerivativeValues[i]
-    );
-  }
-
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
-      ->setData(*X, offsetKernelPrognosisPlotValues);
+      ->setData(*X, _kernelPrognosisDerivativeValues);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
       ->setPen(QPen(Qt::cyan));
 }
@@ -1109,82 +1072,6 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
     refreshTargetFunctionTable();
 }
 
-void MainWindow::updateWeights()
-{
-  double weightModifier = ui->lineEdit_weightModifier->text().toDouble();
-
-  for(unsigned int level = 0; level < storedMedoids.size(); ++level)
-  {
-    for(unsigned int medoidNumber = 0; medoidNumber < storedMedoids[level].size(); ++medoidNumber)
-    {
-      storedMedoids[level][medoidNumber]->setWeight(
-        weightModifier * storedMedoids[level][medoidNumber]->getWeight()
-      );
-    }
-  }
-}
-
-void MainWindow::updatePrognosisParameters()
-{
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  if(currentClusters.size() == 0) return;
-
-  for(std::shared_ptr<cluster> c : currentClusters)
-  {
-    QVector<qreal> pt;
-
-    // Assuming it has object (as it should) and have only numerical values.
-    for(auto kv : c->getObject()->attributesValues)
-      pt.append(std::stod(kv.second));
-
-    if(c->predictionParameters.size() > 0)
-    {
-      c->updateDeactualizationParameter(c->_currentKDEValue);
-      c->updatePredictionParameters(c->_currentKDEValue);
-    }
-    else
-    {
-      c->initializePredictionParameters(c->_currentKDEValue);
-    }
-
-    c->_lastKDEValue = c->_currentKDEValue;
-  }
-
-}
-
-void MainWindow::countKDEDerivativeValuesOnClusters()
-{
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  std::vector<double> prognosisCoefficients;
-
-  _kernelPrognosisDerivativeValues.clear();
-
-  prognosisCoefficients.clear();
-
-  for(auto c : currentClusters)
-    prognosisCoefficients.push_back(c->predictionParameters[1]);
-
-  if(prognosisCoefficients.size() == currentClusters.size())
-  {
-    kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
-    kernelPrognoser->setClusters(currentClusters);
-
-    QVector<qreal> x;
-
-    for(auto c : currentClusters)
-    {
-      QVector<qreal> pt;
-      pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-
-      c->_KDEDerivativeValue = kernelPrognoser->getValue(&pt);
-    }
-  }
-}
-
 void MainWindow::on_pushButton_start_clicked()
 {
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
@@ -1220,7 +1107,7 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          1000 /* delay */)
+                                          2000 /* delay */)
   );
 
   reader->gatherAttributesData(&attributesData);
@@ -1235,8 +1122,6 @@ void MainWindow::on_pushButton_start_clicked()
   objects.clear();
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
-
-  int numberOfClustersForGrouping = 100;
   int medoidsNumber = 50;
 
   groupingThread gt(&storedMedoids, parser);
@@ -1266,41 +1151,15 @@ void MainWindow::on_pushButton_start_clicked()
     clusters,
     &storedMedoids,
     ui->lineEdit_rarity->text().toDouble(),
-    &gt
+    &gt,
+    ui->lineEdit_distributionProgression->text().toDouble()
   );
 
   for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
   {
     clock_t executionStartTime = clock();
+
     DESDAAlgorithm.performStep();
-
-    /*
-    updateWeights();
-
-    algorithm->performSingleStep(&objects, stepNumber);
-
-    // TR TODO: It's not working for biased algorithm
-    std::shared_ptr<cluster> newCluster =
-        std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
-    newCluster->setTimestamp(stepNumber);
-
-    clusters->push_back(newCluster);
-
-    //qDebug() << "Counting of smoothing parameters.";
-    smoothingParamCounter.updateSmoothingParameterValue(
-      ui->lineEdit_weightModifier->text().toDouble(),
-      std::stod(clusters->back()->getObject()->attributesValues["Val0"])
-    );
-
-    double smoothingParameterMultiplier = 1;
-    std::vector<double> smoothingParameters =
-    {
-      smoothingParamCounter.getSmoothingParameterValue() * smoothingParameterMultiplier
-    };
-
-    estimator->setSmoothingParameters(smoothingParameters);
-
-    */
 
     ui->label_h_parameter_value->setText(
       QString::number(smoothingParamCounter.getSmoothingParameterValue())
@@ -1310,78 +1169,39 @@ void MainWindow::on_pushButton_start_clicked()
       QString::number(smoothingParamCounter._stDev)
     );
 
-    //qDebug() << "Smoothing params counted.";
-
-    // Write h to file for data analysis
-    /*
-    std::ofstream myfile;
-    //myfile.open("h_params.csv", std::ios_base::app);
-    myfile << smoothingParameters[0] << ",";
-    myfile.close();
-    */
-
-    /*
-    auto currentClusters = getClustersForEstimator();
-
-    qDebug() << "Reservoir size in step "
-               << stepNumber << " is: " << currentClusters.size();
-    //qDebug() << "Objects size: " << objects.size();
-
-    //qDebug() << "Counting KDE values on clusters.";
-    countKDEValuesOnClusters(estimator);
-    //qDebug() << "Counted. Finding uncommon clusters.";
-    findUncommonClusters();
-
-    if(currentClusters.size() >= algorithm->getReservoidMaxSize())
-    {
-      qDebug() << "============ Clustering function started ============";
-
-      std::vector<std::shared_ptr<cluster>> clustersForGrouping;
-
-      for(int cNum = 0; cNum < numberOfClustersForGrouping; ++cNum)
-      {
-        clustersForGrouping.push_back((*clusters)[0]);
-        clusters->erase(clusters->begin(), clusters->begin()+1);
-      }
-
-      objects.erase(objects.begin(), objects.begin() + (numberOfClustersForGrouping - medoidsNumber));
-      gt.getClustersForGrouping(clustersForGrouping);
-      gt.run();
-      currentClusters = getClustersForEstimator();
-      clusters = &(storedMedoids[0]); // Reassigment needed, as (probably) grouping algorithm resets it
-    }
-
-    //updateA();
-
-    estimator->setClusters(currentClusters);
-
-    //qDebug() << "Updating prognosis.";
-    updatePrognosisParameters();
-    //qDebug() << "Updated. Counting derivative values for clusters.";
-    countKDEDerivativeValuesOnClusters();
-    */
-
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    //if(stepNumber < 10000)
-    //if( stepNumber == 1001 || stepNumber == 1101 || stepNumber == 2101
-    //    || stepNumber == 3101 || stepNumber == 4101 || stepNumber == 5101)
-    if(stepNumber > 1000 && (stepNumber - 1) % 25 == 0)
+    //if(stepNumber > 1000 && (stepNumber - 1) % 100 == 0)
+    //if(stepNumber > 0 && (stepNumber) % 100 == 0)
+    if(stepNumber > 0)
+    //if(stepNumber < 100)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
       qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
       qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
 
+      QVector<qreal> X;
+      QVector<std::shared_ptr<point>> domain;
+      fillDomain(&domain, nullptr);
+
+      for(auto x : domain) X.append(x->at(0));
+
+      _kernelPrognosisDerivativeValues =
+          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&X);
+
       drawPlots(estimator.get(), targetFunction.get());
 
       qApp->processEvents();
 
-      QString imageName = "D:\\Dysk Google\\Badania\\v=0.01, b=0.999\\"
-          + QString::number(stepNumber - 1) + ".png";
-      ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
-    }
+      QString dirPath = "D:\\Dysk Google\\Badania\\Pochodna 1 na v, v=" +
+          ui->lineEdit_distributionProgression->text() + ", b=" +
+          ui->lineEdit_weightModifier->text() +  "\\";
 
-    //targetFunction.reset(generateTargetFunction(&means, &stDevs));
+      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+      QString imageName = dirPath + QString::number(stepNumber) + ".png";
+      qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
+    }
 
     clock_t executionFinishTime = clock();
     double stepExecutionTime =

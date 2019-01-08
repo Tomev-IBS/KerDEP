@@ -10,12 +10,12 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
-             double desiredRarity, groupingThread *gt):
+             double desiredRarity, groupingThread *gt, double v):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
   _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
-  _grpThread(gt)
+  _grpThread(gt), _v(v)
 {
   _objects.clear();
 }
@@ -216,4 +216,36 @@ void DESDA::countKDEDerivativeValuesOnClusters()
       c->_KDEDerivativeValue = _estimatorDerivative->getValue(&pt);
     }
   }
+}
+
+QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
+{
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
+
+  std::vector<double> prognosisCoefficients;
+
+  QVector<double> kernelPrognosisDerivativeValues = {};
+
+  prognosisCoefficients.clear();
+
+  for(auto c : currentClusters)
+    prognosisCoefficients.push_back(c->predictionParameters[1]);
+
+  if(prognosisCoefficients.size() == currentClusters.size())
+  {
+    _estimatorDerivative->setAdditionalMultipliers(prognosisCoefficients);
+    _estimatorDerivative->setClusters(currentClusters);
+
+    for(qreal x: *X)
+    {
+      QVector<qreal> pt;
+      pt.push_back(x);
+      kernelPrognosisDerivativeValues.push_back(
+        _estimatorDerivative->getValue(&pt) / pow(_v, 0.5)
+      );
+    }
+  }
+
+  return kernelPrognosisDerivativeValues;
 }

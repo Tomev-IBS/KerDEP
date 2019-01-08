@@ -175,14 +175,16 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
 
     if(clusters.size() == additionalMultipliers.size())
     {
+      /*
       addend *= additionalMultipliers[i];
-      weight += (c.get()->getWeight()) *  fabs(additionalMultipliers[i++]);
+      weight += (c.get()->getWeight()) * fabs(additionalMultipliers[i++]);
+      */
+      addend *= additionalMultipliers[i++];
+      weight += c.get()->getWeight();
     }
     else
       weight += (c.get()->getWeight());
 
-    if(index == 930)
-      index = 930;
     result += addend;
   }
 

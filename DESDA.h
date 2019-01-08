@@ -20,9 +20,11 @@ class DESDA
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::vector<std::shared_ptr<cluster>>> *storedMedoids,
-          double desiredRarity, groupingThread *gt);
+          double desiredRarity, groupingThread *gt,
+          double v);
 
     void performStep();
+    QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
 
   protected:
 
@@ -40,6 +42,7 @@ class DESDA
     double _a = 0.0;
     double _desiredRarity = 0.01;
     double _previousUncommonClustersWeight = 0.0;
+    double _v = 1.0;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;
@@ -61,6 +64,7 @@ class DESDA
     void updateA();
     void updatePrognosisParameters();
     void countKDEDerivativeValuesOnClusters();
+
 };
 
 #endif // DESDA_H
