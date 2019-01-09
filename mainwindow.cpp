@@ -47,6 +47,106 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::testNewFunctionalities()
 {
   qDebug() << "Start test.";
+
+  QVector<double> mean = {0};
+  QVector<double> stDev = {1};
+
+  normalDistribution noise(1, &mean, &stDev);
+  double noisePower = 0.2;
+  QVector<double> noiseHolder = {};
+
+  double progressionSpeed = 0.1;
+  double startValue = 0.0;
+  double initialStepValue = 10.0;
+
+  int iterationsNumber = 1000;
+
+  std::shared_ptr<sample> object =
+      std::make_shared<distributionDataSample>();
+
+  //(*object->attributesData)["Val0"] = new numericalAttributeData("Val0");
+  //object->attributesValues["Val0"] = std::to_string(startValue);
+
+  cluster c(object);
+
+  QVector<double> X = {};
+  QVector<double> Y = {startValue};
+  QVector<double> predictionX = {};
+  QVector<double> predictionY = {};
+
+  for(int n = 0; n < iterationsNumber; ++n)
+  {
+    qDebug() << "=============================================";
+
+    X.append(n);
+    predictionX.append(n + 1);
+
+    if(n == 0)
+    {
+      c._currentKDEValue = startValue;
+      c.initializePredictionParameters(startValue);
+    }
+    else
+    {
+      qDebug() << "Predicted value: " << c._lastPrediction;
+
+      predictionY.append(c._lastPrediction);
+
+      noiseHolder.clear();
+      noise.getValue(&noiseHolder);
+
+
+      double newValue =
+          initialStepValue + progressionSpeed * n + noisePower * noiseHolder[0];
+
+
+      //double newValue = - 0.01 * pow(0.5 * n - 5, 2) + 1 + noisePower * noiseHolder[0];
+
+      Y.append(newValue);
+
+      qDebug() << "Actual value: " << newValue;
+
+      c.updatePredictionParameters(newValue);
+      //c.updateDeactualizationParameter(newValue);
+
+      qDebug() << "w = " << c._deactualizationParameter;
+      qDebug() << "n = " << n;
+      qDebug() << "fz = " << c._tildedZ;
+      qDebug() << "ffz = " << c._doubleTildedZ;
+      qDebug() << "z = " << fabs(c._tildedZ / c._doubleTildedZ);
+    }
+  }
+
+  auto plot = ui->widget_plot;
+
+  plot->addGraph();
+
+  auto graph = plot->graph(plot->graphCount() - 1);
+
+  qDebug() << plot->graphCount();
+
+  graph->setData(X, Y);
+  graph->setLineStyle(QCPGraph::lsNone);
+  graph->setPen(QPen(QBrush(Qt::red), 2));
+  graph->setScatterStyle(QCPScatterStyle::ssCircle);
+
+  plot->addGraph();
+  auto predictionGraph = plot->graph(plot->graphCount() - 1);
+  predictionGraph->setData(predictionX, predictionY);
+  predictionGraph->setLineStyle(QCPGraph::lsNone);
+  predictionGraph->setPen(QPen(QBrush(Qt::blue), 2));
+  predictionGraph->setScatterStyle(QCPScatterStyle::ssCircle);
+
+  plot->xAxis->setLabel("t");
+  plot->yAxis->setLabel("x");
+
+  //plot->xAxis->setRange(-1, iterationsNumber + 1);
+  plot->xAxis->setRange(-1, 100);
+  //plot->yAxis->setRange(-1, Y.back());
+  plot->yAxis->setRange(-5, 23);
+
+  plot->replot();
+
   qDebug() << "Finish test.";
 }
 
@@ -1107,7 +1207,7 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          2000 /* delay */)
+                                          200 /* delay */)
   );
 
   reader->gatherAttributesData(&attributesData);

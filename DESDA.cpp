@@ -179,7 +179,7 @@ void DESDA::updatePrognosisParameters()
 
     if(c->predictionParameters.size() > 0)
     {
-      c->updateDeactualizationParameter(c->_currentKDEValue);
+      //c->updateDeactualizationParameter(c->_currentKDEValue);
       c->updatePredictionParameters(c->_currentKDEValue);
     }
     else
@@ -242,7 +242,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
       QVector<qreal> pt;
       pt.push_back(x);
       kernelPrognosisDerivativeValues.push_back(
-        _estimatorDerivative->getValue(&pt) / _v
+        _estimatorDerivative->getValue(&pt) / _v //pow(_v, 0.5)
       );
     }
   }
