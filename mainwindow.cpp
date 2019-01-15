@@ -563,6 +563,19 @@ void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> 
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
         ->setPen(QPen(Qt::blue));
+
+    // Derivative + KDE
+    /*
+    QVector<qreal> additionY = {};
+
+    for(int i = 0; i < Y->size(); ++i)
+      additionY.append((*Y)[i] + _kernelPrognosisDerivativeValues[i]);
+
+    ui->widget_plot->addGraph();
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, additionY);
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+        ->setPen(QPen(Qt::green));
+    */
 }
 
 double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
@@ -1207,7 +1220,7 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          200 /* delay */)
+                                          2000 /* delay */)
   );
 
   reader->gatherAttributesData(&attributesData);
@@ -1237,6 +1250,9 @@ void MainWindow::on_pushButton_start_clicked()
 
   _longestStepExecutionInSecs = 0;
 
+  double newWeightA = 0.5 * 1.0 / pow(sampleSize - 1, 2);
+  double newWeightB = 0.5 * 1.0 / (sampleSize - 1);
+
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
 
@@ -1252,7 +1268,8 @@ void MainWindow::on_pushButton_start_clicked()
     &storedMedoids,
     ui->lineEdit_rarity->text().toDouble(),
     &gt,
-    ui->lineEdit_distributionProgression->text().toDouble()
+    ui->lineEdit_distributionProgression->text().toDouble(),
+    newWeightA, newWeightB
   );
 
   for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
@@ -1273,8 +1290,9 @@ void MainWindow::on_pushButton_start_clicked()
 
     //if(stepNumber > 1000 && (stepNumber - 1) % 100 == 0)
     //if(stepNumber > 0 && (stepNumber) % 100 == 0)
-    if(stepNumber > 0)
+    if(stepNumber > 0 && stepNumber % 10 == 0)
     //if(stepNumber < 100)
+    //if(true)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
       qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
@@ -1293,9 +1311,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\Badania\\Pochodna 1 na v, v=" +
-          ui->lineEdit_distributionProgression->text() + ", b=" +
-          ui->lineEdit_weightModifier->text() +  "\\";
+      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 1\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

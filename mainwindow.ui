@@ -385,7 +385,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.0001</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -689,7 +689,7 @@
             <string>Kernel prognosed Plot</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>

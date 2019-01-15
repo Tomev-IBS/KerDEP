@@ -21,7 +21,7 @@ class DESDA
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::vector<std::shared_ptr<cluster>>> *storedMedoids,
           double desiredRarity, groupingThread *gt,
-          double v);
+          double v, double newWeightA, double newWeightB);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
@@ -43,6 +43,11 @@ class DESDA
     double _desiredRarity = 0.01;
     double _previousUncommonClustersWeight = 0.0;
     double _v = 1.0;
+
+    double _newWeightA = 0;
+    double _newWeightB = 0;
+
+    bool _shouldCluster = false;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;

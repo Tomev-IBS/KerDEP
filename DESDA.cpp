@@ -10,35 +10,52 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
-             double desiredRarity, groupingThread *gt, double v):
+             double desiredRarity, groupingThread *gt, double v,
+             double newWeightA, double newWeightB):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
   _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
-  _grpThread(gt), _v(v)
+  _grpThread(gt), _v(v), _newWeightA(newWeightA), _newWeightB(newWeightB)
 {
   _objects.clear();
 }
 
 void DESDA::performStep()
 {
-  updateWeights();
+  // If weights degrades geomatrically
+  if(_shouldCluster) updateWeights();
   _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
 
   std::shared_ptr<cluster> newCluster =
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  _clusters->push_back(newCluster);
+  if(_clusters->size() >= _samplingAlgorithm->getReservoidMaxSize()
+     && !_shouldCluster)
+  {
+    //_clusters->erase(_clusters->begin(), _clusters->begin()+1);
+    _clusters->pop_back();
+    _objects.erase(_objects.begin(), _objects.begin() + 1);
+  }
+
+  //_clusters->push_back(newCluster);
+  _clusters->insert(_clusters->begin(), newCluster);
+
+  // If weights degrades accodring to new formula
+  if(!_shouldCluster) updateWeights();
 
   _smoothingParamCounter->updateSmoothingParameterValue(
     _weightModifier,
-    std::stod(_clusters->back()->getObject()->attributesValues["Val0"])
+    std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
+
+  _smoothingParamCounter->setClusters(_clusters, 0);
 
   std::vector<double> smoothingParameters =
   {
-    _smoothingParamCounter->getSmoothingParameterValue() * _smoothingParameterMultiplier
+    //_smoothingParamCounter->getSmoothingParameterValue() * _smoothingParameterMultiplier
+    _smoothingParamCounter->countSmoothingParameterValue() * _smoothingParameterMultiplier
   };
 
   _estimator->setSmoothingParameters(smoothingParameters);
@@ -51,7 +68,9 @@ void DESDA::performStep()
 
   countKDEValuesOnClusters();
 
-  if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize())
+
+  if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
+     && _shouldCluster)
   {
     std::vector<std::shared_ptr<cluster>> clustersForGrouping;
 
@@ -69,6 +88,7 @@ void DESDA::performStep()
     _clusters = &((*_storedMedoids)[0]); // Reassigment needed, as (probably) grouping algorithm resets it
   }
 
+
   //updateA();
 
   _estimator->setClusters(currentClusters);
@@ -81,13 +101,29 @@ void DESDA::performStep()
 
 void DESDA::updateWeights()
 {
-  for(unsigned int level = 0; level < _storedMedoids->size(); ++level)
+  if(_shouldCluster)
   {
-    for(unsigned int medoidNumber = 0; medoidNumber < (*_storedMedoids)[level].size(); ++medoidNumber)
+    for(unsigned int level = 0; level < _storedMedoids->size(); ++level)
     {
-      (*_storedMedoids)[level][medoidNumber]->setWeight(
-        _weightModifier * (*_storedMedoids)[level][medoidNumber]->getWeight()
-      );
+      for(unsigned int medoidNumber = 0; medoidNumber < (*_storedMedoids)[level].size(); ++medoidNumber)
+      {
+        (*_storedMedoids)[level][medoidNumber]->setWeight(
+          _weightModifier * (*_storedMedoids)[level][medoidNumber]->getWeight()
+        );
+      }
+    }
+  }
+  else
+  {
+    for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
+    {
+      // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
+      double newWeight =
+          1.0 - _newWeightB * (clusterNum) - _newWeightA * pow(clusterNum, 2);
+
+      if(newWeight < 0) newWeight = 0;
+
+      (*_clusters)[clusterNum]->setWeight(newWeight);
     }
   }
 }

@@ -54,8 +54,14 @@ weightedSilvermanSmoothingParameterCounter::~weightedSilvermanSmoothingParameter
 
 double weightedSilvermanSmoothingParameterCounter::countSmoothingParameterValue()
 {
-  double result = pow(4.0 / (3 * _samples->size()), 0.2);
-  countStandardDeviation();
+  //double result = pow(4.0 / (3 * _samples->size()), 0.2);
+  //countStandardDeviation();
+
+  double weightsSum = 0.0;
+  for (auto w : *_weights) weightsSum += w;
+
+  double result = pow(4.0 / (3 * weightsSum), 0.2);
+  recountWeightedStandardDeviation();
 
   return result * _stDev;
 }

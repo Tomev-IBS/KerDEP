@@ -31,6 +31,7 @@ class weightedSilvermanSmoothingParameterCounter
     double _stDev = 0.0;
 
     double countSmoothingParameterValue() override;
+    void setSamples();
 
   protected:
 
