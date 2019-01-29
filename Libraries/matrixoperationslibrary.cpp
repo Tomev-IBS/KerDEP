@@ -107,18 +107,16 @@ void fillInverseMatrix(matrixPtr baseMatrix, matrixPtr inverseMatrix)
     determinant = countMatrixDeterminantRecursively(baseMatrix);
 
     if(determinant == 0)
-        return;
+      return;
 
     inverseMatrix->clear();
 
     foreach(auto row, transposedCofactorMatrix)
     {
-        inverseMatrix->append(std::make_shared<QVector<qreal>>());
+      inverseMatrix->append(std::make_shared<QVector<qreal>>());
 
-        foreach(qreal value, *row)
-        {
-            inverseMatrix->last()->append(value/determinant);
-        }
+      foreach(qreal value, *row)
+        inverseMatrix->last()->append(value/determinant);
     }
 }
 

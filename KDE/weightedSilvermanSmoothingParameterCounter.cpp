@@ -68,6 +68,12 @@ double weightedSilvermanSmoothingParameterCounter::countSmoothingParameterValue(
 
 void weightedSilvermanSmoothingParameterCounter::recountWeightedStandardDeviation()
 {
+  if(_samples->size() == 1)
+  {
+    _stDev = 1.0;
+    return;
+  }
+
   if(_weights == nullptr)
   {
     std::cerr  << "Weighted Silverman smoothing parameter counter: "

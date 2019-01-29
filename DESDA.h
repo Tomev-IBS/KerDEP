@@ -25,6 +25,9 @@ class DESDA
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
+    double getAverageOfFirstMSampleValues(int M);
+    double getStdDevOfFirstMSampleValues(int M);
+    cluster getECluster();
 
   protected:
 
@@ -46,6 +49,8 @@ class DESDA
 
     double _newWeightA = 0;
     double _newWeightB = 0;
+
+    cluster e1000;
 
     bool _shouldCluster = false;
 

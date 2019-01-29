@@ -1250,8 +1250,8 @@ void MainWindow::on_pushButton_start_clicked()
 
   _longestStepExecutionInSecs = 0;
 
-  double newWeightA = 0.5 * 1.0 / pow(sampleSize - 1, 2);
-  double newWeightB = 0.5 * 1.0 / (sampleSize - 1);
+  double newWeightA = 0;//0.5 * 1.0 / pow(sampleSize - 1, 2);
+  double newWeightB = 0;//0.5 * 1.0 / (sampleSize - 1);
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
@@ -1271,6 +1271,26 @@ void MainWindow::on_pushButton_start_clicked()
     ui->lineEdit_distributionProgression->text().toDouble(),
     newWeightA, newWeightB
   );
+
+  // add the text label at the top:
+  QCPItemText *E1000TextLable = new QCPItemText(ui->widget_plot);
+  E1000TextLable->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  E1000TextLable->position->setType(QCPItemPosition::ptAxisRectRatio);
+  E1000TextLable->position->setCoords(0.3, 0.0); // place position at center/top of axis rect
+  E1000TextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
+  E1000TextLable->setText("");
+  QCPItemText *ES1000TextLable = new QCPItemText(ui->widget_plot);
+  ES1000TextLable->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  ES1000TextLable->position->setType(QCPItemPosition::ptAxisRectRatio);
+  ES1000TextLable->position->setCoords(0.3, 0.05); // place position at center/top of axis rect
+  ES1000TextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
+  ES1000TextLable->setText("");
+  QCPItemText *WE1000TextLable = new QCPItemText(ui->widget_plot);
+  WE1000TextLable->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  WE1000TextLable->position->setType(QCPItemPosition::ptAxisRectRatio);
+  WE1000TextLable->position->setCoords(0.3, 0.1); // place position at center/top of axis rect
+  WE1000TextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
+  WE1000TextLable->setText("");
 
   for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
   {
@@ -1309,9 +1329,19 @@ void MainWindow::on_pushButton_start_clicked()
 
       drawPlots(estimator.get(), targetFunction.get());
 
+      // Set avg text
+      cluster e1000 = DESDAAlgorithm.getECluster();
+      double avg = e1000._currentKDEValue;
+      double avgEst = e1000.predictionParameters[1];
+      double w_eE = e1000._deactualizationParameter;
+
+      E1000TextLable->setText("E1000 = " + QString::number(avg));
+      ES1000TextLable->setText("c2_E1000 = " + QString::number(avgEst / progressionSize));
+      WE1000TextLable->setText("w_E1000 = " + QString::number(w_eE));
+
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 1\\";
+      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 15\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

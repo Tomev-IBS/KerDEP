@@ -2,6 +2,8 @@
 
 #include <QTime>
 #include <QCoreApplication>
+#include <algorithm>
+#include "Reservoir_sampling/distributionDataSample.h"
 
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
@@ -19,6 +21,11 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _grpThread(gt), _v(v), _newWeightA(newWeightA), _newWeightB(newWeightB)
 {
   _objects.clear();
+  std::shared_ptr<sample> e1000Sample =
+      std::make_shared<distributionDataSample>();
+  e1000 = cluster(e1000Sample);
+  e1000._deactualizationParameter = 0.95;
+  e1000._shouldUpdateDeactualizationParameter = true;
 }
 
 void DESDA::performStep()
@@ -54,7 +61,6 @@ void DESDA::performStep()
 
   std::vector<double> smoothingParameters =
   {
-    //_smoothingParamCounter->getSmoothingParameterValue() * _smoothingParameterMultiplier
     _smoothingParamCounter->countSmoothingParameterValue() * _smoothingParameterMultiplier
   };
 
@@ -67,7 +73,8 @@ void DESDA::performStep()
              << _stepNumber << " is: " << currentClusters.size();
 
   countKDEValuesOnClusters();
-
+  double avg = getAverageOfFirstMSampleValues(1000);
+  e1000._currentKDEValue = avg;
 
   if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
      && _shouldCluster)
@@ -88,12 +95,22 @@ void DESDA::performStep()
     _clusters = &((*_storedMedoids)[0]); // Reassigment needed, as (probably) grouping algorithm resets it
   }
 
-
   //updateA();
 
   _estimator->setClusters(currentClusters);
 
   updatePrognosisParameters();
+
+  if(e1000.predictionParameters.size() > 0)
+  {
+    //c->updateDeactualizationParameter(c->_currentKDEValue);
+    e1000.updatePredictionParameters(avg);
+  }
+  else
+  {
+    e1000.initializePredictionParameters(avg);
+  }
+
   countKDEDerivativeValuesOnClusters();
 
   ++_stepNumber;
@@ -259,11 +276,8 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
 
-  std::vector<double> prognosisCoefficients;
-
+  std::vector<double> prognosisCoefficients = {};
   QVector<double> kernelPrognosisDerivativeValues = {};
-
-  prognosisCoefficients.clear();
 
   for(auto c : currentClusters)
     prognosisCoefficients.push_back(c->predictionParameters[1]);
@@ -278,10 +292,49 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
       QVector<qreal> pt;
       pt.push_back(x);
       kernelPrognosisDerivativeValues.push_back(
-        _estimatorDerivative->getValue(&pt) / _v //pow(_v, 0.5)
+        _estimatorDerivative->getValue(&pt) / _v
       );
     }
   }
 
   return kernelPrognosisDerivativeValues;
+}
+
+double DESDA::getAverageOfFirstMSampleValues(int M)
+{
+  double avg = 0;
+
+  int m0 = std::min(M, (int)_clusters->size());
+
+  for(int i = 0; i < m0; ++i)
+    avg += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
+
+  return avg / m0;
+}
+
+double DESDA::getStdDevOfFirstMSampleValues(int M)
+{
+  int m0 = std::min(M, (int)_clusters->size());
+
+  if(m0 == 1) return 1;
+
+  double sumOfVals = 0, sumOfSquares = 0, val = 0;
+
+  for(int i = 0; i < m0; ++i){
+    val = std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
+    sumOfVals += val;
+    sumOfSquares += pow(val, 2);
+  }
+
+  sumOfVals *= sumOfVals;
+  sumOfVals /= m0 * (m0 - 1);
+
+  sumOfSquares /= m0 - 1;
+
+  return pow(sumOfSquares - sumOfVals, 0.5);
+}
+
+cluster DESDA::getECluster()
+{
+  return e1000;
 }
