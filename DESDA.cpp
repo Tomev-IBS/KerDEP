@@ -3,6 +3,8 @@
 #include <QTime>
 #include <QCoreApplication>
 #include <algorithm>
+#include <fstream>
+
 #include "Reservoir_sampling/distributionDataSample.h"
 
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
@@ -75,7 +77,7 @@ void DESDA::performStep()
   countKDEValuesOnClusters();
   double avg = getAverageOfFirstMSampleValues(1000);
 
-  if(e1000.predictionParameters.size() > 0)
+  if(e1000.predictionParameters.size() == 0)
     e1000.initializePredictionParameters(0);
 
   e1000._currentKDEValue = avg;
@@ -117,8 +119,16 @@ void DESDA::performStep()
 
   std::string rowToSave =
     _clusters->front()->getObject()->attributesValues["Val0"] + ",";
+  rowToSave += e1000.rowToSave;
+  qDebug() << QString::fromStdString(rowToSave);
 
   // Save to file
+  std::ofstream experimentDataFile;
+
+  experimentDataFile.open("d:\\Dysk Google\\Badania\\experimentData.csv", std::ios_base::app);
+  experimentDataFile << rowToSave;
+
+  experimentDataFile.close();
 
   countKDEDerivativeValuesOnClusters();
 

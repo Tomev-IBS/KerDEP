@@ -1292,6 +1292,13 @@ void MainWindow::on_pushButton_start_clicked()
   WE1000TextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
   WE1000TextLable->setText("");
 
+  std::ofstream experimentDataFile;
+
+  experimentDataFile.open("d:\\Dysk Google\\Badania\\experimentData.csv");
+  experimentDataFile << "x,y,y_est,e,~z,~~z,z,w\n";
+
+  experimentDataFile.close();
+
   for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
   {
     clock_t executionStartTime = clock();
