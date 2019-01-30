@@ -74,6 +74,10 @@ void DESDA::performStep()
 
   countKDEValuesOnClusters();
   double avg = getAverageOfFirstMSampleValues(1000);
+
+  if(e1000.predictionParameters.size() > 0)
+    e1000.initializePredictionParameters(0);
+
   e1000._currentKDEValue = avg;
 
   if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
@@ -110,6 +114,11 @@ void DESDA::performStep()
   {
     e1000.initializePredictionParameters(avg);
   }
+
+  std::string rowToSave =
+    _clusters->front()->getObject()->attributesValues["Val0"] + ",";
+
+  // Save to file
 
   countKDEDerivativeValuesOnClusters();
 
