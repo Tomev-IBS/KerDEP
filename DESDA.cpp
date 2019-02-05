@@ -26,8 +26,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   std::shared_ptr<sample> e1000Sample =
       std::make_shared<distributionDataSample>();
   e1000 = cluster(e1000Sample);
-  e1000._deactualizationParameter = 0.95;
-  e1000._shouldUpdateDeactualizationParameter = true;
 }
 
 void DESDA::performStep()
@@ -77,9 +75,6 @@ void DESDA::performStep()
   countKDEValuesOnClusters();
   double avg = getAverageOfFirstMSampleValues(1000);
 
-  if(e1000.predictionParameters.size() == 0)
-    e1000.initializePredictionParameters(0);
-
   e1000._currentKDEValue = avg;
 
   if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
@@ -107,15 +102,10 @@ void DESDA::performStep()
 
   updatePrognosisParameters();
 
-  if(e1000.predictionParameters.size() > 0)
-  {
-    //c->updateDeactualizationParameter(c->_currentKDEValue);
-    e1000.updatePredictionParameters(avg);
-  }
-  else
-  {
+  if(e1000.predictionParameters.size() == 0)
     e1000.initializePredictionParameters(avg);
-  }
+  else
+    e1000.updatePredictionParameters(avg);
 
   std::string rowToSave =
     _clusters->front()->getObject()->attributesValues["Val0"] + ",";
