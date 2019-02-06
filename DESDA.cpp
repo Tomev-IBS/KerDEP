@@ -4,11 +4,12 @@
 #include <QCoreApplication>
 #include <algorithm>
 #include <fstream>
+#include <math.h>
 
 #include "Reservoir_sampling/distributionDataSample.h"
 
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
-             std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
+             std::shared_ptr<kernelDensityEstimator> estimatorDerivative, std::shared_ptr<kernelDensityEstimator> enchancedKDE,
              double weightModifier,
              weightedSilvermanSmoothingParameterCounter *smoothingParamCounter,
              reservoirSamplingAlgorithm *samplingAlgorithm,
@@ -20,7 +21,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
   _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
-  _grpThread(gt), _v(v), _newWeightA(newWeightA), _newWeightB(newWeightB)
+  _grpThread(gt), _v(v), _newWeightA(newWeightA), _newWeightB(newWeightB),
+  _enhancedKDE(enchancedKDE)
 {
   _objects.clear();
   std::shared_ptr<sample> e1000Sample =
@@ -66,6 +68,7 @@ void DESDA::performStep()
 
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
+  _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
   auto currentClusters = getClustersForEstimator();
 
@@ -307,6 +310,56 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
   }
 
   return kernelPrognosisDerivativeValues;
+}
+
+QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
+{
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
+
+  std::vector<double> standardWeights = {};
+  QVector<double> enhancedKDEValues = {};
+
+  // Enhance weights of clusters
+  double enhancedWeight = 0.0;
+  double u_i = 0.0, v_i = 0.0;
+
+  double beta = 50, alpha = 0.2, delta = 1.5, gamma = 50;
+
+  for(auto c : currentClusters)
+  {
+    enhancedWeight = 1;
+
+    // Count u_i
+    u_i = 1 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
+
+    // Count v_i
+    v_i = delta * ( 1 / (1 + exp(- gamma * c->predictionParameters[1])) - 0.5);
+    // Count alternative v_i
+    // v_i = exp(gamma * c->predictionParameters[1]) - 1;
+
+    enhancedWeight += u_i * v_i;
+
+    standardWeights.push_back(c->getWeight());
+    c->setWeight(enhancedWeight);
+  }
+
+  _enhancedKDE->setClusters(currentClusters);
+
+  for(qreal x: *X)
+  {
+    QVector<qreal> pt;
+    pt.push_back(x);
+    enhancedKDEValues.push_back(
+      _enhancedKDE->getValue(&pt)
+    );
+  }
+
+  // Restore weights
+  for(unsigned int i = 0; i < currentClusters.size(); ++i)
+    currentClusters[i]->setWeight(standardWeights[i]);
+
+  return enhancedKDEValues;
 }
 
 double DESDA::getAverageOfFirstMSampleValues(int M)

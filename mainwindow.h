@@ -96,6 +96,9 @@ class MainWindow : public QMainWindow
     // Prediction
     QVector<double> _kernelPrognosisDerivativeValues;
 
+    // Enhancement
+    QVector<double> _sigmoidallyEnhancedPlotY;
+
     double positionalSecondGradeEstimator = 0.0;
 
     std::shared_ptr<dataParser> parser;
@@ -105,6 +108,7 @@ class MainWindow : public QMainWindow
     QVector<qreal> newKernelY;
 
     std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
+    std::shared_ptr<kernelDensityEstimator> _enchancedKDE;
 
     double adaptivePredictionPowerParameter = 1e15;
 

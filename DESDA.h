@@ -15,6 +15,7 @@ class DESDA
   public:
     DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
           std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
+          std::shared_ptr<kernelDensityEstimator> enchancedKDE,
           double weightModifier,
           weightedSilvermanSmoothingParameterCounter *_smoothingParamCounter,
           reservoirSamplingAlgorithm *samplingAlgorithm,
@@ -25,6 +26,7 @@ class DESDA
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
+    QVector<double> getEnhancedKDEValues(const QVector<qreal> *X);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getECluster();
@@ -51,11 +53,13 @@ class DESDA
     double _newWeightB = 0;
 
     cluster e1000;
-
     bool _shouldCluster = false;
+
+    //
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;
+    std::shared_ptr<kernelDensityEstimator> _enhancedKDE;
     std::shared_ptr<distribution> _targetDistribution;
     weightedSilvermanSmoothingParameterCounter *_smoothingParamCounter;
     reservoirSamplingAlgorithm *_samplingAlgorithm;

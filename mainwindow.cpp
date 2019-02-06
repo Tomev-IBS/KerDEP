@@ -635,6 +635,7 @@ void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
 void MainWindow::addSigmoidallyEnhancedEstimationPlot(
     const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
+  /*
   auto currentClusters = getClustersForEstimator();
 
   QVector<qreal> sigmoidallyEnhancedPlotY;
@@ -661,11 +662,15 @@ void MainWindow::addSigmoidallyEnhancedEstimationPlot(
     sigmoidallyEnhancedPlotY.push_back(estimator->getValue(&pt));
   }
 
+
   estimator->setAdditionalMultipliers({});
+  */
+
+
 
   ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, sigmoidallyEnhancedPlotY);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkYellow));
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, _sigmoidallyEnhancedPlotY);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkRed));
 }
 
 unsigned long long MainWindow::markUncommonClusters()
@@ -1208,6 +1213,7 @@ void MainWindow::on_pushButton_start_clicked()
     estimator(generateKernelDensityEstimator(dimensionsNumber));
 
   kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
+  _enchancedKDE.reset(generateKernelDensityEstimator(dimensionsNumber));
 
   std::shared_ptr<distribution>
     targetDistribution(generateTargetDistribution(&means, &stDevs));
@@ -1261,6 +1267,7 @@ void MainWindow::on_pushButton_start_clicked()
   DESDA DESDAAlgorithm(
     estimator,
     kernelPrognoser,
+    _enchancedKDE,
     ui->lineEdit_weightModifier->text().toDouble(),
     &smoothingParamCounter,
     algorithm,
@@ -1333,6 +1340,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       _kernelPrognosisDerivativeValues =
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&X);
+      _sigmoidallyEnhancedPlotY =
+          DESDAAlgorithm.getEnhancedKDEValues(&X);
 
       drawPlots(estimator.get(), targetFunction.get());
 
