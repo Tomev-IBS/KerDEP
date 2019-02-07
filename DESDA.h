@@ -31,6 +31,8 @@ class DESDA
     double getStdDevOfFirstMSampleValues(int M);
     cluster getECluster();
 
+    double _u_i = 0.0;
+
   protected:
 
     const double _MAX_A = 1.5;
