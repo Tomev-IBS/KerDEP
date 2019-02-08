@@ -1188,41 +1188,39 @@ void MainWindow::on_pushButton_start_clicked()
   E1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   E1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   E1000TextLabel->position->setCoords(0.3, 0.0); // place position at center/top of axis rect
-  E1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  E1000TextLabel->setFont(QFont(font().family(), 24)); // make font a bit larger
   E1000TextLabel->setText("");
 
   std::shared_ptr<QCPItemText> ES1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   ES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  ES1000TextLabel->position->setCoords(0.3, 0.05); // place position at center/top of axis rect
-  ES1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  ES1000TextLabel->position->setCoords(0.3, 0.03); // place position at center/top of axis rect
+  ES1000TextLabel->setFont(QFont(font().family(), 24)); // make font a bit larger
   ES1000TextLabel->setText("");
 
   std::shared_ptr<QCPItemText> uParamTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   uParamTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   uParamTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  uParamTextLabel->position->setCoords(0.3, 0.1); // place position at center/top of axis rect
-  uParamTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  uParamTextLabel->position->setCoords(0.3, 0.06); // place position at center/top of axis rect
+  uParamTextLabel->setFont(QFont(font().family(), 24)); // make font a bit larger
   uParamTextLabel->setText("");
 
   QVector<std::shared_ptr<QCPItemText>> v_iParamsTextLabel = {};
-  double horizontalOffset = 0.02, verticalOffset = 0.0;
+  double horizontalOffset = 0.3, verticalOffset = 0.09;
 
-  for(int i = 0; i < 10; ++i){
+  std::vector<int> iForV = {300, 500, 700};
+
+  for(int i = 0; i < 3; ++i){
     v_iParamsTextLabel.push_back(std::make_shared<QCPItemText>(ui->widget_plot));
     v_iParamsTextLabel.back()->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
     v_iParamsTextLabel.back()->position->setType(QCPItemPosition::ptAxisRectRatio);
     v_iParamsTextLabel.back()->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-    v_iParamsTextLabel.back()->setFont(QFont(font().family(), 28)); // make font a bit larger
-    v_iParamsTextLabel.back()->setText("v_" + QString::number(i * 100 + 100) + " = ");
+    v_iParamsTextLabel.back()->setFont(QFont(font().family(), 24)); // make font a bit larger
+    v_iParamsTextLabel.back()->setText("v_" + QString::number(iForV[i]) + " = ");
 
-    verticalOffset += 0.05;
-    if(i == 4){
-      horizontalOffset = 0.7;
-      verticalOffset = 0.0;
-    }
+    verticalOffset += 0.03;
   }
 
   // Save data
@@ -1251,11 +1249,7 @@ void MainWindow::on_pushButton_start_clicked()
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    //if(stepNumber > 1000 && (stepNumber - 1) % 100 == 0)
-    //if(stepNumber > 0 && (stepNumber) % 100 == 0)
     if(stepNumber > 0 && stepNumber % 10 == 0)
-    //if(stepNumber < 100)
-    //if(true)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
       qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
@@ -1281,11 +1275,11 @@ void MainWindow::on_pushButton_start_clicked()
       //double w_eE = e1000._deactualizationParameter;
 
       E1000TextLabel->setText("E1000 = " + QString::number(avg));
-      ES1000TextLabel->setText("a_E1000 = " + QString::number(avgEst));// / progressionSize));
+      ES1000TextLabel->setText("a_E1000 = " + QString::number(avgEst) / progressionSize));
       uParamTextLabel->setText("u = " + QString::number(DESDAAlgorithm._u_i));
 
       for(int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
-        v_iParamsTextLabel[i]->setText("v_" + QString::number(i * 100 + 100)
+        v_iParamsTextLabel[i]->setText("v_" + QString::number(iForV[i])
           + " = " + QString::number(DESDAAlgorithm._selectedVValues[i]));
       }
 

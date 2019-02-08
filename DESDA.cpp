@@ -346,7 +346,8 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
     standardWeights.push_back(c->getWeight());
 
-    if(standardWeights.size() % 100 == 0)
+    if(standardWeights.size() == 300 || standardWeights.size() == 500 ||
+       standardWeights.size() == 700)
       _selectedVValues.push_back(v_i);
 
     c->setWeight(enhancedWeight);
