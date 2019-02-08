@@ -1275,7 +1275,7 @@ void MainWindow::on_pushButton_start_clicked()
       //double w_eE = e1000._deactualizationParameter;
 
       E1000TextLabel->setText("E1000 = " + QString::number(avg));
-      ES1000TextLabel->setText("a_E1000 = " + QString::number(avgEst) / progressionSize));
+      ES1000TextLabel->setText("a_E1000 = " + QString::number(avgEst / progressionSize));
       uParamTextLabel->setText("u = " + QString::number(DESDAAlgorithm._u_i));
 
       for(int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
