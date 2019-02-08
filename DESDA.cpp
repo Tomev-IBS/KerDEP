@@ -110,18 +110,20 @@ void DESDA::performStep()
   else
     e1000.updatePredictionParameters(avg);
 
+  // Save to file
+  /*
   std::string rowToSave =
     _clusters->front()->getObject()->attributesValues["Val0"] + ",";
   rowToSave += e1000.rowToSave;
   qDebug() << QString::fromStdString(rowToSave);
 
-  // Save to file
   std::ofstream experimentDataFile;
 
   experimentDataFile.open("d:\\Dysk Google\\Badania\\experimentData.csv", std::ios_base::app);
   experimentDataFile << rowToSave;
 
   experimentDataFile.close();
+  */
 
   countKDEDerivativeValuesOnClusters();
 
@@ -320,6 +322,8 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   std::vector<double> standardWeights = {};
   QVector<double> enhancedKDEValues = {};
 
+  _selectedVValues.clear();
+
   // Enhance weights of clusters
   double enhancedWeight = 0.0;
   double v_i = 0.0;
@@ -327,13 +331,11 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double beta = 50, alpha = 0.2, delta = 1.5, gamma = 50;
 
   // Count u_i
-  _u_i = 1 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
+  _u_i = 1.0 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
 
   for(auto c : currentClusters)
   {
     enhancedWeight = 1;
-
-
 
     // Count v_i
     v_i = delta * ( 1 / (1 + exp(- gamma * c->predictionParameters[1])) - 0.5);
@@ -343,6 +345,10 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     enhancedWeight += _u_i * v_i;
 
     standardWeights.push_back(c->getWeight());
+
+    if(standardWeights.size() % 100 == 0)
+      _selectedVValues.push_back(v_i);
+
     c->setWeight(enhancedWeight);
   }
 

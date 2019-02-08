@@ -48,104 +48,7 @@ void MainWindow::testNewFunctionalities()
 {
   qDebug() << "Start test.";
 
-  QVector<double> mean = {0};
-  QVector<double> stDev = {1};
-
-  normalDistribution noise(1, &mean, &stDev);
-  double noisePower = 0.2;
-  QVector<double> noiseHolder = {};
-
-  double progressionSpeed = 0.1;
-  double startValue = 0.0;
-  double initialStepValue = 10.0;
-
-  int iterationsNumber = 1000;
-
-  std::shared_ptr<sample> object =
-      std::make_shared<distributionDataSample>();
-
-  //(*object->attributesData)["Val0"] = new numericalAttributeData("Val0");
-  //object->attributesValues["Val0"] = std::to_string(startValue);
-
-  cluster c(object);
-
-  QVector<double> X = {};
-  QVector<double> Y = {startValue};
-  QVector<double> predictionX = {};
-  QVector<double> predictionY = {};
-
-  for(int n = 0; n < iterationsNumber; ++n)
-  {
-    qDebug() << "=============================================";
-
-    X.append(n);
-    predictionX.append(n + 1);
-
-    if(n == 0)
-    {
-      c._currentKDEValue = startValue;
-      c.initializePredictionParameters(startValue);
-    }
-    else
-    {
-      qDebug() << "Predicted value: " << c._lastPrediction;
-
-      predictionY.append(c._lastPrediction);
-
-      noiseHolder.clear();
-      noise.getValue(&noiseHolder);
-
-
-      double newValue =
-          initialStepValue + progressionSpeed * n + noisePower * noiseHolder[0];
-
-
-      //double newValue = - 0.01 * pow(0.5 * n - 5, 2) + 1 + noisePower * noiseHolder[0];
-
-      Y.append(newValue);
-
-      qDebug() << "Actual value: " << newValue;
-
-      c.updatePredictionParameters(newValue);
-      //c.updateDeactualizationParameter(newValue);
-
-      qDebug() << "w = " << c._deactualizationParameter;
-      qDebug() << "n = " << n;
-      qDebug() << "fz = " << c._tildedZ;
-      qDebug() << "ffz = " << c._doubleTildedZ;
-      qDebug() << "z = " << fabs(c._tildedZ / c._doubleTildedZ);
-    }
-  }
-
-  auto plot = ui->widget_plot;
-
-  plot->addGraph();
-
-  auto graph = plot->graph(plot->graphCount() - 1);
-
-  qDebug() << plot->graphCount();
-
-  graph->setData(X, Y);
-  graph->setLineStyle(QCPGraph::lsNone);
-  graph->setPen(QPen(QBrush(Qt::red), 2));
-  graph->setScatterStyle(QCPScatterStyle::ssCircle);
-
-  plot->addGraph();
-  auto predictionGraph = plot->graph(plot->graphCount() - 1);
-  predictionGraph->setData(predictionX, predictionY);
-  predictionGraph->setLineStyle(QCPGraph::lsNone);
-  predictionGraph->setPen(QPen(QBrush(Qt::blue), 2));
-  predictionGraph->setScatterStyle(QCPScatterStyle::ssCircle);
-
-  plot->xAxis->setLabel("t");
-  plot->yAxis->setLabel("x");
-
-  //plot->xAxis->setRange(-1, iterationsNumber + 1);
-  plot->xAxis->setRange(-1, 100);
-  //plot->yAxis->setRange(-1, Y.back());
-  plot->yAxis->setRange(-5, 23);
-
-  plot->replot();
+  qDebug() << "Nothing to test.";
 
   qDebug() << "Finish test.";
 }
@@ -1280,31 +1183,57 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
   // add the text label at the top:
-  QCPItemText *E1000TextLable = new QCPItemText(ui->widget_plot);
-  E1000TextLable->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  E1000TextLable->position->setType(QCPItemPosition::ptAxisRectRatio);
-  E1000TextLable->position->setCoords(0.3, 0.0); // place position at center/top of axis rect
-  E1000TextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
-  E1000TextLable->setText("");
-  QCPItemText *ES1000TextLable = new QCPItemText(ui->widget_plot);
-  ES1000TextLable->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  ES1000TextLable->position->setType(QCPItemPosition::ptAxisRectRatio);
-  ES1000TextLable->position->setCoords(0.3, 0.05); // place position at center/top of axis rect
-  ES1000TextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
-  ES1000TextLable->setText("");
-  QCPItemText *uParamTextLable = new QCPItemText(ui->widget_plot);
-  uParamTextLable->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  uParamTextLable->position->setType(QCPItemPosition::ptAxisRectRatio);
-  uParamTextLable->position->setCoords(0.3, 0.1); // place position at center/top of axis rect
-  uParamTextLable->setFont(QFont(font().family(), 28)); // make font a bit larger
-  uParamTextLable->setText("");
+  std::shared_ptr<QCPItemText> E1000TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  E1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  E1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  E1000TextLabel->position->setCoords(0.3, 0.0); // place position at center/top of axis rect
+  E1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  E1000TextLabel->setText("");
 
+  std::shared_ptr<QCPItemText> ES1000TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  ES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  ES1000TextLabel->position->setCoords(0.3, 0.05); // place position at center/top of axis rect
+  ES1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  ES1000TextLabel->setText("");
+
+  std::shared_ptr<QCPItemText> uParamTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  uParamTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  uParamTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  uParamTextLabel->position->setCoords(0.3, 0.1); // place position at center/top of axis rect
+  uParamTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  uParamTextLabel->setText("");
+
+  QVector<std::shared_ptr<QCPItemText>> v_iParamsTextLabel = {};
+  double horizontalOffset = 0.02, verticalOffset = 0.0;
+
+  for(int i = 0; i < 10; ++i){
+    v_iParamsTextLabel.push_back(std::make_shared<QCPItemText>(ui->widget_plot));
+    v_iParamsTextLabel.back()->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+    v_iParamsTextLabel.back()->position->setType(QCPItemPosition::ptAxisRectRatio);
+    v_iParamsTextLabel.back()->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+    v_iParamsTextLabel.back()->setFont(QFont(font().family(), 28)); // make font a bit larger
+    v_iParamsTextLabel.back()->setText("v_" + QString::number(i * 100 + 100) + " = ");
+
+    verticalOffset += 0.05;
+    if(i == 4){
+      horizontalOffset = 0.7;
+      verticalOffset = 0.0;
+    }
+  }
+
+  // Save data
+  /*
   std::ofstream experimentDataFile;
 
   experimentDataFile.open("d:\\Dysk Google\\Badania\\experimentData.csv");
   experimentDataFile << "x,y,y_est,e,~z,~~z,z,w\n";
 
   experimentDataFile.close();
+  */
 
   for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
   {
@@ -1351,9 +1280,16 @@ void MainWindow::on_pushButton_start_clicked()
       double avgEst = e1000.predictionParameters[1];
       //double w_eE = e1000._deactualizationParameter;
 
-      E1000TextLable->setText("E1000 = " + QString::number(avg));
-      ES1000TextLable->setText("c2_E1000 = " + QString::number(avgEst / progressionSize));
-      uParamTextLable->setText("u = " + QString::number(DESDAAlgorithm._u_i));
+      E1000TextLabel->setText("E1000 = " + QString::number(avg));
+      ES1000TextLabel->setText("a_E1000 = " + QString::number(avgEst));// / progressionSize));
+      uParamTextLabel->setText("u = " + QString::number(DESDAAlgorithm._u_i));
+
+      for(int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
+        v_iParamsTextLabel[i]->setText("v_" + QString::number(i * 100 + 100)
+          + " = " + QString::number(DESDAAlgorithm._selectedVValues[i]));
+      }
+
+
 
       qApp->processEvents();
 
@@ -1383,8 +1319,6 @@ void MainWindow::on_pushButton_start_clicked()
     */
 
   }
-
-  delete algorithm;
 
   qDebug() << "Animation finished.";
 }

@@ -32,6 +32,7 @@ class DESDA
     cluster getECluster();
 
     double _u_i = 0.0;
+    std::vector<double> _selectedVValues = {};
 
   protected:
 
