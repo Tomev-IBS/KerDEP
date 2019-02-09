@@ -1200,34 +1200,39 @@ void MainWindow::on_pushButton_start_clicked()
     newWeightA, newWeightB
   );
 
+  double horizontalOffset = 0.5, verticalOffset = 0.12, verticalStep = 0.04;
   // add the text label at the top:
   std::shared_ptr<QCPItemText> E1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   E1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   E1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  E1000TextLabel->position->setCoords(0.3, 0.0); // place position at center/top of axis rect
+  E1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   E1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   E1000TextLabel->setText("");
+
+  verticalOffset += verticalStep;
 
   std::shared_ptr<QCPItemText> ES1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   ES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  ES1000TextLabel->position->setCoords(0.3, 0.04); // place position at center/top of axis rect
+  ES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   ES1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   ES1000TextLabel->setText("");
+
+  verticalOffset += verticalStep;
 
   std::shared_ptr<QCPItemText> uParamTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   uParamTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   uParamTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  uParamTextLabel->position->setCoords(0.3, 0.08); // place position at center/top of axis rect
+  uParamTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   uParamTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   uParamTextLabel->setText("");
 
-  QVector<std::shared_ptr<QCPItemText>> v_iParamsTextLabel = {};
-  double horizontalOffset = 0.3, verticalOffset = 0.12, verticalStep = 0.04;
+  verticalOffset += verticalStep;
 
+  QVector<std::shared_ptr<QCPItemText>> v_iParamsTextLabel = {};
   std::vector<int> iForV = {300, 500, 700};
 
   for(int i = 0; i < 3; ++i){
@@ -1295,7 +1300,7 @@ void MainWindow::on_pushButton_start_clicked()
       E1000TextLabel
           ->setText("E1000 = " + formatNumberForDisplay(avg));
       ES1000TextLabel
-          ->setText("a_E1000 = " + formatNumberForDisplay(avgEst / progressionSize));
+          ->setText("a_E1000 x 1000 = " + formatNumberForDisplay(avgEst / progressionSize));
       uParamTextLabel
           ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
 
@@ -1306,7 +1311,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 22\\";
+      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 23\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
