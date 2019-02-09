@@ -328,10 +328,12 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 50000, alpha = 0.0002, delta = 2, gamma = 100000;
+  double beta = 50000, alpha = 0.0002, delta = 0.5, gamma = 100000;
 
   // Count u_i
   _u_i = 1.0 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
+
+  double avgC2 = 0;
 
   for(auto c : currentClusters)
   {
@@ -350,8 +352,19 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
        standardWeights.size() == 700)
       _selectedVValues.push_back(v_i);
 
+    if(enhancedWeight < 0)
+    {
+      qDebug() << "u = " << _u_i;
+      qDebug() << "w = " << enhancedWeight;
+      qDebug() << "v_i " << v_i;
+    }
+
+    avgC2 += c->predictionParameters[1];
     c->setWeight(enhancedWeight);
   }
+
+  avgC2 /= currentClusters.size();
+  qDebug() << "avgC2 = " << avgC2;
 
   _enhancedKDE->setClusters(currentClusters);
 
