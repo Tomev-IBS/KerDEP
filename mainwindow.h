@@ -174,6 +174,8 @@ class MainWindow : public QMainWindow
     void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
     unsigned long long findUncommonClusters();
 
+    QString formatNumberForDisplay(double number);
+
 
     void delay(int ms);
 

@@ -659,6 +659,24 @@ unsigned long long MainWindow::findUncommonClusters()
   return uncommonClusters.size();
 }
 
+QString MainWindow::formatNumberForDisplay(double number)
+{
+  // According to PK the number should be displayed as #.######
+  QString result = "";
+
+  QStringList splitNumber = QString::number(number, 'f', 7).split(".");
+  result += splitNumber[0];
+
+  if(splitNumber.size() == 1) return result;
+
+  result += ".";
+
+  for(int i = 0; i < 6 && i < splitNumber[1].size(); ++i)
+    result += splitNumber[1][i];
+
+  return result;
+}
+
 void MainWindow::countKDEValuesOnClusters(
   std::shared_ptr<kernelDensityEstimator> estimator)
 {
@@ -1188,27 +1206,27 @@ void MainWindow::on_pushButton_start_clicked()
   E1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   E1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   E1000TextLabel->position->setCoords(0.3, 0.0); // place position at center/top of axis rect
-  E1000TextLabel->setFont(QFont(font().family(), 24)); // make font a bit larger
+  E1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   E1000TextLabel->setText("");
 
   std::shared_ptr<QCPItemText> ES1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   ES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  ES1000TextLabel->position->setCoords(0.3, 0.03); // place position at center/top of axis rect
-  ES1000TextLabel->setFont(QFont(font().family(), 24)); // make font a bit larger
+  ES1000TextLabel->position->setCoords(0.3, 0.04); // place position at center/top of axis rect
+  ES1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   ES1000TextLabel->setText("");
 
   std::shared_ptr<QCPItemText> uParamTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   uParamTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   uParamTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  uParamTextLabel->position->setCoords(0.3, 0.06); // place position at center/top of axis rect
-  uParamTextLabel->setFont(QFont(font().family(), 24)); // make font a bit larger
+  uParamTextLabel->position->setCoords(0.3, 0.08); // place position at center/top of axis rect
+  uParamTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   uParamTextLabel->setText("");
 
   QVector<std::shared_ptr<QCPItemText>> v_iParamsTextLabel = {};
-  double horizontalOffset = 0.3, verticalOffset = 0.09;
+  double horizontalOffset = 0.3, verticalOffset = 0.12, verticalStep = 0.04;
 
   std::vector<int> iForV = {300, 500, 700};
 
@@ -1217,10 +1235,10 @@ void MainWindow::on_pushButton_start_clicked()
     v_iParamsTextLabel.back()->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
     v_iParamsTextLabel.back()->position->setType(QCPItemPosition::ptAxisRectRatio);
     v_iParamsTextLabel.back()->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-    v_iParamsTextLabel.back()->setFont(QFont(font().family(), 24)); // make font a bit larger
+    v_iParamsTextLabel.back()->setFont(QFont(font().family(), 28)); // make font a bit larger
     v_iParamsTextLabel.back()->setText("v_" + QString::number(iForV[i]) + " = ");
 
-    verticalOffset += 0.03;
+    verticalOffset += verticalStep;
   }
 
   // Save data
@@ -1274,20 +1292,21 @@ void MainWindow::on_pushButton_start_clicked()
       double avgEst = e1000.predictionParameters[1];
       //double w_eE = e1000._deactualizationParameter;
 
-      E1000TextLabel->setText("E1000 = " + QString::number(avg));
-      ES1000TextLabel->setText("a_E1000 = " + QString::number(avgEst / progressionSize));
-      uParamTextLabel->setText("u = " + QString::number(DESDAAlgorithm._u_i));
+      E1000TextLabel
+          ->setText("E1000 = " + formatNumberForDisplay(avg));
+      ES1000TextLabel
+          ->setText("a_E1000 = " + formatNumberForDisplay(avgEst / progressionSize));
+      uParamTextLabel
+          ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
 
       for(int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
         v_iParamsTextLabel[i]->setText("v_" + QString::number(iForV[i])
-          + " = " + QString::number(DESDAAlgorithm._selectedVValues[i]));
+          + " = " + formatNumberForDisplay(DESDAAlgorithm._selectedVValues[i]));
       }
-
-
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 21\\";
+      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 22\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
