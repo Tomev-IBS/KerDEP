@@ -29,7 +29,8 @@ class DESDA
     QVector<double> getEnhancedKDEValues(const QVector<qreal> *X);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
-    cluster getECluster();
+    cluster getE1000Cluster();
+    cluster getE500Cluster();
 
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
@@ -56,6 +57,7 @@ class DESDA
     double _newWeightB = 0;
 
     cluster e1000;
+    cluster e500;
     bool _shouldCluster = false;
 
     //

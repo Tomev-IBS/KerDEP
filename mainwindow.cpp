@@ -1222,6 +1222,26 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> E500TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  E500TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  E500TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  E500TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  E500TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  E500TextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> ES500TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  ES500TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  ES500TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  ES500TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  ES500TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  ES500TextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
   std::shared_ptr<QCPItemText> uParamTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   uParamTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -1291,16 +1311,24 @@ void MainWindow::on_pushButton_start_clicked()
 
       drawPlots(estimator.get(), targetFunction.get());
 
-      // Set avg text
-      cluster e1000 = DESDAAlgorithm.getECluster();
-      double avg = e1000._currentKDEValue;
-      double avgEst = e1000.predictionParameters[1];
+      // Set avg1000 text
+      cluster e1000 = DESDAAlgorithm.getE1000Cluster();
+      cluster e500 = DESDAAlgorithm.getE500Cluster();
+      double avg1000 = e1000._currentKDEValue;
+      double avg1000Est = e1000.predictionParameters[1];
+      double avg500 = e500._currentKDEValue;
+      double avg500Est = e500.predictionParameters[1];
       //double w_eE = e1000._deactualizationParameter;
 
+
       E1000TextLabel
-          ->setText("E1000 = " + formatNumberForDisplay(avg));
+          ->setText("E1000 = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
-          ->setText("a_E1000 x 1000 = " + formatNumberForDisplay(avgEst / progressionSize));
+          ->setText("a_E1000 x 1000 = " + formatNumberForDisplay(avg1000Est / progressionSize));
+      E1000TextLabel
+          ->setText("E500 = " + formatNumberForDisplay(avg500));
+      ES1000TextLabel
+          ->setText("a_E500 x 1000 = " + formatNumberForDisplay(avg500Est / progressionSize));
       uParamTextLabel
           ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
 
@@ -1311,7 +1339,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 25\\";
+      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 29\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

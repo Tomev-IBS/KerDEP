@@ -27,7 +27,10 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _objects.clear();
   std::shared_ptr<sample> e1000Sample =
       std::make_shared<distributionDataSample>();
+  std::shared_ptr<sample> e500Sample
+      = std::make_shared<distributionDataSample>();
   e1000 = cluster(e1000Sample);
+  e500 = cluster(e500Sample);
 }
 
 void DESDA::performStep()
@@ -76,9 +79,11 @@ void DESDA::performStep()
              << _stepNumber << " is: " << currentClusters.size();
 
   countKDEValuesOnClusters();
-  double avg = getAverageOfFirstMSampleValues(1000);
+  double avg = getAverageOfFirstMSampleValues(1000),
+         avg500 = getAverageOfFirstMSampleValues(500);
 
   e1000._currentKDEValue = avg;
+  e500._currentKDEValue = avg500;
 
   if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
      && _shouldCluster)
@@ -106,9 +111,15 @@ void DESDA::performStep()
   updatePrognosisParameters();
 
   if(e1000.predictionParameters.size() == 0)
+  {
     e1000.initializePredictionParameters(avg);
+    e500.initializePredictionParameters(avg500);
+  }
   else
+  {
     e1000.updatePredictionParameters(avg);
+    e500.updatePredictionParameters(avg500);
+  }
 
   // Save to file
   /*
@@ -328,7 +339,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 25000, alpha = 0.0002, delta = 0.1, gamma = 50000;
+  double beta = 25000, alpha = 0.0002, delta = 0.3, gamma = 25000;
 
   // Count u_i
   _u_i = 1.0 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
@@ -418,7 +429,12 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
   return pow(sumOfSquares - sumOfVals, 0.5);
 }
 
-cluster DESDA::getECluster()
+cluster DESDA::getE1000Cluster()
 {
   return e1000;
+}
+
+cluster DESDA::getE500Cluster()
+{
+  return e500;
 }
