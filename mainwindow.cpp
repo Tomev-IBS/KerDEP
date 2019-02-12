@@ -1325,9 +1325,9 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("E1000 = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
           ->setText("a_E1000 x 1000 = " + formatNumberForDisplay(avg1000Est / progressionSize));
-      E1000TextLabel
+      E500TextLabel
           ->setText("E500 = " + formatNumberForDisplay(avg500));
-      ES1000TextLabel
+      ES500TextLabel
           ->setText("a_E500 x 1000 = " + formatNumberForDisplay(avg500Est / progressionSize));
       uParamTextLabel
           ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
