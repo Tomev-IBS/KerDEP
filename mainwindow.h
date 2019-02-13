@@ -61,6 +61,10 @@ class MainWindow : public QMainWindow
     double _previousUncommonClustersWeight = 0.0;
     void updateA();
 
+    // Errors
+    double _errorEJ = 0.0, _errorEJP = 0.0;
+    std::vector<qreal> KDEValues, KDEPValues, ModelValues;
+
     // Default settings
     const qreal MAX_X                 = 999.0;
     const qreal MIN_X                 = -999.0;
@@ -184,6 +188,8 @@ class MainWindow : public QMainWindow
     void on_pushButton_addTargetFunction_clicked();
 
     void on_pushButton_removeTargetFunction_clicked();
+
+    double numericIntegral(const QVector<qreal> *Y);
 };
 
 enum kernelSettingsColumns

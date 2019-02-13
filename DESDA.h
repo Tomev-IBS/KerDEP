@@ -30,7 +30,6 @@ class DESDA
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getE1000Cluster();
-    cluster getE500Cluster();
 
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
@@ -57,10 +56,7 @@ class DESDA
     double _newWeightB = 0;
 
     cluster e1000;
-    cluster e500;
     bool _shouldCluster = false;
-
-    //
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;

@@ -336,16 +336,20 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
 
     QVector<std::shared_ptr<point>> domain;
     fillDomain(&domain, nullptr);
+    ModelValues.clear();
+    KDEValues.clear();
 
     foreach(auto x, domain)
     {
-        modelDistributionY.append(targetFunction->getValue(x.get()));
-        X.append(x->at(0));
+      double val = targetFunction->getValue(x.get());
+      modelDistributionY.append(val);
+      ModelValues.push_back(val);
+      X.append(x->at(0));
     }
 
     // Generate plot of model function
     if(ui->checkBox_showEstimatedPlot->isChecked())
-    addModelPlot(&X, &modelDistributionY);
+      addModelPlot(&X, &modelDistributionY);
 
     // Generate a vector of values from selected KDE
     KDEEstimationY.clear();
@@ -362,6 +366,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
 
       oldKerernelY.append(val);
       KDEEstimationY.append(val);
+      KDEValues.push_back(val);
     }
 
     qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
@@ -454,6 +459,8 @@ void MainWindow::clearPlot()
 
 void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
+    //qDebug() << numericIntegral(Y);
+
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
@@ -489,7 +496,7 @@ double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
 
     result += Y->at(i+1) - Y->at(i);
 
-    result /= this->ui->lineEdit_domainDensity->text().toDouble();
+    result /= ui->lineEdit_domainDensity->text().toDouble();
 
     return result;
   }
@@ -538,39 +545,6 @@ void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
 void MainWindow::addSigmoidallyEnhancedEstimationPlot(
     const QVector<qreal> *X, kernelDensityEstimator *estimator)
 {
-  /*
-  auto currentClusters = getClustersForEstimator();
-
-  QVector<qreal> sigmoidallyEnhancedPlotY;
-  QVector<double> starredVs;
-  std::vector<double> vs;
-  double starredVsSum = 0.0;
-
-  for(auto c : currentClusters)
-  {
-    starredVs.push_back(2.0 / (1.0 + exp(- c->predictionParameters[1] * adaptivePredictionPowerParameter )));
-    starredVsSum += starredVs.last();
-  }
-
-  for(auto starredV : starredVs)
-  {
-    vs.push_back(starredVs.length() * starredV / starredVsSum);
-  }
-
-  estimator->setAdditionalMultipliers(vs);
-
-  for(auto x : *X)
-  {
-    QVector<qreal> pt = {x};
-    sigmoidallyEnhancedPlotY.push_back(estimator->getValue(&pt));
-  }
-
-
-  estimator->setAdditionalMultipliers({});
-  */
-
-
-
   ui->widget_plot->addGraph();
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, _sigmoidallyEnhancedPlotY);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(QPen(Qt::darkRed));
@@ -1111,6 +1085,17 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
     refreshTargetFunctionTable();
 }
 
+double MainWindow::numericIntegral(const QVector<qreal> *Y)
+{
+  double  integral = 0.0,
+          domainDensity = ui->lineEdit_domainDensity->text().toDouble();
+
+  for(auto y : *Y)
+    integral += y * domainDensity;
+
+  return integral;
+}
+
 void MainWindow::on_pushButton_start_clicked()
 {
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
@@ -1222,49 +1207,25 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> E500TextLabel =
+  // add the text label at the top:
+  std::shared_ptr<QCPItemText> errorEjTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  E500TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  E500TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  E500TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  E500TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  E500TextLabel->setText("");
+  errorEjTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorEjTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorEjTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorEjTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorEjTextLabel->setText("");
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> ES500TextLabel =
+  std::shared_ptr<QCPItemText> errorEjpTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  ES500TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  ES500TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  ES500TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  ES500TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  ES500TextLabel->setText("");
+  errorEjpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorEjpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorEjpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorEjpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorEjpTextLabel->setText("");
 
-  verticalOffset += verticalStep;
-
-  std::shared_ptr<QCPItemText> uParamTextLabel =
-      std::make_shared<QCPItemText>(ui->widget_plot);
-  uParamTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  uParamTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  uParamTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  uParamTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  uParamTextLabel->setText("");
-
-  verticalOffset += verticalStep;
-
-  QVector<std::shared_ptr<QCPItemText>> v_iParamsTextLabel = {};
-  std::vector<int> iForV = {300, 500, 700};
-
-  for(int i = 0; i < 3; ++i){
-    v_iParamsTextLabel.push_back(std::make_shared<QCPItemText>(ui->widget_plot));
-    v_iParamsTextLabel.back()->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-    v_iParamsTextLabel.back()->position->setType(QCPItemPosition::ptAxisRectRatio);
-    v_iParamsTextLabel.back()->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-    v_iParamsTextLabel.back()->setFont(QFont(font().family(), 28)); // make font a bit larger
-    v_iParamsTextLabel.back()->setText("v_" + QString::number(iForV[i]) + " = ");
-
-    verticalOffset += verticalStep;
-  }
 
   // Save data
   /*
@@ -1313,33 +1274,35 @@ void MainWindow::on_pushButton_start_clicked()
 
       // Set avg1000 text
       cluster e1000 = DESDAAlgorithm.getE1000Cluster();
-      cluster e500 = DESDAAlgorithm.getE500Cluster();
       double avg1000 = e1000._currentKDEValue;
       double avg1000Est = e1000.predictionParameters[1];
-      double avg500 = e500._currentKDEValue;
-      double avg500Est = e500.predictionParameters[1];
-      //double w_eE = e1000._deactualizationParameter;
+      QVector<qreal> errorHolder = {};
 
+      for(int i = 0; i < ModelValues.size(); ++i){
+        errorHolder.push_back(fabs(ModelValues[i] - KDEValues[i]));
+      }
+
+      _errorEJ = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      for(int i = 0; i < ModelValues.size(); ++i){
+        errorHolder.push_back(fabs(ModelValues[i] - _sigmoidallyEnhancedPlotY[i]));
+      }
+
+      _errorEJP = numericIntegral(&errorHolder);
 
       E1000TextLabel
           ->setText("E1000 = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
-          ->setText("a_E1000 x 1000 = " + formatNumberForDisplay(avg1000Est / progressionSize));
-      E500TextLabel
-          ->setText("E500 = " + formatNumberForDisplay(avg500));
-      ES500TextLabel
-          ->setText("a_E500 x 1000 = " + formatNumberForDisplay(avg500Est / progressionSize));
-      uParamTextLabel
-          ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
-
-      for(int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
-        v_iParamsTextLabel[i]->setText("v_" + QString::number(iForV[i])
-          + " = " + formatNumberForDisplay(DESDAAlgorithm._selectedVValues[i]));
-      }
+          ->setText("a_E1000 x K = " + formatNumberForDisplay(avg1000Est / progressionSize));
+      errorEjTextLabel
+          ->setText("er_ej = " + formatNumberForDisplay(_errorEJ));
+      errorEjpTextLabel
+          ->setText("er_ejp = " + formatNumberForDisplay(_errorEJP));
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 29\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 31\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
