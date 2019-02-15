@@ -1207,7 +1207,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  // add the text label at the top:
   std::shared_ptr<QCPItemText> errorEjTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   errorEjTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -1225,6 +1224,26 @@ void MainWindow::on_pushButton_start_clicked()
   errorEjpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   errorEjpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   errorEjpTextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> errorSejTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  errorSejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorSejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorSejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorSejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSejTextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> errorSejpTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  errorSejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorSejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorSejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorSejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSejpTextLabel->setText("");
 
 
   // Save data
@@ -1291,18 +1310,28 @@ void MainWindow::on_pushButton_start_clicked()
 
       _errorEJP = numericIntegral(&errorHolder);
 
+      if(stepNumber >= 1000)
+      {
+        _summaricKDEError += _errorEJ;
+        _summaricKDEPError += _errorEJP;
+      }
+
       E1000TextLabel
           ->setText("E1000 = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
           ->setText("a_E1000 x K = " + formatNumberForDisplay(avg1000Est / progressionSize));
       errorEjTextLabel
-          ->setText("er_ej = " + formatNumberForDisplay(_errorEJ));
+          ->setText("er_ej   = " + formatNumberForDisplay(_errorEJ));
       errorEjpTextLabel
-          ->setText("er_ejp = " + formatNumberForDisplay(_errorEJP));
+          ->setText("er_ejp  = " + formatNumberForDisplay(_errorEJP));
+      errorSejTextLabel
+          ->setText("ser_ej  = " + formatNumberForDisplay(_summaricKDEError));
+      errorSejpTextLabel
+          ->setText("ser_ejp = " + formatNumberForDisplay(_summaricKDEPError));
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 31\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 34\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

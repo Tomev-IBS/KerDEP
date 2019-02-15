@@ -102,6 +102,8 @@ class MainWindow : public QMainWindow
 
     // Enhancement
     QVector<double> _sigmoidallyEnhancedPlotY;
+    double _summaricKDEError = 0.0, _summaricKDEPError = 0.0;
+
 
     double positionalSecondGradeEstimator = 0.0;
 
