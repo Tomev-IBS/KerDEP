@@ -326,13 +326,15 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   std::vector<double> standardWeights = {};
   QVector<double> enhancedKDEValues = {};
 
+  QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(X);
+
   _selectedVValues.clear();
 
   // Enhance weights of clusters
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 25000, alpha = 0.0002, delta = 0.3, gamma = 25000;
+  double beta = 250, alpha = 0.07, delta = 0.5, gamma = 25000;
 
   _u_i = 0.0;
 
@@ -342,12 +344,14 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   double avgC2 = 0;
 
-  for(auto c : currentClusters)
+  //for(auto c : currentClusters)
+  for(int i = 0; i < currentClusters.size(); ++i)
   {
+    std::shared_ptr<cluster> c = currentClusters[i];
     enhancedWeight = 1;
 
     // Count v_i
-    v_i = delta * ( 1 / (1 + exp(- gamma * c->predictionParameters[1])) - 0.5);
+    v_i = delta * ( 1 / (1 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
     // Count alternative v_i
     // v_i = exp(gamma * c->predictionParameters[1]) - 1;
 
