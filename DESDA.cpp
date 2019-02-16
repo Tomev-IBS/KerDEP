@@ -326,7 +326,16 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   std::vector<double> standardWeights = {};
   QVector<double> enhancedKDEValues = {};
 
-  QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(X);
+  QVector<qreal> clustersXs = {};
+
+  for(auto c : currentClusters){
+    clustersXs.push_back(
+      std::stod(c->getRepresentative()->attributesValues["Val0"])
+    );
+  }
+
+
+  QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(&clustersXs);
 
   _selectedVValues.clear();
 
