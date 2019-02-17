@@ -33,6 +33,11 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   e1000._deactualizationParameter = 0.95;
 }
 
+int sgn(double val)
+{
+  return (val > 0) - (val < 0);
+}
+
 void DESDA::performStep()
 {
   // If weights degrades geomatrically
@@ -334,7 +339,6 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     );
   }
 
-
   QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(&clustersXs);
 
   _selectedVValues.clear();
@@ -343,7 +347,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 250, alpha = 0.07, delta = 0.5, gamma = 25000;
+  double beta = 50000, alpha = 0.0005, delta = 0.4, gamma = 200000;
 
   _u_i = 0.0;
 
@@ -360,7 +364,9 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     enhancedWeight = 1;
 
     // Count v_i
-    v_i = delta * ( 1 / (1 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
+    v_i = delta * ( 1 / (1 + exp(- gamma * sgn(derivativeVal[i] * _v) *
+                                 log(fabs(derivativeVal[i]) * _v + 1))) - 0.5);
+
     // Count alternative v_i
     // v_i = exp(gamma * c->predictionParameters[1]) - 1;
 
@@ -442,3 +448,5 @@ cluster DESDA::getE1000Cluster()
 {
   return e1000;
 }
+
+

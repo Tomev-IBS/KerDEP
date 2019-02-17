@@ -1245,6 +1245,30 @@ void MainWindow::on_pushButton_start_clicked()
   errorSejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   errorSejpTextLabel->setText("");
 
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> uTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  uTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  uTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  uTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  uTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  uTextLabel->setText("u = ");
+
+  std::vector<std::shared_ptr<QCPItemText>> vs = {};
+  std::vector<QString> vsLabels = {"v300 = ", "v500 = ", "v700 = "};
+
+  for(unsigned int i = 0; i < 3; ++i){
+    verticalOffset += verticalStep;
+
+    vs.push_back(std::make_shared<QCPItemText>(ui->widget_plot));
+    vs.back()->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+    vs.back()->position->setType(QCPItemPosition::ptAxisRectRatio);
+    vs.back()->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+    vs.back()->setFont(QFont(font().family(), 28)); // make font a bit larger
+    vs.back()->setText(vsLabels[i]);
+  }
+
 
   // Save data
   /*
@@ -1328,10 +1352,18 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("ser_ej  = " + formatNumberForDisplay(_summaricKDEError));
       errorSejpTextLabel
           ->setText("ser_ejp = " + formatNumberForDisplay(_summaricKDEPError));
+      uTextLabel
+          ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
+
+      for(unsigned int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
+        vs[i]->setText(
+          vsLabels[i] + formatNumberForDisplay(DESDAAlgorithm._selectedVValues[i])
+        );
+      }
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 36\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 39\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
