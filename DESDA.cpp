@@ -347,7 +347,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 25000, alpha = 0.0005, delta = 0.6, gamma = 25;
+  double beta = 25000, alpha = 0.0005, delta = 1.0, gamma = 25;
 
   _u_i = 0.0;
 
@@ -365,7 +365,8 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
     // Count v_i
     v_i = delta * ( 1 / (1 + exp(- gamma * sgn(derivativeVal[i]) *
-                                 sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
+                                 sqrt(fabs(derivativeVal[i]) * _v))) - 0.5);
+                                 //sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
 
     // Count alternative v_i
     // v_i = exp(gamma * c->predictionParameters[1]) - 1;
