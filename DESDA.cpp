@@ -347,7 +347,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 16667.0, alpha = 0.0006, delta = 0.9, gamma = 100000.0;
+  double beta = 16667.0, alpha = 0.0006, delta = 1.0, gamma = 40000.0;
 
   _u_i = 0.0;
 
