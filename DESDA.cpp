@@ -356,7 +356,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     _u_i = 1.0 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
 
   double avgC2 = 0;
-
+  double maxAParam = 0;
   //for(auto c : currentClusters)
   for(int i = 0; i < currentClusters.size(); ++i)
   {
@@ -364,8 +364,10 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     enhancedWeight = 1;
 
     // Count v_i
-    v_i = delta * ( 1 / (1 + exp(- gamma * derivativeVal[i]) * _v) - 0.5);
+    v_i = delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
                                  //sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
+
+    maxAParam = std::max(derivativeVal[i] * _v, maxAParam);
 
     // Count alternative v_i
     // v_i = exp(gamma * c->predictionParameters[1]) - 1;
@@ -407,6 +409,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   for(unsigned int i = 0; i < currentClusters.size(); ++i)
     currentClusters[i]->setWeight(standardWeights[i]);
 
+  qDebug() << "Max a param: " << maxAParam;
   return enhancedKDEValues;
 }
 
