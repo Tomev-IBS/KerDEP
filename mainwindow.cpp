@@ -1207,6 +1207,16 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> StDevES1000TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  StDevES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  StDevES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  StDevES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  StDevES1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  StDevES1000TextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
   std::shared_ptr<QCPItemText> errorEjTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   errorEjTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -1244,6 +1254,46 @@ void MainWindow::on_pushButton_start_clicked()
   errorSejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   errorSejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   errorSejpTextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> errorREjTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  errorREjTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorREjTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorREjTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorREjTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorREjTextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> errorREjpTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  errorREjpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorREjpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorREjpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorREjpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorREjpTextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> errorSRejTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  errorSRejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorSRejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorSRejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorSRejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSRejTextLabel->setText("");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> errorSRejpTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  errorSRejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  errorSRejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  errorSRejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  errorSRejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSRejpTextLabel->setText("");
 
   verticalOffset += verticalStep;
 
@@ -1318,6 +1368,23 @@ void MainWindow::on_pushButton_start_clicked()
       // Set avg1000 text
       cluster e1000 = DESDAAlgorithm.getE1000Cluster();
       double avg1000 = e1000._currentKDEValue;
+
+      double stDevE1000 = 0;
+
+      for(auto val : _kernelPrognosisDerivativeValues)
+        stDevE1000 += val;
+
+      double denominator = _kernelPrognosisDerivativeValues.size() - 1;
+
+      stDevE1000 *= -stDevE1000;
+      stDevE1000 /= _kernelPrognosisDerivativeValues.size() * denominator;
+
+      for(auto val : _kernelPrognosisDerivativeValues){
+        stDevE1000 += val * val / denominator;
+      }
+
+      stDevE1000 = sqrt(stDevE1000);
+
       double avg1000Est = e1000.predictionParameters[1];
       QVector<qreal> errorHolder = {};
 
@@ -1340,18 +1407,54 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDEPError += _errorEJP;
       }
 
+      double rejej = 0, rejejp = 0;
+
+      while(_lastSigmoidallyEnhancedPlotY.size() < _sigmoidallyEnhancedPlotY.size())
+      {
+        _lastSigmoidallyEnhancedPlotY.push_back(0);
+        lastKDEValues.push_back(0);
+      }
+
+      errorHolder.clear();
+
+      for(unsigned int i = 0; i < KDEValues.size(); ++i){
+        errorHolder.push_back(fabs(KDEValues[i] - lastKDEValues[i]));
+      }
+
+      rejej = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      for(unsigned int i = 0; i < _sigmoidallyEnhancedPlotY.size(); ++i){
+        errorHolder.push_back(fabs(_sigmoidallyEnhancedPlotY[i] - _lastSigmoidallyEnhancedPlotY[i]));
+      }
+
+      rejejp = numericIntegral(&errorHolder);
+
+      _summaricKDEsError += rejej;
+      _summaricKDEPsError += rejejp;
+
       E1000TextLabel
           ->setText("E1000 = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
           ->setText("a_E1000 x K = " + formatNumberForDisplay(avg1000Est / progressionSize));
+      StDevES1000TextLabel
+          ->setText("stDev(a ... ) = " + formatNumberForDisplay(stDevE1000));
       errorEjTextLabel
-          ->setText("er_ej   = " + formatNumberForDisplay(_errorEJ));
+          ->setText("er_ej     = " + formatNumberForDisplay(_errorEJ));
       errorEjpTextLabel
-          ->setText("er_ejp  = " + formatNumberForDisplay(_errorEJP));
+          ->setText("er_ejp   = " + formatNumberForDisplay(_errorEJP));
       errorSejTextLabel
-          ->setText("ser_ej  = " + formatNumberForDisplay(_summaricKDEError));
+          ->setText("ser_ej   = " + formatNumberForDisplay(_summaricKDEError));
       errorSejpTextLabel
-          ->setText("ser_ejp = " + formatNumberForDisplay(_summaricKDEPError));
+          ->setText("ser_ejp  = " + formatNumberForDisplay(_summaricKDEPError));
+      errorREjTextLabel
+          ->setText("rej_ej    = " + formatNumberForDisplay(rejej));
+      errorREjpTextLabel
+          ->setText("rej_ejp  = " + formatNumberForDisplay(rejejp));
+      errorSRejTextLabel
+          ->setText("srej_ej  = " + formatNumberForDisplay(_summaricKDEsError));
+      errorSRejpTextLabel
+          ->setText("srej_ejp = " + formatNumberForDisplay(_summaricKDEPsError));
       uTextLabel
           ->setText("u = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
 
@@ -1361,9 +1464,18 @@ void MainWindow::on_pushButton_start_clicked()
         );
       }
 
+      _lastSigmoidallyEnhancedPlotY.clear();
+      lastKDEValues.clear();
+
+      for(auto val : _sigmoidallyEnhancedPlotY)
+        _lastSigmoidallyEnhancedPlotY.push_back(val);
+
+      for(auto val : KDEValues)
+        lastKDEValues.push_back(val);
+
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 49\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 50_test\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

@@ -364,7 +364,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     enhancedWeight = 1;
 
     // Count v_i
-    v_i = delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
+    v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
                                  //sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
 
     maxAParam = std::max(derivativeVal[i] * _v, maxAParam);

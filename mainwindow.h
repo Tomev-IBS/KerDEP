@@ -63,7 +63,7 @@ class MainWindow : public QMainWindow
 
     // Errors
     double _errorEJ = 0.0, _errorEJP = 0.0;
-    std::vector<qreal> KDEValues, KDEPValues, ModelValues;
+    std::vector<qreal> KDEValues, lastKDEValues, KDEPValues, ModelValues;
 
     // Default settings
     const qreal MAX_X                 = 999.0;
@@ -102,8 +102,9 @@ class MainWindow : public QMainWindow
 
     // Enhancement
     QVector<double> _sigmoidallyEnhancedPlotY;
-    double _summaricKDEError = 0.0, _summaricKDEPError = 0.0;
-
+    QVector<double> _lastSigmoidallyEnhancedPlotY;
+    double _summaricKDEError = 0.0, _summaricKDEPError = 0.0,
+           _summaricKDEsError = 0.0, _summaricKDEPsError = 0.0;
 
     double positionalSecondGradeEstimator = 0.0;
 
