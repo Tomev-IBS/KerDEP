@@ -1578,6 +1578,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       _errorEJP = numericIntegral(&errorHolder);
+      errorHolder.clear();
 
       double error2EJ = 0.0, error2EJP = 0.0;
 
@@ -1608,8 +1609,6 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDEErrorMod  += fabs(modelExtrema - KDEExtrema);
         _summaricKDEPErrorMod += fabs(modelExtrema - KDEPExtrema);
       }
-
-
 
       double rejej = 0.0, rejejp = 0.0, rejsupej = 0.0, rejsupejp = 0.0;
 
