@@ -1184,7 +1184,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   _longestStepExecutionInSecs = 0;
 
-  double newWeightA = 0;//0.5 * 1.0 / pow(sampleSize - 1, 2);
+  double newWeightA = 1;//0.5 * 1.0 / pow(sampleSize - 1, 2);
   double newWeightB = 0;//0.5 * 1.0 / (sampleSize - 1);
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
