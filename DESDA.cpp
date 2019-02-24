@@ -30,7 +30,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   std::shared_ptr<sample> e500Sample
       = std::make_shared<distributionDataSample>();
   e1000 = cluster(e1000Sample);
-  e1000._deactualizationParameter = 0.95;
+  e1000._deactualizationParameter = 0.98;
 }
 
 int sgn(double val)
