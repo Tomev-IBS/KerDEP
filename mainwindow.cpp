@@ -1140,6 +1140,8 @@ void MainWindow::on_pushButton_start_clicked()
   std::shared_ptr<kernelDensityEstimator>
     estimator(generateKernelDensityEstimator(dimensionsNumber));
 
+  estimator->_shouldConsiderWeights = false;
+
   kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
   _enchancedKDE.reset(generateKernelDensityEstimator(dimensionsNumber));
 
@@ -1184,8 +1186,8 @@ void MainWindow::on_pushButton_start_clicked()
 
   _longestStepExecutionInSecs = 0;
 
-  double newWeightA = 0;//1.0 / pow(sampleSize - 1, 2);
-  double newWeightB = 1 * 1.0 / (sampleSize - 1);
+  double newWeightA = 0.5;
+  double newWeightB = 0.5;
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
@@ -1746,7 +1748,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 65\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 66\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

@@ -29,6 +29,7 @@ class kernelDensityEstimator
 
         qreal getValue(QVector<qreal>* x);
 
+        bool _shouldConsiderWeights = true;
 
     private:
 

@@ -9,7 +9,8 @@
 #include "Reservoir_sampling/distributionDataSample.h"
 
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
-             std::shared_ptr<kernelDensityEstimator> estimatorDerivative, std::shared_ptr<kernelDensityEstimator> enchancedKDE,
+             std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
+             std::shared_ptr<kernelDensityEstimator> enchancedKDE,
              double weightModifier,
              weightedSilvermanSmoothingParameterCounter *smoothingParamCounter,
              reservoirSamplingAlgorithm *samplingAlgorithm,
@@ -76,6 +77,10 @@ void DESDA::performStep()
 
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
+
+  // Exp66 change in smoothing parameter for EKDE
+  smoothingParameters[0] = smoothingParameters[0] * 0.9;
+
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
   auto currentClusters = getClustersForEstimator();
@@ -155,11 +160,14 @@ void DESDA::updateWeights()
   }
   else
   {
+    double sampleMaxSize = _samplingAlgorithm->getReservoidMaxSize();
+
     for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
     {
       // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
       double newWeight =
-          1.0 - _newWeightB * (clusterNum) - _newWeightA * pow(clusterNum, 2);
+          1.0 - _newWeightB * (clusterNum)  / (sampleMaxSize - 1) -
+          _newWeightA * pow(clusterNum, 2)  / pow(sampleMaxSize - 1, 2) ;
 
       if(newWeight < 0) newWeight = 0;
 

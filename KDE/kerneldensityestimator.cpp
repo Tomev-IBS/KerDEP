@@ -171,7 +171,9 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
     //extractSampleFromCluster(c, &sample);
     //addend = getProductKernelAddendFromSample(&sample, x);
     addend = getProductKernelAddendFromClusterIndex(index++, x);
-    addend *= c.get()->getWeight();
+
+    if(_shouldConsiderWeights)
+      addend *= c.get()->getWeight();
 
     if(clusters.size() == additionalMultipliers.size())
     {
@@ -180,10 +182,12 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
       weight += (c.get()->getWeight()) * fabs(additionalMultipliers[i++]);
       */
       addend *= additionalMultipliers[i++];
-      weight += c.get()->getWeight();
     }
-    else
+
+    if(_shouldConsiderWeights)
       weight += (c.get()->getWeight());
+    else
+      weight += 1;
 
     result += addend;
   }
