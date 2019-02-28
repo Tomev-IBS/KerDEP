@@ -1877,7 +1877,7 @@ void MainWindow::on_pushButton_start_clicked()
       */
 
       maxATextLabel
-          ->setText("max(a...) =  " + formatNumberForDisplay(maxA));
+          ->setText("max(a...)  = " + formatNumberForDisplay(maxA));
 
       uTextLabel
           ->setText("u    = " + formatNumberForDisplay(DESDAAlgorithm._u_i));

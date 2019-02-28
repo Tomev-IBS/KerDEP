@@ -77,9 +77,7 @@ void DESDA::performStep()
 
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
-
-  // Exp66 change in smoothing parameter for EKDE
-  smoothingParameters[0] = smoothingParameters[0] * 0.9;
+  smoothingParameters[0] = smoothingParameters[0];
 
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
