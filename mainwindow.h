@@ -114,6 +114,7 @@ class MainWindow : public QMainWindow
 
     double  modelExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0,
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0;
+    QVector<double> maxAs = {};
 
 
 

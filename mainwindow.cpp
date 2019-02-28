@@ -310,8 +310,8 @@ void MainWindow::setupValidators()
 
 void MainWindow::setupPlot()
 {
-    ui->widget_plot->xAxis->setLabel("x");
-    ui->widget_plot->yAxis->setLabel("f(x)");
+    //ui->widget_plot->xAxis->setLabel("x");
+    //ui->widget_plot->yAxis->setLabel("f(x)");
 
     ui->widget_plot->xAxis->setRange(DEFAULT_MIN_X, DEFAULT_MAX_X);
     ui->widget_plot->yAxis->setRange(DEFAULT_MIN_Y, DEFAULT_MAX_Y);
@@ -471,6 +471,25 @@ void MainWindow::resizePlot()
         minY = ui->widget_plot->yAxis->range().minRange;
         maxY = ui->widget_plot->yAxis->range().maxRange;
     }
+
+   ui->widget_plot->xAxis->setTickLabelFont(QFont(font().family(), 14));
+   ui->widget_plot->yAxis->setTickLabelFont(QFont(font().family(), 14));
+
+   QVector<double> ticks;
+   QVector<QString> labels;
+   // Switch to an array
+
+   for(double i = minX; i <= maxX + 1; i += 1)
+   {
+     ticks << i;
+     labels << QString::number(i);
+   }
+
+   QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+   textTicker->addTicks(ticks, labels);
+
+   ui->widget_plot->xAxis->setTicker(textTicker);
+
 }
 
 void MainWindow::clearPlot()
@@ -1189,7 +1208,7 @@ void MainWindow::on_pushButton_start_clicked()
   _longestStepExecutionInSecs = 0;
 
   double newWeightA = 0;
-  double newWeightB = 1.0;
+  double newWeightB = 1.5;
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
@@ -1247,7 +1266,7 @@ void MainWindow::on_pushButton_start_clicked()
   StDevES1000TextLabel->setText("StDev(a...) = ");
 
   verticalOffset += verticalStep;
-  */
+
 
   std::shared_ptr<QCPItemText> meanATextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1258,6 +1277,8 @@ void MainWindow::on_pushButton_start_clicked()
   meanATextLabel->setText("mean(a...) = ");
 
   verticalOffset += verticalStep;
+
+  */
 
   std::shared_ptr<QCPItemText> maxATextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1455,7 +1476,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorModRejpTextLabel->setText("rejmod_ej = ");
 
   //==================== SUMMARIC ERRORS=================//
-  horizontalOffset = 0.68;
+  horizontalOffset = 0.7;
   verticalOffset = 0.01;
 
   std::shared_ptr<QCPItemText> error1SejTextLabel =
@@ -1660,12 +1681,20 @@ void MainWindow::on_pushButton_start_clicked()
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&X);
 
-      double maxA = 0, meanA = 0;
+      double maxA = 0, meanA = 0, currentMaxA = 0;
 
       for(auto val : _kernelPrognosisDerivativeValues){
-        meanA += val;
-        maxA = maxA < val ? val : maxA;
+        meanA += fabs(val);
+        currentMaxA = currentMaxA < fabs(val) ? fabs(val) : currentMaxA;
       }
+
+      if(maxAs.size() == 1000)
+        maxAs.pop_front();
+
+      maxAs.push_back(currentMaxA);
+
+      for(auto val : maxAs)
+        maxA = val > maxA ? val : maxA;
 
       double maxKDEP = 0.0;
 
@@ -1835,18 +1864,20 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       E1000TextLabel
-          ->setText("E1000     = " + formatNumberForDisplay(avg1000));
+          ->setText("E1000      = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
-          ->setText("a_E1000xK = " + formatNumberForDisplay(avg1000Est / progressionSize));
+          ->setText("a_E1000xK  = " + formatNumberForDisplay(avg1000Est / progressionSize));
      /*
       StDevES1000TextLabel
           ->setText("stDev(a ... ) = " + formatNumberForDisplay(stDevE1000));
-      */
 
       meanATextLabel
-          ->setText("mean(a...)= " + formatNumberForDisplay(meanA));
+          ->setText("mean(a...)=  " + formatNumberForDisplay(meanA));
+
+      */
+
       maxATextLabel
-          ->setText("max(a...) = " + formatNumberForDisplay(meanA));
+          ->setText("max(a...) =  " + formatNumberForDisplay(maxA));
 
       uTextLabel
           ->setText("u    = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
@@ -1942,7 +1973,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 71\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 72\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
