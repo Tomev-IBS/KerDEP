@@ -1208,7 +1208,7 @@ void MainWindow::on_pushButton_start_clicked()
   _longestStepExecutionInSecs = 0;
 
   double newWeightA = 0;
-  double newWeightB = 1.5;
+  double newWeightB = 2;
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
@@ -1476,7 +1476,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorModRejpTextLabel->setText("rejmod_ej = ");
 
   //==================== SUMMARIC ERRORS=================//
-  horizontalOffset = 0.7;
+  horizontalOffset = 0.72;
   verticalOffset = 0.01;
 
   std::shared_ptr<QCPItemText> error1SejTextLabel =
@@ -1688,7 +1688,7 @@ void MainWindow::on_pushButton_start_clicked()
         currentMaxA = currentMaxA < fabs(val) ? fabs(val) : currentMaxA;
       }
 
-      if(maxAs.size() == 1000)
+      if(stepNumber > 1000)
         maxAs.pop_front();
 
       maxAs.push_back(currentMaxA);
@@ -1973,7 +1973,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 72\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 73\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
