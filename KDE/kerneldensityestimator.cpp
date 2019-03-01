@@ -150,12 +150,22 @@ qreal kernelDensityEstimator::getProductKernelValue(QVector<qreal> *x)
 
     double result = 0.0;
 
+    double test = 0;
+
     result += getProductValuesFromClusters(x);
 
     for(double smoothingParameter : smoothingParameters)
         result /= smoothingParameter;
 
     result /= weight;
+
+    /*
+    if(x->at(0) > 0 && x->at(0) < 1e-5){
+      qDebug() << "x = " << x->at(0);
+      qDebug() << "Result : " << result;
+      qDebug() << "Summaric weight: " << weight;
+    }
+    */
 
     return result;
 }
@@ -185,9 +195,15 @@ double kernelDensityEstimator::getProductValuesFromClusters(QVector<qreal>* x)
     }
 
     if(_shouldConsiderWeights)
+    {
       weight += (c.get()->getWeight());
+      //qDebug() << "Considering weights.";
+    }
     else
+    {
       weight += 1;
+      //qDebug() << "Not considering weighrs.";
+    }
 
     result += addend;
   }

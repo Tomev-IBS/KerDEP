@@ -391,7 +391,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
       KDEValues.push_back(val);
     }
 
-    qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
+    //qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
 
     // Generate a plot of KDE
     if(ui->checkBox_showEstimatedPlot->isChecked())
@@ -1208,12 +1208,14 @@ void MainWindow::on_pushButton_start_clicked()
   _longestStepExecutionInSecs = 0;
 
   double newWeightA = 0;
-  double newWeightB = 2;
+  double newWeightB = 4;
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
 
   weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters, 0);
+
+  kernelPrognoser->_shouldConsiderWeights = false;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -1286,7 +1288,7 @@ void MainWindow::on_pushButton_start_clicked()
   maxATextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   maxATextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   maxATextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  maxATextLabel->setText("max(a...) = ");
+  maxATextLabel->setText("avg(max(a...)) = ");
 
   verticalOffset += verticalStep;
 
@@ -1667,8 +1669,8 @@ void MainWindow::on_pushButton_start_clicked()
     if(stepNumber > 0 && stepNumber % 10 == 0)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
-      qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
-      qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
+      //qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
+      //qDebug() << "sigma_i = " << smoothingParamCounter._stDev;
 
       QVector<qreal> X;
       QVector<std::shared_ptr<point>> domain;
@@ -1681,20 +1683,25 @@ void MainWindow::on_pushButton_start_clicked()
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&X);
 
-      double maxA = 0, meanA = 0, currentMaxA = 0;
+      double maxA = 0, meanA = 0, currentMaxA = 0, avgMaxA = 0;
 
       for(auto val : _kernelPrognosisDerivativeValues){
         meanA += fabs(val);
         currentMaxA = currentMaxA < fabs(val) ? fabs(val) : currentMaxA;
       }
 
-      if(stepNumber > 1000)
+      if(stepNumber > sampleSize)
         maxAs.pop_front();
 
       maxAs.push_back(currentMaxA);
 
       for(auto val : maxAs)
+      {
+        avgMaxA += val;
         maxA = val > maxA ? val : maxA;
+      }
+
+      avgMaxA /= maxAs.size();
 
       double maxKDEP = 0.0;
 
@@ -1864,9 +1871,9 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       E1000TextLabel
-          ->setText("E1000      = " + formatNumberForDisplay(avg1000));
+          ->setText("E1000          = " + formatNumberForDisplay(avg1000));
       ES1000TextLabel
-          ->setText("a_E1000xK  = " + formatNumberForDisplay(avg1000Est / progressionSize));
+          ->setText("a_E1000xK      = " + formatNumberForDisplay(avg1000Est / progressionSize));
      /*
       StDevES1000TextLabel
           ->setText("stDev(a ... ) = " + formatNumberForDisplay(stDevE1000));
@@ -1877,7 +1884,7 @@ void MainWindow::on_pushButton_start_clicked()
       */
 
       maxATextLabel
-          ->setText("max(a...)  = " + formatNumberForDisplay(maxA));
+          ->setText("avg(max(a...)) = " + formatNumberForDisplay(avgMaxA));
 
       uTextLabel
           ->setText("u    = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
@@ -1973,8 +1980,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 73\\";
-      //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
+      //QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 74\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

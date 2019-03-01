@@ -158,6 +158,8 @@ void DESDA::updateWeights()
   }
   else
   {
+    //qDebug() << "Updating weights.";
+
     double sampleMaxSize = _samplingAlgorithm->getReservoidMaxSize();
 
     for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
@@ -331,6 +333,8 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
 
 QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 {
+  //qDebug() << "EKDE values getting.";
+
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
 
@@ -367,7 +371,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   for(int i = 0; i < currentClusters.size(); ++i)
   {
     std::shared_ptr<cluster> c = currentClusters[i];
-    enhancedWeight = 1;
+    enhancedWeight = c->getWeight();
 
     // Count v_i
     v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
@@ -386,19 +390,21 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
        standardWeights.size() == 700)
       _selectedVValues.push_back(v_i);
 
+    /*
     if(enhancedWeight < 0)
     {
       qDebug() << "u = " << _u_i;
       qDebug() << "w = " << enhancedWeight;
       qDebug() << "v_i " << v_i;
     }
+    */
 
     avgC2 += c->predictionParameters[1];
     c->setWeight(enhancedWeight);
   }
 
   avgC2 /= currentClusters.size();
-  qDebug() << "avgC2 = " << avgC2;
+  //qDebug() << "avgC2 = " << avgC2;
 
   _enhancedKDE->setClusters(currentClusters);
 
@@ -415,7 +421,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   for(unsigned int i = 0; i < currentClusters.size(); ++i)
     currentClusters[i]->setWeight(standardWeights[i]);
 
-  qDebug() << "Max a param: " << maxAParam;
+  //qDebug() << "Max a param: " << maxAParam;
   return enhancedKDEValues;
 }
 
