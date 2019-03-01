@@ -357,7 +357,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   double enhancedWeight = 0.0;
   double v_i = 0.0;
 
-  double beta = 20000.0, alpha = 0.0005, delta = 0.25, gamma = 50000.0;
+  double beta = 20000.0, alpha = 0.0005, delta = 0.35, gamma = 50000.0;
 
   _u_i = 0.0;
 
@@ -379,10 +379,8 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
     maxAParam = std::max(derivativeVal[i] * _v, maxAParam);
 
-    // Count alternative v_i
-    // v_i = exp(gamma * c->predictionParameters[1]) - 1;
 
-    enhancedWeight += _u_i * v_i;
+    enhancedWeight *= (1 + _u_i * v_i);
 
     standardWeights.push_back(c->getWeight());
 
