@@ -397,6 +397,26 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
     if(ui->checkBox_showEstimatedPlot->isChecked())
       addEstimatedPlot(&X, &KDEEstimationY);
 
+
+
+    if(ui->checkBox_showWeightedEstimationPlot->isChecked())
+    {
+      QVector<qreal> WKDEValues;
+
+      estimator->_shouldConsiderWeights = true;
+
+      for(int i = 0; i < domain.size(); ++i)
+      {
+        auto x = domain[i];
+
+        WKDEValues.push_back(estimator->getValue(x.get()));
+      }
+
+      estimator->_shouldConsiderWeights = false;
+
+      addWeightedEstimatorPlot(&X, &WKDEValues);
+    }
+
     // Generate a plot of temporal derivative
     KDETemporalDerivativeY.clear();
     double visibilityEnchantCoefficient = 3;
@@ -415,7 +435,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
     // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
     {
-      //countKernelPrognosisDerivativeY(&X);
       addKernelPrognosisDerivativePlot(&X);
     }
 
@@ -529,6 +548,14 @@ void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> 
     */
 }
 
+void MainWindow::addWeightedEstimatorPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
+{
+  ui->widget_plot->addGraph();
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
+  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+      ->setPen(QPen(Qt::cyan));
+}
+
 double MainWindow::countNewtonianDerivative(int i, const QVector<qreal> *Y)
 {
   if(i + 1 < Y->size())
@@ -550,37 +577,7 @@ void MainWindow::addKernelPrognosisDerivativePlot(const QVector<qreal> *X)
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
       ->setData(*X, _kernelPrognosisDerivativeValues);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
-      ->setPen(QPen(Qt::cyan));
-}
-
-void MainWindow::countKernelPrognosisDerivativeY(const QVector<qreal> *X)
-{
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  std::vector<double> prognosisCoefficients;
-
-  _kernelPrognosisDerivativeValues.clear();
-
-  prognosisCoefficients.clear();
-
-  for(auto c : currentClusters)
-    prognosisCoefficients.push_back(c->predictionParameters[1]);
-
-  if(prognosisCoefficients.size() == currentClusters.size())
-  {
-    kernelPrognoser->setAdditionalMultipliers(prognosisCoefficients);
-    kernelPrognoser->setClusters(currentClusters);
-
-    for(qreal x: *X)
-    {
-      QVector<qreal> pt;
-      pt.push_back(x);
-      _kernelPrognosisDerivativeValues.push_back(
-            kernelPrognoser->getValue(&pt)
-      );
-    }
-  }
+      ->setPen(QPen(Qt::green));
 }
 
 void MainWindow::addSigmoidallyEnhancedEstimationPlot(
@@ -1163,6 +1160,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   estimator->_shouldConsiderWeights = false;
 
+
   kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
   _enchancedKDE.reset(generateKernelDensityEstimator(dimensionsNumber));
 
@@ -1314,6 +1312,7 @@ void MainWindow::on_pushButton_start_clicked()
     vs.back()->setText(vsLabels[i]);
   }
 
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
 
@@ -1478,8 +1477,89 @@ void MainWindow::on_pushButton_start_clicked()
   errorModRejpTextLabel->setText("rejmod_ej = ");
 
   //==================== SUMMARIC ERRORS=================//
+
   horizontalOffset = 0.72;
   verticalOffset = 0.01;
+
+  std::shared_ptr<QCPItemText> mTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  mTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  mTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  mTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  mTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  mTextLabel->setText("m   = ");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> wATextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  wATextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  wATextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  wATextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  wATextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  wATextLabel->setText("w_A = 0.99");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> wETextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  wETextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  wETextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  wETextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  wETextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  wETextLabel->setText("w_E = " + QString::number(DESDAAlgorithm.w_E));
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> alphaTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  alphaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  alphaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  alphaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  alphaTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  alphaTextLabel->setText("alpha = " + QString::number(DESDAAlgorithm.alpha));
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> betaTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  betaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  betaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  betaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  betaTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  betaTextLabel->setText("beta  = " + QString::number(DESDAAlgorithm.beta));
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> gammaTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  gammaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  gammaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  gammaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  gammaTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  gammaTextLabel->setText("gamma = " + QString::number(DESDAAlgorithm.gamma));
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> deltaTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  deltaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  deltaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  deltaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  deltaTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta));
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> abTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  abTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  abTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  abTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  abTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  abTextLabel->setText("a = " + QString::number(newWeightA) + ", b = " + QString::number(newWeightB));
+
+  verticalOffset += verticalStep;
 
   std::shared_ptr<QCPItemText> error1SejTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1932,6 +2012,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ============ SUMS =========== //
 
+      mTextLabel
+          ->setText("m   = " + QString::number(clusters->size()));
+
       error1SejTextLabel
           ->setText("ser1_ej     = " + formatNumberForDisplay(_summaricKDEError1));
       error1SejpTextLabel
@@ -1980,7 +2063,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 78\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 80\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

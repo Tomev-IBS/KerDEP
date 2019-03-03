@@ -34,6 +34,9 @@ class DESDA
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
+    double beta = 20000.0, alpha = 0.0005, delta = 0.5, gamma = 50000.0;
+    double w_E = 0.98;
+
   protected:
 
     const double _MAX_A = 1.5;

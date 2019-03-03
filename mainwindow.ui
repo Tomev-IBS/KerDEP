@@ -644,6 +644,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="checkBox_showWeightedEstimationPlot">
+           <property name="text">
+            <string>Weighted Estimation Plot</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="checkBox_showTimeDerivativePlot">
            <property name="text">
             <string>Time Derivative</string>

@@ -31,7 +31,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   std::shared_ptr<sample> e500Sample
       = std::make_shared<distributionDataSample>();
   e1000 = cluster(e1000Sample);
-  e1000._deactualizationParameter = 0.98;
+  e1000._deactualizationParameter = w_E;
 }
 
 int sgn(double val)
@@ -356,8 +356,6 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   // Enhance weights of clusters
   double enhancedWeight = 0.0;
   double v_i = 0.0;
-
-  double beta = 20000.0, alpha = 0.0005, delta = 0.3, gamma = 50000.0;
 
   _u_i = 0.0;
 

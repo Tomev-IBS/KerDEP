@@ -116,8 +116,6 @@ class MainWindow : public QMainWindow
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0;
     QVector<double> maxAs = {};
 
-
-
     double positionalSecondGradeEstimator = 0.0;
 
     std::shared_ptr<dataParser> parser;
@@ -128,8 +126,6 @@ class MainWindow : public QMainWindow
 
     std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
     std::shared_ptr<kernelDensityEstimator> _enchancedKDE;
-
-    double adaptivePredictionPowerParameter = 1e15;
 
     QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
 
@@ -153,9 +149,9 @@ class MainWindow : public QMainWindow
     void resizePlot();
     void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
     void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+    void addWeightedEstimatorPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
     double countNewtonianDerivative(int i, const QVector<qreal> *Y);
     void addKernelPrognosisDerivativePlot(const QVector<qreal> *X);
-    void countKernelPrognosisDerivativeY(const QVector<qreal> *X);
     void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
     int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
     int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
