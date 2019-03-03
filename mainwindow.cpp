@@ -397,11 +397,9 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
     if(ui->checkBox_showEstimatedPlot->isChecked())
       addEstimatedPlot(&X, &KDEEstimationY);
 
-
-
     if(ui->checkBox_showWeightedEstimationPlot->isChecked())
     {
-      QVector<qreal> WKDEValues;
+      WKDEValues.clear();
 
       estimator->_shouldConsiderWeights = true;
 
@@ -1313,7 +1311,6 @@ void MainWindow::on_pushButton_start_clicked()
   }
 
   verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
 
 
   // ================== STEP ERRORS ======================== //
@@ -1418,6 +1415,16 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> error1RejsTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  error1RejsTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  error1RejsTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  error1RejsTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  error1RejsTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1RejsTextLabel->setText("rej1_ejs   = ");
+
+  verticalOffset += verticalStep;
+
   std::shared_ptr<QCPItemText> error2RejTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   error2RejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -1491,25 +1498,15 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> wATextLabel =
+  std::shared_ptr<QCPItemText> wTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  wATextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  wATextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  wATextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  wATextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  wATextLabel->setText("w_A = 0.99");
+  wTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  wTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  wTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  wTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  wTextLabel->setText("w_A = 0.99, w_E = " + QString::number(DESDAAlgorithm.w_E));
 
-  verticalOffset += verticalStep;
-
-  std::shared_ptr<QCPItemText> wETextLabel =
-      std::make_shared<QCPItemText>(ui->widget_plot);
-  wETextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  wETextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  wETextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  wETextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  wETextLabel->setText("w_E = " + QString::number(DESDAAlgorithm.w_E));
-
-  verticalOffset += verticalStep;
+  verticalOffset += verticalStep + 0.01;
 
   std::shared_ptr<QCPItemText> alphaTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1528,16 +1525,6 @@ void MainWindow::on_pushButton_start_clicked()
   betaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   betaTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
   betaTextLabel->setText("beta  = " + QString::number(DESDAAlgorithm.beta));
-
-  verticalOffset += verticalStep;
-
-  std::shared_ptr<QCPItemText> gammaTextLabel =
-      std::make_shared<QCPItemText>(ui->widget_plot);
-  gammaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  gammaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  gammaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  gammaTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  gammaTextLabel->setText("gamma = " + QString::number(DESDAAlgorithm.gamma));
 
   verticalOffset += verticalStep;
 
@@ -1661,6 +1648,16 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> error1SRejsTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  error1SRejsTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  error1SRejsTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  error1SRejsTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  error1SRejsTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1SRejsTextLabel->setText("srej1_ejs   = ");
+
+  verticalOffset += verticalStep;
+
   std::shared_ptr<QCPItemText> error2SRejTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   error2SRejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -1760,8 +1757,6 @@ void MainWindow::on_pushButton_start_clicked()
 
       _kernelPrognosisDerivativeValues =
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&X);
-      _sigmoidallyEnhancedPlotY =
-          DESDAAlgorithm.getEnhancedKDEValues(&X);
 
       double maxA = 0, meanA = 0, currentMaxA = 0, avgMaxA = 0;
 
@@ -1782,10 +1777,15 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       avgMaxA /= maxAs.size();
+      DESDAAlgorithm.gamma = 2.0 / avgMaxA;
+
+
+
+      _sigmoidallyEnhancedPlotY =
+          DESDAAlgorithm.getEnhancedKDEValues(&X);
 
       double maxKDEP = 0.0;
 
-      //for(auto val : _sigmoidallyEnhancedPlotY)
       for(int i = 0; i < _sigmoidallyEnhancedPlotY.size(); ++i)
       {
         double val = _sigmoidallyEnhancedPlotY[i];
@@ -1886,12 +1886,14 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDEPErrorMod += mod_ejp;
       }
 
-      double rejej = 0.0, rejejp = 0.0, rejsupej = 0.0, rejsupejp = 0.0;
+      double  rejej = 0.0, rejejp = 0.0, rejsupej = 0.0, rejsupejp = 0.0,
+              rejejs = 0.0;
 
       while(_lastSigmoidallyEnhancedPlotY.size() < _sigmoidallyEnhancedPlotY.size())
       {
         _lastSigmoidallyEnhancedPlotY.push_back(0);
         lastKDEValues.push_back(0);
+        lastWKDEValues.push_back(0);
       }
 
       errorHolder.clear();
@@ -1914,6 +1916,15 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       rejejp = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      // Rejejs
+      for(unsigned int i = 0; i < WKDEValues.size(); ++i){
+        double val = fabs(WKDEValues[i] - lastWKDEValues[i]);
+        errorHolder.push_back(val);
+      }
+
+      rejejs = numericIntegral(&errorHolder);
       errorHolder.clear();
 
       double rejej2 = 0.0, rejejp2 = 0.0;
@@ -1942,6 +1953,7 @@ void MainWindow::on_pushButton_start_clicked()
       {
         _summaricKDEsError1    += rejej;
         _summaricKDEPsError1   += rejejp;
+        _summaricKDESsError1   += rejejs;
         _summaricKDEsError2    += rejej2;
         _summaricKDEPsError2   += rejejp2;
         _summaricKDEsErrorSup  += rejsupej;
@@ -1997,6 +2009,8 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("rej1_ej    = " + formatNumberForDisplay(rejej));
       error1RejpTextLabel
           ->setText("rej1_ejp   = " + formatNumberForDisplay(rejejp));
+      error1RejsTextLabel
+          ->setText("rej1_ejs   = " + formatNumberForDisplay(rejejs));
       error2RejTextLabel
           ->setText("rej2_ej    = " + formatNumberForDisplay(rejej2));
       error2RejpTextLabel
@@ -2035,6 +2049,8 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("srej1_ej    = " + formatNumberForDisplay(_summaricKDEsError1));
       error1SRejpTextLabel
           ->setText("srej1_ejp   = " + formatNumberForDisplay(_summaricKDEPsError1));
+      error1SRejsTextLabel
+          ->setText("srej1_ejs   = " + formatNumberForDisplay(_summaricKDESsError1));
       error2SRejTextLabel
           ->setText("srej2_ej    = " + formatNumberForDisplay(_summaricKDEsError2));
       error2SRejpTextLabel
@@ -2050,6 +2066,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
+      lastWKDEValues.clear();
 
       for(auto val : _sigmoidallyEnhancedPlotY)
         _lastSigmoidallyEnhancedPlotY.push_back(val);
@@ -2057,13 +2074,16 @@ void MainWindow::on_pushButton_start_clicked()
       for(auto val : KDEValues)
         lastKDEValues.push_back(val);
 
+      for(auto val : WKDEValues)
+        lastWKDEValues.push_back(val);
+
       lastModelExtrema = modelExtrema;
       lastKDEExtrema = KDEExtrema;
       lastKDEPExtrema = KDEPExtrema;
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 80\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 81\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
