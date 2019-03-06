@@ -31,11 +31,20 @@ class DESDA
     double getStdDevOfFirstMSampleValues(int M);
     cluster getE1000Cluster();
 
+    double e1000StDev();
+    double ae1000Avg();
+    double ae1000StDev();
+    double ae1000Versor();
+
+
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
-    double beta = 20000.0, alpha = 0.0005, delta = 0.9, gamma = 50000.0;
+    double beta = 20000.0, alpha = 0.0005, delta = 0.5, gamma = 50000.0;
     double w_E = 0.98;
+
+    std::vector<double> ae1000Vals = {};
+    std::vector<double> e1000Vals = {};
 
   protected:
 

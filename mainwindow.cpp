@@ -1228,7 +1228,9 @@ void MainWindow::on_pushButton_start_clicked()
     newWeightA, newWeightB
   );
 
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.04;
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.035;
+
+  int fontSize = 20;
 
   // add text labels at the top:
 
@@ -1237,10 +1239,18 @@ void MainWindow::on_pushButton_start_clicked()
   E1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   E1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   E1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  E1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  E1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   E1000TextLabel->setText("E1000 = ");
 
-  qDebug() << "Font family : " << font().family();
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> stdevE1000TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  stdevE1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  stdevE1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  stdevE1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  stdevE1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  stdevE1000TextLabel->setText("sigE1000 = ");
 
   verticalOffset += verticalStep;
 
@@ -1249,8 +1259,38 @@ void MainWindow::on_pushButton_start_clicked()
   ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   ES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   ES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  ES1000TextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  ES1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   ES1000TextLabel->setText("a_E1000xK = ");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> avgES1000TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  avgES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  avgES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  avgES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  avgES1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  avgES1000TextLabel->setText("E_a_1000 = ");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> stdevES1000TextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  stdevES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  stdevES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  stdevES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  stdevES1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  stdevES1000TextLabel->setText("sig_a_1000 = ");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> aVersorTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  aVersorTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  aVersorTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  aVersorTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  aVersorTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  aVersorTextLabel->setText("sig_a_1000 = ");
 
   verticalOffset += verticalStep;
 
@@ -1276,7 +1316,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  */
+
 
   std::shared_ptr<QCPItemText> maxATextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1288,16 +1328,18 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  */
+
   std::shared_ptr<QCPItemText> uTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   uTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   uTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   uTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  uTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  uTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   uTextLabel->setText("u = ");
 
   std::vector<std::shared_ptr<QCPItemText>> vs = {};
-  std::vector<QString> vsLabels = {"v300 = ", "v500 = ", "v700 = "};
+  std::vector<QString> vsLabels = {"v300  = ", "v500  = ", "v700  = ", "v1000 = "};
 
   for(unsigned int i = 0; i < 3; ++i){
     verticalOffset += verticalStep;
@@ -1306,7 +1348,7 @@ void MainWindow::on_pushButton_start_clicked()
     vs.back()->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
     vs.back()->position->setType(QCPItemPosition::ptAxisRectRatio);
     vs.back()->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-    vs.back()->setFont(QFont(font().family(), 28)); // make font a bit larger
+    vs.back()->setFont(QFont(font().family(), fontSize)); // make font a bit larger
     vs.back()->setText(vsLabels[i]);
   }
 
@@ -1320,7 +1362,7 @@ void MainWindow::on_pushButton_start_clicked()
   error1ejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error1ejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error1ejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error1ejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1ejTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error1ejTextLabel->setText("er1_ej = ");
 
   verticalOffset += verticalStep;
@@ -1330,7 +1372,7 @@ void MainWindow::on_pushButton_start_clicked()
   error1ejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error1ejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error1ejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error1ejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1ejpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error1ejpTextLabel->setText("er1_ejp = ");
 
   verticalOffset += verticalStep;
@@ -1340,7 +1382,7 @@ void MainWindow::on_pushButton_start_clicked()
   error2ejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error2ejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error2ejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error2ejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error2ejTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error2ejTextLabel->setText("er2_ej = ");
 
   verticalOffset += verticalStep;
@@ -1350,7 +1392,7 @@ void MainWindow::on_pushButton_start_clicked()
   error2ejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error2ejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error2ejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error2ejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error2ejpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error2ejpTextLabel->setText("er2_ejp = ");
 
   verticalOffset += verticalStep;
@@ -1360,7 +1402,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorSupEjTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorSupEjTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorSupEjTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorSupEjTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSupEjTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorSupEjTextLabel->setText("ersup_ej = ");
 
   verticalOffset += verticalStep;
@@ -1370,7 +1412,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorSupEjpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorSupEjpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorSupEjpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorSupEjpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSupEjpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorSupEjpTextLabel->setText("ersup_ejp = ");
 
   verticalOffset += verticalStep;
@@ -1380,7 +1422,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorModEjTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorModEjTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorModEjTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorModEjTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorModEjTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorModEjTextLabel->setText("ermod_ej = ");
 
   verticalOffset += verticalStep;
@@ -1390,7 +1432,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorModEjpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorModEjpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorModEjpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorModEjpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorModEjpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorModEjpTextLabel->setText("ermod_ejp = ");
 
   verticalOffset += verticalStep;
@@ -1400,7 +1442,7 @@ void MainWindow::on_pushButton_start_clicked()
   error1RejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error1RejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error1RejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error1RejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1RejTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error1RejTextLabel->setText("rej1_ej = ");
 
   verticalOffset += verticalStep;
@@ -1410,7 +1452,7 @@ void MainWindow::on_pushButton_start_clicked()
   error1RejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error1RejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error1RejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error1RejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1RejpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error1RejpTextLabel->setText("rej1_ejp = ");
 
   verticalOffset += verticalStep;
@@ -1420,7 +1462,7 @@ void MainWindow::on_pushButton_start_clicked()
   error1RejsTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error1RejsTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error1RejsTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error1RejsTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error1RejsTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error1RejsTextLabel->setText("rej1_ejs   = ");
 
   verticalOffset += verticalStep;
@@ -1430,7 +1472,7 @@ void MainWindow::on_pushButton_start_clicked()
   error2RejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error2RejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error2RejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error2RejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error2RejTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error2RejTextLabel->setText("rej2_ej = ");
 
   verticalOffset += verticalStep;
@@ -1440,7 +1482,7 @@ void MainWindow::on_pushButton_start_clicked()
   error2RejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   error2RejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   error2RejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  error2RejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  error2RejpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   error2RejpTextLabel->setText("rej2_ejp = ");
 
   verticalOffset += verticalStep;
@@ -1450,7 +1492,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorSupRejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorSupRejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorSupRejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorSupRejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSupRejTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorSupRejTextLabel->setText("rejsup_ej = ");
 
   verticalOffset += verticalStep;
@@ -1460,7 +1502,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorSupRejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorSupRejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorSupRejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorSupRejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorSupRejpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorSupRejpTextLabel->setText("rejsup_ej = ");
 
   verticalOffset += verticalStep;
@@ -1470,7 +1512,7 @@ void MainWindow::on_pushButton_start_clicked()
   errorModRejTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorModRejTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorModRejTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorModRejTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorModRejTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorModRejTextLabel->setText("rejmod_ej = ");
 
   verticalOffset += verticalStep;
@@ -1480,13 +1522,24 @@ void MainWindow::on_pushButton_start_clicked()
   errorModRejpTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   errorModRejpTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   errorModRejpTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  errorModRejpTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  errorModRejpTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   errorModRejpTextLabel->setText("rejmod_ej = ");
 
   //==================== SUMMARIC ERRORS=================//
 
   horizontalOffset = 0.72;
   verticalOffset = 0.01;
+  verticalStep = 0.04;
+
+  std::shared_ptr<QCPItemText> iTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  iTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  iTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  iTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  iTextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  iTextLabel->setText("i   = ");
+
+  verticalOffset += verticalStep;
 
   std::shared_ptr<QCPItemText> mTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1727,7 +1780,7 @@ void MainWindow::on_pushButton_start_clicked()
   experimentDataFile.close();
   */
 
-  for(stepNumber = 0; stepNumber < stepsNumber; ++stepNumber)
+  for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber)
   {
     clock_t executionStartTime = clock();
 
@@ -1743,7 +1796,7 @@ void MainWindow::on_pushButton_start_clicked()
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    if(stepNumber > 0 && stepNumber % 10 == 0)
+    if(stepNumber % 10 == 0)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
       //qDebug() << "h_i = " << smoothingParamCounter.getSmoothingParameterValue();
@@ -1962,8 +2015,22 @@ void MainWindow::on_pushButton_start_clicked()
 
       E1000TextLabel
           ->setText("E1000          = " + formatNumberForDisplay(avg1000));
+
+      stdevE1000TextLabel
+          ->setText("stdevE1000     = " + formatNumberForDisplay(DESDAAlgorithm.e1000StDev()));
+
       ES1000TextLabel
           ->setText("a_E1000xK      = " + formatNumberForDisplay(avg1000Est / progressionSize));
+
+      avgES1000TextLabel
+          ->setText("E_a_1000xK     = " + formatNumberForDisplay(DESDAAlgorithm.ae1000Avg() / progressionSize));
+
+      stdevES1000TextLabel
+          ->setText("stdev_a_1000   = " + formatNumberForDisplay(DESDAAlgorithm.ae1000StDev()));
+
+      aVersorTextLabel
+          ->setText("a... / |a...|  = " + formatNumberForDisplay(DESDAAlgorithm.ae1000Versor()));
+
      /*
       StDevES1000TextLabel
           ->setText("stDev(a ... ) = " + formatNumberForDisplay(stDevE1000));
@@ -1971,13 +2038,13 @@ void MainWindow::on_pushButton_start_clicked()
       meanATextLabel
           ->setText("mean(a...)=  " + formatNumberForDisplay(meanA));
 
-      */
-
       maxATextLabel
           ->setText("avg(max(a...)) = " + formatNumberForDisplay(avgMaxA));
+      */
+
 
       uTextLabel
-          ->setText("u    = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
+          ->setText("u     = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
 
       for(unsigned int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
         vs[i]->setText(
@@ -2024,8 +2091,11 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ============ SUMS =========== //
 
+      iTextLabel
+          ->setText("i   = " + QString::number(clusters->size()));
+
       mTextLabel
-          ->setText("m   = " + QString::number(clusters->size()));
+          ->setText("m   = " + QString::number(sampleSize));
 
       error1SejTextLabel
           ->setText("ser1_ej     = " + formatNumberForDisplay(_summaricKDEError1));
@@ -2081,7 +2151,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 84\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 87\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

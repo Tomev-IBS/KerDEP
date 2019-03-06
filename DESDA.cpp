@@ -39,6 +39,46 @@ int sgn(double val)
   return (val > 0) - (val < 0);
 }
 
+double sum(std::vector<double> vals)
+{
+  double valsSum = 0.0;
+
+  for(auto val : vals) valsSum += val;
+
+  return valsSum;
+}
+
+double absSum(std::vector<double> vals)
+{
+  double valsSum = 0.0;
+
+  for(auto val : vals) valsSum += fabs(val);
+
+  return valsSum;
+}
+
+double stDev(std::vector<double> vals)
+{
+  int m = vals.size();
+
+  if(m < 2) return 1.0;
+
+  double sigma = 0.0;
+
+  sigma = sum(vals);
+  sigma *= sigma / m;
+
+  double sqrSum = 0;
+
+  for(auto val : vals) sqrSum += val * val;
+
+  sigma = sqrSum - sigma;
+
+  sigma /= m - 1;
+
+  return std::sqrt(sigma);
+}
+
 void DESDA::performStep()
 {
   // If weights degrades geomatrically
@@ -137,7 +177,19 @@ void DESDA::performStep()
   experimentDataFile.close();
   */
 
+  if(ae1000Vals.size() >= _samplingAlgorithm->getReservoidMaxSize())
+  {
+    e1000Vals.pop_back();
+    qDebug() << "Removing element val: " << ae1000Vals.back();
+    ae1000Vals.pop_back();
+  }
+
+  e1000Vals.insert(e1000Vals.begin(), e1000._currentKDEValue);
+  ae1000Vals.insert(ae1000Vals.begin(), e1000.predictionParameters[1]);
+
   countKDEDerivativeValuesOnClusters();
+
+  ae1000Versor(); // Debug
 
   ++_stepNumber;
 }
@@ -458,6 +510,35 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
 cluster DESDA::getE1000Cluster()
 {
   return e1000;
+}
+
+double DESDA::e1000StDev()
+{
+  return stDev(e1000Vals);
+}
+
+double DESDA::ae1000Avg()
+{
+  return sum(ae1000Vals) / ae1000Vals.size();
+}
+
+double DESDA::ae1000StDev()
+{
+  return stDev(ae1000Vals);
+}
+
+double DESDA::ae1000Versor()
+{
+  double aesum = sum(ae1000Vals);
+  double aeabssum = absSum(ae1000Vals);
+
+  if(_stepNumber > 999 && _stepNumber < 1010){
+    qDebug() << "Step  : " << _stepNumber;
+    qDebug() << "Sum   = " << aesum;
+    qDebug() << "abSum = " << aeabssum;
+  }
+
+  return aesum / aeabssum;
 }
 
 
