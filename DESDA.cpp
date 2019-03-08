@@ -180,7 +180,7 @@ void DESDA::performStep()
   if(ae1000Vals.size() >= _samplingAlgorithm->getReservoidMaxSize())
   {
     e1000Vals.pop_back();
-    qDebug() << "Removing element val: " << ae1000Vals.back();
+    //qDebug() << "Removing element val: " << ae1000Vals.back();
     ae1000Vals.pop_back();
   }
 
@@ -189,7 +189,7 @@ void DESDA::performStep()
 
   countKDEDerivativeValuesOnClusters();
 
-  ae1000Versor(); // Debug
+  //ae1000Versor(); // Debug
 
   ++_stepNumber;
 }

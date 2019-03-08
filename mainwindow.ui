@@ -244,7 +244,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_domainDensity">
            <property name="text">
-            <string>0.1</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -385,7 +385,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.001</string>
+            <string>0.01</string>
            </property>
           </widget>
          </item>
