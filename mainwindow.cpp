@@ -1250,16 +1250,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> stdevE1000TextLabel =
-      std::make_shared<QCPItemText>(ui->widget_plot);
-  stdevE1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  stdevE1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  stdevE1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  stdevE1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  stdevE1000TextLabel->setText("sigE1000 = ");
-
-  verticalOffset += verticalStep;
-
   std::shared_ptr<QCPItemText> ES1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -1267,6 +1257,16 @@ void MainWindow::on_pushButton_start_clicked()
   ES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   ES1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   ES1000TextLabel->setText("a_E1000xK = ");
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> maxATextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  maxATextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  maxATextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  maxATextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  maxATextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  maxATextLabel->setText("avg(max(a...)) = ");
 
   verticalOffset += verticalStep;
 
@@ -1324,13 +1324,15 @@ void MainWindow::on_pushButton_start_clicked()
 
 
 
-  std::shared_ptr<QCPItemText> maxATextLabel =
+
+
+  std::shared_ptr<QCPItemText> stdevE1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  maxATextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  maxATextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  maxATextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  maxATextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
-  maxATextLabel->setText("avg(max(a...)) = ");
+  stdevE1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  stdevE1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  stdevE1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  stdevE1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  stdevE1000TextLabel->setText("sigE1000 = ");
 
   verticalOffset += verticalStep;
 
@@ -2200,11 +2202,11 @@ void MainWindow::on_pushButton_start_clicked()
       E1000TextLabel
           ->setText("E1000          = " + formatNumberForDisplay(avg1000));
 
-      stdevE1000TextLabel
-          ->setText("stdevE1000     = " + formatNumberForDisplay(DESDAAlgorithm.e1000StDev()));
-
       ES1000TextLabel
           ->setText("a_E1000xK      = " + formatNumberForDisplay(avg1000Est / progressionSize));
+
+      maxATextLabel
+          ->setText("avg(max(ai))xK = " + formatNumberForDisplay(avgMaxA / progressionSize));
 
       /*
       avgES1000TextLabel
@@ -2222,8 +2224,8 @@ void MainWindow::on_pushButton_start_clicked()
       meanATextLabel
           ->setText("mean(a...)=  " + formatNumberForDisplay(meanA));
 
-      maxATextLabel
-          ->setText("avg(max(a...)) = " + formatNumberForDisplay(avgMaxA));
+      stdevE1000TextLabel
+          ->setText("stdevE1000     = " + formatNumberForDisplay(DESDAAlgorithm.e1000StDev()));
       */
 
 
@@ -2360,10 +2362,11 @@ void MainWindow::on_pushButton_start_clicked()
       lastModelExtrema = modelExtrema;
       lastKDEExtrema = KDEExtrema;
       lastKDEPExtrema = KDEPExtrema;
+      lastWKDEExtrema = WKDEExtrema;
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 90\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 91\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
