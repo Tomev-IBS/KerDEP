@@ -413,7 +413,12 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
 
         WKDEValues.push_back(val);
 
-        WKDEExtrema = WKDEExtrema > val ? WKDEExtrema : val;
+        if(val > maxWKDE)
+        {
+          maxWKDE = val;
+          WKDEExtrema = X[i];
+        }
+
       }
 
       estimator->_shouldConsiderWeights = false;
@@ -1265,7 +1270,7 @@ void MainWindow::on_pushButton_start_clicked()
   maxATextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   maxATextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   maxATextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  maxATextLabel->setFont(QFont(font().family(), 28)); // make font a bit larger
+  maxATextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   maxATextLabel->setText("avg(max(a...)) = ");
 
   verticalOffset += verticalStep;
@@ -2110,7 +2115,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       double  rejej = 0.0, rejejp = 0.0, rejsupej = 0.0, rejsupejp = 0.0,
-              rejejs = 0.0, rejsupejs;
+              rejejs = 0.0, rejsupejs = 0.0;
 
       while(_lastSigmoidallyEnhancedPlotY.size() < _sigmoidallyEnhancedPlotY.size())
       {
@@ -2206,7 +2211,7 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("a_E1000xK      = " + formatNumberForDisplay(avg1000Est / progressionSize));
 
       maxATextLabel
-          ->setText("avg(max(ai))xK = " + formatNumberForDisplay(avgMaxA / progressionSize));
+          ->setText("avg(max(|ai|)) = " + formatNumberForDisplay(avgMaxA));
 
       /*
       avgES1000TextLabel
@@ -2366,7 +2371,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 91\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 92\\";
       //QString dirPath = "D:\\Dysk Google\\TR Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

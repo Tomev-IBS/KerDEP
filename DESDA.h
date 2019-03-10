@@ -36,11 +36,10 @@ class DESDA
     double ae1000StDev();
     double ae1000Versor();
 
-
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
-    double beta = 20000.0, alpha = 0.0005, delta = 0.3, gamma = 50000.0;
+    double beta = 20000.0, alpha = 0.0005, delta = 0.4, gamma = 50000.0;
     double w_E = 0.98;
 
     std::vector<double> ae1000Vals = {};
