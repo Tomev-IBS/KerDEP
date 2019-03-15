@@ -340,7 +340,7 @@
           <x>180</x>
           <y>10</y>
           <width>191</width>
-          <height>351</height>
+          <height>431</height>
          </rect>
         </property>
         <property name="title">
@@ -358,6 +358,27 @@
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
             <string>1000</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_mE">
+           <property name="text">
+            <string>mE</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_mE">
+           <property name="text">
+            <string>500</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Reservoir algorithm</string>
            </property>
           </widget>
          </item>
@@ -463,8 +484,8 @@
        <widget class="QGroupBox" name="groupBox_generalSettings">
         <property name="geometry">
          <rect>
-          <x>180</x>
-          <y>370</y>
+          <x>190</x>
+          <y>450</y>
           <width>191</width>
           <height>91</height>
          </rect>
