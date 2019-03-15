@@ -22,28 +22,28 @@ class DESDA
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::vector<std::shared_ptr<cluster>>> *storedMedoids,
           double desiredRarity, groupingThread *gt,
-          double v, double newWeightB);
+          double v, double newWeightB, int mE);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
     QVector<double> getEnhancedKDEValues(const QVector<qreal> *X);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
-    cluster getE1000Cluster();
+    cluster getEmECluster();
 
-    double e1000StDev();
-    double ae1000Avg();
-    double ae1000StDev();
-    double ae1000Versor();
+    double emEStDev();
+    double aemEAvg();
+    double aemEStDev();
+    double aemEVersor();
 
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
-    double beta = 20000.0, alpha = 0.0005, delta = 0.9, gamma = 50000.0;
+    double beta = 20000.0, alpha = 0.0005, delta = 0.5, gamma = 50000.0;
     double w_E = 0.99;
 
-    std::vector<double> ae1000Vals = {};
-    std::vector<double> e1000Vals = {};
+    std::vector<double> aemEVals = {};
+    std::vector<double> emEVals = {};
 
   protected:
 
@@ -53,6 +53,7 @@ class DESDA
     int _stepNumber = 0;
     int _numberOfClustersForGrouping = 100;
     int _medoidsNumber = 50;
+    int _mE = 0; // Cardinality of observed new objects
 
     double _weightModifier = 0.0;
     double _smoothingParameterMultiplier = 1.0;
@@ -65,7 +66,7 @@ class DESDA
 
     double _newWeightB = 0;
 
-    cluster e1000;
+    cluster emE;
     bool _shouldCluster = false;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;

@@ -17,21 +17,21 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
              double desiredRarity, groupingThread *gt, double v,
-             double newWeightB):
+             double newWeightB, int mE):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
   _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
   _grpThread(gt), _v(v), _newWeightB(newWeightB),
-  _enhancedKDE(enchancedKDE)
+  _enhancedKDE(enchancedKDE), _mE(mE)
 {
   _objects.clear();
   std::shared_ptr<sample> e1000Sample =
       std::make_shared<distributionDataSample>();
   std::shared_ptr<sample> e500Sample
       = std::make_shared<distributionDataSample>();
-  e1000 = cluster(e1000Sample);
-  e1000._deactualizationParameter = w_E;
+  emE = cluster(e1000Sample);
+  emE._deactualizationParameter = w_E;
 }
 
 int sgn(double val)
@@ -127,10 +127,9 @@ void DESDA::performStep()
              << _stepNumber << " is: " << currentClusters.size();
 
   countKDEValuesOnClusters();
-  double avg = getAverageOfFirstMSampleValues(1000),
-         avg500 = getAverageOfFirstMSampleValues(500);
+  double avg = getAverageOfFirstMSampleValues(_mE);
 
-  e1000._currentKDEValue = avg;
+  emE._currentKDEValue = avg;
 
   if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
      && _shouldCluster)
@@ -157,10 +156,10 @@ void DESDA::performStep()
 
   updatePrognosisParameters();
 
-  if(e1000.predictionParameters.size() == 0)
-    e1000.initializePredictionParameters(avg);
+  if(emE.predictionParameters.size() == 0)
+    emE.initializePredictionParameters(avg);
   else
-    e1000.updatePredictionParameters(avg);
+    emE.updatePredictionParameters(avg);
 
   // Save to file
   /*
@@ -177,15 +176,14 @@ void DESDA::performStep()
   experimentDataFile.close();
   */
 
-  if(ae1000Vals.size() >= _samplingAlgorithm->getReservoidMaxSize())
+  if(aemEVals.size() >= _mE)
   {
-    e1000Vals.pop_back();
-    //qDebug() << "Removing element val: " << ae1000Vals.back();
-    ae1000Vals.pop_back();
+    emEVals.pop_back();
+    aemEVals.pop_back();
   }
 
-  e1000Vals.insert(e1000Vals.begin(), e1000._currentKDEValue);
-  ae1000Vals.insert(ae1000Vals.begin(), e1000.predictionParameters[1]);
+  emEVals.insert(emEVals.begin(), emE._currentKDEValue);
+  aemEVals.insert(aemEVals.begin(), emE.predictionParameters[1]);
 
   countKDEDerivativeValuesOnClusters();
 
@@ -412,7 +410,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   // Count u_i
   if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- beta * (fabs(e1000.predictionParameters[1]) - alpha)));
+    _u_i = 1.0 / (1 + exp(- beta * (fabs(emE.predictionParameters[1]) - alpha)));
 
   double avgC2 = 0;
   double maxAParam = 0;
@@ -506,30 +504,30 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
   return pow(sumOfSquares - sumOfVals, 0.5);
 }
 
-cluster DESDA::getE1000Cluster()
+cluster DESDA::getEmECluster()
 {
-  return e1000;
+  return emE;
 }
 
-double DESDA::e1000StDev()
+double DESDA::emEStDev()
 {
-  return stDev(e1000Vals);
+  return stDev(emEVals);
 }
 
-double DESDA::ae1000Avg()
+double DESDA::aemEAvg()
 {
-  return sum(ae1000Vals) / ae1000Vals.size();
+  return sum(aemEVals) / aemEVals.size();
 }
 
-double DESDA::ae1000StDev()
+double DESDA::aemEStDev()
 {
-  return stDev(ae1000Vals);
+  return stDev(aemEVals);
 }
 
-double DESDA::ae1000Versor()
+double DESDA::aemEVersor()
 {
-  double aesum = sum(ae1000Vals);
-  double aeabssum = absSum(ae1000Vals);
+  double aesum = sum(aemEVals);
+  double aeabssum = absSum(aemEVals);
 
   if(_stepNumber > 999 && _stepNumber < 1010){
     qDebug() << "Step  : " << _stepNumber;

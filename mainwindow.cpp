@@ -1215,6 +1215,7 @@ void MainWindow::on_pushButton_start_clicked()
   _longestStepExecutionInSecs = 0;
 
   double newWeightB = 1;
+  int mE = ui->lineEdit_mE->text().toInt();
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
@@ -1235,7 +1236,7 @@ void MainWindow::on_pushButton_start_clicked()
     ui->lineEdit_rarity->text().toDouble(),
     &gt,
     ui->lineEdit_distributionProgression->text().toDouble(),
-    newWeightB
+    newWeightB, mE
   );
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -1244,23 +1245,23 @@ void MainWindow::on_pushButton_start_clicked()
 
   // add text labels at the top:
 
-  std::shared_ptr<QCPItemText> E1000TextLabel =
+  std::shared_ptr<QCPItemText> EmETextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  E1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  E1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  E1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  E1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  E1000TextLabel->setText("E1000 = ");
+  EmETextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  EmETextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  EmETextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  EmETextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  EmETextLabel->setText("EmE = ");
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> ES1000TextLabel =
+  std::shared_ptr<QCPItemText> ESmETextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  ES1000TextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  ES1000TextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  ES1000TextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  ES1000TextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  ES1000TextLabel->setText("a_E1000xK = ");
+  ESmETextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  ESmETextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  ESmETextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  ESmETextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  ESmETextLabel->setText("a_EmExK = ");
 
   verticalOffset += verticalStep;
 
@@ -1325,10 +1326,6 @@ void MainWindow::on_pushButton_start_clicked()
   meanATextLabel->setText("mean(a...) = ");
 
   verticalOffset += verticalStep;
-
-
-
-
 
   std::shared_ptr<QCPItemText> stdevE1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1630,7 +1627,8 @@ void MainWindow::on_pushButton_start_clicked()
   mTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   mTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   mTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  mTextLabel->setText("m   = ");
+  mTextLabel->setText("m   = " + QString::number(sampleSize) + ", "
+                      "mE  = " + QString::number(mE));
 
   verticalOffset += verticalStep;
 
@@ -2003,10 +2001,10 @@ void MainWindow::on_pushButton_start_clicked()
       drawPlots(estimator.get(), targetFunction.get());
 
 
-      cluster e1000 = DESDAAlgorithm.getE1000Cluster();
+      cluster emE = DESDAAlgorithm.getEmECluster();
 
       // E1000
-      double avg1000 = e1000._currentKDEValue;
+      double avg_mE = emE._currentKDEValue;
 
       // StDev(a...)
       /*
@@ -2028,7 +2026,7 @@ void MainWindow::on_pushButton_start_clicked()
       */
 
       // a_E1000xK
-      double avg1000Est = e1000.predictionParameters[1];
+      double EmEEst = emE.predictionParameters[1];
 
       QVector<qreal> errorHolder = {};
 
@@ -2096,7 +2094,7 @@ void MainWindow::on_pushButton_start_clicked()
       mod_ejp = fabs(modelExtrema - KDEPExtrema);
       mod_ejs = fabs(modelExtrema - WKDEExtrema);
 
-      if(stepNumber >= 1000)
+      if(stepNumber >= sampleSize)
       {
         _summaricKDEError1    += _errorEJ;
         _summaricKDEPError1   += _errorEJP;
@@ -2186,7 +2184,7 @@ void MainWindow::on_pushButton_start_clicked()
       rejmodejp = fabs(KDEPExtrema - lastKDEPExtrema);
       rejmodejs = fabs(WKDEExtrema - lastWKDEExtrema);
 
-      if(stepNumber >= 1000)
+      if(stepNumber >= sampleSize)
       {
         _summaricKDEsError1    += rejej;
         _summaricKDEPsError1   += rejejp;
@@ -2202,14 +2200,14 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDESsErrorMod += rejmodejs;
       }
 
-      E1000TextLabel
-          ->setText("E1000          = " + formatNumberForDisplay(avg1000));
+      EmETextLabel
+          ->setText("EmE            = " + formatNumberForDisplay(avg_mE));
 
-      ES1000TextLabel
-          ->setText("a_E1000xK      = " + formatNumberForDisplay(avg1000Est / progressionSize));
+      ESmETextLabel
+          ->setText("a_mExK         = " + formatNumberForDisplay(EmEEst / progressionSize));
 
       maxATextLabel
-          ->setText("avg(max(|ai|)) = " + formatNumberForDisplay(avgMaxA));
+          ->setText("EmE(max(|ai|)) = " + formatNumberForDisplay(avgMaxA));
 
       /*
       avgES1000TextLabel
@@ -2297,9 +2295,6 @@ void MainWindow::on_pushButton_start_clicked()
       iTextLabel
           ->setText("i   = " + QString::number(stepNumber));
 
-      mTextLabel
-          ->setText("m   = " + QString::number(sampleSize));
-
       error1SejTextLabel
           ->setText("ser1_ej     = " + formatNumberForDisplay(_summaricKDEError1));
       error1SejpTextLabel
@@ -2369,8 +2364,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      //QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 103\\";
-      QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 104\\";
+      //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
