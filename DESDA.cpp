@@ -17,12 +17,12 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
              double desiredRarity, groupingThread *gt, double v,
-             double newWeightA, double newWeightB):
+             double newWeightB):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
   _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
-  _grpThread(gt), _v(v), _newWeightA(newWeightA), _newWeightB(newWeightB),
+  _grpThread(gt), _v(v), _newWeightB(newWeightB),
   _enhancedKDE(enchancedKDE)
 {
   _objects.clear();
@@ -218,8 +218,7 @@ void DESDA::updateWeights()
     {
       // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
       double newWeight =
-          1.0 - _newWeightB * (clusterNum)  / (sampleMaxSize - 1) -
-          _newWeightA * pow(clusterNum, 2)  / pow(sampleMaxSize - 1, 2) ;
+          1.0 - _newWeightB * (clusterNum)  / (sampleMaxSize - 1);
 
       if(newWeight < 0) newWeight = 0;
 

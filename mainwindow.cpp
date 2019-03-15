@@ -1214,7 +1214,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   _longestStepExecutionInSecs = 0;
 
-  double newWeightA = 0;
   double newWeightB = 1;
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
@@ -1236,7 +1235,7 @@ void MainWindow::on_pushButton_start_clicked()
     ui->lineEdit_rarity->text().toDouble(),
     &gt,
     ui->lineEdit_distributionProgression->text().toDouble(),
-    newWeightA, newWeightB
+    newWeightB
   );
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -1675,13 +1674,13 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> abTextLabel =
+  std::shared_ptr<QCPItemText> bTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  abTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  abTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  abTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  abTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  abTextLabel->setText("a = " + QString::number(newWeightA) + ", b = " + QString::number(newWeightB));
+  bTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  bTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  bTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  bTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  bTextLabel->setText("b = " + QString::number(newWeightB));
 
   verticalOffset += verticalStep;
 
