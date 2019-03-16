@@ -40,7 +40,7 @@ class DESDA
     std::vector<double> _selectedVValues = {};
 
     double beta = 20000.0, alpha = 0.0005, delta = 0.5, gamma = 50000.0;
-    double w_E = 0.99;
+    double w_E = 0.98;
 
     std::vector<double> aemEVals = {};
     std::vector<double> emEVals = {};
