@@ -1214,7 +1214,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   _longestStepExecutionInSecs = 0;
 
-  double newWeightB = 2;
+  double newWeightB = 3;
   int mE = ui->lineEdit_mE->text().toInt();
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
@@ -2364,7 +2364,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 114\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 115\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
