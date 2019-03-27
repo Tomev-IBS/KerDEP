@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -357,7 +357,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
-            <string>200</string>
+            <string>1000</string>
            </property>
           </widget>
          </item>
@@ -371,7 +371,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_mE">
            <property name="text">
-            <string>100</string>
+            <string>500</string>
            </property>
           </widget>
          </item>
