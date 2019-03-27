@@ -1239,7 +1239,7 @@ void MainWindow::on_pushButton_start_clicked()
     newWeightB, mE
   );
 
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.028;
 
   int fontSize = 18;
 
@@ -1348,9 +1348,9 @@ void MainWindow::on_pushButton_start_clicked()
   uTextLabel->setText("u = ");
 
   std::vector<std::shared_ptr<QCPItemText>> vs = {};
-  std::vector<QString> vsLabels = {"v300  = ", "v500  = ", "v700  = ", "v1000 = "};
+  std::vector<QString> vsLabels = {"v10  = ", "v50  = ", "v200 = ", "v300  = ", "v500  = ", "v700  = ", "v1000 = "};
 
-  for(unsigned int i = 0; i < 3; ++i){
+  for(unsigned int i = 0; i < 6; ++i){
     verticalOffset += verticalStep;
 
     vs.push_back(std::make_shared<QCPItemText>(ui->widget_plot));
@@ -1980,7 +1980,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       avgMaxA /= maxAs.size();
-      DESDAAlgorithm.gamma = 1.0 / (avgMaxA * progressionSize);
+      DESDAAlgorithm.gamma = 1.0 / (avgMaxA * 0.001);
 
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&X);
@@ -2204,14 +2204,14 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("EmE            = " + formatNumberForDisplay(avg_mE));
 
       ESmETextLabel
-          ->setText("a_EmE xK       = " + formatNumberForDisplay(EmEEst / progressionSize));
+          ->setText("a_EmE xK       = " + formatNumberForDisplay(EmEEst * 1000));
 
       maxATextLabel
           ->setText("EmE(max(|ai|)) = " + formatNumberForDisplay(avgMaxA));
 
       /*
       avgES1000TextLabel
-          ->setText("E_a_1000xK     = " + formatNumberForDisplay(DESDAAlgorithm.ae1000Avg() / progressionSize));
+          ->setText("E_a_1000xK     = " + formatNumberForDisplay(DESDAAlgorithm.ae1000Avg() / 0.001));
 
       stdevES1000TextLabel
           ->setText("stdev_a_1000   = " + formatNumberForDisplay(DESDAAlgorithm.ae1000StDev()));
@@ -2364,7 +2364,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 122\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 124\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

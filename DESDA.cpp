@@ -372,7 +372,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
       QVector<qreal> pt;
       pt.push_back(x);
       kernelPrognosisDerivativeValues.push_back(
-        _estimatorDerivative->getValue(&pt) / _v
+        _estimatorDerivative->getValue(&pt) * 1000 // For visibility
       );
     }
   }
@@ -420,19 +420,22 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     std::shared_ptr<cluster> c = currentClusters[i];
     enhancedWeight = c->getWeight();
 
+    int visibilityCoeff = 1000;
+
     // Count v_i
-    v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * _v)) - 0.5);
+    v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * visibilityCoeff)) - 0.5);
                                  //sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
 
-    maxAParam = std::max(derivativeVal[i] * _v, maxAParam);
+    maxAParam = std::max(derivativeVal[i] * visibilityCoeff, maxAParam);
 
 
     enhancedWeight *= (1 + _u_i * v_i);
 
     standardWeights.push_back(c->getWeight());
 
-    if(standardWeights.size() == 300 || standardWeights.size() == 500 ||
-       standardWeights.size() == 700)
+    if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
+       standardWeights.size() == 200 || standardWeights.size() == 300 ||
+       standardWeights.size() == 500 || standardWeights.size() == 700)
       _selectedVValues.push_back(v_i);
 
     /*
