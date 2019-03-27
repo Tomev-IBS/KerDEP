@@ -1980,7 +1980,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       avgMaxA /= maxAs.size();
-      DESDAAlgorithm.gamma = 1.0 / (avgMaxA * 0.001);
+      DESDAAlgorithm.gamma = 1.0 / avgMaxA;
 
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&X);

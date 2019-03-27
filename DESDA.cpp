@@ -420,13 +420,11 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     std::shared_ptr<cluster> c = currentClusters[i];
     enhancedWeight = c->getWeight();
 
-    int visibilityCoeff = 1000;
-
     // Count v_i
-    v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i] * visibilityCoeff)) - 0.5);
+    v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
                                  //sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
 
-    maxAParam = std::max(derivativeVal[i] * visibilityCoeff, maxAParam);
+    maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
 
 
     enhancedWeight *= (1 + _u_i * v_i);
