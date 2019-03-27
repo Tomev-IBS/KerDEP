@@ -432,18 +432,9 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     standardWeights.push_back(c->getWeight());
 
     if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
-       standardWeights.size() == 200 || standardWeights.size() == 300 ||
-       standardWeights.size() == 500 || standardWeights.size() == 700)
+       standardWeights.size() == 200 /*|| standardWeights.size() == 300 ||
+       standardWeights.size() == 500 || standardWeights.size() == 700*/)
       _selectedVValues.push_back(v_i);
-
-    /*
-    if(enhancedWeight < 0)
-    {
-      qDebug() << "u = " << _u_i;
-      qDebug() << "w = " << enhancedWeight;
-      qDebug() << "v_i " << v_i;
-    }
-    */
 
     avgC2 += c->predictionParameters[1];
     c->setWeight(enhancedWeight);

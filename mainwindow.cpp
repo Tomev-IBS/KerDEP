@@ -1348,9 +1348,10 @@ void MainWindow::on_pushButton_start_clicked()
   uTextLabel->setText("u = ");
 
   std::vector<std::shared_ptr<QCPItemText>> vs = {};
-  std::vector<QString> vsLabels = {"v10  = ", "v50  = ", "v200 = ", "v300  = ", "v500  = ", "v700  = ", "v1000 = "};
+  //std::vector<QString> vsLabels = {"v10  = ", "v50  = ", "v200 = ", "v300  = ", "v500  = ", "v700  = ", "v1000 = "};
+  std::vector<QString> vsLabels = {"v10  = ", "v50  = ", "v200 = "};
 
-  for(unsigned int i = 0; i < 6; ++i){
+  for(unsigned int i = 0; i < 3; ++i){
     verticalOffset += verticalStep;
 
     vs.push_back(std::make_shared<QCPItemText>(ui->widget_plot));
@@ -2364,7 +2365,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 127\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 128\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
