@@ -1612,6 +1612,16 @@ void MainWindow::on_pushButton_start_clicked()
   verticalStep = 0.03;
   fontSize = 18;
 
+  std::shared_ptr<QCPItemText> stationarityTestTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  stationarityTestTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  stationarityTestTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  stationarityTestTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  stationarityTestTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  stationarityTestTextLabel->setText("eta = ");
+
+  verticalOffset += verticalStep;
+
   std::shared_ptr<QCPItemText> iTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   iTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -2345,6 +2355,9 @@ void MainWindow::on_pushButton_start_clicked()
       errorModSRejsTextLabel
           ->setText("srejmod_ejs = " + formatNumberForDisplay(_summaricKDESsErrorMod));
 
+      stationarityTestTextLabel
+          ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
+
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
       lastWKDEValues.clear();
@@ -2365,7 +2378,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 135\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 136\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

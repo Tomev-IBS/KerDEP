@@ -28,10 +28,10 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _objects.clear();
   std::shared_ptr<sample> e1000Sample =
       std::make_shared<distributionDataSample>();
-  std::shared_ptr<sample> e500Sample
-      = std::make_shared<distributionDataSample>();
   emE = cluster(e1000Sample);
   emE._deactualizationParameter = w_E;
+
+  stationarityTest.reset(new KPSSStationarityTest(mE, avg, 0));
 }
 
 int sgn(double val)
@@ -127,7 +127,12 @@ void DESDA::performStep()
              << _stepNumber << " is: " << currentClusters.size();
 
   countKDEValuesOnClusters();
-  double avg = getAverageOfFirstMSampleValues(_mE);
+  avg = getAverageOfFirstMSampleValues(_mE);
+
+  if(_stepNumber >= _mE)
+    stationarityTest->addNewSample(
+        std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
+    );
 
   emE._currentKDEValue = avg;
 
@@ -186,8 +191,6 @@ void DESDA::performStep()
   aemEVals.insert(aemEVals.begin(), emE.predictionParameters[1]);
 
   countKDEDerivativeValuesOnClusters();
-
-  //ae1000Versor(); // Debug
 
   ++_stepNumber;
 }
@@ -499,6 +502,11 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
 cluster DESDA::getEmECluster()
 {
   return emE;
+}
+
+double DESDA::getStationarityTestValue()
+{
+  return stationarityTest->getTestsValue();
 }
 
 double DESDA::emEStDev()

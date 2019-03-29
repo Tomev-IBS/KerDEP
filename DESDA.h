@@ -9,6 +9,7 @@
 #include "Distributions/distributions.h"
 #include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 #include "groupingThread/groupingThread.h"
+#include "StationarityTests/kpssstationaritytest.h"
 
 class DESDA
 {
@@ -30,6 +31,10 @@ class DESDA
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();
+    double getStationarityTestValue();
+
+    stationarityTestPtr stationarityTest;
+
 
     double emEStDev();
     double aemEAvg();
@@ -41,6 +46,7 @@ class DESDA
 
     double beta = 20000.0, alpha = 0.0005, delta = 0.5, gamma = 50000.0;
     double w_E = 0.99;
+    double avg = 0;
 
     std::vector<double> aemEVals = {};
     std::vector<double> emEVals = {};
