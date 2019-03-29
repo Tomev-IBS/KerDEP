@@ -53,7 +53,7 @@ double KPSSStationarityTest::getLongRunVarianceEstimator()
   int m = std::min(_maxM, static_cast<int>(_regressionRests.size()));
 
   for(auto val : _regressionRests)
-    estimator += val;
+    estimator += val * val;
 
   double esSum = 0;
 
