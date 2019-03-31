@@ -1239,7 +1239,7 @@ void MainWindow::on_pushButton_start_clicked()
     newWeightB, mE
   );
 
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.028;
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
   int fontSize = 18;
 
@@ -1364,8 +1364,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
 
@@ -2374,7 +2372,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 128n\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 129n\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
