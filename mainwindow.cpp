@@ -1184,7 +1184,7 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          2000 /* delay */)
+                                          4000 /* delay */)
   );
 
   reader->gatherAttributesData(&attributesData);
@@ -1215,7 +1215,7 @@ void MainWindow::on_pushButton_start_clicked()
   _longestStepExecutionInSecs = 0;
 
   double newWeightB = 1;
-  int mE = ui->lineEdit_mE->text().toInt();
+  int mE = ui->lineEdit_sampleSize->text().toInt() / 2;
 
   storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
   clusters = &(storedMedoids[0]);
@@ -2105,7 +2105,7 @@ void MainWindow::on_pushButton_start_clicked()
       mod_ejp = fabs(modelExtrema - KDEPExtrema);
       mod_ejs = fabs(modelExtrema - WKDEExtrema);
 
-      if(stepNumber >= sampleSize)
+      if(stepNumber >= 2000)
       {
         _summaricKDEError1    += _errorEJ;
         _summaricKDEPError1   += _errorEJP;
@@ -2195,7 +2195,7 @@ void MainWindow::on_pushButton_start_clicked()
       rejmodejp = fabs(KDEPExtrema - lastKDEPExtrema);
       rejmodejs = fabs(WKDEExtrema - lastWKDEExtrema);
 
-      if(stepNumber >= sampleSize)
+      if(stepNumber >= 2000)
       {
         _summaricKDEsError1    += rejej;
         _summaricKDEPsError1   += rejejp;
@@ -2378,7 +2378,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 137\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 124n\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
