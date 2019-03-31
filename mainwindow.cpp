@@ -1364,6 +1364,10 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
 
   // ================== STEP ERRORS ======================== //
 
@@ -1653,23 +1657,14 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep + 0.01;
 
-  std::shared_ptr<QCPItemText> alphaTextLabel =
+  std::shared_ptr<QCPItemText> alphaBetaTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  alphaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  alphaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  alphaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  alphaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  alphaTextLabel->setText("alpha = " + QString::number(DESDAAlgorithm.alpha));
-
-  verticalOffset += verticalStep;
-
-  std::shared_ptr<QCPItemText> betaTextLabel =
-      std::make_shared<QCPItemText>(ui->widget_plot);
-  betaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  betaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  betaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  betaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  betaTextLabel->setText("beta  = " + QString::number(DESDAAlgorithm.beta));
+  alphaBetaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  alphaBetaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  alphaBetaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  alphaBetaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  alphaBetaTextLabel->setText("alpha = " + QString::number(DESDAAlgorithm.alpha)
+                          + ", beta = " + QString::number(DESDAAlgorithm.beta));
 
   verticalOffset += verticalStep;
 
@@ -1691,6 +1686,7 @@ void MainWindow::on_pushButton_start_clicked()
   bTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   bTextLabel->setText("b = " + QString::number(newWeightB));
 
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
   std::shared_ptr<QCPItemText> error1SejTextLabel =
