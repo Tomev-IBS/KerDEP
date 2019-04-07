@@ -15,6 +15,9 @@ double KPSSStationarityTest::getTestsValue()
   double testValue = 0.0;
   int m = std::min(_maxM, static_cast<int>(_regressionRests.size()));
 
+  // Testing linear change of l basing on 1992 KPSS insight on it's
+  // relation with m
+
   testValue = getSumOfRegressionRests();
   testValue /=  getLongRunVarianceEstimator();
   testValue /= m * m;
@@ -61,8 +64,8 @@ double KPSSStationarityTest::getLongRunVarianceEstimator()
 
     esSum = 0;
 
-    for(auto i = s + 1; i < m; ++i)
-      esSum += (_regressionRests[i]) * (_regressionRests[i - s]);
+    for(auto t = s + 1; t < m; ++t)
+      esSum += (_regressionRests[t]) * (_regressionRests[t - s]);
 
     estimator += 2 * esSum * getBarlettWindow(s, _l);
   }
