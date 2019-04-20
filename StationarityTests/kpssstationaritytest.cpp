@@ -16,7 +16,9 @@ double KPSSStationarityTest::getTestsValue()
   int m = std::min(_maxM, static_cast<int>(_regressionRests.size()));
 
   // Testing linear change of l basing on 1992 KPSS insight on it's
-  // relation with m
+  // relation with m (page 169, bottom).
+
+  _l = floor(12.0 * pow(m / 100, 0.25) * m / 500);
 
   testValue = getSumOfRegressionRests();
   testValue /=  getLongRunVarianceEstimator();
