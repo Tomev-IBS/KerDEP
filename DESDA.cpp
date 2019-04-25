@@ -412,11 +412,8 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   _u_i = 0.0;
 
   // Count u_i
-
-  ;
-
   if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- (20.4 * getStationarityTestValue() - 11.1)));
+    _u_i = 1.0 / (1 + exp(- (20.4 * fabs(getStationarityTestValue()) - 11.1)));
 
   double avgC2 = 0;
   double maxAParam = 0;
@@ -427,8 +424,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     enhancedWeight = c->getWeight();
 
     // Count v_i
-    v_i = 2* delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
-                                 //sqrt(sqrt(fabs(derivativeVal[i]) * _v)))) - 0.5);
+    v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
 
     maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
 
