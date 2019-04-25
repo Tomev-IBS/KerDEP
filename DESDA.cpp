@@ -412,8 +412,11 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   _u_i = 0.0;
 
   // Count u_i
+
+  ;
+
   if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- beta * (fabs(emE.predictionParameters[1]) - alpha)));
+    _u_i = 1.0 / (1 + exp(- (20.4 * getStationarityTestValue() - 11.1)));
 
   double avgC2 = 0;
   double maxAParam = 0;
