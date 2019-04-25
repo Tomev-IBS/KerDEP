@@ -428,7 +428,6 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
     maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
 
-
     enhancedWeight *= (1 + _u_i * v_i);
 
     standardWeights.push_back(c->getWeight());

@@ -1275,6 +1275,16 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> stationarityTestTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  stationarityTestTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  stationarityTestTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  stationarityTestTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  stationarityTestTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  stationarityTestTextLabel->setText("eta = ");
+
+  verticalOffset += verticalStep;
+
   /*
   std::shared_ptr<QCPItemText> avgES1000TextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
@@ -1624,24 +1634,23 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> stationarityTestTextLabel =
-      std::make_shared<QCPItemText>(ui->widget_plot);
-  stationarityTestTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  stationarityTestTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  stationarityTestTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  stationarityTestTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  stationarityTestTextLabel->setText("eta = ");
-
-  verticalOffset += verticalStep;
-
   std::shared_ptr<QCPItemText> mTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
   mTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
   mTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   mTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   mTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  mTextLabel->setText("m   = " + QString::number(sampleSize) + ", "
-                      "mE  = " + QString::number(mE));
+  mTextLabel->setText("m   = " + QString::number(sampleSize));
+
+  verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> mETextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  mETextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  mETextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  mETextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  mETextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  mETextLabel->setText("mE  = " + QString::number(mE));
 
   verticalOffset += verticalStep;
 
@@ -1651,18 +1660,17 @@ void MainWindow::on_pushButton_start_clicked()
   wTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   wTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   wTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  wTextLabel->setText("w_a = 0.99, w_EmE = " + QString::number(DESDAAlgorithm.w_E));
+  wTextLabel->setText("w_a = 0.99");
 
-  verticalOffset += verticalStep + 0.01;
+  verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> alphaBetaTextLabel =
+  std::shared_ptr<QCPItemText> wEmETextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  alphaBetaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  alphaBetaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  alphaBetaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  alphaBetaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  alphaBetaTextLabel->setText("alpha = " + QString::number(DESDAAlgorithm.alpha)
-                          + ", beta = " + QString::number(DESDAAlgorithm.beta));
+  wEmETextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  wEmETextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  wEmETextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  wEmETextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  wEmETextLabel->setText("w_EmE = " + QString::number(DESDAAlgorithm.w_E));
 
   verticalOffset += verticalStep;
 
@@ -1684,6 +1692,7 @@ void MainWindow::on_pushButton_start_clicked()
   bTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   bTextLabel->setText("b = " + QString::number(newWeightB));
 
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -2374,8 +2383,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 154\\";
-      //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
+      //QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 154\\";
+      QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
