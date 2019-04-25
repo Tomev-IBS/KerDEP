@@ -1694,13 +1694,13 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> lTextLabel =
+  std::shared_ptr<QCPItemText> xTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  lTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  lTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  lTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  lTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  lTextLabel->setText("l = 8");
+  xTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  xTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  xTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  xTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  xTextLabel->setText("l = 0");
 
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
@@ -2372,8 +2372,8 @@ void MainWindow::on_pushButton_start_clicked()
       stationarityTestTextLabel
           ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
-      lTextLabel
-          ->setText("l = " + QString::number( (int)(8 * pow(mE, 0.25)) ) );
+      xTextLabel
+          ->setText("x = 8");
 
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
