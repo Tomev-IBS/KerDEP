@@ -2005,7 +2005,7 @@ void MainWindow::on_pushButton_start_clicked()
       avgMaxA /= maxAs.size();
 
       // TR TODO: Notice that this should be placed inside DESDA algorithm
-      DESDAAlgorithm.gamma = 2.0 / avgMaxA;
+      DESDAAlgorithm.gamma = 1.0 / avgMaxA;
 
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&X);
@@ -2373,7 +2373,7 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
       lTextLabel
-          ->setText("l = " + QString::number((int)(8 * pow(mE, 0.25)) ) );
+          ->setText("l = " + QString::number( (int)(8 * pow(mE, 0.25)) ) );
 
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
