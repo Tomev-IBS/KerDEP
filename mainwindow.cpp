@@ -1693,6 +1693,15 @@ void MainWindow::on_pushButton_start_clicked()
   bTextLabel->setText("b = " + QString::number(newWeightB));
 
   verticalOffset += verticalStep;
+
+  std::shared_ptr<QCPItemText> lTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  lTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  lTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  lTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  lTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  lTextLabel->setText("l = 8");
+
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -2363,6 +2372,9 @@ void MainWindow::on_pushButton_start_clicked()
       stationarityTestTextLabel
           ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
+      lTextLabel
+          ->setText("l = " + QString::number((int)(8 * pow(mE, 0.25)) ) );
+
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
       lastWKDEValues.clear();
@@ -2383,8 +2395,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      //QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 154\\";
-      QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 155\\";
+      //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

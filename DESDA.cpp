@@ -31,7 +31,9 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   emE = cluster(e1000Sample);
   emE._deactualizationParameter = w_E;
 
-  stationarityTest.reset(new KPSSStationarityTest(mE, avg, 0));
+  int l = 8 * pow(mE, 0.25);
+
+  stationarityTest.reset(new KPSSStationarityTest(mE, avg, l));
 }
 
 int sgn(double val)
