@@ -2373,7 +2373,7 @@ void MainWindow::on_pushButton_start_clicked()
           ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
       xTextLabel
-          ->setText("x = 8");
+          ->setText("x = 0");
 
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
@@ -2395,7 +2395,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 155\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 156\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
