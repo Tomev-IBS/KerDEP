@@ -31,7 +31,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   emE = cluster(e1000Sample);
   emE._deactualizationParameter = w_E;
 
-  int l = 0 * pow(mE, 0.25);
+  int l = 4 * pow(mE, 0.25);
 
   stationarityTest.reset(new KPSSStationarityTest(mE, avg, l));
 }
@@ -131,10 +131,11 @@ void DESDA::performStep()
   countKDEValuesOnClusters();
   avg = getAverageOfFirstMSampleValues(_mE);
 
-  if(_stepNumber >= _mE)
-    stationarityTest->addNewSample(
-        std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
-    );
+  // Start at 0
+  //if(_stepNumber >= _mE)
+  stationarityTest->addNewSample(
+      std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
+  );
 
   emE._currentKDEValue = avg;
 
