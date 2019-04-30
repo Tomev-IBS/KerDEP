@@ -1660,7 +1660,7 @@ void MainWindow::on_pushButton_start_clicked()
   wTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   wTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   wTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  wTextLabel->setText("w_a = 0.99");
+  wTextLabel->setText("w_a = 0.98");
 
   verticalOffset += verticalStep;
 
@@ -2395,7 +2395,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 161\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 162\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
