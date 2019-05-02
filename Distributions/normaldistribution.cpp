@@ -51,7 +51,7 @@ void normalDistribution::increaseMeans(qreal addend)
     for(int i = 0; i < means->size(); ++i)
     {
         // TODO: FIXED THRESHOLD FOR RESEARCHES
-        if(means->at(i) < 30)
+        if(means->at(i) < 3)
         {
             means->push_back(means->at(i) + addend);
             means->pop_front();
