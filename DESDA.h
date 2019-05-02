@@ -23,7 +23,7 @@ class DESDA
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::vector<std::shared_ptr<cluster>>> *storedMedoids,
           double desiredRarity, groupingThread *gt,
-          double v, double newWeightB, int mE);
+          double v, double newWeightB, int mE, int kpssX);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);

@@ -1200,6 +1200,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
+  int l = 64;
 
   groupingThread gt(&storedMedoids, parser);
 
@@ -1236,7 +1237,7 @@ void MainWindow::on_pushButton_start_clicked()
     ui->lineEdit_rarity->text().toDouble(),
     &gt,
     ui->lineEdit_distributionProgression->text().toDouble(),
-    newWeightB, mE
+    newWeightB, mE, l
   );
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -1700,7 +1701,7 @@ void MainWindow::on_pushButton_start_clicked()
   xTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   xTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   xTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  xTextLabel->setText("l = 0");
+  xTextLabel->setText("x = " + QString::number(l));
 
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
@@ -2372,9 +2373,6 @@ void MainWindow::on_pushButton_start_clicked()
       stationarityTestTextLabel
           ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
-      xTextLabel
-          ->setText("x = 8");
-
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
       lastWKDEValues.clear();
@@ -2395,7 +2393,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 164\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 165\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

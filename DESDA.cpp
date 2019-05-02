@@ -17,7 +17,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
              double desiredRarity, groupingThread *gt, double v,
-             double newWeightB, int mE):
+             double newWeightB, int mE, int kpssX):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
@@ -31,7 +31,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   emE = cluster(e1000Sample);
   emE._deactualizationParameter = w_E;
 
-  int l = 8 * pow(mE, 0.25);
+  int l = kpssX * pow(mE, 0.25);
 
   stationarityTest.reset(new KPSSStationarityTest(mE, avg, l));
 }
