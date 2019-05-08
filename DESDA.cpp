@@ -215,6 +215,7 @@ void DESDA::updateWeights()
   else
   {
     //qDebug() << "Updating weights.";
+    _newWeightB = _u_i;
 
     double sampleMaxSize = _samplingAlgorithm->getReservoidMaxSize();
 
@@ -417,6 +418,8 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   // Count u_i
   if(_stepNumber >= 1000)
     _u_i = 1.0 / (1 + exp(- (20.4 * fabs(getStationarityTestValue()) - 11.1)));
+
+  _newWeightB = _u_i;
 
   double avgC2 = 0;
   double maxAParam = 0;

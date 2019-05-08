@@ -51,6 +51,8 @@ class DESDA
     std::vector<double> aemEVals = {};
     std::vector<double> emEVals = {};
 
+    double _newWeightB = 0;
+
   protected:
 
     const double _MAX_A = 1.5;
@@ -69,8 +71,6 @@ class DESDA
     double _desiredRarity = 0.01;
     double _previousUncommonClustersWeight = 0.0;
     double _v = 1.0;
-
-    double _newWeightB = 0;
 
     cluster emE;
     bool _shouldCluster = false;
