@@ -48,6 +48,10 @@ class DESDA
     double w_E = 0.99;
     double avg = 0;
 
+    double _maxM = 1000;
+    double _minM = 20;
+    int _mE = 0; // Cardinality of observed new objects
+
     std::vector<double> aemEVals = {};
     std::vector<double> emEVals = {};
 
@@ -61,7 +65,6 @@ class DESDA
     int _stepNumber = 0;
     int _numberOfClustersForGrouping = 100;
     int _medoidsNumber = 50;
-    int _mE = 0; // Cardinality of observed new objects
 
     double _weightModifier = 0.0;
     double _smoothingParameterMultiplier = 1.0;
@@ -96,6 +99,7 @@ class DESDA
     void updateA();
     void updatePrognosisParameters();
     void countKDEDerivativeValuesOnClusters();
+    void updateM();
 
 };
 

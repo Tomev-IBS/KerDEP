@@ -26,13 +26,18 @@ unsigned int basicReservoirSamplingAlgorithm::getReservoidMaxSize()
   return this->reservoirMaxSize;
 }
 
+void basicReservoirSamplingAlgorithm::changeReservoirMaxSize(unsigned int newMaxSize)
+{
+  reservoirMaxSize = newMaxSize;
+}
+
 void basicReservoirSamplingAlgorithm::addDatumToReservoir(std::vector<std::shared_ptr<sample>> *reservoir)
 {
   reader->getNextRawDatum(parser->buffer);
 
   parser->addDatumToContainer(reservoir);
 
-  parser->writeDatumOnPosition(reservoir, reservoir->size()-1);
+  parser->writeDatumOnPosition(reservoir, reservoir->size() - 1);
 }
 
 void basicReservoirSamplingAlgorithm::addDatumOnRandomPosition(std::vector<std::shared_ptr<sample>> *reservoir)

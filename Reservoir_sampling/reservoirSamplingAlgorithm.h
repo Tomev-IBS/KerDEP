@@ -14,6 +14,7 @@ class reservoirSamplingAlgorithm
     virtual void fillReservoir(std::vector<std::shared_ptr<sample>> *reservoir) = 0;
     virtual void performSingleStep(std::vector<std::shared_ptr<sample>> *reservoir, int stepNumber) = 0;
     virtual unsigned int getReservoidMaxSize() = 0;
+    virtual void changeReservoirMaxSize(unsigned int newMaxSize) = 0;
 
   protected:
     dataParser *parser;

@@ -2376,6 +2376,9 @@ void MainWindow::on_pushButton_start_clicked()
       bTextLabel
           ->setText("b = " + QString::number(DESDAAlgorithm._newWeightB));
 
+      mTextLabel->setText("m   = " + QString::number(algorithm->getReservoidMaxSize()));
+      mETextLabel->setText("mE  = " + QString::number(DESDAAlgorithm._mE));
+
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
       lastWKDEValues.clear();
@@ -2396,7 +2399,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 171\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 172\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
