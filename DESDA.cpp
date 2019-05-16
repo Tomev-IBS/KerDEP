@@ -85,7 +85,7 @@ double stDev(std::vector<double> vals)
 
 void DESDA::performStep()
 {
-  updateM();
+  //updateM();
 
   // If weights degrades geomatrically
   if(_shouldCluster) updateWeights();
