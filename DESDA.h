@@ -49,7 +49,7 @@ class DESDA
     double avg = 0;
 
     double _maxM = 1000;
-    double _minM = 20;
+    double _minM = 100;
     int _mE = 0; // Cardinality of observed new objects
 
     std::vector<double> aemEVals = {};

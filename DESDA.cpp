@@ -368,6 +368,18 @@ void DESDA::updateM()
 
   if(emE.predictionParameters.size() < 2) return;
 
+  m = _maxM * ( 1.0 - fabs(emE.predictionParameters[1]) * _maxM / 10.0);
+
+  m = std::max(m, (unsigned int) _minM);
+
+  _samplingAlgorithm->changeReservoirMaxSize(m);
+  _mE = m;
+
+  /*** YE OLDE VERSION
+  unsigned int m = 0;
+
+  if(emE.predictionParameters.size() < 2) return;
+
   // New param for floating m
   double kappa = emE.predictionParameters[1] * _u_i;
 
@@ -382,6 +394,7 @@ void DESDA::updateM()
   _samplingAlgorithm->changeReservoirMaxSize(m);
 
   _mE = m / 2;
+  ***/
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
