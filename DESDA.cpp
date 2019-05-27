@@ -365,6 +365,17 @@ void DESDA::countKDEDerivativeValuesOnClusters()
 void DESDA::updateM()
 {
   unsigned int m = 0;
+  int lambda = 10;
+
+  m = _maxM * (1.0 - lambda * ( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM);
+
+  m = std::max(m, (unsigned int) _minM);
+
+  _samplingAlgorithm->changeReservoirMaxSize(m);
+
+  _mE = m / 2;
+
+  /*** new old
 
   if(emE.predictionParameters.size() < 2) return;
 
@@ -456,7 +467,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   // Count u_i
   if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- (20.4 * fabs(getStationarityTestValue()) - 11.1)));
+    _u_i = 1.0 / (1 + exp(- (30.6 * fabs(getStationarityTestValue()) - 16.7)));
 
   _newWeightB = _u_i;
 
