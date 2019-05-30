@@ -364,16 +364,16 @@ void DESDA::countKDEDerivativeValuesOnClusters()
 
 void DESDA::updateM()
 {
-  unsigned int m = 0;
+  int m = 0;
   int lambda = 10;
 
   m = _maxM * (1.0 - lambda * ( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM);
 
-  m = std::max(m, (unsigned int) _minM);
+  m = std::max(m, _minM);
 
   _samplingAlgorithm->changeReservoirMaxSize(m);
 
-  _mE = m / 2;
+  _mE = m;
 
   /*** new old
 
