@@ -367,7 +367,9 @@ void DESDA::updateM()
   int m = 0;
   int lambda = 10;
 
-  m = _maxM * (1.0 - lambda * ( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM);
+  if(emE.predictionParameters.size() < 2) return;
+
+  m = _maxM * (1.0 - lambda * _u_i * fabs( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM);
 
   m = std::max(m, _minM);
 
