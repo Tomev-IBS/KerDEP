@@ -44,7 +44,7 @@ class DESDA
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
-    double beta = 20000.0, alpha = 0.0005, delta = 0.5, gamma = 50000.0;
+    double delta = 0.5, gamma = 50000.0;
     double w_E = 0.99;
     double avg = 0;
 
@@ -56,6 +56,8 @@ class DESDA
     std::vector<double> emEVals = {};
 
     double _newWeightB = 0;
+    double _alpha = 30.6;
+    double _beta = 16.7;
 
   protected:
 

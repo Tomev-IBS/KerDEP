@@ -33,6 +33,10 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _maxM = 2 * mE;
 
+  _samplingAlgorithm->changeReservoirMaxSize(_maxM);
+
+  _mE = _maxM;
+
   int l = kpssX * pow(mE, 0.25);
 
   stationarityTest.reset(new KPSSStationarityTest(mE, avg, l));
@@ -85,7 +89,7 @@ double stDev(std::vector<double> vals)
 
 void DESDA::performStep()
 {
-  updateM();
+  //updateM();
 
   // If weights degrades geomatrically
   if(_shouldCluster) updateWeights();
@@ -469,7 +473,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   // Count u_i
   if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- (30.6 * fabs(getStationarityTestValue()) - 16.7)));
+    _u_i = 1.0 / (1 + exp(- (_alpha * fabs(getStationarityTestValue()) - _beta)));
 
   _newWeightB = _u_i;
 
