@@ -11,6 +11,7 @@ class KPSSStationarityTest : public i_stationarityTest
     KPSSStationarityTest(int maxM, double &avg, int l = 0);
     double getTestsValue();
     double addNewSample(double sample);
+    void setSampleSize(int newSize);
   private:
     int _l = 0;
     int _maxM = 0;

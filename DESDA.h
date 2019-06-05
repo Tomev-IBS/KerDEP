@@ -51,6 +51,7 @@ class DESDA
     int _maxM = 1000;
     int _minM = 100;
     int _mE = 0; // Cardinality of observed new objects
+    int _m = 0; // Cardinality of objects to build clusters
 
     std::vector<double> aemEVals = {};
     std::vector<double> emEVals = {};
@@ -58,6 +59,8 @@ class DESDA
     double _newWeightB = 0;
     double _alpha = 30.6;
     double _beta = 16.7;
+
+    int _kpssM = 0;
 
   protected:
 

@@ -36,10 +36,16 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
   _mE = _maxM;
+  _m = _maxM;
 
   int l = kpssX * pow(mE, 0.25);
+  _kpssM = _mE;
 
-  stationarityTest.reset(new KPSSStationarityTest(mE, avg, l));
+  stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));
+}
+
+int round(int val){
+  return ceil(val) - val >= 0.5 ? ceil(val) : floor(val);
 }
 
 int sgn(double val)
@@ -89,7 +95,7 @@ double stDev(std::vector<double> vals)
 
 void DESDA::performStep()
 {
-  //updateM();
+  updateM();
 
   // If weights degrades geomatrically
   if(_shouldCluster) updateWeights();
@@ -99,7 +105,7 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  while(_clusters->size() >= _samplingAlgorithm->getReservoidMaxSize()
+  while(_clusters->size() >= _maxM //>= _samplingAlgorithm->getReservoidMaxSize()
      && !_shouldCluster)
   {
     //_clusters->erase(_clusters->begin(), _clusters->begin()+1);
@@ -127,7 +133,7 @@ void DESDA::performStep()
 
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
-  smoothingParameters[0] = smoothingParameters[0];
+  //smoothingParameters[0] = smoothingParameters[0];
 
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
@@ -136,14 +142,23 @@ void DESDA::performStep()
   qDebug() << "Reservoir size in step "
              << _stepNumber << " is: " << currentClusters.size();
 
+  qDebug () << "1";
+
   countKDEValuesOnClusters();
+
+  qDebug () << "2";
+
   avg = getAverageOfFirstMSampleValues(_mE);
+
+  qDebug () << "3";
 
   // Start at 0
   //if(_stepNumber >= _mE)
   stationarityTest->addNewSample(
       std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
+
+  qDebug () << "4";
 
   emE._currentKDEValue = avg;
 
@@ -167,6 +182,8 @@ void DESDA::performStep()
   }
 
   //updateA();
+
+  qDebug () << "Estimator";
 
   _estimator->setClusters(currentClusters);
 
@@ -250,6 +267,14 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
     {
       if(c->getWeight() >= _positionalSecondGradeEstimator)
         consideredClusters.push_back(c);
+    }
+  }
+
+  if(!_shouldCluster)
+  {
+    while(consideredClusters.size() > _m){
+      qDebug() << "m = " << _m;
+      consideredClusters.pop_back();
     }
   }
 
@@ -373,45 +398,15 @@ void DESDA::updateM()
 
   if(emE.predictionParameters.size() < 2) return;
 
-  m = _maxM * (1.0 - lambda * _u_i * fabs( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM);
+  m = round(_maxM * (1.0 - lambda * _u_i * fabs( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM));
 
   m = std::max(m, _minM);
 
-  _samplingAlgorithm->changeReservoirMaxSize(m);
-
-  _mE = m;
-
-  /*** new old
-
-  if(emE.predictionParameters.size() < 2) return;
-
-  m = _maxM * ( 1.0 - fabs(emE.predictionParameters[1]) * _maxM / 10.0);
-
-  m = std::max(m, (unsigned int) _minM);
-
-  _samplingAlgorithm->changeReservoirMaxSize(m);
-  _mE = m;
-
-  /*** YE OLDE VERSION
-  unsigned int m = 0;
-
-  if(emE.predictionParameters.size() < 2) return;
-
-  // New param for floating m
-  double kappa = emE.predictionParameters[1] * _u_i;
-
-  if(kappa < 1e-5) return; // Kappa == 0
-
-  if(kappa <= 1.0 / _maxM) m = _maxM;
-  else if(kappa >= 1.0 / _minM) m = _minM;
-  else m = 1.0 / kappa;
-
-  qDebug() << "Kappa = " << kappa;
-
-  _samplingAlgorithm->changeReservoirMaxSize(m);
-
-  _mE = m / 2;
-  ***/
+  _m = m;
+  //_samplingAlgorithm->changeReservoirMaxSize(m);
+  //_mE = m;
+  //_kpssM = m;
+  //stationarityTest->setSampleSize(_kpssM);
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)

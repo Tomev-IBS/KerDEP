@@ -1200,7 +1200,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
-  int l = 8;
+  int l = 32;
 
   groupingThread gt(&storedMedoids, parser);
 
@@ -2376,8 +2376,9 @@ void MainWindow::on_pushButton_start_clicked()
       bTextLabel
           ->setText("b = " + QString::number(DESDAAlgorithm._newWeightB));
 
-      mTextLabel->setText("m   = " + QString::number(algorithm->getReservoidMaxSize()));
-      mETextLabel->setText("mE  = " + QString::number(DESDAAlgorithm._mE));
+      mTextLabel->setText("m   = " + QString::number(DESDAAlgorithm._m));
+      mETextLabel->setText("mE  = " + QString::number(DESDAAlgorithm._mE)
+                           + ", mEta = " + QString::number(DESDAAlgorithm._kpssM));
 
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
@@ -2399,7 +2400,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 183\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 186\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
