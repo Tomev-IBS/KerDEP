@@ -1200,7 +1200,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
-  int l = 32;
+  int l = 8;
 
   groupingThread gt(&storedMedoids, parser);
 
@@ -2400,7 +2400,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 186\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 187\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

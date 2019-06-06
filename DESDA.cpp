@@ -35,7 +35,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
-  _mE = _maxM;
+  _mE = _maxM / 2;
   _m = _maxM;
 
   int l = kpssX * pow(mE, 0.25);
@@ -142,15 +142,15 @@ void DESDA::performStep()
   qDebug() << "Reservoir size in step "
              << _stepNumber << " is: " << currentClusters.size();
 
-  qDebug () << "1";
+  //qDebug () << "1";
 
   countKDEValuesOnClusters();
 
-  qDebug () << "2";
+  //qDebug () << "2";
 
   avg = getAverageOfFirstMSampleValues(_mE);
 
-  qDebug () << "3";
+  //qDebug () << "3";
 
   // Start at 0
   //if(_stepNumber >= _mE)
@@ -158,7 +158,7 @@ void DESDA::performStep()
       std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
 
-  qDebug () << "4";
+  //qDebug () << "4";
 
   emE._currentKDEValue = avg;
 
@@ -183,7 +183,7 @@ void DESDA::performStep()
 
   //updateA();
 
-  qDebug () << "Estimator";
+  //qDebug () << "Estimator";
 
   _estimator->setClusters(currentClusters);
 
@@ -273,7 +273,7 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
   if(!_shouldCluster)
   {
     while(consideredClusters.size() > _m){
-      qDebug() << "m = " << _m;
+      //qDebug() << "m = " << _m;
       consideredClusters.pop_back();
     }
   }
