@@ -39,7 +39,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   int l = kpssX * pow(mE, 0.25);
-  _kpssM = _mE;
+  _kpssM = _mE / 2;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));
 }
