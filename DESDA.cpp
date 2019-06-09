@@ -38,8 +38,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = _maxM;// 2;
   _m = _maxM;
 
-  int l = kpssX * pow(mE, 0.25);
-  _kpssM = _mE / 2;
+  _kpssM = _mE;
+  int l = kpssX * pow(_kpssM / 100, 0.25);
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));
 }
@@ -95,7 +95,7 @@ double stDev(std::vector<double> vals)
 
 void DESDA::performStep()
 {
-  updateM();
+  //updateM();
 
   // If weights degrades geomatrically
   if(_shouldCluster) updateWeights();

@@ -31,7 +31,7 @@ double KPSSStationarityTest::addNewSample(double sample)
 {
   _regressionRests.push_back(sample - _avg);
 
-  while(_regressionRests.size() == _maxM){
+  while(_regressionRests.size() > _maxM){
     _regressionRests.erase(_regressionRests.begin(), _regressionRests.begin() + 1);
   }
 }
