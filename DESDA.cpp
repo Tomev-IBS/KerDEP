@@ -35,10 +35,10 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
-  _mE = _maxM / 2;
+  _mE = _maxM ;// 2;
   _m = _maxM;
 
-  _kpssM = _mE;
+  _kpssM = _mE / 2;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));
