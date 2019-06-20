@@ -17,13 +17,13 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
              double desiredRarity, groupingThread *gt, double v,
-             double newWeightB, int mE, int kpssX):
+             double newWeightB, int mE, int kpssX, int lambda):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
   _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
   _grpThread(gt), _v(v), _newWeightB(newWeightB),
-  _enhancedKDE(enchancedKDE), _mE(mE)
+  _enhancedKDE(enchancedKDE), _mE(mE), _lambda(lambda)
 {
   _objects.clear();
   std::shared_ptr<sample> e1000Sample =
@@ -394,6 +394,15 @@ void DESDA::countKDEDerivativeValuesOnClusters()
 void DESDA::updateM()
 {
   int m = 0;
+
+  if(emE.predictionParameters.size() < 2) return;
+
+  m = round(_maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]) / getStdDevOfFirstMSampleValues(_mE)));
+
+  m = std::max(m, _minM);
+  _m = m;
+  /*
+  int m = 0;
   int lambda = 10;
 
   if(emE.predictionParameters.size() < 2) return;
@@ -407,6 +416,7 @@ void DESDA::updateM()
   //_mE = m;
   //_kpssM = m;
   //stationarityTest->setSampleSize(_kpssM);
+  */
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)

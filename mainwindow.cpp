@@ -1200,7 +1200,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
-  int l = 4;
+  int l = 8;
 
   groupingThread gt(&storedMedoids, parser);
 
@@ -1225,6 +1225,8 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
+  int lambda = 200;
+
   DESDA DESDAAlgorithm(
     estimator,
     kernelPrognoser,
@@ -1237,7 +1239,7 @@ void MainWindow::on_pushButton_start_clicked()
     ui->lineEdit_rarity->text().toDouble(),
     &gt,
     ui->lineEdit_distributionProgression->text().toDouble(),
-    newWeightB, mE, l
+    newWeightB, mE, l, lambda
   );
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -1681,7 +1683,7 @@ void MainWindow::on_pushButton_start_clicked()
   deltaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   deltaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   deltaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta));
+  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta), ", lambda = " + QString::number(lambda));
 
   verticalOffset += verticalStep;
 
@@ -2400,7 +2402,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 193\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 194\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

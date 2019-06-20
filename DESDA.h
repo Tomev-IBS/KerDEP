@@ -23,7 +23,7 @@ class DESDA
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::vector<std::shared_ptr<cluster>>> *storedMedoids,
           double desiredRarity, groupingThread *gt,
-          double v, double newWeightB, int mE, int kpssX);
+          double v, double newWeightB, int mE, int kpssX, int lambda);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
@@ -52,6 +52,7 @@ class DESDA
     int _minM = 100;
     int _mE = 0; // Cardinality of observed new objects
     int _m = 0; // Cardinality of objects to build clusters
+    int _lambda = 100;
 
     std::vector<double> aemEVals = {};
     std::vector<double> emEVals = {};
