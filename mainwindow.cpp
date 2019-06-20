@@ -1683,7 +1683,7 @@ void MainWindow::on_pushButton_start_clicked()
   deltaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   deltaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   deltaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta), ", lambda = " + QString::number(lambda));
+  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta) + ", lambda = " + QString::number(lambda));
 
   verticalOffset += verticalStep;
 
