@@ -1333,6 +1333,14 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> bTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  bTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  bTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  bTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  bTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  bTextLabel->setText("b = " + QString::number(newWeightB));
+
   verticalOffset += verticalStep;
 
 
@@ -1401,17 +1409,17 @@ void MainWindow::on_pushButton_start_clicked()
   deltaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   deltaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   deltaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta), ", lambda = " + QString::number(lambda));
+  deltaTextLabel->setText("delta = " + QString::number(DESDAAlgorithm.delta));
 
   verticalOffset += verticalStep;
 
-  std::shared_ptr<QCPItemText> bTextLabel =
+  std::shared_ptr<QCPItemText> lambdaTextLabel =
       std::make_shared<QCPItemText>(ui->widget_plot);
-  bTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-  bTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-  bTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
-  bTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  bTextLabel->setText("b = " + QString::number(newWeightB));
+  lambdaTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  lambdaTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  lambdaTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  lambdaTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  lambdaTextLabel->setText("lambda = " + QString::number(lambda));
 
   verticalOffset += verticalStep;
 
@@ -1984,57 +1992,6 @@ void MainWindow::on_pushButton_start_clicked()
           vsLabels[i] + formatNumberForDisplay(DESDAAlgorithm._selectedVValues[i])
         );
       }
-
-      // ======================== STEP ==========================
-      error1ejTextLabel
-          ->setText("er1_ej     = " + formatNumberForDisplay(_errorEJ));
-      error1ejpTextLabel
-          ->setText("er1_ejp    = " + formatNumberForDisplay(_errorEJP));
-      error1ejsTextLabel
-          ->setText("er1_ejs    = " + formatNumberForDisplay(error_ejs));
-      error2ejTextLabel
-          ->setText("er2_ej     = " + formatNumberForDisplay(error2EJ));
-      error2ejpTextLabel
-          ->setText("er2_ejp    = " + formatNumberForDisplay(error2EJP));
-      error2ejsTextLabel
-          ->setText("er2_ejs    = " + formatNumberForDisplay(error2EJS));
-      errorSupEjTextLabel
-          ->setText("ersup_ej   = " + formatNumberForDisplay(sup_ej));
-      errorSupEjpTextLabel
-          ->setText("ersup_ejp  = " + formatNumberForDisplay(sup_ejp));
-      errorSupEjsTextLabel
-          ->setText("ersup_ejs  = " + formatNumberForDisplay(sup_ejs));
-      errorModEjTextLabel
-          ->setText("ermod_ej   = " + formatNumberForDisplay(mod_ej));
-      errorModEjpTextLabel
-          ->setText("ermod_ejp  = " + formatNumberForDisplay(mod_ejp));
-      errorModEjsTextLabel
-          ->setText("ermod_ejs  = " + formatNumberForDisplay(mod_ejs));
-
-      error1RejTextLabel
-          ->setText("rej1_ej    = " + formatNumberForDisplay(rejej));
-      error1RejpTextLabel
-          ->setText("rej1_ejp   = " + formatNumberForDisplay(rejejp));
-      error1RejsTextLabel
-          ->setText("rej1_ejs   = " + formatNumberForDisplay(rejejs));
-      error2RejTextLabel
-          ->setText("rej2_ej    = " + formatNumberForDisplay(rejej2));
-      error2RejpTextLabel
-          ->setText("rej2_ejp   = " + formatNumberForDisplay(rejejp2));
-      error2RejsTextLabel
-          ->setText("rej2_ejs   = " + formatNumberForDisplay(rejejs2));
-      errorSupRejTextLabel
-          ->setText("rejsup_ej  = " + formatNumberForDisplay(rejsupej));
-      errorSupRejpTextLabel
-          ->setText("rejsup_ejp = " + formatNumberForDisplay(rejsupejp));
-      errorSupRejsTextLabel
-          ->setText("rejsup_ejs = " + formatNumberForDisplay(rejsupejs));
-      errorModRejTextLabel
-          ->setText("rejmod_ej  = " + formatNumberForDisplay(rejmodej));
-      errorModRejpTextLabel
-          ->setText("rejmod_ejp = " + formatNumberForDisplay(rejmodejp));
-      errorModRejsTextLabel
-          ->setText("rejmod_ejs = " + formatNumberForDisplay(rejmodejs));
 
       // ============ SUMS =========== //
 
