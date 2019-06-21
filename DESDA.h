@@ -58,8 +58,8 @@ class DESDA
     std::vector<double> emEVals = {};
 
     double _newWeightB = 0;
-    double _alpha = 30.6;
-    double _beta = 16.7;
+    double _alpha = 20.4;
+    double _beta = 11.1;
 
     int _kpssM = 0;
 
