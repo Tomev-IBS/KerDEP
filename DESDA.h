@@ -107,6 +107,8 @@ class DESDA
     void countKDEDerivativeValuesOnClusters();
     void updateM();
 
+    void saveWeightsToFile(std::string fileName);
+
 };
 
 #endif // DESDA_H

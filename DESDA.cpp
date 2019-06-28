@@ -105,8 +105,7 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  while(_clusters->size() >= _maxM //>= _samplingAlgorithm->getReservoidMaxSize()
-     && !_shouldCluster)
+  while(_clusters->size() >= _maxM && !_shouldCluster)
   {
     //_clusters->erase(_clusters->begin(), _clusters->begin()+1);
     _clusters->pop_back();
@@ -118,6 +117,7 @@ void DESDA::performStep()
 
   // If weights degrades accodring to new formula
   if(!_shouldCluster) updateWeights();
+  if(_stepNumber % 10 == 0) saveWeightsToFile(std::to_string(_stepNumber) + ".txt");
 
   _smoothingParamCounter->updateSmoothingParameterValue(
     _weightModifier,
@@ -401,22 +401,22 @@ void DESDA::updateM()
 
   m = std::max(m, _minM);
   _m = m;
-  /*
-  int m = 0;
-  int lambda = 10;
+}
 
-  if(emE.predictionParameters.size() < 2) return;
+void DESDA::saveWeightsToFile(std::string fileName)
+{
+    std::string filePath = "D:\\Dysk Google\\TR Badania\\Eksperyment 206 (w_0.98, m_E=m_Eta=100)\\" + fileName;
+    std::string line = "";
 
-  m = round(_maxM * (1.0 - lambda * _u_i * fabs( emE.predictionParameters[1] /  getStdDevOfFirstMSampleValues(_mE) ) * _maxM / _minM));
+    std::ofstream experimentDataFile;
+    experimentDataFile.open(filePath, std::ios_base::app);
 
-  m = std::max(m, _minM);
+    for(int i = 0; i < _clusters->size(); ++i){
+         line = std::to_string(i) + ". " + std::to_string((*_clusters)[i]->getWeight()) + "\n";
+         experimentDataFile << line;
+    }
 
-  _m = m;
-  //_samplingAlgorithm->changeReservoirMaxSize(m);
-  //_mE = m;
-  //_kpssM = m;
-  //stationarityTest->setSampleSize(_kpssM);
-  */
+    experimentDataFile.close();
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
