@@ -68,6 +68,9 @@ class DESDA
     const double _MAX_A = 1.5;
     const double _MIN_A = 0.01;
 
+    std::vector<double> _EmEWeights = {};
+    double _EmEWeightsSum = 0.0;
+
     int _stepNumber = 0;
     int _numberOfClustersForGrouping = 100;
     int _medoidsNumber = 50;
@@ -106,8 +109,10 @@ class DESDA
     void updatePrognosisParameters();
     void countKDEDerivativeValuesOnClusters();
     void updateM();
+    double getNewEmEValue();
 
     void saveWeightsToFile(std::string fileName);
+    void saveEmEWeightsToFile(std::string fileName);
 
 };
 

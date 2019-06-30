@@ -35,13 +35,13 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
-  _mE = _maxM / 4;
+  _mE = _maxM / 2;
   _m = _maxM;
 
   _kpssM = _mE;// 2;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
-  stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));
+  stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));  
 }
 
 int round(int val){
@@ -117,7 +117,6 @@ void DESDA::performStep()
 
   // If weights degrades accodring to new formula
   if(!_shouldCluster) updateWeights();
-  if(_stepNumber % 10 == 0) saveWeightsToFile(std::to_string(_stepNumber) + ".txt");
 
   _smoothingParamCounter->updateSmoothingParameterValue(
     _weightModifier,
@@ -148,7 +147,13 @@ void DESDA::performStep()
 
   //qDebug () << "2";
 
-  avg = getAverageOfFirstMSampleValues(_mE);
+  //avg = getAverageOfFirstMSampleValues(_mE);
+  avg = getNewEmEValue();
+
+  if(_stepNumber % 10 == 0 && _stepNumber != 0){
+      saveWeightsToFile(std::to_string(_stepNumber) + ".txt");
+      saveEmEWeightsToFile("EmE_" + std::to_string(_stepNumber) + ".txt");
+  }
 
   //qDebug () << "3";
 
@@ -178,7 +183,8 @@ void DESDA::performStep()
     _grpThread->getClustersForGrouping(clustersForGrouping);
     _grpThread->run();
     currentClusters = getClustersForEstimator();
-    _clusters = &((*_storedMedoids)[0]); // Reassigment needed, as (probably) grouping algorithm resets it
+    // Reassigment needed, as (probably) grouping algorithm resets it
+    _clusters = &((*_storedMedoids)[0]);
   }
 
   //updateA();
@@ -239,18 +245,13 @@ void DESDA::updateWeights()
   }
   else
   {
-    //qDebug() << "Updating weights.";
-    _newWeightB = _u_i;
-
-    double sampleMaxSize = _samplingAlgorithm->getReservoidMaxSize();
-
     for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
     {
       // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
       double newWeight =
-          1.0 - _newWeightB * (clusterNum)  / (sampleMaxSize - 1);
+          1.0 - _newWeightB * (clusterNum) / _m;
 
-      if(newWeight < 0) newWeight = 0;
+      newWeight = std::max(0.0, newWeight);
 
       (*_clusters)[clusterNum]->setWeight(newWeight);
     }
@@ -403,9 +404,31 @@ void DESDA::updateM()
   _m = m;
 }
 
+double DESDA::getNewEmEValue()
+{
+    // Initialize EmEWeights vector
+    _EmEWeights.clear();
+    _EmEWeightsSum = 0;
+
+    for(int i = 0; i < _mE; ++i){
+        double val = 1.0 - _newWeightB * i / _mE;
+        _EmEWeights.push_back(val);
+        _EmEWeightsSum += val;
+    }
+
+    // Get weighted average
+    double avg = 0;
+    double mE = std::min((int)_clusters->size(), _mE);
+    for(int i = 0; i < mE; ++i){
+        avg += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]) * _EmEWeights[i];
+    }
+
+    return avg / _EmEWeightsSum;
+}
+
 void DESDA::saveWeightsToFile(std::string fileName)
 {
-    std::string filePath = "D:\\Dysk Google\\TR Badania\\Eksperyment 206 (w_0.98, m_E=m_Eta=100)\\" + fileName;
+    std::string filePath = "D:\\Dysk Google\\TR Badania\\reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
     std::string line = "";
 
     std::ofstream experimentDataFile;
@@ -418,6 +441,24 @@ void DESDA::saveWeightsToFile(std::string fileName)
 
     experimentDataFile.close();
 }
+
+void DESDA::saveEmEWeightsToFile(std::string fileName)
+{
+    std::string filePath = "D:\\Dysk Google\\TR Badania\\reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
+    std::string line = "";
+
+    std::ofstream experimentDataFile;
+    experimentDataFile.open(filePath, std::ios_base::app);
+
+    for(int i = 0; i < _EmEWeights.size(); ++i){
+         line = std::to_string(i) + ". " + std::to_string(_EmEWeights[i]) + "\n";
+         experimentDataFile << line;
+    }
+
+    experimentDataFile.close();
+}
+
+
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
 {
