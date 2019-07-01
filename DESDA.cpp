@@ -99,6 +99,7 @@ void DESDA::performStep()
 
   // If weights degrades geomatrically
   if(_shouldCluster) updateWeights();
+
   _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
 
   std::shared_ptr<cluster> newCluster =
@@ -428,11 +429,15 @@ double DESDA::getNewEmEValue()
 
 void DESDA::saveWeightsToFile(std::string fileName)
 {
-    std::string filePath = "D:\\Dysk Google\\TR Badania\\reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
+
+
+    std::string filePath = "D:\\Dysk Google\\TR Badania\\TEST reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
     std::string line = "";
 
     std::ofstream experimentDataFile;
     experimentDataFile.open(filePath, std::ios_base::app);
+
+    experimentDataFile << "b = " << std::to_string(_newWeightB) << ", m = " << std::to_string(_m) << std::endl;
 
     for(int i = 0; i < _clusters->size(); ++i){
          line = std::to_string(i) + ". " + std::to_string((*_clusters)[i]->getWeight()) + "\n";
@@ -444,11 +449,13 @@ void DESDA::saveWeightsToFile(std::string fileName)
 
 void DESDA::saveEmEWeightsToFile(std::string fileName)
 {
-    std::string filePath = "D:\\Dysk Google\\TR Badania\\reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
+    std::string filePath = "D:\\Dysk Google\\TR Badania\\TEST reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
     std::string line = "";
 
     std::ofstream experimentDataFile;
     experimentDataFile.open(filePath, std::ios_base::app);
+
+    experimentDataFile << "b = " << std::to_string(_newWeightB) << ", m = " << std::to_string(_m) << std::endl;
 
     for(int i = 0; i < _EmEWeights.size(); ++i){
          line = std::to_string(i) + ". " + std::to_string(_EmEWeights[i]) + "\n";
@@ -457,8 +464,6 @@ void DESDA::saveEmEWeightsToFile(std::string fileName)
 
     experimentDataFile.close();
 }
-
-
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
 {
