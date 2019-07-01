@@ -41,6 +41,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _kpssM = _mE;// 2;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
+  _stepNumber = 1;
+
   stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));  
 }
 
@@ -151,7 +153,7 @@ void DESDA::performStep()
   //avg = getAverageOfFirstMSampleValues(_mE);
   avg = getNewEmEValue();
 
-  if(_stepNumber % 10 == 0 && _stepNumber != 0){
+  if(_stepNumber % 10 == 0){
       saveWeightsToFile(std::to_string(_stepNumber) + ".txt");
       saveEmEWeightsToFile("EmE_" + std::to_string(_stepNumber) + ".txt");
   }
