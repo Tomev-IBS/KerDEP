@@ -153,10 +153,12 @@ void DESDA::performStep()
   //avg = getAverageOfFirstMSampleValues(_mE);
   avg = getNewEmEValue();
 
+  /*
   if(_stepNumber % 10 == 0){
       saveWeightsToFile(std::to_string(_stepNumber) + ".txt");
       saveEmEWeightsToFile("EmE_" + std::to_string(_stepNumber) + ".txt");
   }
+  */
 
   //qDebug () << "3";
 
