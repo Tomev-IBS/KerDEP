@@ -35,10 +35,10 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
-  _mE = _maxM / 4;
+  _mE = 1000;
   _m = _maxM;
 
-  _kpssM = _mE;// 2;
+  _kpssM = 250;// 2;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
   _stepNumber = 1;
