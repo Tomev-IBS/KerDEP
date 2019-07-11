@@ -2077,7 +2077,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 219 (w_EmE = 0.97, m_E=1000, m_Eta=250, x=8)\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 220 (w_EmE = 0.97, m_E=1000, m_Eta=250, x=8, seed=1234)\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
