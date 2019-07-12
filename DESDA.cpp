@@ -38,7 +38,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = 1000;
   _m = _maxM;
 
-  _kpssM = 500;// 2;
+  _kpssM = 250;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
   _stepNumber = 1;
