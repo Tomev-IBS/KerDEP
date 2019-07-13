@@ -2077,7 +2077,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 227 (w_EmE = "+ QString::number(DESDAAlgorithm.w_E) +", m_E=1000, m_Eta="+QString::number(DESDAAlgorithm._kpssM)+", x=8, seed="+ui->lineEdit_seed->text()+")\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 228 (w_EmE = "+ QString::number(DESDAAlgorithm.w_E) +", m_E=1000, m_Eta="+QString::number(DESDAAlgorithm._kpssM)+", x=8, seed="+ui->lineEdit_seed->text()+")\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
