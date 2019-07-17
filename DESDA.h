@@ -45,7 +45,7 @@ class DESDA
     std::vector<double> _selectedVValues = {};
 
     double delta = 0.5, gamma = 50000.0;
-    double w_E = 0.96; // w_EmE
+    double w_E = 0.97; // w_EmE
     double avg = 0;
 
     int _maxM = 1000;
