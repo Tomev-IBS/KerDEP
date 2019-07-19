@@ -31,7 +31,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   emE = cluster(e1000Sample);
   emE._deactualizationParameter = w_E;
 
-  _maxM = mE;
+  _maxM = 2 * mE;
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
