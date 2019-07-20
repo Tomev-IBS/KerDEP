@@ -1225,7 +1225,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 200;
+  int lambda = 100;
 
   DESDA DESDAAlgorithm(
     estimator,
