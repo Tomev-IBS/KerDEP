@@ -35,7 +35,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
 
-  _mE = 500;
+  _mE = 1000;
   _m = _maxM;
 
   _kpssM = 500;
@@ -403,10 +403,10 @@ void DESDA::updateM()
 
   if(emE.predictionParameters.size() < 2) return;
 
-  m = round(_maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]) / getStdDevOfFirstMSampleValues(_mE)));
+  m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
 
   m = std::max(m, _minM);
-  _m = m;
+  _m = std::min(m, _maxM);
 }
 
 double DESDA::getNewEmEValue()
@@ -598,6 +598,8 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
 
   if(m0 == 1) return 1;
 
+  // Seems to be a better version of formula, but couldn't find it in the books or internet.
+  /*
   double sumOfVals = 0, sumOfSquares = 0, val = 0;
 
   for(int i = 0; i < m0; ++i){
@@ -610,8 +612,29 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
   sumOfVals /= m0 * (m0 - 1);
 
   sumOfSquares /= m0 - 1;
+  */
 
-  return pow(sumOfSquares - sumOfVals, 0.5);
+  double avgME = 0;
+
+  // Counting average
+  for(int i = 0; i < m0; ++i){
+    avgME += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
+  }
+
+  avgME /= m0;
+
+  // Counting var
+  double val, var = 0;
+
+  for(int i = 0; i < m0; ++i){
+    val = std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
+    var += pow(val - avgME, 2);
+  }
+
+  var /= m0 - 1;
+
+  _stDev = pow(var, 0.5);
+  return _stDev;
 }
 
 cluster DESDA::getEmECluster()

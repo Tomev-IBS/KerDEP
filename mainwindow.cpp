@@ -1431,6 +1431,16 @@ void MainWindow::on_pushButton_start_clicked()
   xTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
   xTextLabel->setText("x = " + QString::number(l));
 
+  /*
+  std::shared_ptr<QCPItemText> stDevTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  stDevTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  stDevTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  stDevTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  stDevTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  stDevTextLabel->setText("stDev_mE = 1");
+  */
+
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -2057,6 +2067,11 @@ void MainWindow::on_pushButton_start_clicked()
       mETextLabel->setText("mE  = " + QString::number(DESDAAlgorithm._mE)
                            + ", mEta = " + QString::number(DESDAAlgorithm._kpssM));
 
+      /*
+      stDevTextLabel
+            ->setText("stDev_mE = " + formatNumberForDisplay(DESDAAlgorithm._stDev));
+      */
+
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
       lastWKDEValues.clear();
@@ -2077,7 +2092,12 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 246 (w_EmE = "+ QString::number(DESDAAlgorithm.w_E) +", m_E=" + QString::number(DESDAAlgorithm._mE) + ", m_Eta="+QString::number(DESDAAlgorithm._kpssM)+", x=8, seed="+ui->lineEdit_seed->text()+")\\";
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 249 ("
+                        "w_EmE = "+ QString::number(DESDAAlgorithm.w_E) +", "
+                        "m_E=" + QString::number(DESDAAlgorithm._mE) +
+                        ", m_Eta="+QString::number(DESDAAlgorithm._kpssM)+", "
+                        "seed="+ui->lineEdit_seed->text()+
+                        ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
       //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
