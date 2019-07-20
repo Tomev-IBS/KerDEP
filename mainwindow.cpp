@@ -1225,7 +1225,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 500;
+  int lambda = 1000;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -2092,7 +2092,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 251 ("
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 252 ("
                         "w_EmE = "+ QString::number(DESDAAlgorithm.w_E) +", "
                         "m_E=" + QString::number(DESDAAlgorithm._mE) +
                         ", m_Eta="+QString::number(DESDAAlgorithm._kpssM)+", "
