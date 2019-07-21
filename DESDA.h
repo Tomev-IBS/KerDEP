@@ -50,7 +50,7 @@ class DESDA
     double _stDev = 1;
 
     int _maxM = 1000;
-    int _minM = 100;
+    int _minM = 250;
     int _mE = 0; // Cardinality of observed new objects
     int _m = 0; // Cardinality of objects to build KDE
     int _lambda = 100;
