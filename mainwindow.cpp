@@ -474,7 +474,8 @@ void MainWindow::resizePlot()
 {
     // Resize plot
     qreal   minX = ui->lineEdit_minX->text().toDouble(),
-            maxX = ui->lineEdit_maxX->text().toDouble(),
+            //maxX = ui->lineEdit_maxX->text().toDouble(),
+            maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000,
             minY = ui->lineEdit_minY->text().toDouble(),
             maxY = ui->lineEdit_maxY->text().toDouble();
 
@@ -830,6 +831,8 @@ distribution* MainWindow::generateTargetDistribution(
 
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
+    double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
+
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
         contributions.append
@@ -838,7 +841,7 @@ distribution* MainWindow::generateTargetDistribution(
             ->text().toDouble()
         );
 
-        elementalDistributions.append(std::shared_ptr<distribution>(new normalDistribution(seed, means->at(functionIndex).get(), stDevs->at(functionIndex).get())));
+        elementalDistributions.append(std::shared_ptr<distribution>(new normalDistribution(seed, means->at(functionIndex).get(), stDevs->at(functionIndex).get(), maxMean)));
     }
 
     return new complexDistribution(seed, &elementalDistributions, &contributions);
@@ -2095,7 +2098,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       ui->lineEdit_distributionProgression->text();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 255 ("
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 256 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
       /*/

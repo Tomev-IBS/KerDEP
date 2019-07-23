@@ -3,8 +3,8 @@
 
 #include <QDebug>
 
-normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<qreal> *stDevs) :
-    means(means), stDevs(stDevs)
+normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<qreal> *stDevs, double maxMean) :
+    means(means), stDevs(stDevs), _maxMean(maxMean)
 {
     generator = std::default_random_engine(seed);
 
@@ -51,7 +51,7 @@ void normalDistribution::increaseMeans(qreal addend)
     for(int i = 0; i < means->size(); ++i)
     {
         // TODO: FIXED THRESHOLD FOR RESEARCHES
-        if(means->at(i) < 15)
+        if(means->at(i) < _maxMean)
         {
             means->push_back(means->at(i) + addend);
             means->pop_front();
