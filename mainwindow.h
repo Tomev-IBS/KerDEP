@@ -103,6 +103,7 @@ class MainWindow : public QMainWindow
 
     // Enhancement
     QVector<double> _sigmoidallyEnhancedPlotY;
+    QVector<double> _windowedEstimatorY;
     QVector<double> _lastSigmoidallyEnhancedPlotY;
     double  _summaricKDEError1 = 0.0, _summaricKDEPError1 = 0.0, _summaricKDESError1 = 0.0,
             _summaricKDEError2 = 0.0, _summaricKDEPError2 = 0.0, _summaricKDESError2 = 0.0,
@@ -151,6 +152,7 @@ class MainWindow : public QMainWindow
     void clearPlot();
     void resizePlot();
     void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
+    void addWindowedEstimatorPlot(const QVector<qreal> *X);
     void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
     void addWeightedEstimatorPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
     double countNewtonianDerivative(int i, const QVector<qreal> *Y);

@@ -393,6 +393,11 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
 
     //qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
 
+    // Generate plot of window-only KDE
+    if(ui->checkBox_windowKDE->isChecked())
+        addWindowedEstimatorPlot(&X);
+
+
     // Generate a plot of KDE
     if(ui->checkBox_showEstimatedPlot->isChecked())
       addEstimatedPlot(&X, &KDEEstimationY);
@@ -536,25 +541,20 @@ void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
         ->setPen(QPen(Qt::red));
 }
 
+void MainWindow::addWindowedEstimatorPlot(const QVector<qreal> *X)
+{
+    ui->widget_plot->addGraph();
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, _windowedEstimatorY);
+    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
+        ->setPen(QPen(Qt::black));
+}
+
 void MainWindow::addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 {
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, *Y);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
         ->setPen(QPen(Qt::blue));
-
-    // Derivative + KDE
-    /*
-    QVector<qreal> additionY = {};
-
-    for(int i = 0; i < Y->size(); ++i)
-      additionY.append((*Y)[i] + _kernelPrognosisDerivativeValues[i]);
-
-    ui->widget_plot->addGraph();
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, additionY);
-    ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
-        ->setPen(QPen(Qt::green));
-    */
 }
 
 void MainWindow::addWeightedEstimatorPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
@@ -1225,7 +1225,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 500;
+  int lambda = 1000;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -1762,8 +1762,9 @@ void MainWindow::on_pushButton_start_clicked()
         }
       }
 
-      drawPlots(estimator.get(), targetFunction.get());
+      _windowedEstimatorY = DESDAAlgorithm.getWindowKDEValues(&X);
 
+      drawPlots(estimator.get(), targetFunction.get());
 
       cluster emE = DESDAAlgorithm.getEmECluster();
 
@@ -2092,13 +2093,17 @@ void MainWindow::on_pushButton_start_clicked()
 
       qApp->processEvents();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 254 ("
-                        "w_EmE = "+ QString::number(DESDAAlgorithm.w_E) +", "
-                        "m_E=" + QString::number(DESDAAlgorithm._mE) +
-                        ", m_Eta="+QString::number(DESDAAlgorithm._kpssM)+", "
-                        "seed="+ui->lineEdit_seed->text()+
+      ui->lineEdit_distributionProgression->text();
+
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 255 ("
+                        "v = " + ui->lineEdit_distributionProgression->text() +
                         ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
-      //QString dirPath = "D:\\Dysk Google\\Badania\\test\\";
+      /*/
+      QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 255 ("
+                        "v = " + ui->lineEdit_distributionProgression->text() +
+                        ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
+      */
+
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

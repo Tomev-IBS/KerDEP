@@ -287,6 +287,23 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
   return consideredClusters;
 }
 
+std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
+{
+    std::vector<std::shared_ptr<cluster>> consideredClusters = {};
+
+    for(std::vector<std::shared_ptr<cluster>> level : (*_storedMedoids))
+    {
+      for(std::shared_ptr<cluster> c : level)
+      {
+          consideredClusters.push_back(c);
+      }
+    }
+
+    qDebug() << "Number of clusters for windowed estimator is: " << consideredClusters.size();
+
+    return consideredClusters;
+}
+
 void DESDA::countKDEValuesOnClusters()
 {
   QVector<qreal> x;
@@ -549,9 +566,9 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
     standardWeights.push_back(c->getWeight());
 
+    // TR TODO: Change to find in vector
     if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
-       standardWeights.size() == 200 /*|| standardWeights.size() == 300 ||
-       standardWeights.size() == 500 || standardWeights.size() == 700*/)
+       standardWeights.size() == 200)
       _selectedVValues.push_back(v_i);
 
     avgC2 += c->predictionParameters[1];
@@ -578,6 +595,23 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   //qDebug() << "Max a param: " << maxAParam;
   return enhancedKDEValues;
+}
+
+QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
+{
+    QVector<qreal> x;
+    QVector<double> windowKDEValues = {};
+
+    auto consideredClusters = getClustersForWindowedEstimator();
+    _estimator->setClusters(consideredClusters);
+
+    for(qreal x: *X)
+    {
+      QVector<qreal> q = {x};
+      windowKDEValues.push_back(_estimator->getValue(&q));
+    }
+
+    return windowKDEValues;
 }
 
 double DESDA::getAverageOfFirstMSampleValues(int M)

@@ -28,6 +28,7 @@ class DESDA
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
     QVector<double> getEnhancedKDEValues(const QVector<qreal> *X);
+    QVector<double> getWindowKDEValues(const QVector<qreal> *X);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();
@@ -104,6 +105,7 @@ class DESDA
 
     void updateWeights();
     std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
+    std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
     unsigned long long findUncommonClusters();
     void updateA();

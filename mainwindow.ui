@@ -641,6 +641,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="checkBox_windowKDE">
+           <property name="text">
+            <string>Window KDE</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="checkBox_showEstimationPlot">
            <property name="text">
             <string>Estimation Plot</string>
