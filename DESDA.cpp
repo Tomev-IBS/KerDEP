@@ -604,12 +604,15 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
 
     auto consideredClusters = getClustersForWindowedEstimator();
     _estimator->setClusters(consideredClusters);
+    _estimator->_shouldConsiderWeights = false;
 
     for(qreal x: *X)
     {
       QVector<qreal> q = {x};
       windowKDEValues.push_back(_estimator->getValue(&q));
     }
+
+    _estimator->_shouldConsiderWeights = true;
 
     return windowKDEValues;
 }

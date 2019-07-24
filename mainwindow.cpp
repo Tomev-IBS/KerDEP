@@ -372,8 +372,9 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
     double val;
     _maxEstimatorValueOnDomain = 0;
 
+    estimator->_shouldConsiderWeights = false;
+
     // TODO: Place counting in another thread
-    //foreach(std::shared_ptr<point> x, domain)
     for(int i = 0; i < domain.size(); ++i)
     {
       auto x = domain[i];
@@ -389,14 +390,16 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
       oldKerernelY.append(val);
       KDEEstimationY.append(val);
       KDEValues.push_back(val);
+
     }
+
+    estimator->_shouldConsiderWeights = true;
 
     //qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
 
     // Generate plot of window-only KDE
     if(ui->checkBox_windowKDE->isChecked())
         addWindowedEstimatorPlot(&X);
-
 
     // Generate a plot of KDE
     if(ui->checkBox_showEstimatedPlot->isChecked())
@@ -1228,7 +1231,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 1000;
+  int lambda = 200;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -2098,7 +2101,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       ui->lineEdit_distributionProgression->text();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 256 ("
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 258 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
       /*/
