@@ -798,8 +798,10 @@ void MainWindow::fillDomain(
 
 
     qreal val = ui->lineEdit_minX->text().toDouble();
+    qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;
 
-    while(val <= ui->lineEdit_maxX->text().toDouble())
+    //while(val <= ui->lineEdit_maxX->text().toDouble())
+    while(val <= maxVal)
     {
         pPoint.get()->append(val);
 
