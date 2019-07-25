@@ -547,6 +547,7 @@ void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 
 void MainWindow::addWindowedEstimatorPlot(const QVector<qreal> *X)
 {
+    qDebug() << "Windowed estimator domain size: " << _windowedEstimatorY.size();
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, _windowedEstimatorY);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)
@@ -1233,7 +1234,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 500;
+  int lambda = 1000;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -2103,7 +2104,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       ui->lineEdit_distributionProgression->text();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 262 ("
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 263 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
       /*/
