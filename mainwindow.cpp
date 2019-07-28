@@ -1234,7 +1234,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 200;
+  int lambda = 333;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -2104,7 +2104,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       ui->lineEdit_distributionProgression->text();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\reEksperyment 261 ("
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 264 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", Lambda = " + QString::number(DESDAAlgorithm._lambda)+")\\";
       /*/
