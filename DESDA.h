@@ -45,13 +45,13 @@ class DESDA
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
-    double delta = 0.5, gamma = 50000.0;
+    double delta = 0.0, gamma = 50000.0;
     double w_E = 0.98; // w_EmE
     double avg = 0;
     double _stDev = 1;
 
     int _maxM = 1000;
-    int _minM = 250;
+    int _minM = 200;
     int _mE = 0; // Cardinality of observed new objects
     int _m = 0; // Cardinality of objects to build KDE
     int _lambda = 100;
