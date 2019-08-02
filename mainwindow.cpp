@@ -1368,7 +1368,7 @@ void MainWindow::on_pushButton_start_clicked()
   m0minTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   m0minTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   m0minTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  m0minTextLabel->setText("m0   = " + ui->lineEdit_sampleSize->text() + ", m_min = 250");
+  m0minTextLabel->setText("m0   = " + ui->lineEdit_sampleSize->text() + ", m_min = " + QString::number(DESDAAlgorithm._minM) + ")");
 
   verticalOffset += verticalStep;
 
