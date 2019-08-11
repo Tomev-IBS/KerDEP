@@ -547,7 +547,6 @@ void MainWindow::addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y)
 
 void MainWindow::addWindowedEstimatorPlot(const QVector<qreal> *X)
 {
-    qDebug() << "Windowed estimator domain size: " << _windowedEstimatorY.size();
     ui->widget_plot->addGraph();
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(*X, _windowedEstimatorY);
     ui->widget_plot->graph(ui->widget_plot->graphCount()-1)

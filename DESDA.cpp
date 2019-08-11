@@ -299,8 +299,6 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
       }
     }
 
-    qDebug() << "Number of clusters for windowed estimator is: " << consideredClusters.size();
-
     return consideredClusters;
 }
 
