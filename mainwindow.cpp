@@ -1367,7 +1367,7 @@ void MainWindow::on_pushButton_start_clicked()
   m0minTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
   m0minTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
   m0minTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
-  m0minTextLabel->setText("m0   = " + ui->lineEdit_sampleSize->text() + ", m_min = " + QString::number(DESDAAlgorithm._minM) + ")");
+  m0minTextLabel->setText("m0   = " + ui->lineEdit_sampleSize->text() + ", m_min = " + QString::number(DESDAAlgorithm._minM));
 
   verticalOffset += verticalStep;
 
@@ -2103,7 +2103,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       ui->lineEdit_distributionProgression->text();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 296 ("
+      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 297 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", delta = " + QString::number(DESDAAlgorithm.delta)+")\\";
       /*/
