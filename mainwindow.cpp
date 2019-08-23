@@ -2139,4 +2139,13 @@ void MainWindow::on_pushButton_start_clicked()
   }
 
   qDebug() << "Animation finished.";
+  // Value print for exp300+
+  qDebug() << _summaricKDEPError1;
+  qDebug() << _summaricKDEPError2;
+  qDebug() << _summaricKDEPErrorSup;
+  qDebug() << _summaricKDEPErrorMod;
+  qDebug() << _summaricKDEPsError1;
+  qDebug() << _summaricKDEPsError2;
+  qDebug() << _summaricKDEPsErrorSup;
+  qDebug() << _summaricKDEPsErrorMod;
 }
