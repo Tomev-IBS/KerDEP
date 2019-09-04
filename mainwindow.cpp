@@ -2103,7 +2103,10 @@ void MainWindow::on_pushButton_start_clicked()
 
       ui->lineEdit_distributionProgression->text();
 
-      QString dirPath = "D:\\Dysk Google\\TR Badania\\Eksperyment 319 ("
+      QString googleDriveDir = "D:\\Dysk Google\\"; // Home
+      //QString googleDriveDir = "C:\\Users\\rybot\\Dysk Google\\"; // Work
+
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 319 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", delta = " + QString::number(DESDAAlgorithm.delta)+")\\";
       /*/
