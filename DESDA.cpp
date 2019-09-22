@@ -95,9 +95,14 @@ double stDev(std::vector<double> vals)
   return std::sqrt(sigma);
 }
 
+double sigmoid(double x){
+    return 1.0 / (1.0 + exp(-x));
+}
+
 void DESDA::performStep()
 {
   updateM();
+  updateDelta();
 
   // If weights degrades geomatrically
   if(_shouldCluster) updateWeights();
@@ -422,6 +427,13 @@ void DESDA::updateM()
 
   m = std::max(m, _minM);
   _m = std::min(m, _maxM);
+}
+
+void DESDA::updateDelta()
+{
+    if(emE.predictionParameters.size() < 2) return;
+
+    delta = sigmoid(30.0 * pow(emE.predictionParameters[1], 1.0 / 3.0) - 4.0);
 }
 
 double DESDA::getNewEmEValue()

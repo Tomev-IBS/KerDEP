@@ -2066,6 +2066,8 @@ void MainWindow::on_pushButton_start_clicked()
       errorModSRejsTextLabel
           ->setText("srejmod_ejs = " + formatNumberForDisplay(_summaricKDESsErrorMod));
 
+      deltaTextLabel->setText("delta = " + formatNumberForDisplay(DESDAAlgorithm.delta));
+
       stationarityTestTextLabel
           ->setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
@@ -2106,9 +2108,9 @@ void MainWindow::on_pushButton_start_clicked()
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
       //QString googleDriveDir = "C:\\Users\\rybot\\Dysk Google\\"; // Work
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 333 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 334 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", delta = " + QString::number(DESDAAlgorithm.delta)+")\\";
+                        ", delta eq1\\";
       /*/
       QString dirPath = "D:\\Dysk Google\\Badania\\Eksperyment 255 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
