@@ -434,8 +434,8 @@ void DESDA::updateDelta()
     if(emE.predictionParameters.size() < 2) return;
 
     double sigmoidArg = - 4.0;
-    sigmoidArg += 30 * cbrt(fabs(emE.predictionParameters[1]));
-    qDebug() << "sigmoidArg: " << sigmoidArg;
+    sigmoidArg += 28 * cbrt(fabs(emE.predictionParameters[1]));
+    //qDebug() << "sigmoidArg: " << sigmoidArg;
 
     delta = sigmoid(sigmoidArg);
 }
