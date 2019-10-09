@@ -113,6 +113,7 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
+  // Window approach
   while(_clusters->size() >= _maxM && !_shouldCluster)
   {
     //_clusters->erase(_clusters->begin(), _clusters->begin()+1);
@@ -423,7 +424,10 @@ void DESDA::updateM()
 
   if(emE.predictionParameters.size() < 2) return;
 
-  m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
+  // Old m
+  //m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
+  // 8 X 2019 m
+  m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
 
   m = std::max(m, _minM);
   _m = std::min(m, _maxM);
