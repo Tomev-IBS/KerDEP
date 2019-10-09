@@ -425,9 +425,9 @@ void DESDA::updateM()
   if(emE.predictionParameters.size() < 2) return;
 
   // Old m
-  //m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
+  m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
   // 8 X 2019 m
-  m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
+  //m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
 
   m = std::max(m, _minM);
   _m = std::min(m, _maxM);
@@ -580,7 +580,10 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
     maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
 
-    enhancedWeight *= (1 + _u_i * v_i);
+    // Old w_i formula
+    //enhancedWeight *= (1 + _u_i * v_i);
+    // 8 X 2019 formula
+    enhancedWeight *= (1 + v_i);
 
     standardWeights.push_back(c->getWeight());
 
