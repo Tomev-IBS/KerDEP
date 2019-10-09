@@ -2110,7 +2110,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 343 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", delta eq2, new m equation\\";
+                        ", delta eq2, new w equation\\";
 
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
