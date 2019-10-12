@@ -2,6 +2,7 @@
 
 #include <QTime>
 #include <QCoreApplication>
+#include <QRandomGenerator>
 #include <algorithm>
 #include <fstream>
 #include <math.h>
@@ -114,10 +115,19 @@ void DESDA::performStep()
   newCluster->setTimestamp(_stepNumber);
 
   // Window approach
+  /*
   while(_clusters->size() >= _maxM && !_shouldCluster)
   {
-    //_clusters->erase(_clusters->begin(), _clusters->begin()+1);
     _clusters->pop_back();
+    _objects.erase(_objects.begin(), _objects.begin() + 1);
+  }
+  */
+  // Random deletion
+  while(_clusters->size() >= _maxM && !_shouldCluster)
+  {
+    int indexToDelete = QRandomGenerator::global()->bounded(0, _maxM - 1);
+    //_clusters->pop_back();
+    _clusters->erase(_clusters->begin() + indexToDelete, _clusters->begin() + indexToDelete + 1);
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
 
@@ -581,9 +591,9 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
 
     // Old w_i formula
-    //enhancedWeight *= (1 + _u_i * v_i);
+    enhancedWeight *= (1 + _u_i * v_i);
     // 8 X 2019 formula
-    enhancedWeight *= (1 + v_i);
+    //enhancedWeight *= (1 + v_i);
 
     standardWeights.push_back(c->getWeight());
 
