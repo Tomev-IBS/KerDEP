@@ -2108,7 +2108,7 @@ void MainWindow::on_pushButton_start_clicked()
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
       //QString googleDriveDir = "C:\\Users\\rybot\\Dysk Google\\"; // Work
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 346 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 344 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", new w + m)\\";
 
@@ -2140,12 +2140,12 @@ void MainWindow::on_pushButton_start_clicked()
 
   qDebug() << "Animation finished.";
   // Value print for exp300+
-  qDebug() << _summaricKDEPError1;
-  qDebug() << _summaricKDEPError2;
-  qDebug() << _summaricKDEPErrorSup;
-  qDebug() << _summaricKDEPErrorMod;
-  qDebug() << _summaricKDEPsError1;
-  qDebug() << _summaricKDEPsError2;
-  qDebug() << _summaricKDEPsErrorSup;
-  qDebug() << _summaricKDEPsErrorMod;
+  qDebug() << formatNumberForDisplay(_summaricKDEPError1);
+  qDebug() << formatNumberForDisplay(_summaricKDEPError2);
+  qDebug() << formatNumberForDisplay(_summaricKDEPErrorSup);
+  qDebug() << formatNumberForDisplay(_summaricKDEPErrorMod);
+  qDebug() << formatNumberForDisplay( _summaricKDEPsError1);
+  qDebug() << formatNumberForDisplay(_summaricKDEPsError2);
+  qDebug() << formatNumberForDisplay(_summaricKDEPsErrorSup);
+  qDebug() << formatNumberForDisplay(_summaricKDEPsErrorMod);
 }
