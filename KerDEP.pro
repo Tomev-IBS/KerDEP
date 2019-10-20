@@ -15,6 +15,7 @@ CONFIG      +=  static
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES     +=  main.cpp\
+    DESDAReservoir.cpp \
                 mainwindow.cpp \
                 QCustomPlot/qcustomplot.cpp \
                 KDE/kerneldensityestimator.cpp \
@@ -53,6 +54,7 @@ SOURCES     +=  main.cpp\
     StationarityTests/kpssstationaritytest.cpp
 
 HEADERS     +=  mainwindow.h \
+    DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
                 KDE/kerneldensityestimator.h \
