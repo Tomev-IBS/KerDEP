@@ -2108,10 +2108,9 @@ void MainWindow::on_pushButton_start_clicked()
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
       //QString googleDriveDir = "C:\\Users\\rybot\\Dysk Google\\"; // Work
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 348 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 356 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", new w)\\";
-
+                        ", new m)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
