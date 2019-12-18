@@ -589,7 +589,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     // Old w_i formula
     enhancedWeight *= (1 + _u_i * v_i);
     // 8 X 2019 formula
-    enhancedWeight *= (1 + v_i);
+    //enhancedWeight *= (1 + v_i);
 
     standardWeights.push_back(c->getWeight());
 
