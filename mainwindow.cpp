@@ -1233,7 +1233,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 200;
+  int lambda = 800;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -2108,7 +2108,7 @@ void MainWindow::on_pushButton_start_clicked()
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
       //QString googleDriveDir = "C:\\Users\\rybot\\Dysk Google\\"; // Work
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 363("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 364("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", new m, lambda = " + QString::number(lambda) +")\\";
 
