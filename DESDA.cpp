@@ -443,11 +443,9 @@ void DESDA::updateDelta()
 {
     if(emE.predictionParameters.size() < 2) return;
 
-    double s = - 4.0; // from 31 XI 2019 mail
-    double mu = 28; // from 31 XI 2019 mail
-    double sigmoidArg = s;
+    double sigmoidArg = _s;
     //sigmoidArg += 28 * cbrt(fabs(emE.predictionParameters[1]));
-    sigmoidArg += mu * fabs(emE.predictionParameters[1]);
+    sigmoidArg += _mu * fabs(emE.predictionParameters[1]);
     //qDebug() << "sigmoidArg: " << sigmoidArg;
     delta = sigmoid(sigmoidArg);
 }

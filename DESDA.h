@@ -62,8 +62,12 @@ class DESDA
     double _newWeightB = 0;
     double _alpha = 2 * 5.1;
     double _beta = 1 * 5.5;
-
     int _kpssM = 0; // m_Eta
+
+    // From 31 XI 2019 mail
+    // Delta update parameters
+    double _s = - 4.0;
+    double _mu = 10;
 
   protected:
 
