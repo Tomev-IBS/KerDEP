@@ -1706,14 +1706,6 @@ void MainWindow::on_pushButton_start_clicked()
 
     DESDAAlgorithm.performStep();
 
-    ui->label_h_parameter_value->setText(
-      QString::number(smoothingParamCounter.getSmoothingParameterValue())
-    );
-
-    ui->label_sigma_value->setText(
-      QString::number(smoothingParamCounter._stDev)
-    );
-
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
     if(stepNumber % 10 == 0)
@@ -2108,9 +2100,9 @@ void MainWindow::on_pushButton_start_clicked()
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
       //QString googleDriveDir = "C:\\Users\\rybot\\Dysk Google\\"; // Work
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 371("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 377("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", new m, lambda = " + QString::number(lambda) +")\\";
+                        ", new w, mu=28, s=-4\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

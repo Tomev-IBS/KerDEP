@@ -443,10 +443,12 @@ void DESDA::updateDelta()
 {
     if(emE.predictionParameters.size() < 2) return;
 
-    double sigmoidArg = - 4.0;
-    sigmoidArg += 28 * cbrt(fabs(emE.predictionParameters[1]));
+    double s = - 4.0; // from 31 XI 2019 mail
+    double mu = 28; // from 31 XI 2019 mail
+    double sigmoidArg = s;
+    //sigmoidArg += 28 * cbrt(fabs(emE.predictionParameters[1]));
+    sigmoidArg += mu * fabs(emE.predictionParameters[1]);
     //qDebug() << "sigmoidArg: " << sigmoidArg;
-
     delta = sigmoid(sigmoidArg);
 }
 
@@ -587,9 +589,9 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
 
     // Old w_i formula
-    enhancedWeight *= (1 + _u_i * v_i);
+    //enhancedWeight *= (1 + _u_i * v_i);
     // 8 X 2019 formula
-    //enhancedWeight *= (1 + v_i);
+    enhancedWeight *= (1 + v_i);
 
     standardWeights.push_back(c->getWeight());
 
