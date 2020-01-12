@@ -66,7 +66,7 @@ class DESDA
 
     // From 31 XI 2019 mail
     // Delta update parameters
-    double _s = -5.0;
+    double _s = -6.0;
     double _mu = 50;
 
   protected:
