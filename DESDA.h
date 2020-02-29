@@ -111,8 +111,6 @@ class DESDA
     std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
     std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
-    unsigned long long findUncommonClusters();
-    void updateA();
     void updatePrognosisParameters();
     void countKDEDerivativeValuesOnClusters();
     void updateM();

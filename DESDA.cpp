@@ -105,24 +105,14 @@ void DESDA::performStep()
   updateM();
   updateDelta();
 
-  // If weights degrades geomatrically
-  if(_shouldCluster) updateWeights();
-
   _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
 
   std::shared_ptr<cluster> newCluster =
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-
   while(_clusters->size() >= _maxM && !_shouldCluster)
   {
-    // Random deletion
-    /*
-    int indexToDelete = QRandomGenerator::global()->bounded(0, _maxM - 1);
-    _clusters->erase(_clusters->begin() + indexToDelete, _clusters->begin() + indexToDelete + 1);
-    */
-    // Window approach
     _clusters->pop_back();
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
@@ -131,7 +121,7 @@ void DESDA::performStep()
   _clusters->insert(_clusters->begin(), newCluster);
 
   // If weights degrades accodring to new formula
-  if(!_shouldCluster) updateWeights();
+  updateWeights();
 
   _smoothingParamCounter->updateSmoothingParameterValue(
     _weightModifier,
@@ -156,23 +146,10 @@ void DESDA::performStep()
   qDebug() << "Reservoir size in step "
              << _stepNumber << " is: " << currentClusters.size();
 
-  //qDebug () << "1";
-
   countKDEValuesOnClusters();
-
-  //qDebug () << "2";
 
   //avg = getAverageOfFirstMSampleValues(_mE);
   avg = getNewEmEValue();
-
-  /*
-  if(_stepNumber % 10 == 0){
-      saveWeightsToFile(std::to_string(_stepNumber) + ".txt");
-      saveEmEWeightsToFile("EmE_" + std::to_string(_stepNumber) + ".txt");
-  }
-  */
-
-  //qDebug () << "3";
 
   // Start at 0
   //if(_stepNumber >= _mE)
@@ -184,29 +161,7 @@ void DESDA::performStep()
 
   emE._currentKDEValue = avg;
 
-  if(currentClusters.size() >= _samplingAlgorithm->getReservoidMaxSize()
-     && _shouldCluster)
-  {
-    std::vector<std::shared_ptr<cluster>> clustersForGrouping;
-
-    for(int cNum = 0; cNum < _numberOfClustersForGrouping; ++cNum)
-    {
-      clustersForGrouping.push_back((*_clusters)[0]);
-      _clusters->erase(_clusters->begin(), _clusters->begin()+1);
-    }
-
-    _objects.erase(_objects.begin(),
-                   _objects.begin() + (_numberOfClustersForGrouping - _medoidsNumber));
-    _grpThread->getClustersForGrouping(clustersForGrouping);
-    _grpThread->run();
-    currentClusters = getClustersForEstimator();
-    // Reassigment needed, as (probably) grouping algorithm resets it
-    _clusters = &((*_storedMedoids)[0]);
-  }
-
   //updateA();
-
-  //qDebug () << "Estimator";
 
   _estimator->setClusters(currentClusters);
 
@@ -216,21 +171,6 @@ void DESDA::performStep()
     emE.initializePredictionParameters(avg);
   else
     emE.updatePredictionParameters(avg);
-
-  // Save to file
-  /*
-  std::string rowToSave =
-    _clusters->front()->getObject()->attributesValues["Val0"] + ",";
-  rowToSave += e1000.rowToSave;
-  qDebug() << QString::fromStdString(rowToSave);
-
-  std::ofstream experimentDataFile;
-
-  experimentDataFile.open("d:\\Dysk Google\\Badania\\experimentData.csv", std::ios_base::app);
-  experimentDataFile << rowToSave;
-
-  experimentDataFile.close();
-  */
 
   while(aemEVals.size() >= _mE)
   {
@@ -248,30 +188,12 @@ void DESDA::performStep()
 
 void DESDA::updateWeights()
 {
-  if(_shouldCluster)
+  for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
   {
-    for(unsigned int level = 0; level < _storedMedoids->size(); ++level)
-    {
-      for(unsigned int medoidNumber = 0; medoidNumber < (*_storedMedoids)[level].size(); ++medoidNumber)
-      {
-        (*_storedMedoids)[level][medoidNumber]->setWeight(
-          _weightModifier * (*_storedMedoids)[level][medoidNumber]->getWeight()
-        );
-      }
-    }
-  }
-  else
-  {
-    for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
-    {
-      // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
-      double newWeight =
-          1.0 - _newWeightB * (clusterNum) / _m;
-
-      newWeight = std::max(0.0, newWeight);
-
-      (*_clusters)[clusterNum]->setWeight(newWeight);
-    }
+    // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
+    double newWeight = 1.0 - _newWeightB * (clusterNum) / _m;
+     newWeight = std::max(0.0, newWeight);
+     (*_clusters)[clusterNum]->setWeight(newWeight);
   }
 }
 
@@ -328,45 +250,6 @@ void DESDA::countKDEValuesOnClusters()
     double estimatorValueOnCluster = _estimator->getValue(&x);
     c->_currentKDEValue = estimatorValueOnCluster;
   }
-}
-
-unsigned long long DESDA::findUncommonClusters()
-{
-  _uncommonClusters.clear();
-
-  auto consideredClusters = getClustersForEstimator();
-
-  for(auto c : consideredClusters)
-  {
-    if(c->_currentKDEValue < _maxEstimatorValueOnDomain * _a)
-      _uncommonClusters.push_back(c);
-  }
-
-  return _uncommonClusters.size();
-}
-
-void DESDA::updateA()
-{
-  auto allConsideredClusters = getClustersForEstimator();
-  double summaricClustersWeight = 0.0;
-
-  for(std::shared_ptr<cluster> c : allConsideredClusters)
-    summaricClustersWeight += c->getWeight();
-
-  double currentUncommonClusterWeight = 0.0;
-
-  for(std::shared_ptr<cluster> uc : _uncommonClusters)
-    currentUncommonClusterWeight += uc->getWeight();
-
-  currentUncommonClusterWeight /= summaricClustersWeight;
-
-  _a += (_desiredRarity - currentUncommonClusterWeight)
-      * _maxEstimatorValueOnDomain;
-
-  if(_a > _MAX_A) _a = _MAX_A;
-  if(_a < _MIN_A) _a = _MIN_A;
-
-  _previousUncommonClustersWeight = currentUncommonClusterWeight;
 }
 
 void DESDA::updatePrognosisParameters()
