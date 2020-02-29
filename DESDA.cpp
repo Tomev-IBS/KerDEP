@@ -137,8 +137,6 @@ void DESDA::performStep()
 
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
-  //smoothingParameters[0] = smoothingParameters[0];
-
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
   auto currentClusters = getClustersForEstimator();
@@ -152,16 +150,13 @@ void DESDA::performStep()
   avg = getNewEmEValue();
 
   // Start at 0
-  //if(_stepNumber >= _mE)
   stationarityTest->addNewSample(
       std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
 
-  //qDebug () << "4";
+  _d = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1);
 
   emE._currentKDEValue = avg;
-
-  //updateA();
 
   _estimator->setClusters(currentClusters);
 
@@ -260,6 +255,26 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
     return consideredClusters;
 }
 
+/** DESDA::enhanceWeightsOfUncommonElements
+ * @brief Enhance weights of atypical elements.
+ *
+ * The method is described in Kulczycki, Kus, Rybotycki 2020
+ *
+ */
+void DESDA::enhanceWeightsOfUncommonElements()
+{
+  auto uncommonElements = getAtypicalElements();
+
+  for(auto ue : uncommonElements){
+    double weightEnhancer = 1;
+    if(ue->predictionParameters[1] > 0)
+      weightEnhancer += _d;
+    if(ue->predictionParameters[1] < 0)
+      weightEnhancer -= _d;
+    ue->setCWeight(ue->getCWeight() * weightEnhancer);
+  }
+}
+
 void DESDA::countKDEValuesOnClusters()
 {
   QVector<qreal> x;
@@ -292,7 +307,6 @@ void DESDA::updatePrognosisParameters()
 
     if(c->predictionParameters.size() > 0)
     {
-      //c->updateDeactualizationParameter(c->_currentKDEValue);
       c->updatePredictionParameters(c->_currentKDEValue);
     }
     else
@@ -351,9 +365,7 @@ void DESDA::updateDelta()
     if(emE.predictionParameters.size() < 2) return;
 
     double sigmoidArg = _s;
-    //sigmoidArg += 28 * cbrt(fabs(emE.predictionParameters[1]));
     sigmoidArg += _mu * fabs(emE.predictionParameters[1]);
-    //qDebug() << "sigmoidArg: " << sigmoidArg;
     delta = sigmoid(sigmoidArg);
 }
 
@@ -648,4 +660,80 @@ double DESDA::aemEVersor()
   return aesum / aeabssum;
 }
 
+/** DESDA::getAtypicalElements
+ * @brief Finds and returns vector of atypical elements.
+ *
+ * Atypical elements are found using Kulczycki-Kruszewski method.
+ *
+ * @return Vector of atypical/rare/uncommon elements in _clusters.
+ */
+std::vector<std::shared_ptr<cluster> > DESDA::getAtypicalElements()
+{
+  auto AKDEValues = getVectorOfAcceleratedKDEValuesOnClusters();
+  auto sortedIndicesValues = getSortedAcceleratedKDEValues(AKDEValues);
+  auto quantileEstimatorValue = getQuantileEstimatorValue(sortedIndicesValues);
+  std::vector<std::shared_ptr<cluster>> atypicalElements = {};
+
+  for(int i = 0; i < sortedIndicesValues.size(); ++i){
+    if(quantileEstimatorValue > sortedIndicesValues[i].second)
+      atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
+    else break;
+  }
+
+  return atypicalElements;
+}
+
+std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
+{
+  QVector<qreal> x;
+  _enhancedKDE->setClusters(*_clusters);
+  std::vector<double> AKDEValues = {};
+
+  for(std::shared_ptr<cluster> c : *_clusters)
+  {
+    x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+    AKDEValues.push_back(_enhancedKDE->getValue(&x));
+    x.clear();
+  }
+
+  return AKDEValues;
+}
+
+std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues)
+{
+  // Create pairs containing indexes and values of AKDE
+  std::vector<std::pair<int, double>> indexesValues = {};
+
+  for(int i = 0; i < AKDEValues.size(); ++i){
+    indexesValues.push_back(std::pair<int, double>(i, AKDEValues[i]));
+  }
+
+  // Sort them
+  std::sort(
+    indexesValues.begin(), indexesValues.end(),
+        [](std::pair<int, double> a, std::pair<int, double> b){
+      return a.second > b.second;
+    }
+  );
+
+  std::reverse(indexesValues.begin(), indexesValues.end());
+
+  return indexesValues;
+}
+
+double DESDA::getQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues)
+{
+  int m = sortedIndicesValues.size();
+  double mr = _r * m;
+
+  if(mr <= 0.5) return sortedIndicesValues[0].second;
+  if(mr >= m - 0.5) return sortedIndicesValues[m - 1].second;
+
+  int i = mr + 0.5 - 1; // Indices of elements in Kruszewski starts from 1
+
+  double quantileEstimator = (0.5 + i - mr) * sortedIndicesValues[i].second;
+  quantileEstimator += (0.5 - i + mr) * sortedIndicesValues[i + 1].second;
+
+  return quantileEstimator;
+}
 

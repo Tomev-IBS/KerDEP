@@ -69,6 +69,9 @@ class DESDA
     double _s = -4.0;
     double _mu = 1000;
 
+    // Rare elements
+    double _r = 0.05;
+
   protected:
 
     const double _MAX_A = 1.5;
@@ -119,6 +122,16 @@ class DESDA
 
     void saveWeightsToFile(std::string fileName);
     void saveEmEWeightsToFile(std::string fileName);
+
+    // Rare elements
+    double _d = 0;
+    double _psi = 20.4;
+
+    void enhanceWeightsOfUncommonElements();
+    std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();
+    std::vector<std::pair<int, double> > getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues);
+    double getQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues);
+    std::vector<std::shared_ptr<cluster>> getAtypicalElements();
 
 };
 
