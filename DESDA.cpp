@@ -188,12 +188,36 @@ void DESDA::performStep()
 
 void DESDA::updateWeights()
 {
+  // p weight update
+  if(_stepNumber > _maxM){
+      double weightsSum = 0;
+
+      for(int clusterNum = _clusters->size() - 2; clusterNum > -1; --clusterNum){
+        weightsSum += (*_clusters)[clusterNum]->getWeight();
+      }
+
+      for(int clusterNum = _clusters->size() - 2; clusterNum > -1; --clusterNum){
+        (*_clusters)[clusterNum]->setWeight((_m - 1) * (*_clusters)[clusterNum]->getWeight() / weightsSum);
+      }
+  }
+
+  double cWeightSum = 0;
+
   for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
   {
-    // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
-    double newWeight = 1.0 - _newWeightB * (clusterNum) / _m;
-     newWeight = std::max(0.0, newWeight);
-     (*_clusters)[clusterNum]->setWeight(newWeight);
+      // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
+      double newWeight =
+          (*_clusters)[clusterNum]->getWeight() * (1.0 - _newWeightB * (clusterNum) / _m);
+
+      newWeight = std::max(0.0, newWeight);
+
+      (*_clusters)[clusterNum]->setCWeight(newWeight);
+
+     cWeightSum += newWeight;
+  }
+
+  for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum){
+      (*_clusters)[clusterNum]->setCWeight((*_clusters)[clusterNum]->getCWeight() * _m / cWeightSum);
   }
 }
 
