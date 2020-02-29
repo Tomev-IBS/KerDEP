@@ -134,8 +134,6 @@ void DESDA::performStep()
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
-  qDebug() << "1";
-
   auto currentClusters = getClustersForEstimator();
 
   qDebug() << "Reservoir size in step "
