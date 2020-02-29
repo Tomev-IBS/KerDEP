@@ -38,8 +38,6 @@ class MainWindow : public QMainWindow
     ~MainWindow();
 
   protected:
-    void keyPressEvent(QKeyEvent* event);
-
     int stepNumber = 0;
 
     std::vector<std::shared_ptr<cluster>> uncommonClusters;
@@ -137,17 +135,6 @@ class MainWindow : public QMainWindow
 
     QStringList kernelTypes;
 
-    unsigned long long insertObjectsBetweenIntervals(unsigned int objectsNumber);
-    unsigned long long generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
-                                                    unsigned int objectsNumber);
-    unsigned long long selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
-    unsigned long long insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
-    double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
-    double countInterIntervalClustersWeight();
-
-    unsigned long long insertMassiveData();
-    unsigned long long generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
-
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
     void clearPlot();
     void resizePlot();
@@ -187,8 +174,6 @@ class MainWindow : public QMainWindow
 
     void on_pushButton_start_clicked();
     int canAnimationBePerformed(int dimensionsNumber);
-    void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
-                            std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
 
     QString formatNumberForDisplay(double number);
 
