@@ -111,7 +111,7 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  while(_clusters->size() >= _maxM && !_shouldCluster)
+  while(_clusters->size() >= _maxM)
   {
     _clusters->pop_back();
     _objects.erase(_objects.begin(), _objects.begin() + 1);
@@ -119,8 +119,6 @@ void DESDA::performStep()
 
   //_clusters->push_back(newCluster);
   _clusters->insert(_clusters->begin(), newCluster);
-
-  // If weights degrades accodring to new formula
   updateWeights();
 
   _smoothingParamCounter->updateSmoothingParameterValue(
@@ -130,14 +128,13 @@ void DESDA::performStep()
 
   _smoothingParamCounter->setClusters(_clusters, 0);
 
-  std::vector<double> smoothingParameters =
-  {
-    _smoothingParamCounter->countSmoothingParameterValue() * _smoothingParameterMultiplier
-  };
+  std::vector<double> smoothingParameters = { _smoothingParamCounter->countSmoothingParameterValue() * _smoothingParameterMultiplier };
 
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
+
+  qDebug() << "1";
 
   auto currentClusters = getClustersForEstimator();
 
@@ -217,8 +214,11 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
 {
   std::vector<std::shared_ptr<cluster> > consideredClusters = {};
 
-  for(auto c : *_clusters){
-    consideredClusters.push_back(c);
+  int i = 0;
+
+  while (consideredClusters.size() < _m && i < _clusters->size()) {
+    consideredClusters.push_back((*_clusters)[i]);
+    ++i;
   }
 
   return consideredClusters;
@@ -260,7 +260,7 @@ void DESDA::countKDEValuesOnClusters()
   auto consideredClusters = getClustersForEstimator();
   _estimator->setClusters(consideredClusters);
 
-  for(std::shared_ptr<cluster> c : consideredClusters)
+  for(std::shared_ptr<cluster> c : *_clusters)
   {
     x.clear();
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
@@ -271,9 +271,7 @@ void DESDA::countKDEValuesOnClusters()
 
 void DESDA::updatePrognosisParameters()
 {
-  auto currentClusters = getClustersForEstimator();
-
-  for(std::shared_ptr<cluster> c : currentClusters)
+  for(std::shared_ptr<cluster> c : *_clusters)
     c->updatePrediction();
 }
 
@@ -643,10 +641,11 @@ std::vector<std::shared_ptr<cluster> > DESDA::getAtypicalElements()
 std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
 {
   std::vector<double> x;
-  _enhancedKDE->setClusters(*_clusters);
+  auto consideredClusters = getClustersForEstimator();
+  _enhancedKDE->setClusters(consideredClusters);
   std::vector<double> AKDEValues = {};
 
-  for(std::shared_ptr<cluster> c : *_clusters)
+  for(std::shared_ptr<cluster> c : consideredClusters)
   {
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
     AKDEValues.push_back(_enhancedKDE->getValue(&x));

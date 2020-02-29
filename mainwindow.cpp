@@ -1196,7 +1196,7 @@ void MainWindow::on_pushButton_start_clicked()
       errorSupSejsTextLabel
           .setText("sersup_ejs  = " + formatNumberForDisplay(_summaricKDESErrorSup));
       errorSupSejnTextLabel
-          .setText("sersup_ejn    = " + formatNumberForDisplay(_summaricKDENErrorSup));
+          .setText("sersup_ejn  = " + formatNumberForDisplay(_summaricKDENErrorSup));
       errorModSejTextLabel
           .setText("sermod_ej   = " + formatNumberForDisplay(_summaricKDEErrorMod));
       errorModSejpTextLabel
@@ -1204,7 +1204,7 @@ void MainWindow::on_pushButton_start_clicked()
       errorModSejsTextLabel
           .setText("sermod_ejs  = " + formatNumberForDisplay(_summaricKDESErrorMod));
       errorModSejnTextLabel
-          .setText("sermod_ejn    = " + formatNumberForDisplay(_summaricKDENErrorMod));
+          .setText("sermod_ejn  = " + formatNumberForDisplay(_summaricKDENErrorMod));
 
       rareElementsTextLabel
           .setText("#Rare elements = " + QString::number(_atypicalElementsValues.size()));
