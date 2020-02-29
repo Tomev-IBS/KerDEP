@@ -1074,6 +1074,16 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  std::shared_ptr<QCPItemText> rTextLabel =
+      std::make_shared<QCPItemText>(ui->widget_plot);
+  rTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+  rTextLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+  rTextLabel->position->setCoords(horizontalOffset, verticalOffset); // place position at center/top of axis rect
+  rTextLabel->setFont(QFont(font().family(), fontSize)); // make font a bit larger
+  rTextLabel->setText("r = " + QString::number(DESDAAlgorithm._r));
+
+  verticalOffset += verticalStep;
+
 
   // ================== STEP ERRORS ======================== //
 
@@ -1822,10 +1832,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 420 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 446 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", new w, mu=" + QString::number(DESDAAlgorithm._mu) + " , s="
-                        + QString::number(DESDAAlgorithm._s) + ")\\";
+                        ", rezerwuar + elementy rzadkie\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
