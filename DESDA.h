@@ -71,6 +71,8 @@ class DESDA
 
     // Rare elements
     double _r = 0.05;
+    QVector<double> getRareElementsEnhancedKDEValues(const QVector<qreal> *X);
+    std::vector<std::shared_ptr<cluster>> getAtypicalElements();
 
   protected:
 
@@ -131,8 +133,6 @@ class DESDA
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();
     std::vector<std::pair<int, double> > getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues);
     double getQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues);
-    std::vector<std::shared_ptr<cluster>> getAtypicalElements();
-
 };
 
 #endif // DESDA_H

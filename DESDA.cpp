@@ -694,3 +694,90 @@ double DESDA::getQuantileEstimatorValue(const std::vector<std::pair<int, double>
   return quantileEstimator;
 }
 
+QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
+{
+  //qDebug() << "EKDE values getting.";
+
+  std::vector<std::shared_ptr<cluster>> currentClusters
+      = getClustersForEstimator();
+
+  std::vector<double> standardWeights = {};
+  QVector<double> enhancedKDEValues = {};
+
+  QVector<qreal> clustersXs = {};
+
+  for(auto c : currentClusters){
+    clustersXs.push_back(
+      std::stod(c->getRepresentative()->attributesValues["Val0"])
+    );
+  }
+
+  QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(&clustersXs);
+
+  _selectedVValues.clear();
+
+  // Enhance weights of clusters
+  double enhancedWeight = 0.0;
+  double v_i = 0.0;
+
+  _u_i = 0.0;
+
+  // Count u_i
+  if(_stepNumber >= 1000)
+    _u_i = 1.0 / (1 + exp(- (_alpha * fabs(getStationarityTestValue()) - _beta)));
+
+  _newWeightB = _u_i;
+
+  double avgC2 = 0;
+  double maxAParam = 0;
+  //for(auto c : currentClusters)
+  for(int i = 0; i < currentClusters.size(); ++i)
+  {
+    std::shared_ptr<cluster> c = currentClusters[i];
+    enhancedWeight = c->getCWeight();
+
+    // Count v_i
+    v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
+
+    maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
+
+    // Old w_i formula
+    enhancedWeight *= (1 + _u_i * v_i);
+    // 8 X 2019 formula
+    //enhancedWeight *= (1 + v_i);
+
+    standardWeights.push_back(c->getCWeight());
+
+    // TR TODO: Change to find in vector
+    if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
+       standardWeights.size() == 200)
+      _selectedVValues.push_back(v_i);
+
+    avgC2 += c->predictionParameters[1];
+    c->setCWeight(enhancedWeight);
+  }
+
+  enhanceWeightsOfUncommonElements();
+
+  avgC2 /= currentClusters.size();
+  //qDebug() << "avgC2 = " << avgC2;
+
+  _enhancedKDE->setClusters(currentClusters);
+
+  for(qreal x: *X)
+  {
+    QVector<qreal> pt;
+    pt.push_back(x);
+    enhancedKDEValues.push_back(
+      _enhancedKDE->getValue(&pt)
+    );
+  }
+
+  // Restore weights
+  for(unsigned int i = 0; i < currentClusters.size(); ++i)
+    currentClusters[i]->setCWeight(standardWeights[i]);
+
+  //qDebug() << "Max a param: " << maxAParam;
+  return enhancedKDEValues;
+}
+

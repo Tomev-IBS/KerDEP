@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -598,16 +598,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_windowKDE">
-           <property name="text">
-            <string>Window KDE</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="checkBox_showEstimationPlot">
            <property name="text">
             <string>Estimation Plot</string>
@@ -628,32 +618,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_showTimeDerivativePlot">
-           <property name="text">
-            <string>Time Derivative</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="checkBox_showUnusualClusters">
            <property name="text">
             <string>Unusual clusters</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_showNewTrends">
-           <property name="text">
-            <string>New trends</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -671,6 +641,16 @@
           <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
            <property name="text">
             <string>Sigmoidally Enhanced KDE</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_REESEKDE">
+           <property name="text">
+            <string>REE SE KDE</string>
            </property>
            <property name="checked">
             <bool>true</bool>

@@ -177,14 +177,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
 
     estimator->_shouldConsiderWeights = true;
 
-    //qDebug() << "Max est val on domain: " << _maxEstimatorValueOnDomain;
-
-    /* Black estimator, no longer used
-    // Generate plot of window-only KDE*/
-    if(ui->checkBox_windowKDE->isChecked())
-      addPlot(&_windowedEstimatorY, _WINDOWED_PLOT_PEN);
-
-
     // Generate a plot of KDE
     if(ui->checkBox_showEstimationPlot->isChecked())
       addPlot(&KDEEstimationY, _KDE_PLOT_PEN);
@@ -228,6 +220,8 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_showUnusualClusters->isChecked())
       markUncommonClusters();
 
+    if(ui->checkBox_REESEKDE->isChecked())
+      addPlot(&_rareElementsEnhancedPlotY, _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN);
     // Draw plots
     ui->widget_plot->replot();
 
@@ -1047,6 +1041,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&_drawableDomain);
+
+      _rareElementsEnhancedPlotY =
+          DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);
 
       double maxKDEP = 0.0;
 
