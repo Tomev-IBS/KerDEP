@@ -310,7 +310,7 @@ unsigned long long MainWindow::markUncommonClusters()
     // Only works for distribution data
     QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
     verticalLine->start->setCoords(x, 0);
-    verticalLine->end->setCoords(x, -quartileValue);
+    verticalLine->end->setCoords(x, -_quantileEstimatorValue);
     verticalLine->setPen(QPen(Qt::blue));
     _linesOnPlot.push_back(verticalLine);
   }
@@ -1038,6 +1038,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       _rareElementsEnhancedPlotY =
           DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);
+
+      _quantileEstimatorValue = DESDAAlgorithm._quantileEstimator;
 
       double maxKDEP = 0.0;
 

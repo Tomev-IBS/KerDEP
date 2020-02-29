@@ -628,11 +628,11 @@ std::vector<std::shared_ptr<cluster> > DESDA::getAtypicalElements()
 {
   auto AKDEValues = getVectorOfAcceleratedKDEValuesOnClusters();
   auto sortedIndicesValues = getSortedAcceleratedKDEValues(AKDEValues);
-  auto quantileEstimatorValue = getQuantileEstimatorValue(sortedIndicesValues);
+  recountQuantileEstimatorValue(sortedIndicesValues);
   std::vector<std::shared_ptr<cluster>> atypicalElements = {};
 
   for(int i = 0; i < sortedIndicesValues.size(); ++i){
-    if(quantileEstimatorValue > sortedIndicesValues[i].second)
+    if(_quantileEstimator > sortedIndicesValues[i].second)
       atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
     else break;
   }
@@ -678,7 +678,7 @@ std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const 
   return indexesValues;
 }
 
-double DESDA::getQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues)
+double DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues)
 {
   int m = sortedIndicesValues.size();
   double mr = _r * m;
@@ -688,10 +688,8 @@ double DESDA::getQuantileEstimatorValue(const std::vector<std::pair<int, double>
 
   int i = mr + 0.5 - 1; // Indices of elements in Kruszewski starts from 1
 
-  double quantileEstimator = (0.5 + i - mr) * sortedIndicesValues[i].second;
-  quantileEstimator += (0.5 - i + mr) * sortedIndicesValues[i + 1].second;
-
-  return quantileEstimator;
+  _quantileEstimator = (0.5 + i - mr) * sortedIndicesValues[i].second;
+  _quantileEstimator += (0.5 - i + mr) * sortedIndicesValues[i + 1].second;
 }
 
 QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
