@@ -7,8 +7,8 @@
 class kernel : public function
 {
     public:
-        static qreal getU(){return 0.0;}
-        static qreal getW(){return 0.0;}
+        static double getU(){return 0.0;}
+        static double getW(){return 0.0;}
 };
 
 typedef std::shared_ptr<kernel> kernelPtr;

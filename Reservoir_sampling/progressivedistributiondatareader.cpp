@@ -3,20 +3,25 @@
 
 #include <string>
 #include <unordered_map>
+#include <cmath>
 
 #include <QDebug>
 
-progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay) :
+progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize, int delay) :
     sourceDistribution(source), progressionSize(progressionSize), _delay(delay)
 {}
 
 void progressiveDistributionDataReader::getNextRawDatum(void *target)
 {
-    QVector<qreal>* targetPtr = static_cast<QVector<qreal>*>(target);
+    vector<double>* targetPtr = static_cast<vector<double>*>(target);
     targetPtr->clear();
 
     sourceDistribution->getValue(targetPtr);
 
+    /*
+    for(auto attributeName : attributesOrder)
+      (*attrs_ptr)[attributeName];
+    */
 
     if(_currentIteration > _delay)
       sourceDistribution->increaseMeans(progressionSize);
@@ -30,10 +35,10 @@ void progressiveDistributionDataReader::gatherAttributesData(void *attributes)
   static_cast<std::unordered_map<std::string, attributeData*>*>(attributes);
 
   // There are no attributes in distribution, just numbers;
-  QVector<qreal>* dummyValue = new QVector<qreal>;
+  vector<double>* dummyValue = new vector<double>;
   sourceDistribution->getValue(dummyValue);
 
-  for(int i = 0; i < dummyValue->size(); ++i)
+  for(size_t i = 0; i < dummyValue->size(); ++i)
   {
     std::string attrName = "Val"+std::to_string(i);
 

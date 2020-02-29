@@ -3,28 +3,26 @@
 
 #include "distribution.h"
 #include "../Libraries/matrixoperationslibrary.h"
-
 #include "random"
-#include <QVector>
 
 class normalDistribution : public distribution
 {
     public:
-        normalDistribution(int seed, QVector<qreal>* means, QVector<qreal>* stDevs, double maxMean);
+        normalDistribution(int seed, vector<double>* means, vector<double>* stDevs, double maxMean);
 
-        void getValue(QVector<qreal>* result);
-        void increaseMeans(qreal addend);
+        void getValue(vector<double>* result);
+        void increaseMeans(double addend);
 
     private:      
-        QVector<qreal>* means;
-        QVector<qreal>* stDevs;
-        QVector<std::normal_distribution<qreal>*> distributions;
+        vector<double>* means;
+        vector<double>* stDevs;
+        vector<std::normal_distribution<double>*> distributions;
 
         matrix A;
 
         double _maxMean = 0;
 
-        void fillA(QVector<QVector<qreal> *> *covarianceMatrix);
+        void fillA(vector<vector<double> *> *covarianceMatrix);
 };
 
 #endif // NORMALDISTRIBUTION_H

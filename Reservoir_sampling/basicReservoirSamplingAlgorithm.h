@@ -7,7 +7,6 @@
 
 class basicReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
 {
-
   public:
 
     basicReservoirSamplingAlgorithm(dataReader *reader, dataParser* parser, int reservoirMaxSize, int stepsNumber);

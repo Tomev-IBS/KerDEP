@@ -94,7 +94,7 @@ class MainWindow : public QMainWindow
 
     Ui::MainWindow *ui;
 
-    QVector<std::shared_ptr<QVector<qreal>>> samples;
+    vector<std::shared_ptr<vector<double>>>  samples;
     std::vector<std::shared_ptr<sample>> objects;
     std::vector<std::shared_ptr<cluster>> *clusters;
 
@@ -143,7 +143,7 @@ class MainWindow : public QMainWindow
     std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
     std::shared_ptr<kernelDensityEstimator> _enchancedKDE;
 
-    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
+    vector<std::shared_ptr<vector<double>>> means, stDevs;
 
     int positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
 
@@ -157,7 +157,6 @@ class MainWindow : public QMainWindow
     void addWindowedEstimatorPlot(const QVector<qreal> *X);
     void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
     void addWeightedEstimatorPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
-    double countNewtonianDerivative(int i, const QVector<qreal> *Y);
     void addKernelPrognosisDerivativePlot(const QVector<qreal> *X);
     void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
     int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
@@ -166,8 +165,8 @@ class MainWindow : public QMainWindow
 
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
-    void fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
-    void fillMeans(QVector<std::shared_ptr<QVector<qreal> > > *means);
+    void fillStandardDeviations(vector<std::shared_ptr<vector<double> > > *stDevs);
+    void fillMeans(vector<std::shared_ptr<vector<double> > > *means);
 
   private slots:
 
@@ -179,12 +178,15 @@ class MainWindow : public QMainWindow
     void updateLastContribution();
 
     void fillDomain(QVector<std::shared_ptr<point> > *domain, std::shared_ptr<point> *prototypePoint);
-    distribution *generateTargetDistribution(QVector<std::shared_ptr<QVector<qreal> > > *means,
-                                             QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
+    distribution* generateTargetDistribution(
+      vector<std::shared_ptr<vector<double>>> *means,
+      vector<std::shared_ptr<vector<double>>> *stDevs);
     reservoirSamplingAlgorithm *generateReservoirSamplingAlgorithm(dataReader *reader,
                                                                    dataParser *parser);
     kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
-    function *generateTargetFunction(QVector<std::shared_ptr<QVector<qreal> > > *means, QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
+    function* generateTargetFunction(
+        vector<std::shared_ptr<vector<double>>>* means,
+        vector<std::shared_ptr<vector<double>>>* stDevs);
 
     void on_pushButton_start_clicked();
     int canAnimationBePerformed(int dimensionsNumber);

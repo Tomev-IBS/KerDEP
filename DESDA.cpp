@@ -255,7 +255,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
 void DESDA::countKDEValuesOnClusters()
 {
-  QVector<qreal> x;
+  std::vector<double> x;
 
   auto consideredClusters = getClustersForEstimator();
   _estimator->setClusters(consideredClusters);
@@ -404,7 +404,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
 
     for(qreal x: *X)
     {
-      QVector<qreal> pt;
+      std::vector<double> pt;
       pt.push_back(x);
       kernelPrognosisDerivativeValues.push_back(
         _estimatorDerivative->getValue(&pt) * 1000 // For visibility
@@ -485,7 +485,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   for(qreal x: *X)
   {
-    QVector<qreal> pt;
+    std::vector<double> pt;
     pt.push_back(x);
     enhancedKDEValues.push_back(
       _enhancedKDE->getValue(&pt)
@@ -511,7 +511,7 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
 
     for(qreal x: *X)
     {
-      QVector<qreal> q = {x};
+      std::vector<double> q = {x};
       windowKDEValues.push_back(_estimator->getValue(&q));
     }
 
@@ -642,7 +642,7 @@ std::vector<std::shared_ptr<cluster> > DESDA::getAtypicalElements()
 
 std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
 {
-  QVector<qreal> x;
+  std::vector<double> x;
   _enhancedKDE->setClusters(*_clusters);
   std::vector<double> AKDEValues = {};
 
@@ -766,7 +766,7 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
 
   for(qreal x: *X)
   {
-    QVector<qreal> pt;
+    std::vector<double> pt;
     pt.push_back(x);
     enhancedKDEValues.push_back(
       _enhancedKDE->getValue(&pt)

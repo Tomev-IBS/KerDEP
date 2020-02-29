@@ -1,15 +1,15 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include <QObject>
-#include <QVector>
+#include <vector>
 
-typedef QVector<qreal> point;
+using std::vector;
+typedef vector<double> point;
 
 class function
 {
     public:
-        virtual qreal getValue(point* arguments) = 0;
+        virtual double getValue(point* arguments) = 0;
         virtual ~function(){};
 };
 

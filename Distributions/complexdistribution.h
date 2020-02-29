@@ -3,25 +3,22 @@
 
 #include "distribution.h"
 
-#include <random>
-#include <QVector>
-#include <QObject>
 #include <memory>
 
 class complexDistribution : public distribution
 {
     public:
 
-        complexDistribution(int seed, QVector<std::shared_ptr<distribution>>* elementalDistributions, QVector<qreal>* contributions);
+        complexDistribution(int seed, vector<std::shared_ptr<distribution>>* elementalDistributions, vector<double>* contributions);
 
-        void getValue(QVector<qreal>* result);
-        void increaseMeans(qreal addend);
+        void getValue(vector<double>* result);
+        void increaseMeans(double addend);
 
     private:
-        QVector<std::shared_ptr<distribution>> elementalDistributions;
-        QVector<qreal> contributions;
+        vector<std::shared_ptr<distribution>> elementalDistributions;
+        vector<double> contributions;
 
-        const std::uniform_real_distribution<qreal> uniformDistribution;
+        const std::uniform_real_distribution<double> uniformDistribution;
 
         int randomizeDistributionIndex();
 };

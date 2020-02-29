@@ -338,19 +338,18 @@ QString MainWindow::formatNumberForDisplay(double number)
   return result;
 }
 
-void MainWindow::fillStandardDeviations(
-  QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
+void MainWindow::fillStandardDeviations(vector<std::shared_ptr<vector<double>>> *stDevs)
 {
     int dimensionsNumber                = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber    = ui->tableWidget_targetFunctions->rowCount();
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        stDevs->append(std::make_shared<QVector<qreal>>());
+        stDevs->push_back(std::make_shared<vector<double>>());
 
         for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
         {
-            stDevs->last().get()->append
+            stDevs->back().get()->push_back
             (
                 (static_cast<QLineEdit*>(
                     (static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
@@ -362,18 +361,18 @@ void MainWindow::fillStandardDeviations(
     }
 }
 
-void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
+void MainWindow::fillMeans(vector<std::shared_ptr<vector<double>>> *means)
 {
     int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
         targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        means->append(std::make_shared<QVector<qreal>>());
+        means->push_back(std::make_shared<vector<double>>());
 
         for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
         {
-            means->last().get()->append
+            means->back()->push_back
             (
                 (static_cast<QLineEdit*>(
                     (static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
@@ -385,10 +384,7 @@ void MainWindow::fillMeans(QVector<std::shared_ptr<QVector<qreal>>> *means)
     }
 }
 
-void MainWindow::fillDomain(
-  QVector<std::shared_ptr<point>>* domain,
-  std::shared_ptr<point> *prototypePoint)
-{
+void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::shared_ptr<point> *prototypePoint) {
     // Check if domain is nullpointer
     if(domain == nullptr) return;
 
@@ -412,15 +408,15 @@ void MainWindow::fillDomain(
     //while(val <= ui->lineEdit_maxX->text().toDouble())
     while(val <= maxVal)
     {
-        pPoint.get()->append(val);
+        pPoint.get()->push_back(val);
 
-        if(pPoint.get()->size() == ui->spinBox_dimensionsNumber->value())
+        if(pPoint.get()->size() == (size_t) ui->spinBox_dimensionsNumber->value())
         {
             domain->append(std::make_shared<point>());
 
             foreach(qreal dimensionVal, *(pPoint.get()))
             {
-                domain->last()->append(dimensionVal);
+                domain->back()->push_back(dimensionVal);
             }
         }
         else
@@ -428,20 +424,20 @@ void MainWindow::fillDomain(
             fillDomain(domain, prototypePoint);
         }
 
-        pPoint.get()->removeLast();
+        pPoint->erase(pPoint->end() - 1);
 
         val += ui->lineEdit_domainDensity->text().toDouble();
     }
 }
 
 distribution* MainWindow::generateTargetDistribution(
-  QVector<std::shared_ptr<QVector<qreal>>> *means,
-  QVector<std::shared_ptr<QVector<qreal>>> *stDevs)
+  vector<std::shared_ptr<vector<double>>> *means,
+  vector<std::shared_ptr<vector<double>>> *stDevs)
 {
     int seed = ui->lineEdit_seed->text().toInt();
 
-    QVector<qreal> contributions;
-    QVector<std::shared_ptr<distribution>> elementalDistributions;
+    vector<double> contributions;
+    vector<std::shared_ptr<distribution>> elementalDistributions;
 
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
@@ -449,13 +445,13 @@ distribution* MainWindow::generateTargetDistribution(
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
-        contributions.append
+        contributions.push_back
         (
             (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
             ->text().toDouble()
         );
 
-        elementalDistributions.append(std::shared_ptr<distribution>(new normalDistribution(seed, means->at(functionIndex).get(), stDevs->at(functionIndex).get(), maxMean)));
+        elementalDistributions.push_back(std::shared_ptr<distribution>(new normalDistribution(seed, (*means)[functionIndex].get(), (*stDevs)[functionIndex].get(), maxMean)));
     }
 
     return new complexDistribution(seed, &elementalDistributions, &contributions);
@@ -481,15 +477,15 @@ reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataR
 kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(
     int dimensionsNumber)
 {
-    QVector<int> kernelsIDs;
-    QVector<qreal> smoothingParameters;
-    QVector<QString> carriersRestrictions;
+    vector<int> kernelsIDs;
+    vector<double> smoothingParameters;
+    vector<std::string> carriersRestrictions;
 
     for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber)
     {
-        kernelsIDs.append((static_cast<QComboBox*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
-        smoothingParameters.append((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
-        carriersRestrictions.append((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text());
+        kernelsIDs.push_back((static_cast<QComboBox*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
+        smoothingParameters.push_back((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
+        carriersRestrictions.push_back((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text().toStdString());
     }
 
     return new kernelDensityEstimator(
@@ -502,12 +498,12 @@ kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(
 }
 
 function* MainWindow::generateTargetFunction(
-    QVector<std::shared_ptr<QVector<qreal>>>* means,
-    QVector<std::shared_ptr<QVector<qreal>>>* stDevs)
+    vector<std::shared_ptr<vector<double>>>* means,
+    vector<std::shared_ptr<vector<double>>>* stDevs)
 
 {
-  QVector<qreal> contributions;
-  QVector<std::shared_ptr<function>> elementalFunctions;
+  vector<double> contributions;
+  vector<std::shared_ptr<function>> elementalFunctions;
 
   int targetFunctionElementsNumber = ui->tableWidget_targetFunctions
                                        ->rowCount();
@@ -525,19 +521,17 @@ function* MainWindow::generateTargetFunction(
       uniformContributions();
   }
 
-
-
   for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
   {
 
-      contributions.append
+      contributions.push_back
       (
           (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
           ->text().toDouble()
       );
 
 
-      elementalFunctions.append(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->at(functionIndex).get(),
+      elementalFunctions.push_back(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->at(functionIndex).get(),
                                                                                                           stDevs->at(functionIndex).get())));
   }
 

@@ -6,7 +6,7 @@
 normalKernel::normalKernel()
 {}
 
-qreal normalKernel::getValue(QVector<qreal>* arguments)
+double normalKernel::getValue(vector<double>* arguments)
 {
     // TODO: Consider using asserts of some kind
 
@@ -26,9 +26,9 @@ qreal normalKernel::getValue(QVector<qreal>* arguments)
         return -1;
     }
 
-    qreal x = arguments->at(0);
+    double x = arguments->at(0);
 
-    qreal result = exp(- pow((x - mean), 2) / (2 * pow(standardDeviation, 2)));
+    double result = exp(- pow((x - mean), 2) / (2 * pow(standardDeviation, 2)));
     result /= (standardDeviation * sqrt(2 * M_PI));
 
     return result;
