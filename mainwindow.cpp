@@ -917,7 +917,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel lambdaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "lambda = " + QString::number(lambda));
   verticalOffset += verticalStep;
 
-  plotLabel xTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "x = " + QString::number(l));
+  plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "#Rare elements = 0");
   verticalOffset += verticalStep;
 
   verticalOffset += verticalStep;
@@ -931,6 +931,9 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel error1SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejp = ");
   verticalOffset += verticalStep;
 
+  plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejn = ");
+  verticalOffset += verticalStep;
+
   plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ej = ");
   verticalOffset += verticalStep;
 
@@ -938,6 +941,9 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel error2SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejp = ");
+  verticalOffset += verticalStep;
+
+  plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejn = ");
   verticalOffset += verticalStep;
 
   plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ej = ");
@@ -949,6 +955,9 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel errorSupSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejp = ");
   verticalOffset += verticalStep;
 
+  plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejn = ");
+  verticalOffset += verticalStep;
+
   plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ej = ");
   verticalOffset += verticalStep;
 
@@ -958,40 +967,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel errorModSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejp = ");
   verticalOffset += verticalStep;
 
-  plotLabel error1SRejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srej1_ej = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error1SRejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srej1_ejs   = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error1SRejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srej1_ejp = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SRejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srej2_ej = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SRejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srej2_ejs = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SRejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srej2_ejp = ");
-  verticalOffset += verticalStep;
-
-  plotLabel errorSupSRejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srejsup_ej = ");
-  verticalOffset += verticalStep;
-
-  plotLabel errorSupSRejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srejsup_ejs = ");
-  verticalOffset += verticalStep;
-
-  plotLabel errorSupSRejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srejsup_ejp = ");
-  verticalOffset += verticalStep;
-
-  plotLabel errorModSRejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srejmod_ej = ");
-  verticalOffset += verticalStep;
-
-  plotLabel errorModSRejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srejmod_ejs = ");
-  verticalOffset += verticalStep;
-
-  plotLabel errorModSRejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "srejmod_ejp = ");
+  plotLabel errorModSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejn = ");
   verticalOffset += verticalStep;
 
   fillDomain(&_domain, nullptr);
@@ -1153,96 +1129,6 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDESErrorMod += mod_ejs;
       }
 
-      double  rejej = 0.0, rejejp = 0.0, rejsupej = 0.0, rejsupejp = 0.0,
-              rejejs = 0.0, rejsupejs = 0.0;
-
-      while(_lastSigmoidallyEnhancedPlotY.size() < _sigmoidallyEnhancedPlotY.size())
-      {
-        _lastSigmoidallyEnhancedPlotY.push_back(0);
-        lastKDEValues.push_back(0);
-        lastWKDEValues.push_back(0);
-      }
-
-      errorHolder.clear();
-
-      // Rejej + rejsupej
-      for(unsigned int i = 0; i < KDEValues.size(); ++i){
-        double val = fabs(KDEValues[i] - lastKDEValues[i]);
-        errorHolder.push_back(val);
-        rejsupej = val > rejsupej ? val : rejsupej;
-      }
-
-      rejej = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // Rejejp + rejsupejp
-      for(unsigned int i = 0; i < _sigmoidallyEnhancedPlotY.size(); ++i){
-        double val = fabs(_sigmoidallyEnhancedPlotY[i] - _lastSigmoidallyEnhancedPlotY[i]);
-        errorHolder.push_back(val);
-        rejsupejp = val > rejsupejp ? val : rejsupejp;
-      }
-
-      rejejp = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-
-      // Rejejs + rejsupejs
-      for(unsigned int i = 0; i < WKDEValues.size(); ++i){
-        double val = fabs(WKDEValues[i] - lastWKDEValues[i]);
-        errorHolder.push_back(val);
-        rejsupejs = val > rejsupejs ? val : rejsupejs;
-      }
-
-      rejejs = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      double rejej2 = 0.0, rejejp2 = 0.0, rejejs2 = 0.0;
-
-      // Rejej
-      for(unsigned int i = 0; i < KDEValues.size(); ++i){
-        errorHolder.push_back(pow(KDEValues[i] - lastKDEValues[i], 2));
-      }
-
-      rejej2 = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // Rejejp
-      for(unsigned int i = 0; i < _sigmoidallyEnhancedPlotY.size(); ++i){
-        errorHolder.push_back(pow(_sigmoidallyEnhancedPlotY[i] - _lastSigmoidallyEnhancedPlotY[i], 2));
-      }
-
-      rejejp2 = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // Rejej
-      for(unsigned int i = 0; i < KDEValues.size(); ++i){
-        errorHolder.push_back(pow(WKDEValues[i] - lastWKDEValues[i], 2));
-      }
-
-      rejejs2 = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      double rejmodej = 0, rejmodejp = 0, rejmodejs = 0;
-      rejmodej = fabs(KDEExtrema - lastKDEExtrema);
-      rejmodejp = fabs(KDEPExtrema - lastKDEPExtrema);
-      rejmodejs = fabs(WKDEExtrema - lastWKDEExtrema);
-
-      if(stepNumber >= 2000)
-      {
-        _summaricKDEsError1    += rejej;
-        _summaricKDEPsError1   += rejejp;
-        _summaricKDESsError1   += rejejs;
-        _summaricKDEsError2    += rejej2;
-        _summaricKDEPsError2   += rejejp2;
-        _summaricKDESsError2   += rejejs2;
-        _summaricKDEsErrorSup  += rejsupej;
-        _summaricKDEPsErrorSup += rejsupejp;
-        _summaricKDESsErrorSup += rejsupejs;
-        _summaricKDEsErrorMod  += rejmodej;
-        _summaricKDEPsErrorMod += rejmodejp;
-        _summaricKDESsErrorMod += rejmodejs;
-      }
-
       EmETextLabel
           .setText("EmE            = " + formatNumberForDisplay(avg_mE));
 
@@ -1271,48 +1157,35 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("ser1_ejp    = " + formatNumberForDisplay(_summaricKDEPError1));
       error1SejsTextLabel
           .setText("ser1_ejs    = " + formatNumberForDisplay(_summaricKDESError1));
+      error1SejnTextLabel
+          .setText("ser1_ejn    = " + formatNumberForDisplay(_summaricKDENError1));
       error2SejTextLabel
           .setText("ser2_ej     = " + formatNumberForDisplay(_summaricKDEError2));
       error2SejpTextLabel
           .setText("ser2_ejp    = " + formatNumberForDisplay(_summaricKDEPError2));
       error2SejsTextLabel
           .setText("ser2_ejs    = " + formatNumberForDisplay(_summaricKDESError2));
+      error2SejnTextLabel
+          .setText("ser2_ejn    = " + formatNumberForDisplay(_summaricKDENError2));
       errorSupSejTextLabel
           .setText("sersup_ej   = " + formatNumberForDisplay(_summaricKDEErrorSup));
       errorSupSejpTextLabel
           .setText("sersup_ejp  = " + formatNumberForDisplay(_summaricKDEPErrorSup));
       errorSupSejsTextLabel
           .setText("sersup_ejs  = " + formatNumberForDisplay(_summaricKDESErrorSup));
+      errorSupSejnTextLabel
+          .setText("sersup_ejn    = " + formatNumberForDisplay(_summaricKDENErrorSup));
       errorModSejTextLabel
           .setText("sermod_ej   = " + formatNumberForDisplay(_summaricKDEErrorMod));
       errorModSejpTextLabel
           .setText("sermod_ejp  = " + formatNumberForDisplay(_summaricKDEPErrorMod));
       errorModSejsTextLabel
           .setText("sermod_ejs  = " + formatNumberForDisplay(_summaricKDESErrorMod));
-      error1SRejTextLabel
-          .setText("srej1_ej    = " + formatNumberForDisplay(_summaricKDEsError1));
-      error1SRejpTextLabel
-          .setText("srej1_ejp   = " + formatNumberForDisplay(_summaricKDEPsError1));
-      error1SRejsTextLabel
-          .setText("srej1_ejs   = " + formatNumberForDisplay(_summaricKDESsError1));
-      error2SRejTextLabel
-          .setText("srej2_ej    = " + formatNumberForDisplay(_summaricKDEsError2));
-      error2SRejpTextLabel
-          .setText("srej2_ejp   = " + formatNumberForDisplay(_summaricKDEPsError2));
-      error2SRejsTextLabel
-          .setText("srej2_ejs   = " + formatNumberForDisplay(_summaricKDESsError2));
-      errorSupSRejTextLabel
-          .setText("srejsup_ej  = " + formatNumberForDisplay(_summaricKDEsErrorSup));
-      errorSupSRejpTextLabel
-          .setText("srejsup_ejp = " + formatNumberForDisplay(_summaricKDEPsErrorSup));
-      errorSupSRejsTextLabel
-          .setText("srejsup_ejs = " + formatNumberForDisplay(_summaricKDESsErrorSup));
-      errorModSRejTextLabel
-          .setText("srejmod_ej  = " + formatNumberForDisplay(_summaricKDEsErrorMod));
-      errorModSRejpTextLabel
-          .setText("srejmod_ejp = " + formatNumberForDisplay(_summaricKDEPsErrorMod));
-      errorModSRejsTextLabel
-          .setText("srejmod_ejs = " + formatNumberForDisplay(_summaricKDESsErrorMod));
+      errorModSejnTextLabel
+          .setText("sermod_ejn    = " + formatNumberForDisplay(_summaricKDENErrorMod));
+
+      rareElementsTextLabel
+          .setText("#Rare elements = " + QString::number(_atypicalElementsValues.size()));
 
       deltaTextLabel.setText("delta = " + formatNumberForDisplay(DESDAAlgorithm.delta));
 
@@ -1326,10 +1199,6 @@ void MainWindow::on_pushButton_start_clicked()
       mETextLabel.setText("mE  = " + QString::number(DESDAAlgorithm._mE)
                            + ", mEta = " + QString::number(DESDAAlgorithm._kpssM));
 
-      /*
-      stDevTextLabel
-            ->setText("stDev_mE = " + formatNumberForDisplay(DESDAAlgorithm._stDev));
-      */
 
       _lastSigmoidallyEnhancedPlotY.clear();
       lastKDEValues.clear();
@@ -1390,8 +1259,4 @@ void MainWindow::on_pushButton_start_clicked()
   qDebug() << formatNumberForDisplay(_summaricKDEPError2);
   qDebug() << formatNumberForDisplay(_summaricKDEPErrorSup);
   qDebug() << formatNumberForDisplay(_summaricKDEPErrorMod);
-  qDebug() << formatNumberForDisplay( _summaricKDEPsError1);
-  qDebug() << formatNumberForDisplay(_summaricKDEPsError2);
-  qDebug() << formatNumberForDisplay(_summaricKDEPsErrorSup);
-  qDebug() << formatNumberForDisplay(_summaricKDEPsErrorMod);
 }
