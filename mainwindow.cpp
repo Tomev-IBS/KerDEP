@@ -874,21 +874,15 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel uTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "u = ");
-
-  std::vector<plotLabel> vs = {};
-  std::vector<QString> vsLabels = {"v10  = ", "v50  = ", "v200 = "};
-
-  for(unsigned int i = 0; i < 3; ++i){
-    verticalOffset += verticalStep;
-    vs.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, vsLabels[i]));
-  }
-
   verticalOffset += verticalStep;
 
   plotLabel bTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "b = " + QString::number(newWeightB));
   verticalOffset += verticalStep;
 
   plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "r = " + QString::number(DESDAAlgorithm._r));
+  verticalOffset += verticalStep;
+
+  plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "q = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
   //==================== SUMMARIC ERRORS=================//
 
@@ -1035,7 +1029,18 @@ void MainWindow::on_pushButton_start_clicked()
         }
       }
 
-      //_windowedEstimatorY = DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
+      maxKDEP = 0;
+
+      for(int i = 0; i < _rareElementsEnhancedPlotY.size(); ++i)
+      {
+        double val = _rareElementsEnhancedPlotY[i];
+
+        if(val > maxKDEP)
+        {
+          maxKDEP = val;
+          REESEExtrema = _drawableDomain[i];
+        }
+      }
 
       drawPlots(estimator.get(), targetFunction.get());
 
@@ -1082,7 +1087,18 @@ void MainWindow::on_pushButton_start_clicked()
       error_ejs = numericIntegral(&errorHolder);
       errorHolder.clear();
 
-      double error2EJ = 0.0, error2EJP = 0.0, error2EJS = 0.0;
+      // ser_1ejn + sersup_ejn
+      double errorEJN = 0, sup_ejn = 0;
+      for(int i = 0; i < ModelValues.size(); ++i){
+        double val = fabs(ModelValues[i] - _rareElementsEnhancedPlotY[i]);
+        errorHolder.push_back(val);
+        sup_ejn = val > sup_ejn ? val : sup_ejn;
+      }
+
+      errorEJN = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      double error2EJ = 0.0, error2EJP = 0.0, error2EJS = 0.0, error2EJN = 0;
 
       // ser2_ej
       for(int i = 0; i < ModelValues.size(); ++i){
@@ -1108,25 +1124,38 @@ void MainWindow::on_pushButton_start_clicked()
       error2EJS = numericIntegral(&errorHolder);
       errorHolder.clear();
 
-      double mod_ej = 0, mod_ejp = 0, mod_ejs = 0;
+      // ser2_ejn
+      for(int i = 0; i < ModelValues.size(); ++i){
+        errorHolder.push_back(pow(ModelValues[i] - _rareElementsEnhancedPlotY[i], 2));
+      }
+
+      error2EJN = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      double mod_ej = 0, mod_ejp = 0, mod_ejs = 0, mod_ejn = 0;
       mod_ej = fabs(modelExtrema - KDEExtrema);
       mod_ejp = fabs(modelExtrema - KDEPExtrema);
       mod_ejs = fabs(modelExtrema - WKDEExtrema);
+      mod_ejn = fabs(modelExtrema - REESEExtrema);
 
       if(stepNumber >= 2000)
       {
         _summaricKDEError1    += _errorEJ;
         _summaricKDEPError1   += _errorEJP;
         _summaricKDESError1   += error_ejs;
+        _summaricKDENError1   += errorEJN;
         _summaricKDEError2    += error2EJ;
         _summaricKDEPError2   += error2EJP;
         _summaricKDESError2   += error2EJS;
+        _summaricKDENError2   += error2EJN;
         _summaricKDEErrorSup  += sup_ej;
         _summaricKDEPErrorSup += sup_ejp;
         _summaricKDESErrorSup += sup_ejs;
+        _summaricKDENErrorSup += sup_ejn;
         _summaricKDEErrorMod  += mod_ej;
         _summaricKDEPErrorMod += mod_ejp;
         _summaricKDESErrorMod += mod_ejs;
+        _summaricKDENErrorMod += mod_ejn;
       }
 
       EmETextLabel
@@ -1141,14 +1170,7 @@ void MainWindow::on_pushButton_start_clicked()
       uTextLabel
           .setText("u     = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
 
-      for(unsigned int i = 0; i < DESDAAlgorithm._selectedVValues.size(); ++i){
-        vs[i].setText(
-          vsLabels[i] + formatNumberForDisplay(DESDAAlgorithm._selectedVValues[i])
-        );
-      }
-
       // ============ SUMS =========== //
-
       iTextLabel
           .setText("i   = " + QString::number(stepNumber));
       error1SejTextLabel
@@ -1196,28 +1218,14 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("b = " + QString::number(DESDAAlgorithm._newWeightB));
 
       mTextLabel.setText("m   = " + QString::number(DESDAAlgorithm._m));
+
+      qTextLabel.setText("q = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+
       mETextLabel.setText("mE  = " + QString::number(DESDAAlgorithm._mE)
                            + ", mEta = " + QString::number(DESDAAlgorithm._kpssM));
 
 
-      _lastSigmoidallyEnhancedPlotY.clear();
-      lastKDEValues.clear();
-      lastWKDEValues.clear();
-
-      for(auto val : _sigmoidallyEnhancedPlotY)
-        _lastSigmoidallyEnhancedPlotY.push_back(val);
-
-      for(auto val : KDEValues)
-        lastKDEValues.push_back(val);
-
-      for(auto val : WKDEValues)
-        lastWKDEValues.push_back(val);
-
-      lastModelExtrema = modelExtrema;
-      lastKDEExtrema = KDEExtrema;
-      lastKDEPExtrema = KDEPExtrema;
-      lastWKDEExtrema = WKDEExtrema;
-
+      ui->widget_plot->replot();
       qApp->processEvents();
 
       ui->lineEdit_distributionProgression->text();
