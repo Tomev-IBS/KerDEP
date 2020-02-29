@@ -40,9 +40,20 @@ class MainWindow : public QMainWindow
   protected:
     int stepNumber = 0;
 
-    std::vector<std::shared_ptr<cluster>> uncommonClusters;
+    QVector<std::shared_ptr<point>> _domain;
+    QVector<double> _drawableDomain;
 
   private:
+    const QPen _MODEL_PLOT_PEN       = QPen(Qt::red);
+    const QPen _WINDOWED_PLOT_PEN    = QPen(Qt::black);
+    const QPen _KDE_PLOT_PEN         = QPen(Qt::blue);
+    const QPen _WEIGHTED_PLOT_PEN    = QPen(Qt::cyan);
+    const QPen _DERIVATIVE_PLOT_PEN  = QPen(Qt::green);
+    const QPen _DESDA_KDE_PLOT_PEN   = QPen(Qt::darkRed);
+    const QPen _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN = QPen(Qt::magenta);
+
+    std::vector<QCPAbstractItem *> _linesOnPlot;
+
     void setupValidators();
     void setupPlot();
     void setupKernelsTable();
@@ -101,6 +112,7 @@ class MainWindow : public QMainWindow
 
     // Enhancement
     QVector<double> _sigmoidallyEnhancedPlotY;
+    QVector<double> _rareElementsEnhancedPlotY;
     QVector<double> _windowedEstimatorY;
     QVector<double> _lastSigmoidallyEnhancedPlotY;
     double  _summaricKDEError1 = 0.0, _summaricKDEPError1 = 0.0, _summaricKDESError1 = 0.0,
@@ -117,6 +129,8 @@ class MainWindow : public QMainWindow
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;
 
     QVector<double> maxAs = {};
+    QVector<double> _atypicalElementsValues = {};
+    double quartileValue = 0;
 
     double positionalSecondGradeEstimator = 0.0;
 
@@ -137,6 +151,7 @@ class MainWindow : public QMainWindow
 
     void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
     void clearPlot();
+    void addPlot(const QVector<qreal> *Y, const QPen &pen);
     void resizePlot();
     void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
     void addWindowedEstimatorPlot(const QVector<qreal> *X);
@@ -148,7 +163,6 @@ class MainWindow : public QMainWindow
     int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
     int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
     unsigned long long markUncommonClusters();
-    void markNewTrends();
 
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 

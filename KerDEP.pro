@@ -51,7 +51,8 @@ SOURCES     +=  main.cpp\
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp \
                 groupingThread/kMeansAlgorithm.cpp \
     DESDA.cpp \
-    StationarityTests/kpssstationaritytest.cpp
+    StationarityTests/kpssstationaritytest.cpp \
+    UI/plotLabel.cpp
 
 HEADERS     +=  mainwindow.h \
     DESDAReservoir.h \
@@ -110,7 +111,8 @@ HEADERS     +=  mainwindow.h \
     groupingThread/kMeansAlgorithm.h \
     DESDA.h \
     StationarityTests/kpssstationaritytest.h \
-    StationarityTests/i_stationaritytest.h
+    StationarityTests/i_stationaritytest.h \
+    UI/plotLabel.h
 
 FORMS       +=  mainwindow.ui
 
