@@ -779,3 +779,21 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
   return enhancedKDEValues;
 }
 
+/** DESDA::getAtypicalElementsValues
+ * @brief Returns vector of current atypical elements values.
+ *
+ * This method assumes 1 dimensional, specifically constructed objects (for now).
+ *
+ * @return Vector of atypical elements values.
+ */
+
+QVector<double> DESDA::getAtypicalElementsValues()
+{
+  QVector<double> atypicalElementsValues = {};
+  auto atypicalElements = getAtypicalElements();
+
+  for(auto a : atypicalElements)
+    atypicalElementsValues.push_back(std::stod(a->getObject()->attributesValues["Val0"]));
+
+  return atypicalElementsValues;
+}

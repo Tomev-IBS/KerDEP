@@ -888,6 +888,8 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel bTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "b = " + QString::number(newWeightB));
   verticalOffset += verticalStep;
 
+  plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "r = " + QString::number(DESDAAlgorithm._r));
+
   //==================== SUMMARIC ERRORS=================//
 
   horizontalOffset = 0.72;
@@ -1038,6 +1040,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       _rareElementsEnhancedPlotY =
           DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);
+
+      _atypicalElementsValues =
+                DESDAAlgorithm.getAtypicalElementsValues();
 
       _quantileEstimatorValue = DESDAAlgorithm._quantileEstimator;
 

@@ -130,7 +130,7 @@ class MainWindow : public QMainWindow
 
     QVector<double> maxAs = {};
     QVector<double> _atypicalElementsValues = {};
-    double quartileValue = 0;
+    double _quantileEstimatorValue = 0;
 
     double positionalSecondGradeEstimator = 0.0;
 
