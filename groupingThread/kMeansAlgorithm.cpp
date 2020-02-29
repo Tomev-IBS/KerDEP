@@ -72,19 +72,31 @@ void kMeansAlgorithm::clusterObjects(std::vector<std::shared_ptr<sample>> *objec
 int kMeansAlgorithm::performGrouping(
     std::vector<std::shared_ptr<cluster> > *target)
 {
-  //std::cout << "Finding initial means.";
-  // qDebug() << "Finding initial means.";
-
   findInitialMeans();
 
   double oldError = 0.0;
   double newError = std::numeric_limits<double>::max();
-  double errorThreshold = 1.0e-2;
+  double errorThreshold = 1.0e-5;
 
   do
   {
     //std::cout << "Appling new means...\n";
     //qDebug() << "Appling new means...\n";
+
+    /*
+    qDebug() << "============Clusters==============";
+    for(auto c : clusters)
+      qDebug() << QString::fromStdString(c->getRepresentative()->attributesValues["Val0"]);
+
+    qDebug() << "";
+
+    qDebug() << "========== MEANS ===========";
+    for(auto c : means){
+        qDebug() << QString::fromStdString(c->getRepresentative()->attributesValues["Val0"]);
+    }
+
+    qDebug() << "";
+    */
 
     applyNewMeans(target);
 
@@ -104,27 +116,52 @@ int kMeansAlgorithm::performGrouping(
 
     findNewMeans(target);
 
-    //std::cout << "While condition: "
-    //          << (oldError - newError > errorThreshold)<< std::endl;
+    /*
+    for(auto c : *target){
 
-    //std::cout << "Old error: " << oldError << std::endl
-    //          << "New error: " << newError << std::endl;
+      qDebug() << "Value" << QString::fromStdString(c->getRepresentative()->attributesValues["Val0"]);
+      qDebug() << "Weight: " << c->getWeight();
+      qDebug() << "Size: " << c->size();
+
+      if(c->size() > 1){
+
+        qDebug() << "============== SUBCLUSTERS =============";
+
+        std::vector<clusterPtr> subclusters;
+
+        c->getSubclusters(&subclusters);
+
+        for(auto sc: subclusters){
+            qDebug() << "Value: " << QString::fromStdString(sc->getRepresentative()->attributesValues["Val0"]);
+            qDebug() << "Weight: " << sc->getWeight();
+
+        }
+
+        qDebug() << "=========== END SUBCLUSTERS ==============";
+
+      }
+
+
+        //std::cout
+        //  << "Value: "  << c->getMean()->attributesValues["Val0"]
+        //  << " Size: "  << c->size()
+        //  << "Weight: " << c->getWeight() << std::endl;
+    }
+    */
+
+    /*
+    std::cout << "While condition: "
+              << (oldError - newError > errorThreshold) << std::endl;
+
+    std::cout << "Old error: " << oldError << std::endl
+              << "New error: " << newError << std::endl;
+    */
 
   } while( oldError - newError > errorThreshold);
 
   //std::cout << "Grouping finished.\n";
 
-  /*
   std::cout << "Grouping finished.\nClusters:\n";
-
-  for(unsigned int i = 0; i < target->size(); ++i)
-  {
-    std::cout << i << ". cluster's size: " << target->at(i).get()->size()
-              << std::endl;
-    std::cout << i << ". cluster's weight: " << target->at(i)->getWeight()
-              << std::endl;
-  }
-  */
 
   return target->size();
 }
@@ -133,12 +170,54 @@ int kMeansAlgorithm::findInitialMeans()
 {
   switch(this->initialMeansFindingStrategy)
   {
+    case LATEST_M_CLUSTERS:
+      return getMeansFromNewestClusters();
+    case FIRST_M_CLUSTERS:
+      return getMeansFromFirstMClusters();
     case RANDOM_ACCORDING_TO_DISTANCE:
       return findMeansAccordingToDistance();
     case RANDOM:
     default:
       return findRandomMeans();
   }
+}
+
+int kMeansAlgorithm::getMeansFromFirstMClusters()
+{
+    means.clear();
+
+    // Create distinct, new clusters for means
+    for(int i = 0; i < numberOfClusters; ++i)
+    {
+      means.push_back(std::shared_ptr<cluster>(new cluster(i, clusters.at(i)->getObject())));
+      means.at(means.size() - 1)->setRepresentative(clusters.at(i)->getRepresentative());
+    }
+
+    return means.size();
+}
+
+int kMeansAlgorithm::getMeansFromNewestClusters()
+{
+  means.clear();
+
+  int oldestClusterIndex = 0;
+  double smallestTimestamp = clusters[0]->timestamp;
+
+  // Look for oldest cluster, and fill means in one loop
+  for(int i = 0; i < clusters.size(); ++i){
+    means.push_back(std::shared_ptr<cluster>(new cluster(i, clusters.at(i)->getObject())));
+    means.at(means.size() - 1)->setRepresentative(clusters.at(i)->getRepresentative());
+
+    if(clusters[i]->timestamp < smallestTimestamp){
+      oldestClusterIndex = i;
+      smallestTimestamp = clusters[i]->timestamp;
+    }
+  }
+
+  // Then remove oldest cluster from means
+  means.erase(means.begin() + oldestClusterIndex, means.begin() + oldestClusterIndex + 1);
+
+  return means.size();
 }
 
 int kMeansAlgorithm::findRandomMeans()
@@ -336,7 +415,7 @@ int kMeansAlgorithm::assignClustersToMeans(
 double kMeansAlgorithm::countAssigmentError(
   std::vector<std::shared_ptr<cluster> > *target)
 {
-  double error = 0.0f;
+  double error = 0.0;
 
   std::vector<std::shared_ptr<cluster>> subclusters;
 
@@ -394,7 +473,7 @@ int kMeansAlgorithm::findNewMeans(std::vector<std::shared_ptr<cluster> > *target
   }
 
   for(std::shared_ptr<sample> mean : newMeans)
-    means.push_back(std::shared_ptr<cluster>(new cluster(std::shared_ptr<sample>(mean))));
+    means.push_back(std::shared_ptr<cluster>(new cluster(std::shared_ptr<sample>(mean), true)));
 
   return means.size();
 }
@@ -441,7 +520,8 @@ double kMeansAlgorithm::getAttributesMeanFromSubclusters(std::string attributesN
     mean += currentClusterWeight * stod(c->getObject()->attributesValues[attributesName]);
   }
 
-  mean /= weightsSum;
+  if(weightsSum != 0)
+    mean /= weightsSum;
 
   return mean;
 }

@@ -199,6 +199,7 @@ double MainWindow::countInterIntervalClustersWeight()
 
 unsigned long long MainWindow::insertMassiveData()
 {
+  /*
   std::vector<std::shared_ptr<sample>> massiveData;
 
   qDebug() << "Generating data.";
@@ -212,6 +213,9 @@ unsigned long long MainWindow::insertMassiveData()
   qDebug() << "Massive data clustered.";
 
   return massiveData.size();
+  */
+
+  return 0;
 }
 
 unsigned long long MainWindow::generateMassiveData(
@@ -263,22 +267,6 @@ void MainWindow::clusterMassiveData(
     storage->at(0).back()->setWeight(objects->size() / medoidsNumber);
     std::advance(it, 1);
   }
-}
-
-std::vector<std::shared_ptr<cluster>> MainWindow::getClustersForEstimator()
-{
-  std::vector<std::shared_ptr<cluster>> consideredClusters;
-
-  for(std::vector<std::shared_ptr<cluster>> level : storedMedoids)
-  {
-    for(std::shared_ptr<cluster> c : level)
-    {
-      if(c->getWeight() >= positionalSecondGradeEstimator)
-        consideredClusters.push_back(c);
-    }
-  }
-
-  return consideredClusters;
 }
 
 void MainWindow::setupValidators()
@@ -464,9 +452,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator,
     if(ui->checkBox_showNewTrends->isChecked())
       markNewTrends();
 
-    if(ui->checkBox_negativeC2Clusters->isChecked())
-      markClustersWithNegativeDerivative();
-
     // Draw plots
     ui->widget_plot->replot();
 
@@ -625,6 +610,7 @@ unsigned long long MainWindow::markUncommonClusters()
 
 void MainWindow::markNewTrends()
 {
+  /*
   double x = 0.0;
 
   // For each uncommon cluster add a red vertical line to the plot
@@ -641,47 +627,7 @@ void MainWindow::markNewTrends()
       verticalLine->setPen(QPen(Qt::blue));
     }
   }
-}
-
-void MainWindow::markClustersWithNegativeDerivative()
-{
-  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
-
-  double x = 0;
-
-  for(auto c : consideredClusters)
-  {
-    if(c->predictionParameters[1] < 0) // Mark with
-    {
-      // Only works for distribution data samples as programmed
-      x = std::stod(c->getRepresentative()->attributesValues["Val0"]);
-
-      QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
-      verticalLine->start->setCoords(x, 0.01);
-      verticalLine->end->setCoords(x, -0.01);
-      verticalLine->setPen(QPen(Qt::red));
-    }
-  }
-}
-
-unsigned long long MainWindow::findUncommonClusters()
-{
-  uncommonClusters.clear();
-
-  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
-
-  for(std::shared_ptr<cluster> c : consideredClusters)
-  {
-    if(c->_currentKDEValue < _maxEstimatorValueOnDomain * _a)
-      uncommonClusters.push_back(c);
-  }
-
-  qDebug() << "Considered clusters number: " << consideredClusters.size();
-  qDebug() << "Uncommon clusters number: " << uncommonClusters.size();
-  qDebug() << "Positional estimator value: " << positionalSecondGradeEstimator;
-  qDebug() << "Dynamic comparitor value: " << _a * _maxEstimatorValueOnDomain;
-
-  return uncommonClusters.size();
+  */
 }
 
 QString MainWindow::formatNumberForDisplay(double number)
@@ -702,23 +648,6 @@ QString MainWindow::formatNumberForDisplay(double number)
     result += splitNumber[1][i];
 
   return result;
-}
-
-void MainWindow::countKDEValuesOnClusters(
-  std::shared_ptr<kernelDensityEstimator> estimator)
-{
-  QVector<qreal> x;
-
-  std::vector<std::shared_ptr<cluster>> consideredClusters = getClustersForEstimator();
-  estimator->setClusters(consideredClusters);
-
-  for(std::shared_ptr<cluster> c : consideredClusters)
-  {
-    x.clear();
-    x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    double estimatorValueOnCluster = estimator->getValue(&x);
-    c->_currentKDEValue = estimatorValueOnCluster;
-  }
 }
 
 void MainWindow::addTemporalDerivativePlot(
@@ -1226,8 +1155,7 @@ void MainWindow::on_pushButton_start_clicked()
   double newWeightB = 0.5;
   int mE = ui->lineEdit_sampleSize->text().toInt() / 2;
 
-  storedMedoids.push_back(std::vector<std::shared_ptr<cluster>>());
-  clusters = &(storedMedoids[0]);
+  clusters = &storedMedoids;
 
   weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters, 0);
 

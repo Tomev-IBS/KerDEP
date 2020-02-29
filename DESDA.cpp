@@ -16,7 +16,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              weightedSilvermanSmoothingParameterCounter *smoothingParamCounter,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
-             std::vector<std::vector<std::shared_ptr<cluster> > > *storedMedoids,
+             std::vector<std::shared_ptr<cluster> > *storedMedoids,
              double desiredRarity, groupingThread *gt, double v,
              double newWeightB, int mE, int kpssX, int lambda):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
@@ -162,10 +162,7 @@ void DESDA::performStep()
 
   updatePrognosisParameters();
 
-  if(emE.predictionParameters.size() == 0)
-    emE.initializePredictionParameters(avg);
-  else
-    emE.updatePredictionParameters(avg);
+  emE.updatePrediction();
 
   while(aemEVals.size() >= _mE)
   {
@@ -218,23 +215,10 @@ void DESDA::updateWeights()
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
 {
-  std::vector<std::shared_ptr<cluster>> consideredClusters;
+  std::vector<std::shared_ptr<cluster> > consideredClusters = {};
 
-  for(std::vector<std::shared_ptr<cluster>> level : (*_storedMedoids))
-  {
-    for(std::shared_ptr<cluster> c : level)
-    {
-      if(c->getWeight() >= _positionalSecondGradeEstimator)
-        consideredClusters.push_back(c);
-    }
-  }
-
-  if(!_shouldCluster)
-  {
-    while(consideredClusters.size() > _m){
-      //qDebug() << "m = " << _m;
-      consideredClusters.pop_back();
-    }
+  for(auto c : *_clusters){
+    consideredClusters.push_back(c);
   }
 
   return consideredClusters;
@@ -244,13 +228,7 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
 {
     std::vector<std::shared_ptr<cluster>> consideredClusters = {};
 
-    for(std::vector<std::shared_ptr<cluster>> level : (*_storedMedoids))
-    {
-      for(std::shared_ptr<cluster> c : level)
-      {
-          consideredClusters.push_back(c);
-      }
-    }
+    for(auto c : *_clusters) consideredClusters.push_back(c);
 
     return consideredClusters;
 }
@@ -295,27 +273,8 @@ void DESDA::updatePrognosisParameters()
 {
   auto currentClusters = getClustersForEstimator();
 
-  if(currentClusters.size() == 0) return;
-
   for(std::shared_ptr<cluster> c : currentClusters)
-  {
-    QVector<qreal> pt;
-
-    // Assuming it has object (as it should) and have only numerical values.
-    for(auto kv : c->getObject()->attributesValues)
-      pt.append(std::stod(kv.second));
-
-    if(c->predictionParameters.size() > 0)
-    {
-      c->updatePredictionParameters(c->_currentKDEValue);
-    }
-    else
-    {
-      c->initializePredictionParameters(c->_currentKDEValue);
-    }
-
-    c->_lastKDEValue = c->_currentKDEValue;
-  }
+    c->updatePrediction();
 }
 
 void DESDA::countKDEDerivativeValuesOnClusters()
@@ -339,8 +298,6 @@ void DESDA::countKDEDerivativeValuesOnClusters()
     {
       QVector<qreal> pt;
       pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-
-      c->_KDEDerivativeValue = _estimatorDerivative->getValue(&pt);
     }
   }
 }

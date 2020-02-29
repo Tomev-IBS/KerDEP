@@ -9,10 +9,11 @@
 #include "kMedoidsAlgorithm/attributesDistanceMeasures/numerical/gowersNumericalAttributesDistanceMeasure.h"
 #include "kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.h"
 #include "kMedoidsAlgorithm/clusterDistanceMeasures/completeLinkClusterDistanceMeasure.h"
+#include "kMedoidsAlgorithm/clusterDistanceMeasures/centroidLinkClusterDistanceMeasure.h"
 
 
 
-groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>>> *medoidsStorage, std::shared_ptr<dataParser> parser)
+groupingThread::groupingThread(std::vector<std::shared_ptr<cluster>> *medoidsStorage, std::shared_ptr<dataParser> parser)
 {
   this->medoidsStorage = medoidsStorage;
   this->parser = parser;
@@ -21,12 +22,12 @@ groupingThread::groupingThread(std::vector<std::vector<std::shared_ptr<cluster>>
 int groupingThread::initialize(int medoidsNumber, int bufferSize)
 {
   int NUMBER_OF_MEDOIDS = medoidsNumber;
-  int MEDOIDS_FINDING_STRATEGY = kMeansAlgorithm::RANDOM_ACCORDING_TO_DISTANCE;
+  int MEDOIDS_FINDING_STRATEGY = kMeansAlgorithm::RANDOM_ACCORDING_TO_DISTANCE; // k-means++
 
   attributesDistanceMeasure* CADM = new smdCategoricalAttributesDistanceMeasure();
   attributesDistanceMeasure* NADM = new gowersNumericalAttributesDistanceMeasure(attributesData);
   objectsDistanceMeasure* ODM = new customObjectsDistanceMeasure(CADM, NADM, attributesData);
-  std::shared_ptr<clustersDistanceMeasure> CDM(new completeLinkClusterDistanceMeasure(ODM));
+  std::shared_ptr<clustersDistanceMeasure> CDM(new centroidLinkClusterDistanceMeasure(ODM));
 
   std::shared_ptr<groupingAlgorithm> algorithm(new kMeansAlgorithm
                                                (
@@ -44,20 +45,9 @@ int groupingThread::initialize(int medoidsNumber, int bufferSize)
 
 void groupingThread::run()
 {
-  //qDebug() << "Wątek totalnie działa.";
-
   storingAlgorithm->findAndStoreMedoidsFromClusters(&clusters, medoidsStorage);
 
-  /*
-  for(unsigned int i = 0; i < medoidsStorage->size(); ++i)
-  {
-    qDebug() << "Level: " << i << ". Custers number: "
-             << medoidsStorage->at(i).size();
-  }
-  */
-
   qDebug() << "Grouping finished and medoids stored.";
-
 }
 
 int groupingThread::getObjectsForGrouping(std::vector<std::shared_ptr<sample>> samples)
@@ -85,5 +75,3 @@ int groupingThread::setAttributesData(std::unordered_map<std::string, attributeD
 
   return attributesData->size();
 }
-
-

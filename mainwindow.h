@@ -81,7 +81,7 @@ class MainWindow : public QMainWindow
 
     const unsigned int MEDOIDS_NUMBER = 10;
 
-    std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
+    std::vector<std::shared_ptr<cluster>> storedMedoids;
 
     Ui::MainWindow *ui;
 
@@ -162,7 +162,6 @@ class MainWindow : public QMainWindow
     int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
     unsigned long long markUncommonClusters();
     void markNewTrends();
-    void markClustersWithNegativeDerivative();
 
     void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
 
@@ -190,9 +189,6 @@ class MainWindow : public QMainWindow
     int canAnimationBePerformed(int dimensionsNumber);
     void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
                             std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
-    std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
-    void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
-    unsigned long long findUncommonClusters();
 
     QString formatNumberForDisplay(double number);
 
