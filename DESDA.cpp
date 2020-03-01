@@ -134,12 +134,14 @@ void DESDA::performStep()
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
 
+  countKDEValuesOnClusters();
+  updatePrognosisParameters();
+  updateMaxPredictionAInLastHalfM0Steps();
+
   auto currentClusters = getClustersForEstimator();
 
   qDebug() << "Reservoir size in step "
              << _stepNumber << " is: " << currentClusters.size();
-
-  countKDEValuesOnClusters();
 
   //avg = getAverageOfFirstMSampleValues(_mE);
   avg = getNewEmEValue();
@@ -155,8 +157,6 @@ void DESDA::performStep()
 
   _estimator->setClusters(currentClusters);
 
-  updatePrognosisParameters();
-
   emE.updatePrediction();
 
   while(aemEVals.size() >= _mE)
@@ -167,8 +167,6 @@ void DESDA::performStep()
 
   emEVals.insert(emEVals.begin(), emE._currentKDEValue);
   aemEVals.insert(aemEVals.begin(), emE.predictionParameters[1]);
-
-  countKDEDerivativeValuesOnClusters();
 
   ++_stepNumber;
 }
@@ -242,11 +240,9 @@ void DESDA::enhanceWeightsOfUncommonElements()
   auto uncommonElements = getAtypicalElements();
 
   for(auto ue : uncommonElements){
-    double weightEnhancer = 1;
-    if(ue->predictionParameters[1] > 0)
-      weightEnhancer += _d;
-    if(ue->predictionParameters[1] < 0)
-      weightEnhancer -= _d;
+    double weightEnhancer = 2 * sigmoid(ue->predictionParameters[1] / _averageMaxPredictionAInLastHalfM0Steps) - 1;
+    weightEnhancer *= _d;
+    weightEnhancer += 1;
     ue->setCWeight(ue->getCWeight() * weightEnhancer);
   }
 }
@@ -271,31 +267,6 @@ void DESDA::updatePrognosisParameters()
 {
   for(std::shared_ptr<cluster> c : *_clusters)
     c->updatePrediction();
-}
-
-void DESDA::countKDEDerivativeValuesOnClusters()
-{
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  std::vector<double> prognosisCoefficients = {};
-
-  for(auto c : currentClusters)
-    prognosisCoefficients.push_back(c->predictionParameters[1]);
-
-  if(prognosisCoefficients.size() == currentClusters.size())
-  {
-    _estimatorDerivative->setAdditionalMultipliers(prognosisCoefficients);
-    _estimatorDerivative->setClusters(currentClusters);
-
-    QVector<qreal> x;
-
-    for(auto c : currentClusters)
-    {
-      QVector<qreal> pt;
-      pt.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    }
-  }
 }
 
 void DESDA::updateM()
@@ -342,6 +313,32 @@ double DESDA::getNewEmEValue()
     }
 
     return avg / _EmEWeightsSum;
+}
+
+void DESDA::updateMaxPredictionAInLastHalfM0Steps()
+{
+  auto consideredClusters = getClustersForEstimator();
+
+  while(_storedMaxAInLastM0Steps.size() > _maxM / 2)
+    _storedMaxAInLastM0Steps.erase(_storedMaxAInLastM0Steps.begin(), _storedMaxAInLastM0Steps.begin() + 1);
+
+  double maxAOnConsideredClusters = fabs(consideredClusters[0]->predictionParameters[1]);
+
+  for(auto c : consideredClusters){
+    double currentClusterA = fabs(c->predictionParameters[1]);
+    if(currentClusterA > maxAOnConsideredClusters)
+      maxAOnConsideredClusters = currentClusterA;
+  }
+
+  _storedMaxAInLastM0Steps.push_back(maxAOnConsideredClusters);
+
+  _averageMaxPredictionAInLastHalfM0Steps = 0;
+
+  for(auto val : _storedMaxAInLastM0Steps){
+    _averageMaxPredictionAInLastHalfM0Steps += val;
+  }
+
+  _averageMaxPredictionAInLastHalfM0Steps *= 2.0 / _maxM;
 }
 
 void DESDA::saveWeightsToFile(std::string fileName)

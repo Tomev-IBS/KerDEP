@@ -96,6 +96,8 @@ class DESDA
     double _desiredRarity = 0.01;
     double _previousUncommonClustersWeight = 0.0;
     double _v = 1.0;
+    double _averageMaxPredictionAInLastHalfM0Steps = 0;
+    vector<double> _storedMaxAInLastM0Steps = {};
 
     cluster emE;
     bool _shouldCluster = false;
@@ -119,10 +121,11 @@ class DESDA
     std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
     void updatePrognosisParameters();
-    void countKDEDerivativeValuesOnClusters();
     void updateM();
     void updateDelta();
     double getNewEmEValue();
+    void updateMaxPredictionAInLastHalfM0Steps();
+
 
     void saveWeightsToFile(std::string fileName);
     void saveEmEWeightsToFile(std::string fileName);
