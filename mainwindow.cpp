@@ -187,8 +187,6 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     {
       WKDEValues.clear();
 
-      estimator->_shouldConsiderWeights = true;
-
       for(int i = 0; i < _domain.size(); ++i)
       {
         auto x = _domain[i];
@@ -1232,9 +1230,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 450 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 450.1 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", rezerwuar + elementy rzadkie, nowy wzór 110\\";
+                        ", rezerwuar + elementy rzadkie, nowy wzór 110)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
