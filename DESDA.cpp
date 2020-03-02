@@ -448,7 +448,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   for(int i = 0; i < currentClusters.size(); ++i)
   {
     std::shared_ptr<cluster> c = currentClusters[i];
-    enhancedWeight = c->getWeight();
+    enhancedWeight = c->getCWeight();
 
     // Count v_i
     v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
@@ -460,7 +460,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
     // 8 X 2019 formula
     enhancedWeight *= (1 + v_i);
 
-    standardWeights.push_back(c->getWeight());
+    standardWeights.push_back(c->getCWeight());
 
     // TR TODO: Change to find in vector
     if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
@@ -468,7 +468,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
       _selectedVValues.push_back(v_i);
 
     avgC2 += c->predictionParameters[1];
-    c->setWeight(enhancedWeight);
+    c->setCWeight(enhancedWeight);
   }
 
   avgC2 /= currentClusters.size();
@@ -487,7 +487,7 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   // Restore weights
   for(unsigned int i = 0; i < currentClusters.size(); ++i)
-    currentClusters[i]->setWeight(standardWeights[i]);
+    currentClusters[i]->setCWeight(standardWeights[i]);
 
   //qDebug() << "Max a param: " << maxAParam;
   return enhancedKDEValues;
