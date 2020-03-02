@@ -349,7 +349,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.05</string>
+            <string>0.0005</string>
            </property>
           </widget>
          </item>
@@ -726,7 +726,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

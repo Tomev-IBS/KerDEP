@@ -1230,7 +1230,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 450.1 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 448.1 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", rezerwuar + elementy rzadkie, nowy wzór 110)\\";
 
