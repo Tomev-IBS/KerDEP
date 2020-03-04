@@ -1249,7 +1249,7 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("sersup_ejs  = " + formatNumberForDisplay(_summaricKDESErrorSup));
       errorSupSejnTextLabel
           .setText("sersup_ejn  = " + formatNumberForDisplay(_summaricKDENErrorSup));
-      error1SejwTextLabel
+      errorModSejwTextLabel
           .setText("sermod_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorMod));
       errorModSejTextLabel
           .setText("sermod_ej   = " + formatNumberForDisplay(_summaricKDEErrorMod));
