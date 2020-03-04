@@ -349,7 +349,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.0001</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -579,7 +579,7 @@
          <rect>
           <x>390</x>
           <y>310</y>
-          <width>181</width>
+          <width>291</width>
           <height>231</height>
          </rect>
         </property>
@@ -590,7 +590,17 @@
          <item>
           <widget class="QCheckBox" name="checkBox_showEstimatedPlot">
            <property name="text">
-            <string>Estimated Plot</string>
+            <string>Estimated Plot (Red)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checbox_showFullEstimator">
+           <property name="text">
+            <string>Full Estimator Plot (Black)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -600,7 +610,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_showEstimationPlot">
            <property name="text">
-            <string>Estimation Plot</string>
+            <string>Estimation Plot (Navy)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -610,7 +620,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_showWeightedEstimationPlot">
            <property name="text">
-            <string>Weighted Estimation Plot</string>
+            <string>Weighted Estimation Plot (Light Blue)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -630,7 +640,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
            <property name="text">
-            <string>Kernel prognosed Plot</string>
+            <string>Kernel prognosed Plot (Green)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -640,7 +650,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
            <property name="text">
-            <string>Sigmoidally Enhanced KDE</string>
+            <string>Sigmoidally Enhanced KDE (Dark Red)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -650,7 +660,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_REESEKDE">
            <property name="text">
-            <string>REE SE KDE</string>
+            <string>REE SE KDE (Magenta)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -726,7 +736,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

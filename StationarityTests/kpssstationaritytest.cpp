@@ -21,10 +21,19 @@ double KPSSStationarityTest::getTestsValue()
   //_l = floor(12.0 * pow(m / 100, 0.25) * m / 500);
 
   testValue = getSumOfRegressionRests();
-  testValue /=  getLongRunVarianceEstimator();
   testValue /= m * m;
 
+  _PKTestValue = testValue;
+
+  testValue /=  getLongRunVarianceEstimator();
+
   return testValue;
+}
+
+// Around III 2020 PK asked to implement also test value for test given by formula (11) of KPSS work.
+double KPSSStationarityTest::getPKTestValue()
+{
+  return _PKTestValue;
 }
 
 double KPSSStationarityTest::addNewSample(double sample)

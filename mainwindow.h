@@ -115,12 +115,12 @@ class MainWindow : public QMainWindow
     QVector<double> _rareElementsEnhancedPlotY;
     QVector<double> _windowedEstimatorY;
     QVector<double> _lastSigmoidallyEnhancedPlotY;
-    double _summaricKDEError1 = 0, _summaricKDEPError1 = 0, _summaricKDESError1 = 0, _summaricKDENError1 = 0,
-    _summaricKDEError2 = 0, _summaricKDEPError2 = 0, _summaricKDESError2 = 0, _summaricKDENError2 = 0,
-    _summaricKDEErrorSup = 0, _summaricKDEPErrorSup = 0, _summaricKDESErrorSup = 0, _summaricKDENErrorSup = 0,
-    _summaricKDEErrorMod = 0, _summaricKDEPErrorMod = 0, _summaricKDESErrorMod = 0, _summaricKDENErrorMod = 0;
+    double _summaricWindowKDEError1 = 0, _summaricKDEError1 = 0, _summaricKDEPError1 = 0, _summaricKDESError1 = 0, _summaricKDENError1 = 0,
+    _summaricWindowKDEError2 = 0, _summaricKDEError2 = 0, _summaricKDEPError2 = 0, _summaricKDESError2 = 0, _summaricKDENError2 = 0,
+    _summaricWindowKDEErrorSup = 0, _summaricKDEErrorSup = 0, _summaricKDEPErrorSup = 0, _summaricKDESErrorSup = 0, _summaricKDENErrorSup = 0,
+    _summaricWindowKDEErrorMod = 0, _summaricKDEErrorMod = 0, _summaricKDEPErrorMod = 0, _summaricKDESErrorMod = 0, _summaricKDENErrorMod = 0;
 
-    double  modelExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0, WKDEExtrema = 0.0, REESEExtrema = 0,
+    double  modelExtrema = 0.0, windowKDEExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0, WKDEExtrema = 0.0, REESEExtrema = 0,
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;
 
     QVector<double> maxAs = {};

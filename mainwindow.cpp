@@ -208,6 +208,11 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
       addPlot(&WKDEValues, _WEIGHTED_PLOT_PEN);
     }
 
+    // Generate full estomator plot (BLACK)
+
+    if(ui->checbox_showFullEstimator->isChecked())
+      addPlot(&_windowedEstimatorY, _WINDOWED_PLOT_PEN);
+
     // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
       addPlot(&_kernelPrognosisDerivativeValues, _DERIVATIVE_PLOT_PEN);
@@ -871,6 +876,9 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel stationarityTestTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "eta = ");
   verticalOffset += verticalStep;
 
+  plotLabel stationarityPKTestTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "eta_PK = ");
+  verticalOffset += verticalStep;
+
   plotLabel uTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "u = ");
   verticalOffset += verticalStep;
 
@@ -914,6 +922,9 @@ void MainWindow::on_pushButton_start_clicked()
 
   verticalOffset += verticalStep;
 
+  plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejw = ");
+  verticalOffset += verticalStep;
+
   plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ej = ");
   verticalOffset += verticalStep;
 
@@ -924,6 +935,9 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejn = ");
+  verticalOffset += verticalStep;
+
+  plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejw = ");
   verticalOffset += verticalStep;
 
   plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ej = ");
@@ -938,6 +952,9 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejn = ");
   verticalOffset += verticalStep;
 
+  plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejw = ");
+  verticalOffset += verticalStep;
+
   plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ej = ");
   verticalOffset += verticalStep;
 
@@ -948,6 +965,9 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejn = ");
+  verticalOffset += verticalStep;
+
+  plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejw = ");
   verticalOffset += verticalStep;
 
   plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ej = ");
@@ -1008,6 +1028,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       _rareElementsEnhancedPlotY =
           DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);
+
+      _windowedEstimatorY =
+          DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
 
       _atypicalElementsValues =
                 DESDAAlgorithm.getAtypicalElementsValues();
@@ -1096,7 +1119,18 @@ void MainWindow::on_pushButton_start_clicked()
       errorEJN = numericIntegral(&errorHolder);
       errorHolder.clear();
 
-      double error2EJ = 0.0, error2EJP = 0.0, error2EJS = 0.0, error2EJN = 0;
+      // ser_1ejw + sersup_ejw
+      double errorEJW = 0, sup_ejw = 0;
+      for(int i = 0; i < ModelValues.size(); ++i){
+        double val = fabs(ModelValues[i] - _windowedEstimatorY[i]);
+        errorHolder.push_back(val);
+        sup_ejw = val > sup_ejw ? val : sup_ejw;
+      }
+
+      errorEJN = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      double error2EJ = 0.0, error2EJP = 0.0, error2EJS = 0.0, error2EJN = 0, error2EJW = 0;
 
       // ser2_ej
       for(int i = 0; i < ModelValues.size(); ++i){
@@ -1130,11 +1164,20 @@ void MainWindow::on_pushButton_start_clicked()
       error2EJN = numericIntegral(&errorHolder);
       errorHolder.clear();
 
-      double mod_ej = 0, mod_ejp = 0, mod_ejs = 0, mod_ejn = 0;
+      // ser2_ejw
+      for(int i = 0; i < ModelValues.size(); ++i){
+        errorHolder.push_back(pow(ModelValues[i] - _windowedEstimatorY[i], 2));
+      }
+
+      error2EJW = numericIntegral(&errorHolder);
+      errorHolder.clear();
+
+      double mod_ejw = 0, mod_ej = 0, mod_ejp = 0, mod_ejs = 0, mod_ejn = 0;
       mod_ej = fabs(modelExtrema - KDEExtrema);
       mod_ejp = fabs(modelExtrema - KDEPExtrema);
       mod_ejs = fabs(modelExtrema - WKDEExtrema);
       mod_ejn = fabs(modelExtrema - REESEExtrema);
+      mod_ejw = fabs(modelExtrema - windowKDEExtrema);
 
       if(stepNumber >= 2000)
       {
@@ -1142,18 +1185,23 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDEPError1   += _errorEJP;
         _summaricKDESError1   += error_ejs;
         _summaricKDENError1   += errorEJN;
+        _summaricWindowKDEError1 += errorEJW;
         _summaricKDEError2    += error2EJ;
         _summaricKDEPError2   += error2EJP;
         _summaricKDESError2   += error2EJS;
         _summaricKDENError2   += error2EJN;
+        _summaricWindowKDEError2 += error2EJW;
         _summaricKDEErrorSup  += sup_ej;
         _summaricKDEPErrorSup += sup_ejp;
         _summaricKDESErrorSup += sup_ejs;
         _summaricKDENErrorSup += sup_ejn;
+        _summaricWindowKDEErrorSup = sup_ejw;
         _summaricKDEErrorMod  += mod_ej;
         _summaricKDEPErrorMod += mod_ejp;
         _summaricKDESErrorMod += mod_ejs;
         _summaricKDENErrorMod += mod_ejn;
+        _summaricWindowKDEErrorMod += mod_ejw;
+
       }
 
       EmETextLabel
@@ -1171,6 +1219,8 @@ void MainWindow::on_pushButton_start_clicked()
       // ============ SUMS =========== //
       iTextLabel
           .setText("i   = " + QString::number(stepNumber));
+      error1SejwTextLabel
+          .setText("ser1_ejw    = " + formatNumberForDisplay(_summaricWindowKDEError1));
       error1SejTextLabel
           .setText("ser1_ej     = " + formatNumberForDisplay(_summaricKDEError1));
       error1SejpTextLabel
@@ -1179,6 +1229,8 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("ser1_ejs    = " + formatNumberForDisplay(_summaricKDESError1));
       error1SejnTextLabel
           .setText("ser1_ejn    = " + formatNumberForDisplay(_summaricKDENError1));
+      error2SejwTextLabel
+          .setText("ser2_ejw    = " + formatNumberForDisplay(_summaricWindowKDEError2));
       error2SejTextLabel
           .setText("ser2_ej     = " + formatNumberForDisplay(_summaricKDEError2));
       error2SejpTextLabel
@@ -1187,6 +1239,8 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("ser2_ejs    = " + formatNumberForDisplay(_summaricKDESError2));
       error2SejnTextLabel
           .setText("ser2_ejn    = " + formatNumberForDisplay(_summaricKDENError2));
+      errorSupSejwTextLabel
+          .setText("sersup_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorSup));
       errorSupSejTextLabel
           .setText("sersup_ej   = " + formatNumberForDisplay(_summaricKDEErrorSup));
       errorSupSejpTextLabel
@@ -1195,6 +1249,8 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("sersup_ejs  = " + formatNumberForDisplay(_summaricKDESErrorSup));
       errorSupSejnTextLabel
           .setText("sersup_ejn  = " + formatNumberForDisplay(_summaricKDENErrorSup));
+      error1SejwTextLabel
+          .setText("sermod_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorMod));
       errorModSejTextLabel
           .setText("sermod_ej   = " + formatNumberForDisplay(_summaricKDEErrorMod));
       errorModSejpTextLabel
@@ -1211,6 +1267,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       stationarityTestTextLabel
           .setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
+
+      stationarityTestTextLabel
+          .setText("eta_PK = " + formatNumberForDisplay(DESDAAlgorithm.getPKStationarityTestValue()));
 
       bTextLabel
           .setText("b = " + QString::number(DESDAAlgorithm._newWeightB));
@@ -1230,8 +1289,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 448.2 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 449.3 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
+                        "r = " + QString::number(DESDAAlgorithm._r) +
                         ", rezerwuar + elementy rzadkie, nowy wzór 110)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);

@@ -10,12 +10,14 @@ class KPSSStationarityTest : public i_stationarityTest
   public:
     KPSSStationarityTest(int maxM, double &avg, int l = 0);
     double getTestsValue();
+    double getPKTestValue();
     double addNewSample(double sample);
     void setSampleSize(int newSize);
   private:
     int _l = 0;
     int _maxM = 0;
     double & _avg;
+    double _PKTestValue = 0;
     std::vector<double> _regressionRests = {};
 
     double getSumOfRegressionRests();

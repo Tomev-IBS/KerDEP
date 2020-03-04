@@ -33,6 +33,7 @@ class DESDA
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();
     double getStationarityTestValue();
+    double getPKStationarityTestValue();
 
     stationarityTestPtr stationarityTest;
 
