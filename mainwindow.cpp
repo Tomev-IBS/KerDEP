@@ -1285,8 +1285,6 @@ void MainWindow::on_pushButton_start_clicked()
       ui->widget_plot->replot();
       qApp->processEvents();
 
-      ui->lineEdit_distributionProgression->text();
-
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
       QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 449.4 ("

@@ -11,7 +11,7 @@ class progressiveDistributionDataReader : public dataReader
 {
     public:
 
-        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay);
+        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay, bool shouldJump = false);
 
         void getNextRawDatum(void *target);
         void gatherAttributesData(void *attributes);
@@ -26,8 +26,12 @@ class progressiveDistributionDataReader : public dataReader
         qreal progressionSize = 0.0;
         int _delay = 0;
         int _currentIteration = 0;
+        bool _hasJumped = false;
+        bool _shouldJump = false;
 
         std::vector<std::string> attributesOrder;
+
+
 
 };
 
