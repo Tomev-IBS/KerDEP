@@ -7,8 +7,8 @@
 
 #include <QDebug>
 
-progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize, int delay) :
-    sourceDistribution(source), progressionSize(progressionSize), _delay(delay)
+progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize, int delay, bool shouldJump) :
+    sourceDistribution(source), progressionSize(progressionSize), _delay(delay), _shouldJump(shouldJump)
 {}
 
 void progressiveDistributionDataReader::getNextRawDatum(void *target)
@@ -23,8 +23,15 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
-    if(_currentIteration > _delay)
-      sourceDistribution->increaseMeans(progressionSize);
+    if(_currentIteration > _delay){
+      if(_shouldJump && ! _hasJumped){
+        _hasJumped = true;
+        sourceDistribution->increaseMeans(progressionSize);
+      }
+
+      if(!_shouldJump)
+        sourceDistribution->increaseMeans(progressionSize);
+    }
 
     ++_currentIteration;
 }

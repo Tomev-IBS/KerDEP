@@ -243,8 +243,9 @@ void MainWindow::resizePlot()
 {
     // Resize plot
     qreal   minX = ui->lineEdit_minX->text().toDouble(),
-            //maxX = ui->lineEdit_maxX->text().toDouble(),
-            maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000,
+            //maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
+            //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
+            maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // For jump
             minY = ui->lineEdit_minY->text().toDouble(),
             maxY = ui->lineEdit_maxY->text().toDouble();
 
@@ -1298,14 +1299,12 @@ void MainWindow::on_pushButton_start_clicked()
       ui->widget_plot->replot();
       qApp->processEvents();
 
-      ui->lineEdit_distributionProgression->text();
-
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 449.4 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 451 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         "r = " + QString::number(DESDAAlgorithm._r) +
-                        ", rezerwuar + elementy rzadkie, nowy wzór 110)\\";
+                        ", skok)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
