@@ -1063,6 +1063,19 @@ void MainWindow::on_pushButton_start_clicked()
         }
       }
 
+      windowKDEExtrema = 0;
+
+      for(int i = 0; i < _windowedEstimatorY.size(); ++i)
+      {
+        double val = _rareElementsEnhancedPlotY[i];
+
+        if(val > maxKDEP)
+        {
+          maxKDEP = val;
+          REESEExtrema = _drawableDomain[i];
+        }
+      }
+
       drawPlots(estimator.get(), targetFunction.get());
 
       cluster emE = DESDAAlgorithm.getEmECluster();
@@ -1127,7 +1140,7 @@ void MainWindow::on_pushButton_start_clicked()
         sup_ejw = val > sup_ejw ? val : sup_ejw;
       }
 
-      errorEJN = numericIntegral(&errorHolder);
+      errorEJW = numericIntegral(&errorHolder);
       errorHolder.clear();
 
       double error2EJ = 0.0, error2EJP = 0.0, error2EJS = 0.0, error2EJN = 0, error2EJW = 0;
@@ -1268,7 +1281,7 @@ void MainWindow::on_pushButton_start_clicked()
       stationarityTestTextLabel
           .setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
 
-      stationarityTestTextLabel
+      stationarityPKTestTextLabel
           .setText("eta_PK = " + formatNumberForDisplay(DESDAAlgorithm.getPKStationarityTestValue()));
 
       bTextLabel
