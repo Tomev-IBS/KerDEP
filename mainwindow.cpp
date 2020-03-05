@@ -405,9 +405,9 @@ void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::share
         pPoint = *prototypePoint;
     }
 
-
     qreal val = ui->lineEdit_minX->text().toDouble();
-    qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;
+    //qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;  // Traveling case
+    qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble(); // Jump case
 
     //while(val <= ui->lineEdit_maxX->text().toDouble())
     while(val <= maxVal)
@@ -799,7 +799,8 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          4000 /* delay */)
+                                          4000 /* delay */,
+                                          true /* should jump */)
   );
 
   reader->gatherAttributesData(&attributesData);
