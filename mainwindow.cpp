@@ -1300,7 +1300,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\reEksperyment 449.4 ("
+      QString dirPath = googleDriveDir + "TR Badania\\reEksperyment 449 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         "r = " + QString::number(DESDAAlgorithm._r) +
                         ")\\";

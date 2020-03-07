@@ -341,44 +341,6 @@ void DESDA::updateMaxPredictionAInLastHalfM0Steps()
   _averageMaxPredictionAInLastHalfM0Steps *= 2.0 / _maxM;
 }
 
-void DESDA::saveWeightsToFile(std::string fileName)
-{
-
-
-    std::string filePath = "D:\\Dysk Google\\TR Badania\\TEST reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
-    std::string line = "";
-
-    std::ofstream experimentDataFile;
-    experimentDataFile.open(filePath, std::ios_base::app);
-
-    experimentDataFile << "b = " << std::to_string(_newWeightB) << ", m = " << std::to_string(_m) << std::endl;
-
-    for(int i = 0; i < _clusters->size(); ++i){
-         line = std::to_string(i) + ". " + std::to_string((*_clusters)[i]->getWeight()) + "\n";
-         experimentDataFile << line;
-    }
-
-    experimentDataFile.close();
-}
-
-void DESDA::saveEmEWeightsToFile(std::string fileName)
-{
-    std::string filePath = "D:\\Dysk Google\\TR Badania\\TEST reEksperyment 196 (w_0.98, m_E=m_Eta=500)\\" + fileName;
-    std::string line = "";
-
-    std::ofstream experimentDataFile;
-    experimentDataFile.open(filePath, std::ios_base::app);
-
-    experimentDataFile << "b = " << std::to_string(_newWeightB) << ", m = " << std::to_string(_m) << std::endl;
-
-    for(int i = 0; i < _EmEWeights.size(); ++i){
-         line = std::to_string(i) + ". " + std::to_string(_EmEWeights[i]) + "\n";
-         experimentDataFile << line;
-    }
-
-    experimentDataFile.close();
-}
-
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
 {
   std::vector<std::shared_ptr<cluster>> currentClusters
@@ -410,21 +372,52 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
 
 QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 {
-  //qDebug() << "EKDE values getting.";
+  auto currentClusters = getClustersForEstimator();
+  auto standardWeights = getClustersWeights(currentClusters);
+  sigmoidallyEnhanceClustersWeights(&currentClusters);
 
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  std::vector<double> standardWeights = {};
   QVector<double> enhancedKDEValues = {};
 
+  _enhancedKDE->setClusters(currentClusters);
+
+  for(qreal x: *X) {
+    std::vector<double> pt;
+    pt.push_back(x);
+    enhancedKDEValues.push_back(_enhancedKDE->getValue(&pt));
+  }
+
+  // Restore weights
+  for(unsigned int i = 0; i < currentClusters.size(); ++i)
+    currentClusters[i]->setCWeight(standardWeights[i]);
+
+  return enhancedKDEValues;
+}
+
+/** DESDA::getClustersWeights
+ * @brief Gets CWeights from given clusters.
+ * @param clusters -- clusters to get weights from
+ * @return std::vector<double> of weights
+ */
+std::vector<double> DESDA::getClustersWeights(const std::vector<std::shared_ptr<cluster> > &clusters)
+{
+  std::vector<double> weights = {};
+
+  for(auto c : clusters)
+    weights.push_back(c->getCWeight());
+
+  return weights;
+}
+
+/** DESDA::sigmoidallyEnhanceClustersWeights
+ * @brief Enhancing weights of considered cluters based on prognosis.
+ * @param clusters - clusters to enhance wieghts
+ */
+void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster> > *clusters)
+{
   QVector<qreal> clustersXs = {};
 
-  for(auto c : currentClusters){
-    clustersXs.push_back(
-      std::stod(c->getRepresentative()->attributesValues["Val0"])
-    );
-  }
+  for(auto c : *clusters)
+    clustersXs.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
 
   QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(&clustersXs);
 
@@ -442,55 +435,18 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   _newWeightB = _u_i;
 
-  double avgC2 = 0;
-  double maxAParam = 0;
-  //for(auto c : currentClusters)
-  for(int i = 0; i < currentClusters.size(); ++i)
+  for(int i = 0; i < clusters->size(); ++i)
   {
-    std::shared_ptr<cluster> c = currentClusters[i];
+    auto c = (*clusters)[i];
     enhancedWeight = c->getCWeight();
 
     // Count v_i
     v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
 
-    maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
-
-    // Old w_i formula
-    //enhancedWeight *= (1 + _u_i * v_i);
-    // 8 X 2019 formula
     enhancedWeight *= (1 + v_i);
 
-    standardWeights.push_back(c->getCWeight());
-
-    // TR TODO: Change to find in vector
-    if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
-       standardWeights.size() == 200)
-      _selectedVValues.push_back(v_i);
-
-    avgC2 += c->predictionParameters[1];
     c->setCWeight(enhancedWeight);
   }
-
-  avgC2 /= currentClusters.size();
-  //qDebug() << "avgC2 = " << avgC2;
-
-  _enhancedKDE->setClusters(currentClusters);
-
-  for(qreal x: *X)
-  {
-    std::vector<double> pt;
-    pt.push_back(x);
-    enhancedKDEValues.push_back(
-      _enhancedKDE->getValue(&pt)
-    );
-  }
-
-  // Restore weights
-  for(unsigned int i = 0; i < currentClusters.size(); ++i)
-    currentClusters[i]->setCWeight(standardWeights[i]);
-
-  //qDebug() << "Max a param: " << maxAParam;
-  return enhancedKDEValues;
 }
 
 QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
@@ -630,12 +586,12 @@ double DESDA::aemEVersor()
  *
  * @return Vector of atypical/rare/uncommon elements in _clusters.
  */
-std::vector<std::shared_ptr<cluster> > DESDA::getAtypicalElements()
+std::vector<clusterPtr> DESDA::getAtypicalElements()
 {
   auto AKDEValues = getVectorOfAcceleratedKDEValuesOnClusters();
   auto sortedIndicesValues = getSortedAcceleratedKDEValues(AKDEValues);
   recountQuantileEstimatorValue(sortedIndicesValues);
-  std::vector<std::shared_ptr<cluster>> atypicalElements = {};
+  std::vector<clusterPtr> atypicalElements = {};
 
   for(int i = 0; i < sortedIndicesValues.size(); ++i){
     if(_quantileEstimator > sortedIndicesValues[i].second)
@@ -650,15 +606,27 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
 {
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
-  _enhancedKDE->setClusters(consideredClusters);
-  std::vector<double> AKDEValues = {};
+  auto standardWeights = getClustersWeights(consideredClusters);
+  sigmoidallyEnhanceClustersWeights(&consideredClusters);
 
-  for(std::shared_ptr<cluster> c : consideredClusters)
-  {
+  std::vector<double> AKDEValues = {};
+  auto m = consideredClusters.size();
+
+  for(auto i = 0; i < m; ++i){
+    auto c = consideredClusters[0];
+    consideredClusters.erase(consideredClusters.begin(), consideredClusters.begin() + 1);
+    _enhancedKDE->setClusters(consideredClusters);
+
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
     AKDEValues.push_back(_enhancedKDE->getValue(&x));
+
     x.clear();
+    consideredClusters.push_back(c);
   }
+
+  // Restore weights
+  for(unsigned int i = 0; i < consideredClusters.size(); ++i)
+    consideredClusters[i]->setCWeight(standardWeights[i]);
 
   return AKDEValues;
 }

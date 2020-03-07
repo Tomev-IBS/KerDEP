@@ -28,6 +28,8 @@ class DESDA
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
     QVector<double> getEnhancedKDEValues(const QVector<qreal> *X);
+    std::vector<double> getClustersWeights(const std::vector<std::shared_ptr<cluster>> &clusters);
+    void sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster>> *clusters);
     QVector<double> getWindowKDEValues(const QVector<qreal> *X);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
@@ -126,10 +128,6 @@ class DESDA
     void updateDelta();
     double getNewEmEValue();
     void updateMaxPredictionAInLastHalfM0Steps();
-
-
-    void saveWeightsToFile(std::string fileName);
-    void saveEmEWeightsToFile(std::string fileName);
 
     // Rare elements
     double _d = 0;
