@@ -926,7 +926,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejw = ");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ej = ");
+  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejm = ");
   verticalOffset += verticalStep;
 
   plotLabel error1SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejs = ");
@@ -941,7 +941,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejw = ");
   verticalOffset += verticalStep;
 
-  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ej = ");
+  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejm = ");
   verticalOffset += verticalStep;
 
   plotLabel error2SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejs = ");
@@ -956,7 +956,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejw = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ej = ");
+  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejm = ");
   verticalOffset += verticalStep;
 
   plotLabel errorSupSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejs = ");
@@ -971,7 +971,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejw = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ej = ");
+  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejm = ");
   verticalOffset += verticalStep;
 
   plotLabel errorModSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejs = ");
@@ -1065,15 +1065,16 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       windowKDEExtrema = 0;
+      maxKDEP = 0;
 
       for(int i = 0; i < _windowedEstimatorY.size(); ++i)
       {
-        double val = _rareElementsEnhancedPlotY[i];
+        double val = _windowedEstimatorY[i];
 
         if(val > maxKDEP)
         {
           maxKDEP = val;
-          REESEExtrema = _drawableDomain[i];
+          windowKDEExtrema = _drawableDomain[i];
         }
       }
 
@@ -1236,7 +1237,7 @@ void MainWindow::on_pushButton_start_clicked()
       error1SejwTextLabel
           .setText("ser1_ejw    = " + formatNumberForDisplay(_summaricWindowKDEError1));
       error1SejTextLabel
-          .setText("ser1_ej     = " + formatNumberForDisplay(_summaricKDEError1));
+          .setText("ser1_ejm    = " + formatNumberForDisplay(_summaricKDEError1));
       error1SejpTextLabel
           .setText("ser1_ejp    = " + formatNumberForDisplay(_summaricKDEPError1));
       error1SejsTextLabel
@@ -1246,7 +1247,7 @@ void MainWindow::on_pushButton_start_clicked()
       error2SejwTextLabel
           .setText("ser2_ejw    = " + formatNumberForDisplay(_summaricWindowKDEError2));
       error2SejTextLabel
-          .setText("ser2_ej     = " + formatNumberForDisplay(_summaricKDEError2));
+          .setText("ser2_ejm    = " + formatNumberForDisplay(_summaricKDEError2));
       error2SejpTextLabel
           .setText("ser2_ejp    = " + formatNumberForDisplay(_summaricKDEPError2));
       error2SejsTextLabel
@@ -1256,7 +1257,7 @@ void MainWindow::on_pushButton_start_clicked()
       errorSupSejwTextLabel
           .setText("sersup_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorSup));
       errorSupSejTextLabel
-          .setText("sersup_ej   = " + formatNumberForDisplay(_summaricKDEErrorSup));
+          .setText("sersup_ejm  = " + formatNumberForDisplay(_summaricKDEErrorSup));
       errorSupSejpTextLabel
           .setText("sersup_ejp  = " + formatNumberForDisplay(_summaricKDEPErrorSup));
       errorSupSejsTextLabel
@@ -1266,7 +1267,7 @@ void MainWindow::on_pushButton_start_clicked()
       errorModSejwTextLabel
           .setText("sermod_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorMod));
       errorModSejTextLabel
-          .setText("sermod_ej   = " + formatNumberForDisplay(_summaricKDEErrorMod));
+          .setText("sermod_ejm  = " + formatNumberForDisplay(_summaricKDEErrorMod));
       errorModSejpTextLabel
           .setText("sermod_ejp  = " + formatNumberForDisplay(_summaricKDEPErrorMod));
       errorModSejsTextLabel
