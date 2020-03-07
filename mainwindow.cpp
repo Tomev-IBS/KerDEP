@@ -244,8 +244,8 @@ void MainWindow::resizePlot()
     // Resize plot
     qreal   minX = ui->lineEdit_minX->text().toDouble(),
             //maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
-            maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
-            //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // For jump
+            //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
+            maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // For jump
             minY = ui->lineEdit_minY->text().toDouble(),
             maxY = ui->lineEdit_maxY->text().toDouble();
 
@@ -409,8 +409,8 @@ void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::share
     }
 
     qreal val = ui->lineEdit_minX->text().toDouble();
-    qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;  // Traveling case
-    //qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble(); // Jump case
+    //qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;  // Traveling case
+    qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble(); // Jump case
 
     //while(val <= ui->lineEdit_maxX->text().toDouble())
     while(val <= maxVal)
@@ -802,7 +802,7 @@ void MainWindow::on_pushButton_start_clicked()
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
                                           4000 /* delay */,
-                                          false /* should jump */)
+                                          true /* should jump */)
   );
 
   reader->gatherAttributesData(&attributesData);
@@ -1303,10 +1303,10 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\reEksperyment 450 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 452 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", r = " + QString::number(DESDAAlgorithm._r) +
-                        ")\\";
+                        ", skok)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
