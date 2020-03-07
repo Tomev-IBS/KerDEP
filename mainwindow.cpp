@@ -1038,42 +1038,41 @@ void MainWindow::on_pushButton_start_clicked()
 
       _quantileEstimatorValue = DESDAAlgorithm._quantileEstimator;
 
-      double maxKDEP = 0.0;
+      double maxKDEValue = 0.0;
 
       for(int i = 0; i < _sigmoidallyEnhancedPlotY.size(); ++i)
       {
         double val = _sigmoidallyEnhancedPlotY[i];
 
-        if(val > maxKDEP)
+        if(val > maxKDEValue)
         {
-          maxKDEP = val;
+          maxKDEValue = val;
           KDEPExtrema = _drawableDomain[i];
         }
       }
 
-      maxKDEP = 0;
+      maxKDEValue = 0;
 
       for(int i = 0; i < _rareElementsEnhancedPlotY.size(); ++i)
       {
         double val = _rareElementsEnhancedPlotY[i];
 
-        if(val > maxKDEP)
+        if(val > maxKDEValue)
         {
-          maxKDEP = val;
+          maxKDEValue = val;
           REESEExtrema = _drawableDomain[i];
         }
       }
 
-      windowKDEExtrema = 0;
-      maxKDEP = 0;
+      maxKDEValue = 0;
 
       for(int i = 0; i < _windowedEstimatorY.size(); ++i)
       {
         double val = _windowedEstimatorY[i];
 
-        if(val > maxKDEP)
+        if(val > maxKDEValue)
         {
-          maxKDEP = val;
+          maxKDEValue = val;
           windowKDEExtrema = _drawableDomain[i];
         }
       }
@@ -1216,7 +1215,6 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDESErrorMod += mod_ejs;
         _summaricKDENErrorMod += mod_ejn;
         _summaricWindowKDEErrorMod += mod_ejw;
-
       }
 
       EmETextLabel
