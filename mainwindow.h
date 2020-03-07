@@ -124,7 +124,7 @@ class MainWindow : public QMainWindow
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;
 
     QVector<double> maxAs = {};
-    QVector<double> _atypicalElementsValues = {};
+    QVector<std::pair<double, double>> _atypicalElementsValuesAndDerivatives = {};
     double _quantileEstimatorValue = 0;
 
     double positionalSecondGradeEstimator = 0.0;

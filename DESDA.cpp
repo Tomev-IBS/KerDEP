@@ -761,13 +761,17 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
  *
  * @return Vector of atypical elements values.
  */
-QVector<double> DESDA::getAtypicalElementsValues()
+QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivatives()
 {
-  QVector<double> atypicalElementsValues = {};
+  QVector<std::pair<double, double>> atypicalElementsValuesAndDerivatives = {};
   auto atypicalElements = getAtypicalElements();
 
-  for(auto a : atypicalElements)
-    atypicalElementsValues.push_back(std::stod(a->getObject()->attributesValues["Val0"]));
+  for(auto a : atypicalElements){
+    std::pair<double, double> valueDerivative = std::pair<double, double>(0, 0);
+    valueDerivative.first = std::stod(a->getObject()->attributesValues["Val0"]);
+    valueDerivative.second = a->predictionParameters[1];
+    atypicalElementsValuesAndDerivatives.push_back(valueDerivative);
+  }
 
-  return atypicalElementsValues;
+  return atypicalElementsValuesAndDerivatives;
 }

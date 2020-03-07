@@ -310,16 +310,19 @@ void MainWindow::clearPlot()
 
 unsigned long long MainWindow::markUncommonClusters()
 {
-  for(auto x : _atypicalElementsValues){
+  for(auto x : _atypicalElementsValuesAndDerivatives){
     // Only works for distribution data
     QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
-    verticalLine->start->setCoords(x, 0);
-    verticalLine->end->setCoords(x, -_quantileEstimatorValue);
-    verticalLine->setPen(QPen(Qt::blue));
+    verticalLine->start->setCoords(x.first, 0);
+    verticalLine->end->setCoords(x.first, -_quantileEstimatorValue);
+    if(x.second > 0)
+      verticalLine->setPen(QPen(Qt::blue));
+    else
+      verticalLine->setPen(QPen(Qt::red));
     _linesOnPlot.push_back(verticalLine);
   }
 
-  return _atypicalElementsValues.size();
+  return _atypicalElementsValuesAndDerivatives.size();
 }
 
 QString MainWindow::formatNumberForDisplay(double number)
@@ -1033,8 +1036,8 @@ void MainWindow::on_pushButton_start_clicked()
       _windowedEstimatorY =
           DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
 
-      _atypicalElementsValues =
-                DESDAAlgorithm.getAtypicalElementsValues();
+      _atypicalElementsValuesAndDerivatives =
+                DESDAAlgorithm.getAtypicalElementsValuesAndDerivatives();
 
       _quantileEstimatorValue = DESDAAlgorithm._quantileEstimator;
 
@@ -1274,7 +1277,7 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("sermod_ejn  = " + formatNumberForDisplay(_summaricKDENErrorMod));
 
       rareElementsTextLabel
-          .setText("#Rare elements = " + QString::number(_atypicalElementsValues.size()));
+          .setText("#Rare elements = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
 
       deltaTextLabel.setText("delta = " + formatNumberForDisplay(DESDAAlgorithm.delta));
 
