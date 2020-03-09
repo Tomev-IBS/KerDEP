@@ -1212,7 +1212,7 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricKDEPErrorSup += sup_ejp;
         _summaricKDESErrorSup += sup_ejs;
         _summaricKDENErrorSup += sup_ejn;
-        _summaricWindowKDEErrorSup = sup_ejw;
+        _summaricWindowKDEErrorSup += sup_ejw;
         _summaricKDEErrorMod  += mod_ej;
         _summaricKDEPErrorMod += mod_ejp;
         _summaricKDESErrorMod += mod_ejs;
@@ -1303,7 +1303,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 452 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 453 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", r = " + QString::number(DESDAAlgorithm._r) +
                         ", skok)\\";
