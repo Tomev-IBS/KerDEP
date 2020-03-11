@@ -31,6 +31,8 @@ class DESDA
     std::vector<double> getClustersWeights(const std::vector<std::shared_ptr<cluster>> &clusters);
     void sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster>> *clusters);
     QVector<double> getWindowKDEValues(const QVector<qreal> *X);
+    QVector<double> getKDEValues(const QVector<qreal> *X);
+    QVector<double> getWeightedKDEValues(const QVector<qreal> *X);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();

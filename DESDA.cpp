@@ -553,6 +553,42 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
     return windowKDEValues;
 }
 
+QVector<double> DESDA::getKDEValues(const QVector<qreal> *X)
+{
+    QVector<qreal> x;
+    QVector<double> KDEValues = {};
+
+    auto consideredClusters = getClustersForEstimator();
+    _estimator->setClusters(consideredClusters);
+    _estimator->_shouldConsiderWeights = false;
+
+    for(qreal x: *X)
+    {
+      std::vector<double> q = {x};
+      KDEValues.push_back(_estimator->getValue(&q));
+    }
+
+    return KDEValues;
+}
+
+QVector<double> DESDA::getWeightedKDEValues(const QVector<qreal> *X)
+{
+    QVector<qreal> x;
+    QVector<double> weightedKDEValues = {};
+
+    auto consideredClusters = getClustersForEstimator();
+    _estimator->setClusters(consideredClusters);
+    _estimator->_shouldConsiderWeights = true;
+
+    for(qreal x: *X)
+    {
+      std::vector<double> q = {x};
+      weightedKDEValues.push_back(_estimator->getValue(&q));
+    }
+
+    return weightedKDEValues;
+}
+
 double DESDA::getAverageOfFirstMSampleValues(int M)
 {
   double avg = 0;

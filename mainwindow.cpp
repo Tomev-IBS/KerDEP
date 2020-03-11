@@ -1055,6 +1055,11 @@ void MainWindow::on_pushButton_start_clicked()
       _windowedEstimatorY =
           DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
 
+      _lessElementsEstimatorY =
+          DESDAAlgorithm.getKDEValues(&_drawableDomain);
+      _weightedEstimatorY =
+          DESDAAlgorithm.getWeightedKDEValues(&_drawableDomain);
+
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&_drawableDomain);
 

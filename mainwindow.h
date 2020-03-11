@@ -113,6 +113,8 @@ class MainWindow : public QMainWindow
     // Enhancement
     QVector<double> _sigmoidallyEnhancedPlotY;
     QVector<double> _rareElementsEnhancedPlotY;
+    QVector<double> _lessElementsEstimatorY;
+    QVector<double> _weightedEstimatorY;
     QVector<double> _windowedEstimatorY;
     QVector<double> _lastSigmoidallyEnhancedPlotY;
     double _summaricWindowKDEError1 = 0, _summaricKDEError1 = 0, _summaricKDEPError1 = 0, _summaricKDESError1 = 0, _summaricKDENError1 = 0,
