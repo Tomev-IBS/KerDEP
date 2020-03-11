@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include <math.h>
+#include <numeric>
 
 #include "Reservoir_sampling/distributionDataSample.h"
 
@@ -39,7 +40,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = 1000;
   _m = _maxM;
 
-  _kpssM = 500;
+  _kpssM = _maxM * 0.2;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
   _sgmKPSS = -1;
@@ -138,7 +139,8 @@ void DESDA::performStep()
 
   countKDEValuesOnClusters();
   updatePrognosisParameters();
-  updateMaxPredictionAInLastHalfM0Steps();
+  updateMaxAbsAVector();
+  updateAverageMaxAbsAsInLastKPSSMSteps();
 
   auto currentClusters = getClustersForEstimator();
 
@@ -166,6 +168,8 @@ void DESDA::performStep()
 
 void DESDA::updateWeights()
 {
+  _examinedClustersWStar.clear();
+
   // p weight update
   if(_stepNumber > _maxM){
       double weightsSum = 0;
@@ -196,7 +200,14 @@ void DESDA::updateWeights()
 
   for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum){
       (*_clusters)[clusterNum]->setCWeight((*_clusters)[clusterNum]->getCWeight() * _m / cWeightSum);
+
+      // Weights star
+      if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), clusterNum)){
+          this->_examinedClustersWStar.push_back((*_clusters)[clusterNum]->getCWeight());
+      }
   }
+
+  std::reverse(_examinedClustersWStar.begin(), _examinedClustersWStar.end());
 }
 
 /** DESDA::updateExaminedClustersIndices
@@ -245,7 +256,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
   auto uncommonElements = getAtypicalElements();
 
   for(auto ue : uncommonElements){
-    double weightEnhancer = 2 * sigmoid(ue->predictionParameters[1] / _averageMaxPredictionAInLastHalfM0Steps) - 1;
+    double weightEnhancer = 2 * sigmoid(ue->predictionParameters[1] / _averageMaxPredictionAInLastKPSSMSteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     ue->setCWeight(ue->getCWeight() * weightEnhancer);
@@ -325,30 +336,50 @@ double DESDA::getNewEmEValue()
     return avg / _EmEWeightsSum;
 }
 
-void DESDA::updateMaxPredictionAInLastHalfM0Steps()
+/** DESDA::updateMaxAbsAVector
+ * @brief Updates vector of absolute values of a. This vector should store _maxM
+ * values at most and it's values should be counted on all stored clusters (as
+ * all of them have their predictions updated.
+ */
+void DESDA::updateMaxAbsAVector()
 {
-  auto consideredClusters = getClustersForEstimator();
+  // Add new value
+  _maxAbsAs.push_back(getCurrentMaxAbsA());
 
-  while(_storedMaxAInLastM0Steps.size() > _maxM / 2)
-    _storedMaxAInLastM0Steps.erase(_storedMaxAInLastM0Steps.begin(), _storedMaxAInLastM0Steps.begin() + 1);
+  // Ensure size is as expected
+  while(_maxAbsAs.size() > _maxM)
+      _maxAbsAs.erase(_maxAbsAs.begin(), _maxAbsAs.begin() + 1);
+}
 
-  double maxAOnConsideredClusters = fabs(consideredClusters[0]->predictionParameters[1]);
-
-  for(auto c : consideredClusters){
-    double currentClusterA = fabs(c->predictionParameters[1]);
-    if(currentClusterA > maxAOnConsideredClusters)
-      maxAOnConsideredClusters = currentClusterA;
+/** DESDA::getCurrentMaxAbsA
+* @brief Finds and returns current maximal value of abs(a) of all clusters.
+* @return Current maximal values of abs(a) of all clusters.
+*/
+double DESDA::getCurrentMaxAbsA()
+{
+  if(_clusters->size() < 0) return -1;
+  double maxA = fabs((*_clusters)[0]->predictionParameters[1]);
+  for(auto c : *_clusters){
+    double currentA = fabs(c->predictionParameters[1]);
+    maxA = currentA > maxA ? currentA : maxA;
   }
 
-  _storedMaxAInLastM0Steps.push_back(maxAOnConsideredClusters);
+  return maxA;
+}
 
-  _averageMaxPredictionAInLastHalfM0Steps = 0;
-
-  for(auto val : _storedMaxAInLastM0Steps){
-    _averageMaxPredictionAInLastHalfM0Steps += val;
-  }
-
-  _averageMaxPredictionAInLastHalfM0Steps *= 2.0 / _maxM;
+/** DESDA::updateAverageMaxAbsAsInLastKPSSMSteps
+ * @brief Updates the value of average max abs(a) in last KPSS M number of steps.
+ *
+ * Thus should be called after max(abs(a)) vector update.
+ */
+void DESDA::updateAverageMaxAbsAsInLastKPSSMSteps()
+{
+    int offset = _maxAbsAs.size() - _kpssM;
+    offset = offset < 0 ? 0 : offset;
+    double sumOfConsideredAs =
+            std::accumulate(_maxAbsAs.begin() + offset, _maxAbsAs.end(), 0);
+    int consideredElementsNumber = _maxAbsAs.size() < _kpssM ? _maxAbsAs.size() : _kpssM;
+    _averageMaxPredictionAInLastKPSSMSteps = sumOfConsideredAs / consideredElementsNumber;
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
@@ -424,6 +455,8 @@ std::vector<double> DESDA::getClustersWeights(const std::vector<std::shared_ptr<
  */
 void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster> > *clusters)
 {
+  _examinedClustersWStar2.clear();
+
   QVector<qreal> clustersXs = {};
 
   for(auto c : *clusters)
@@ -454,6 +487,9 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
     v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
 
     enhancedWeight *= (1 + v_i);
+
+    if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i))
+        _examinedClustersWStar2.push_back(1 + v_i);
 
     c->setCWeight(enhancedWeight);
   }
@@ -497,22 +533,6 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
   int m0 = std::min(M, (int)_clusters->size());
 
   if(m0 == 1) return 1;
-
-  // Seems to be a better version of formula, but couldn't find it in the books or internet.
-  /*
-  double sumOfVals = 0, sumOfSquares = 0, val = 0;
-
-  for(int i = 0; i < m0; ++i){
-    val = std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-    sumOfVals += val;
-    sumOfSquares += pow(val, 2);
-  }
-
-  sumOfVals *= sumOfVals;
-  sumOfVals /= m0 * (m0 - 1);
-
-  sumOfSquares /= m0 - 1;
-  */
 
   double avgME = 0;
 
@@ -639,69 +659,12 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
 {
   //qDebug() << "EKDE values getting.";
 
-  std::vector<std::shared_ptr<cluster>> currentClusters
-      = getClustersForEstimator();
-
-  std::vector<double> standardWeights = {};
   QVector<double> enhancedKDEValues = {};
+  auto currentClusters = getClustersForEstimator();
+  auto standardWeights = getClustersWeights(currentClusters);
 
-  QVector<qreal> clustersXs = {};
-
-  for(auto c : currentClusters){
-    clustersXs.push_back(
-      std::stod(c->getRepresentative()->attributesValues["Val0"])
-    );
-  }
-
-  QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(&clustersXs);
-
-  _selectedVValues.clear();
-
-  // Enhance weights of clusters
-  double enhancedWeight = 0.0;
-  double v_i = 0.0;
-
-  _u_i = 0.0;
-
-  // Count u_i
-  if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- (_alpha * fabs(getStationarityTestValue()) - _beta)));
-
-  _newWeightB = _u_i;
-
-  double avgC2 = 0;
-  double maxAParam = 0;
-  //for(auto c : currentClusters)
-  for(int i = 0; i < currentClusters.size(); ++i)
-  {
-    std::shared_ptr<cluster> c = currentClusters[i];
-    enhancedWeight = c->getCWeight();
-
-    // Count v_i
-    v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
-
-    maxAParam = std::max(derivativeVal[i] * 1000, maxAParam);
-
-    // Old w_i formula
-    enhancedWeight *= (1 + _u_i * v_i);
-    // 8 X 2019 formula
-    //enhancedWeight *= (1 + v_i);
-
-    standardWeights.push_back(c->getCWeight());
-
-    // TR TODO: Change to find in vector
-    if(standardWeights.size() == 10  || standardWeights.size() == 50  ||
-       standardWeights.size() == 200)
-      _selectedVValues.push_back(v_i);
-
-    avgC2 += c->predictionParameters[1];
-    c->setCWeight(enhancedWeight);
-  }
-
+  sigmoidallyEnhanceClustersWeights(&currentClusters);
   enhanceWeightsOfUncommonElements();
-
-  avgC2 /= currentClusters.size();
-  //qDebug() << "avgC2 = " << avgC2;
 
   _enhancedKDE->setClusters(currentClusters);
 
@@ -722,12 +685,12 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
   return enhancedKDEValues;
 }
 
-/** DESDA::getAtypicalElementsValues
- * @brief Returns vector of current atypical elements values.
+/** DESDA::getAtypicalElementsValuesAndDerivatives
+ * @brief Returns vector of current atypical elements values and their derivatives.
  *
  * This method assumes 1 dimensional, specifically constructed objects (for now).
  *
- * @return Vector of atypical elements values.
+ * @return Vector of pairs of atypical elements values and their derivatives.
  */
 QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivatives()
 {
@@ -742,4 +705,12 @@ QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivative
   }
 
   return atypicalElementsValuesAndDerivatives;
+}
+
+double DESDA::getMaxAbsAOnLastKPSSMSteps()
+{
+  if(_maxAbsAs.size() < _kpssM)
+      return *(std::max_element(_maxAbsAs.begin(), _maxAbsAs.end()));
+
+  return *(std::max_element(_maxAbsAs.begin() + _maxAbsAs.size() - _kpssM, _maxAbsAs.end()));
 }

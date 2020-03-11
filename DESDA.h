@@ -71,9 +71,13 @@ class DESDA
 
     // General purpose
     double _sgmKPSS = 0;
+
+    // Analysis
+    double getMaxAbsAOnLastKPSSMSteps();
+
     /** According to 2020 first article **/
     std::vector<unsigned int> _examinedClustersIndices = {};
-    std::vector<double> _maxAbsAsOnHalfOfM0Steps = {};
+    std::vector<double> _maxAbsAs = {};
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
     std::vector<double> _examinedClustersWStar3 = {};
@@ -99,8 +103,7 @@ class DESDA
     double _desiredRarity = 0.01;
     double _previousUncommonClustersWeight = 0.0;
     double _v = 1.0;
-    double _averageMaxPredictionAInLastHalfM0Steps = 0;
-    vector<double> _storedMaxAInLastM0Steps = {};
+    double _averageMaxPredictionAInLastKPSSMSteps = 0;
 
     cluster emE;
     bool _shouldCluster = false;
@@ -128,7 +131,10 @@ class DESDA
     void updateM();
     void updateDelta();
     double getNewEmEValue();
-    void updateMaxPredictionAInLastHalfM0Steps();
+    void updateMaxAbsAVector();
+    double getCurrentMaxAbsA();
+    void updateAverageMaxAbsAsInLastKPSSMSteps();
+
 
     // Rare elements
     double _psi = 20.4;

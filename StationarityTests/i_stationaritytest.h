@@ -7,8 +7,7 @@ class i_stationarityTest
 {
   public:
     virtual double getTestsValue() = 0;
-    virtual double getPKTestValue() = 0; // This shouldn't be here. PK asked for it.
-    virtual double addNewSample(double sample) = 0;
+    virtual void addNewSample(double sample) = 0;
     virtual void setSampleSize(int newSize) = 0;
 };
 

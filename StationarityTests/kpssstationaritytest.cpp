@@ -23,14 +23,12 @@ double KPSSStationarityTest::getTestsValue()
   testValue = getSumOfRegressionRests();
   testValue /= m * m;
 
-  _PKTestValue = testValue;
-
   testValue /=  getLongRunVarianceEstimator();
 
   return testValue;
 }
 
-double KPSSStationarityTest::addNewSample(double sample)
+void KPSSStationarityTest::addNewSample(double sample)
 {
   _regressionRests.push_back(sample - _avg);
 
