@@ -124,6 +124,7 @@ void DESDA::performStep()
   }
 
   _clusters->insert(_clusters->begin(), newCluster);
+  updateExaminedClustersIndices();
   updateWeights();
 
   _smoothingParamCounter->updateSmoothingParameterValue(

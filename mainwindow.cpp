@@ -889,6 +889,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "q    = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
+  verticalOffset += verticalStep;
   plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "rare = 0");
   verticalOffset += verticalStep;
@@ -908,7 +909,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel maxAbsATextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "max(|a|) = 0");
+                       "max(|a|)    = 0");
   verticalOffset += verticalStep;
 
   std::vector<QString> aTextLabelsLabels = {"a(int(0.2m0) = ", "a(int(0.5m0) = ", "a(int(0.8m0) = "};
@@ -1314,6 +1315,9 @@ void MainWindow::on_pushButton_start_clicked()
           aTextLabels[i].setText(aTextLabelsLabels[i] + formatNumberForDisplay(
                                   DESDAAlgorithm._examinedClustersAs[i]));
       }
+
+      maxAbsATextLabel.setText("max(|a|)    = " + formatNumberForDisplay(
+                                   DESDAAlgorithm.getMaxAbsAOnLastKPSSMSteps()));
 
       ui->widget_plot->replot();
       qApp->processEvents();
