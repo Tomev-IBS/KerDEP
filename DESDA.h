@@ -77,7 +77,9 @@ class DESDA
 
     /** According to 2020 first article **/
     std::vector<unsigned int> _examinedClustersIndices = {};
+    std::vector<unsigned int> _clustersExaminedForAsIndices = {};
     std::vector<double> _maxAbsAs = {};
+    std::vector<double> _examinedClustersAs = {};
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
     std::vector<double> _examinedClustersWStar3 = {};
@@ -135,6 +137,7 @@ class DESDA
     void updateMaxAbsAVector();
     double getCurrentMaxAbsA();
     void updateAverageMaxAbsAsInLastKPSSMSteps();
+    void updateExaminedClustersAsVector();
 
 
     // Rare elements

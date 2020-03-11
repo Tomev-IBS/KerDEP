@@ -907,6 +907,38 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
+  plotLabel maxAbsATextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "max(|a|) = 0");
+  verticalOffset += verticalStep;
+
+  std::vector<QString> aTextLabelsLabels = {"a(int(0.2m0) = ", "a(int(0.5m0) = ", "a(int(0.8m0) = "};
+  std::vector<plotLabel> aTextLabels = {};
+
+  for(int i = 0; i < aTextLabelsLabels.size(); ++i){
+    aTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, aTextLabelsLabels[i]));
+    verticalOffset += verticalStep;
+  }
+
+  verticalOffset += verticalStep;
+
+  std::vector<plotLabel> wTextLabels = {};
+  std::vector<plotLabel> wStarTextLabels = {};
+  std::vector<plotLabel> wStar2TextLabels = {};
+  std::vector<plotLabel> wStar3TextLabels = {};
+
+  std::vector<QString> wTextLabelsLabels =      {"w(int(0.2m)    = ", "w(int(0.5m)    = ", "w(int(0.8m)    = "};
+  std::vector<QString> wStarTextLabelsLabels =  {"w*(int(0.2m)   = ", "w*(int(0.5m)   = ", "w*(int(0.8m)   = "};
+  std::vector<QString> wStar2TextLabelsLabels = {"w**(int(0.2m)  = ", "w**(int(0.5m)  = ", "w**(int(0.8m)  = "};
+  std::vector<QString> wStar3TextLabelsLabels = {"w***(int(0.2m) = ", "w***(int(0.5m) = ", "w***(int(0.8m) = "};
+
+  for(int i = 0; i < wTextLabelsLabels.size(); ++i){
+    wStarTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, wStarTextLabelsLabels[i]));
+    wStar2TextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 3 * verticalStep, wStar2TextLabelsLabels[i]));
+    wStar3TextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 6 * verticalStep, wStar3TextLabelsLabels[i]));
+    wTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 9 * verticalStep, wTextLabelsLabels[i]));
+    verticalOffset += verticalStep;
+  }
+
 
   //==================== SUMMARIC ERRORS=================//
 
@@ -1266,6 +1298,22 @@ void MainWindow::on_pushButton_start_clicked()
 
       sgmKPSS2TextLabel.setText("sgmKPSS2 = " + formatNumberForDisplay(
                                     2* DESDAAlgorithm._sgmKPSS - 1));
+
+      for(int i = 0; i < DESDAAlgorithm._examinedClustersW.size(); ++i){
+        wTextLabels[i].setText(wTextLabelsLabels[i] + formatNumberForDisplay(
+                                   DESDAAlgorithm._examinedClustersW[i]));
+        wStarTextLabels[i].setText(wStarTextLabelsLabels[i] + formatNumberForDisplay(
+                                   DESDAAlgorithm._examinedClustersWStar[i]));
+        wStar2TextLabels[i].setText(wStar2TextLabelsLabels[i] + formatNumberForDisplay(
+                                   DESDAAlgorithm._examinedClustersWStar2[i]));
+        wStar3TextLabels[i].setText(wStar3TextLabelsLabels[i] + formatNumberForDisplay(
+                                   DESDAAlgorithm._examinedClustersWStar3[i]));
+      }
+
+      for(int i = 0; i < DESDAAlgorithm._examinedClustersAs.size(); ++i){
+          aTextLabels[i].setText(aTextLabelsLabels[i] + formatNumberForDisplay(
+                                  DESDAAlgorithm._examinedClustersAs[i]));
+      }
 
       ui->widget_plot->replot();
       qApp->processEvents();

@@ -36,6 +36,9 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _maxM = 2 * mE;
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
+  _clustersExaminedForAsIndices = {(unsigned int)(0.2 * _maxM),
+                                   (unsigned int)(0.5 * _maxM),
+                                   (unsigned int)(0.8 * _maxM)};
 
   _mE = 1000;
   _m = _maxM;
@@ -120,7 +123,6 @@ void DESDA::performStep()
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
 
-  //_clusters->push_back(newCluster);
   _clusters->insert(_clusters->begin(), newCluster);
   updateWeights();
 
@@ -141,6 +143,7 @@ void DESDA::performStep()
   updatePrognosisParameters();
   updateMaxAbsAVector();
   updateAverageMaxAbsAsInLastKPSSMSteps();
+  updateExaminedClustersAsVector();
 
   auto currentClusters = getClustersForEstimator();
 
@@ -218,8 +221,11 @@ void DESDA::updateExaminedClustersIndices()
 {
   auto desiredClustersLocations = {0.2, 0.5, 0.8};
   _examinedClustersIndices.clear();
+
+  auto m = getClustersForEstimator().size();
+
   for(auto val : desiredClustersLocations)
-      _examinedClustersIndices.push_back(int(val * _m));
+      _examinedClustersIndices.push_back(int(val * m));
 }
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
@@ -398,6 +404,18 @@ void DESDA::updateAverageMaxAbsAsInLastKPSSMSteps()
             std::accumulate(_maxAbsAs.begin() + offset, _maxAbsAs.end(), 0);
     int consideredElementsNumber = _maxAbsAs.size() < _kpssM ? _maxAbsAs.size() : _kpssM;
     _averageMaxPredictionAInLastKPSSMSteps = sumOfConsideredAs / consideredElementsNumber;
+}
+
+void DESDA::updateExaminedClustersAsVector()
+{
+    _examinedClustersAs.clear();
+
+    for(auto val : _clustersExaminedForAsIndices){
+      if(_clusters->size() > val)
+        _examinedClustersAs.push_back((*_clusters)[val]->predictionParameters[1]);
+      else
+        _examinedClustersAs.push_back(0);
+    }
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
