@@ -665,8 +665,12 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
 
   sigmoidallyEnhanceClustersWeights(&currentClusters);
   enhanceWeightsOfUncommonElements();
-
   _enhancedKDE->setClusters(currentClusters);
+
+  _examinedClustersW.clear();
+  for(auto val : _examinedClustersIndices){
+      _examinedClustersW.push_back(currentClusters[val]->getCWeight());
+  }
 
   for(qreal x: *X)
   {
