@@ -119,12 +119,7 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     QVector<qreal> X;
     QVector<qreal> modelDistributionY;
 
-    // Fill domain with points
-    // To keep things simple let's consider only these domains wherein
-    // each dimension has equal size.
-
     ModelValues.clear();
-    KDEValues.clear();
 
     double modelMax = 0.0;
 
@@ -147,69 +142,15 @@ void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFu
     if(ui->checkBox_showEstimatedPlot->isChecked())
       addPlot(&modelDistributionY, _MODEL_PLOT_PEN);
 
-    // Generate a vector of values from selected KDE
-    KDEEstimationY.clear();
-
-    double val;
-    _maxEstimatorValueOnDomain = 0;
-
-    estimator->_shouldConsiderWeights = false;
-
-    // TODO: Place counting in another thread
-    for(int i = 0; i < _domain.size(); ++i)
-    {
-      auto x = _domain[i];
-
-      val = estimator->getValue(x.get());
-
-      if (val > _maxEstimatorValueOnDomain)
-      {
-        _maxEstimatorValueOnDomain = val;
-        KDEExtrema = X[i];
-      }
-
-      oldKerernelY.append(val);
-
-      KDEEstimationY.append(val);
-
-      KDEValues.push_back(val);
-    }
-
-    estimator->_shouldConsiderWeights = true;
-
-    // Generate a plot of KDE
+    // Generate less elements KDE plot (navy blue)
     if(ui->checkBox_showEstimationPlot->isChecked())
-      addPlot(&KDEEstimationY, _KDE_PLOT_PEN);
+        addPlot(&_lessElementsEstimatorY, _KDE_PLOT_PEN);
 
-    double maxWKDE = 0;
-
+    // Generate weighted estimator plot (light blue)
     if(ui->checkBox_showWeightedEstimationPlot->isChecked())
-    {
-      WKDEValues.clear();
-
-      for(int i = 0; i < _domain.size(); ++i)
-      {
-        auto x = _domain[i];
-
-        val = estimator->getValue(x.get());
-
-        WKDEValues.push_back(val);
-
-        if(val > maxWKDE)
-        {
-          maxWKDE = val;
-          WKDEExtrema = X[i];
-        }
-      }
-
-      estimator->_shouldConsiderWeights = false;
-
-      //addWeightedEstimatorPlot(&X, &WKDEValues);
-      addPlot(&WKDEValues, _WEIGHTED_PLOT_PEN);
-    }
+        addPlot(&_weightedEstimatorY, _WEIGHTED_PLOT_PEN);
 
     // Generate full estomator plot (BLACK)
-
     if(ui->checbox_showFullEstimator->isChecked())
       addPlot(&_windowedEstimatorY, _WINDOWED_PLOT_PEN);
 
@@ -1057,6 +998,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       _lessElementsEstimatorY =
           DESDAAlgorithm.getKDEValues(&_drawableDomain);
+
       _weightedEstimatorY =
           DESDAAlgorithm.getWeightedKDEValues(&_drawableDomain);
 
@@ -1118,7 +1060,7 @@ void MainWindow::on_pushButton_start_clicked()
       double sup_ej = 0.0, sup_ejp = 0.0, sup_ejs = 0.0;
 
       for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - KDEValues[i]);
+        double val = fabs(ModelValues[i] - _lessElementsEstimatorY[i]);
         errorHolder.push_back(val);
         sup_ej = val > sup_ej ? val : sup_ej;
       }
@@ -1138,7 +1080,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ser_ejs + sersup_ejs
       for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - WKDEValues[i]);
+        double val = fabs(ModelValues[i] - _weightedEstimatorY[i]);
         errorHolder.push_back(val);
         sup_ejs = val > sup_ejs ? val : sup_ejs;
       }
@@ -1173,7 +1115,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ser2_ej
       for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - KDEValues[i], 2));
+        errorHolder.push_back(pow(ModelValues[i] - _lessElementsEstimatorY[i], 2));
       }
 
       error2EJ = numericIntegral(&errorHolder);
@@ -1189,7 +1131,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ser2_ejp
       for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - WKDEValues[i], 2));
+        errorHolder.push_back(pow(ModelValues[i] - _weightedEstimatorY[i], 2));
       }
 
       error2EJS = numericIntegral(&errorHolder);

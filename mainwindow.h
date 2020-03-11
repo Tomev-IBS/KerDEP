@@ -72,8 +72,7 @@ class MainWindow : public QMainWindow
 
     // Errors
     double _errorEJ = 0.0, _errorEJP = 0.0;
-    std::vector<qreal> KDEValues, lastKDEValues, KDEPValues, ModelValues;
-    QVector<qreal> WKDEValues, lastWKDEValues;
+    std::vector<qreal> ModelValues;
 
     // Default settings
     const qreal MAX_X                 = 999.0;
