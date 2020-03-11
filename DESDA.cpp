@@ -42,6 +42,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _kpssM = 500;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
+  _d = -1;
+
   _stepNumber = 1;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));  
@@ -151,7 +153,7 @@ void DESDA::performStep()
       std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
 
-  _d = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1);
+  _d = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1); // sgmKPSS
 
   emE._currentKDEValue = avg;
 
@@ -274,14 +276,19 @@ void DESDA::updateM()
   int m = 0;
 
   if(emE.predictionParameters.size() < 2) return;
+  if(_d /*sgmKPSS*/ < 0) return;
 
   // Old m
   //m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
   // 8 X 2019 m
-  m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
+  // m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
+  // 11 III 2020, article
+  m = int(_maxM * (1 - 0.8 * _d));
 
+  /* This is not needed in article's approach.
   m = std::max(m, _minM);
   _m = std::min(m, _maxM);
+  */
 }
 
 void DESDA::updateDelta()
