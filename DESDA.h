@@ -35,15 +35,8 @@ class DESDA
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();
     double getStationarityTestValue();
-    double getPKStationarityTestValue();
 
     stationarityTestPtr stationarityTest;
-
-
-    double emEStDev();
-    double aemEAvg();
-    double aemEStDev();
-    double aemEVersor();
 
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
@@ -58,9 +51,6 @@ class DESDA
     int _mE = 0; // Cardinality of observed new objects
     int _m = 0; // Cardinality of objects to build KDE
     int _lambda = 100;
-
-    std::vector<double> aemEVals = {};
-    std::vector<double> emEVals = {};
 
     double _newWeightB = 0;
     double _alpha = 2 * 5.1;
@@ -78,6 +68,16 @@ class DESDA
     QVector<double> getRareElementsEnhancedKDEValues(const QVector<qreal> *X);
     std::vector<std::shared_ptr<cluster>> getAtypicalElements();
     QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();
+
+    // General purpose
+    double _sgmKPSS = 0;
+    /** According to 2020 first article **/
+    std::vector<unsigned int> _examinedClustersIndices = {};
+    std::vector<double> _maxAbsAsOnHalfOfM0Steps = {};
+    std::vector<double> _examinedClustersWStar = {};
+    std::vector<double> _examinedClustersWStar2 = {};
+    std::vector<double> _examinedClustersWStar3 = {};
+    std::vector<double> _examinedClustersW = {};
 
   protected:
 
@@ -120,6 +120,7 @@ class DESDA
     groupingThread *_grpThread;
 
     void updateWeights();
+    void updateExaminedClustersIndices();
     std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
     std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
@@ -130,7 +131,6 @@ class DESDA
     void updateMaxPredictionAInLastHalfM0Steps();
 
     // Rare elements
-    double _d = 0;
     double _psi = 20.4;
 
     void enhanceWeightsOfUncommonElements();

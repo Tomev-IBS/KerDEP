@@ -42,7 +42,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _kpssM = 500;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
-  _d = -1;
+  _sgmKPSS = -1;
 
   _stepNumber = 1;
 
@@ -153,22 +153,13 @@ void DESDA::performStep()
       std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
 
-  _d = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1); // sgmKPSS
+  _sgmKPSS = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1); // sgmKPSS
 
   emE._currentKDEValue = avg;
 
   _estimator->setClusters(currentClusters);
 
   emE.updatePrediction();
-
-  while(aemEVals.size() >= _mE)
-  {
-    emEVals.pop_back();
-    aemEVals.pop_back();
-  }
-
-  emEVals.insert(emEVals.begin(), emE._currentKDEValue);
-  aemEVals.insert(aemEVals.begin(), emE.predictionParameters[1]);
 
   ++_stepNumber;
 }
@@ -208,6 +199,18 @@ void DESDA::updateWeights()
   }
 }
 
+/** DESDA::updateExaminedClustersIndices
+ * @brief A function that updates indices of examined clusters. Note that it
+ * should be called after m update.
+ */
+void DESDA::updateExaminedClustersIndices()
+{
+  auto desiredClustersLocations = {0.2, 0.5, 0.8};
+  _examinedClustersIndices.clear();
+  for(auto val : desiredClustersLocations)
+      _examinedClustersIndices.push_back(int(val * _m));
+}
+
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
 {
   std::vector<std::shared_ptr<cluster> > consideredClusters = {};
@@ -243,7 +246,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(auto ue : uncommonElements){
     double weightEnhancer = 2 * sigmoid(ue->predictionParameters[1] / _averageMaxPredictionAInLastHalfM0Steps) - 1;
-    weightEnhancer *= _d;
+    weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     ue->setCWeight(ue->getCWeight() * weightEnhancer);
   }
@@ -276,14 +279,14 @@ void DESDA::updateM()
   int m = 0;
 
   if(emE.predictionParameters.size() < 2) return;
-  if(_d /*sgmKPSS*/ < 0) return;
+  if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
   // Old m
   //m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
   // 8 X 2019 m
   // m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
   // 11 III 2020, article
-  m = int(_maxM * (1 - 0.8 * _d));
+  m = int(_maxM * (1 - 0.8 * _sgmKPSS));
 
   /* This is not needed in article's approach.
   m = std::max(m, _minM);
@@ -542,35 +545,6 @@ cluster DESDA::getEmECluster()
 double DESDA::getStationarityTestValue()
 {
   return stationarityTest->getTestsValue();
-}
-
-double DESDA::emEStDev()
-{
-  return stDev(emEVals);
-}
-
-double DESDA::aemEAvg()
-{
-  return sum(aemEVals) / aemEVals.size();
-}
-
-double DESDA::aemEStDev()
-{
-  return stDev(aemEVals);
-}
-
-double DESDA::aemEVersor()
-{
-  double aesum = sum(aemEVals);
-  double aeabssum = absSum(aemEVals);
-
-  if(_stepNumber > 999 && _stepNumber < 1010){
-    qDebug() << "Step  : " << _stepNumber;
-    qDebug() << "Sum   = " << aesum;
-    qDebug() << "abSum = " << aeabssum;
-  }
-
-  return aesum / aeabssum;
 }
 
 /** DESDA::getAtypicalElements

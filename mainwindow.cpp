@@ -1019,14 +1019,14 @@ void MainWindow::on_pushButton_start_clicked()
       // TR TODO: Notice that this should be placed inside DESDA algorithm
       DESDAAlgorithm.gamma = 1.0 / avgMaxA;
 
+      _windowedEstimatorY =
+          DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
+
       _sigmoidallyEnhancedPlotY =
           DESDAAlgorithm.getEnhancedKDEValues(&_drawableDomain);
 
       _rareElementsEnhancedPlotY =
-          DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);
-
-      _windowedEstimatorY =
-          DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
+          DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);      
 
       _atypicalElementsValuesAndDerivatives =
                 DESDAAlgorithm.getAtypicalElementsValuesAndDerivatives();
@@ -1205,8 +1205,6 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       // ============ SUMS =========== //
-      iTextLabel
-          .setText("i   = " + QString::number(stepNumber));
       error1SejwTextLabel
           .setText("sL1_w    = " + formatNumberForDisplay(_summaricWindowKDEError1));
       error1SejTextLabel
@@ -1248,12 +1246,26 @@ void MainWindow::on_pushButton_start_clicked()
       errorModSejnTextLabel
           .setText("smod_n  = " + formatNumberForDisplay(_summaricKDENErrorMod));
 
+
+      // ============= LEFT SIDE UPDATE ================ //
+      iTextLabel
+          .setText(      "i    = " + QString::number(stepNumber));
+
       rareElementsTextLabel
           .setText(      "rare = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
 
       mTextLabel.setText("m    = " + QString::number(DESDAAlgorithm._m));
 
       qTextLabel.setText("q    = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+
+      KPSSTextLabel.setText(   "KPSS     = " + formatNumberForDisplay(
+                                DESDAAlgorithm.getStationarityTestValue()));
+
+      sgmKPSSTextLabel.setText( "sgmKPSS  = " + formatNumberForDisplay(
+                                    DESDAAlgorithm._sgmKPSS));
+
+      sgmKPSS2TextLabel.setText("sgmKPSS2 = " + formatNumberForDisplay(
+                                    2* DESDAAlgorithm._sgmKPSS - 1));
 
       ui->widget_plot->replot();
       qApp->processEvents();
