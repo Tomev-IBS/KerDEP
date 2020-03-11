@@ -862,128 +862,120 @@ void MainWindow::on_pushButton_start_clicked()
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
-  plotLabel iTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "i   = ");
+  plotLabel iTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "i    = 0");
   verticalOffset += verticalStep;
 
-  plotLabel mTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "m   = " + QString::number(sampleSize));
-   verticalOffset += verticalStep;
-
-  plotLabel EmETextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "EmE = ");
+  plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "seed = " + ui->lineEdit_seed->text());
   verticalOffset += verticalStep;
 
-  plotLabel ESmETextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "a_EmExK = ");
+  plotLabel wTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "w    = 0.99");
   verticalOffset += verticalStep;
 
-  plotLabel maxATextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "avg(max(a...)) = ");
+  plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "m0   = " + ui->lineEdit_sampleSize->text());
   verticalOffset += verticalStep;
 
-  plotLabel stationarityTestTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "eta = ");
+  plotLabel mTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "m    = " + QString::number(sampleSize));
   verticalOffset += verticalStep;
 
-  plotLabel stationarityPKTestTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "eta_PK = ");
+  plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "r    = " + QString::number(DESDAAlgorithm._r));
   verticalOffset += verticalStep;
 
-  plotLabel uTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "u = ");
+  plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "q    = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+
+  plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "rare = 0");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel bTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "b = " + QString::number(newWeightB));
+  plotLabel KPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "KPSS     = 0");
   verticalOffset += verticalStep;
 
-  plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "r = " + QString::number(DESDAAlgorithm._r));
+  plotLabel sgmKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "sgmKPSS  = 0");
   verticalOffset += verticalStep;
 
-  plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "q = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+  plotLabel sgmKPSS2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "sgmKPSS2 = 0"); // 2 sgmKPSS - 1
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
 
   //==================== SUMMARIC ERRORS=================//
 
   horizontalOffset = 0.72;
   verticalOffset = 0.01;
-  verticalStep = 0.03;
-
-  plotLabel m0minTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "m0   = " + ui->lineEdit_sampleSize->text() + ", m_min = " + QString::number(DESDAAlgorithm._minM));
-  verticalOffset += verticalStep;
-
-  plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "v = " + ui->lineEdit_distributionProgression->text());
-  verticalOffset += verticalStep;
-
-  plotLabel mETextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mE  = " + QString::number(mE));
-  verticalOffset += verticalStep;
-
-  plotLabel wTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "w_a = 0.99, w_EmE = " + QString::number(DESDAAlgorithm.w_E));
-  verticalOffset += verticalStep;
-
-  plotLabel alfaBetaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "alpha = " + QString::number(DESDAAlgorithm._alpha) + ", beta = " + QString::number(DESDAAlgorithm._beta));
-  verticalOffset += verticalStep;
-
-  plotLabel deltaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "delta = " + QString::number(DESDAAlgorithm.delta));
-  verticalOffset += verticalStep;
-
-  plotLabel lambdaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "lambda = " + QString::number(lambda));
-  verticalOffset += verticalStep;
-
-  plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "#Rare elements = 0");
-  verticalOffset += verticalStep;
 
   verticalOffset += verticalStep;
 
-  plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejw = ");
+  plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL1_w = ");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejm = ");
+  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL1_m = ");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejs = ");
+  plotLabel error1SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL1_d = ");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejp = ");
+  plotLabel error1SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL1_p = ");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser1_ejn = ");
+  plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL1_n = ");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejw = ");
+  plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL2_w = ");
   verticalOffset += verticalStep;
 
-  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejm = ");
+  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL2_m = ");
   verticalOffset += verticalStep;
 
-  plotLabel error2SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejs = ");
+  plotLabel error2SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL2_d = ");
   verticalOffset += verticalStep;
 
-  plotLabel error2SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejp = ");
+  plotLabel error2SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL2_p = ");
   verticalOffset += verticalStep;
 
-  plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ser2_ejn = ");
+  plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sL2_n = ");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejw = ");
+  plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ssup_w = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejm = ");
+  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ssup_m = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejs = ");
+  plotLabel errorSupSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ssup_d = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejp = ");
+  plotLabel errorSupSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ssup_p = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sersup_ejn = ");
+  plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "ssup_n = ");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejw = ");
+  plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "smod_n = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejm = ");
+  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "smod_m = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejs = ");
+  plotLabel errorModSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "smod_d = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejp = ");
+  plotLabel errorModSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "smod_p = ");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sermod_ejn = ");
+  plotLabel errorModSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "smod_n = ");
   verticalOffset += verticalStep;
 
   fillDomain(&_domain, nullptr);
@@ -1081,14 +1073,6 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       drawPlots(estimator.get(), targetFunction.get());
-
-      cluster emE = DESDAAlgorithm.getEmECluster();
-
-      // E1000
-      double avg_mE = emE._currentKDEValue;
-
-      // a_E1000xK
-      double EmEEst = emE.predictionParameters[1];
 
       QVector<qreal> errorHolder = {};
 
@@ -1220,83 +1204,56 @@ void MainWindow::on_pushButton_start_clicked()
         _summaricWindowKDEErrorMod += mod_ejw;
       }
 
-      EmETextLabel
-          .setText("EmE            = " + formatNumberForDisplay(avg_mE));
-
-      ESmETextLabel
-          .setText("a_EmE xK       = " + formatNumberForDisplay(EmEEst * 1000));
-
-      maxATextLabel
-          .setText("EmE(max(|ai|)) = " + formatNumberForDisplay(avgMaxA));
-
-      uTextLabel
-          .setText("u     = " + formatNumberForDisplay(DESDAAlgorithm._u_i));
-
       // ============ SUMS =========== //
       iTextLabel
           .setText("i   = " + QString::number(stepNumber));
       error1SejwTextLabel
-          .setText("ser1_ejw    = " + formatNumberForDisplay(_summaricWindowKDEError1));
+          .setText("sL1_w    = " + formatNumberForDisplay(_summaricWindowKDEError1));
       error1SejTextLabel
-          .setText("ser1_ejm    = " + formatNumberForDisplay(_summaricKDEError1));
+          .setText("sL1_m    = " + formatNumberForDisplay(_summaricKDEError1));
       error1SejpTextLabel
-          .setText("ser1_ejp    = " + formatNumberForDisplay(_summaricKDEPError1));
+          .setText("sL1_p    = " + formatNumberForDisplay(_summaricKDEPError1));
       error1SejsTextLabel
-          .setText("ser1_ejs    = " + formatNumberForDisplay(_summaricKDESError1));
+          .setText("sL1_d    = " + formatNumberForDisplay(_summaricKDESError1));
       error1SejnTextLabel
-          .setText("ser1_ejn    = " + formatNumberForDisplay(_summaricKDENError1));
+          .setText("sL1_n    = " + formatNumberForDisplay(_summaricKDENError1));
       error2SejwTextLabel
-          .setText("ser2_ejw    = " + formatNumberForDisplay(_summaricWindowKDEError2));
+          .setText("sL2_w    = " + formatNumberForDisplay(_summaricWindowKDEError2));
       error2SejTextLabel
-          .setText("ser2_ejm    = " + formatNumberForDisplay(_summaricKDEError2));
+          .setText("sL2_m    = " + formatNumberForDisplay(_summaricKDEError2));
       error2SejpTextLabel
-          .setText("ser2_ejp    = " + formatNumberForDisplay(_summaricKDEPError2));
+          .setText("sL2_p    = " + formatNumberForDisplay(_summaricKDEPError2));
       error2SejsTextLabel
-          .setText("ser2_ejs    = " + formatNumberForDisplay(_summaricKDESError2));
+          .setText("sL2_d    = " + formatNumberForDisplay(_summaricKDESError2));
       error2SejnTextLabel
-          .setText("ser2_ejn    = " + formatNumberForDisplay(_summaricKDENError2));
+          .setText("sL2_n    = " + formatNumberForDisplay(_summaricKDENError2));
       errorSupSejwTextLabel
-          .setText("sersup_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorSup));
+          .setText("ssup_w  = " + formatNumberForDisplay(_summaricWindowKDEErrorSup));
       errorSupSejTextLabel
-          .setText("sersup_ejm  = " + formatNumberForDisplay(_summaricKDEErrorSup));
+          .setText("ssup_m  = " + formatNumberForDisplay(_summaricKDEErrorSup));
       errorSupSejpTextLabel
-          .setText("sersup_ejp  = " + formatNumberForDisplay(_summaricKDEPErrorSup));
+          .setText("ssup_p  = " + formatNumberForDisplay(_summaricKDEPErrorSup));
       errorSupSejsTextLabel
-          .setText("sersup_ejs  = " + formatNumberForDisplay(_summaricKDESErrorSup));
+          .setText("ssup_d  = " + formatNumberForDisplay(_summaricKDESErrorSup));
       errorSupSejnTextLabel
-          .setText("sersup_ejn  = " + formatNumberForDisplay(_summaricKDENErrorSup));
+          .setText("ssup_n  = " + formatNumberForDisplay(_summaricKDENErrorSup));
       errorModSejwTextLabel
-          .setText("sermod_ejw  = " + formatNumberForDisplay(_summaricWindowKDEErrorMod));
+          .setText("smod_w  = " + formatNumberForDisplay(_summaricWindowKDEErrorMod));
       errorModSejTextLabel
-          .setText("sermod_ejm  = " + formatNumberForDisplay(_summaricKDEErrorMod));
+          .setText("smod_m  = " + formatNumberForDisplay(_summaricKDEErrorMod));
       errorModSejpTextLabel
-          .setText("sermod_ejp  = " + formatNumberForDisplay(_summaricKDEPErrorMod));
+          .setText("smod_p  = " + formatNumberForDisplay(_summaricKDEPErrorMod));
       errorModSejsTextLabel
-          .setText("sermod_ejs  = " + formatNumberForDisplay(_summaricKDESErrorMod));
+          .setText("smod_d  = " + formatNumberForDisplay(_summaricKDESErrorMod));
       errorModSejnTextLabel
-          .setText("sermod_ejn  = " + formatNumberForDisplay(_summaricKDENErrorMod));
+          .setText("smod_n  = " + formatNumberForDisplay(_summaricKDENErrorMod));
 
       rareElementsTextLabel
-          .setText("#Rare elements = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
+          .setText(      "rare = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
 
-      deltaTextLabel.setText("delta = " + formatNumberForDisplay(DESDAAlgorithm.delta));
+      mTextLabel.setText("m    = " + QString::number(DESDAAlgorithm._m));
 
-      stationarityTestTextLabel
-          .setText("eta = " + formatNumberForDisplay(DESDAAlgorithm.getStationarityTestValue()));
-
-      stationarityPKTestTextLabel
-          .setText("eta_PK = " + formatNumberForDisplay(DESDAAlgorithm.getPKStationarityTestValue()));
-
-      bTextLabel
-          .setText("b = " + QString::number(DESDAAlgorithm._newWeightB));
-
-      mTextLabel.setText("m   = " + QString::number(DESDAAlgorithm._m));
-
-      qTextLabel.setText("q = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
-
-      mETextLabel.setText("mE  = " + QString::number(DESDAAlgorithm._mE)
-                           + ", mEta = " + QString::number(DESDAAlgorithm._kpssM));
-
+      qTextLabel.setText("q    = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
       ui->widget_plot->replot();
       qApp->processEvents();
@@ -1313,30 +1270,7 @@ void MainWindow::on_pushButton_start_clicked()
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
       qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
     }
-
-    clock_t executionFinishTime = clock();
-    double stepExecutionTime =
-      static_cast<double>(executionFinishTime - executionStartTime);
-    stepExecutionTime /= CLOCKS_PER_SEC;
-
-    if(stepExecutionTime > _longestStepExecutionInSecs)
-      _longestStepExecutionInSecs = stepExecutionTime;
-
-    //qDebug() << "Longest execution time: " << _longestStepExecutionInSecs;
-    //qDebug() << "Current execution time: " << stepExecutionTime;
-
-    /*
-    delay(static_cast<int>(
-      (_longestStepExecutionInSecs - stepExecutionTime) * 1000
-    ));
-    */
-
   }
 
   qDebug() << "Animation finished.";
-  // Value print for exp300+
-  qDebug() << formatNumberForDisplay(_summaricKDEPError1);
-  qDebug() << formatNumberForDisplay(_summaricKDEPError2);
-  qDebug() << formatNumberForDisplay(_summaricKDEPErrorSup);
-  qDebug() << formatNumberForDisplay(_summaricKDEPErrorMod);
 }
