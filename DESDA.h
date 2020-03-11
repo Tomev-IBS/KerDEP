@@ -81,6 +81,7 @@ class DESDA
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
     std::vector<double> _examinedClustersWStar3 = {};
+    std::vector<int> _examinedClustersIndicesInUncommonClustersVector = {};
     std::vector<double> _examinedClustersW = {};
 
   protected:
