@@ -125,7 +125,6 @@ void DESDA::performStep()
 
   _clusters->insert(_clusters->begin(), newCluster);
   updateExaminedClustersIndices();
-  updateWeights();
 
   _smoothingParamCounter->updateSmoothingParameterValue(
     _weightModifier,
@@ -139,6 +138,7 @@ void DESDA::performStep()
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
+  _h = smoothingParameters[0];
 
   countKDEValuesOnClusters();
   updatePrognosisParameters();
@@ -146,10 +146,8 @@ void DESDA::performStep()
   updateAverageMaxAbsAsInLastKPSSMSteps();
   updateExaminedClustersAsVector();
 
-  auto currentClusters = getClustersForEstimator();
-
   qDebug() << "Reservoir size in step "
-             << _stepNumber << " is: " << currentClusters.size();
+             << _stepNumber << " is: " << _m;
 
   //avg = getAverageOfFirstMSampleValues(_mE);
   avg = getNewEmEValue();
@@ -163,7 +161,7 @@ void DESDA::performStep()
 
   emE._currentKDEValue = avg;
 
-  _estimator->setClusters(currentClusters);
+  updateWeights();
 
   emE.updatePrediction();
 
@@ -173,45 +171,14 @@ void DESDA::performStep()
 void DESDA::updateWeights()
 {
   _examinedClustersWStar.clear();
+  auto consideredClusters = getClustersForEstimator();
 
-  // p weight update
-  if(_stepNumber > _maxM){
-      double weightsSum = 0;
-
-      for(int clusterNum = _clusters->size() - 2; clusterNum > -1; --clusterNum){
-        weightsSum += (*_clusters)[clusterNum]->getWeight();
-      }
-
-      for(int clusterNum = _clusters->size() - 2; clusterNum > -1; --clusterNum){
-        (*_clusters)[clusterNum]->setWeight((_m - 1) * (*_clusters)[clusterNum]->getWeight() / weightsSum);
-      }
+  for(int i = 0; i < consideredClusters.size(); ++i){
+    double newWeight = 1.0 - _sgmKPSS * i / consideredClusters.size();
+    consideredClusters[i]->setCWeight(newWeight);
+    if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i))
+        _examinedClustersWStar.push_back(newWeight);
   }
-
-  double cWeightSum = 0;
-
-  for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum)
-  {
-      // In formula it's (i - 1), but indexes are from 1 not 0, thus no -1.
-      double newWeight =
-          (*_clusters)[clusterNum]->getWeight() * (1.0 - _newWeightB * (clusterNum) / _m);
-
-      newWeight = std::max(0.0, newWeight);
-
-      (*_clusters)[clusterNum]->setCWeight(newWeight);
-
-     cWeightSum += newWeight;
-  }
-
-  for(int clusterNum = _clusters->size() - 1; clusterNum > -1; --clusterNum){
-      (*_clusters)[clusterNum]->setCWeight((*_clusters)[clusterNum]->getCWeight() * _m / cWeightSum);
-
-      // Weights star
-      if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), clusterNum)){
-          this->_examinedClustersWStar.push_back((*_clusters)[clusterNum]->getCWeight());
-      }
-  }
-
-  std::reverse(_examinedClustersWStar.begin(), _examinedClustersWStar.end());
 }
 
 /** DESDA::updateExaminedClustersIndices
@@ -322,7 +289,7 @@ void DESDA::updateM()
   // 8 X 2019 m
   // m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
   // 11 III 2020, article
-  m = int(_maxM * (1 - 0.8 * _sgmKPSS));
+  _m = round(_maxM * (1 - 0.8 * _sgmKPSS));
 
   /* This is not needed in article's approach.
   m = std::max(m, _minM);
@@ -419,6 +386,34 @@ void DESDA::updateExaminedClustersAsVector()
     }
 }
 
+double DESDA::getDomainMinValue(const std::vector<clusterPtr> &clusters)
+{
+    if(clusters.size() == 0) return - 3 * _h;
+
+    double domainMin = std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]);
+
+    for(auto c : clusters){
+        auto cVal = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+        domainMin = cVal < domainMin ? cVal : domainMin;
+    }
+
+    return domainMin - 3 * _h;
+}
+
+double DESDA::getDomainMaxValue(const std::vector<clusterPtr> &clusters)
+{
+    if(clusters.size() == 0) return 3 * _h;
+
+    double domainMax = std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]);
+
+    for(auto c : clusters){
+        auto cVal = std::stod(c->getRepresentative()->attributesValues["Val0"]);
+        domainMax = cVal > domainMax ? cVal : domainMax;
+    }
+
+    return domainMax + 3 * _h;
+}
+
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
 {
   std::vector<std::shared_ptr<cluster>> currentClusters
@@ -435,13 +430,19 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
     _estimatorDerivative->setAdditionalMultipliers(prognosisCoefficients);
     _estimatorDerivative->setClusters(currentClusters);
 
+    double domainMinValue = getDomainMinValue(currentClusters);
+    double domainMaxValue = getDomainMaxValue(currentClusters);
+
     for(qreal x: *X)
     {
-      std::vector<double> pt;
-      pt.push_back(x);
-      kernelPrognosisDerivativeValues.push_back(
-        _estimatorDerivative->getValue(&pt) * 1000 // For visibility
-      );
+      if(x > domainMinValue && x < domainMaxValue){
+          std::vector<double> pt = {x};
+          kernelPrognosisDerivativeValues.push_back(
+            _estimatorDerivative->getValue(&pt) * 1000 // For visibility
+          );
+      } else {
+          kernelPrognosisDerivativeValues.push_back(0);
+      }
     }
   }
 
@@ -458,10 +459,17 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
 
   _enhancedKDE->setClusters(currentClusters);
 
-  for(qreal x: *X) {
-    std::vector<double> pt;
-    pt.push_back(x);
-    enhancedKDEValues.push_back(_enhancedKDE->getValue(&pt));
+  double domainMinValue = getDomainMinValue(currentClusters);
+  double domainMaxValue = getDomainMaxValue(currentClusters);
+
+  for(qreal x: *X)
+  {
+    if(x > domainMinValue && x < domainMaxValue){
+        std::vector<double> pt = {x};
+        enhancedKDEValues.push_back(_enhancedKDE->getValue(&pt));
+    } else {
+        enhancedKDEValues.push_back(0);
+    }
   }
 
   // Restore weights
@@ -541,10 +549,17 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
     _estimator->setClusters(consideredClusters);
     _estimator->_shouldConsiderWeights = false;
 
+    double domainMinValue = getDomainMinValue(consideredClusters);
+    double domainMaxValue = getDomainMaxValue(consideredClusters);
+
     for(qreal x: *X)
     {
-      std::vector<double> q = {x};
-      windowKDEValues.push_back(_estimator->getValue(&q));
+      if(x > domainMinValue && x < domainMaxValue){
+        std::vector<double> q = {x};
+        windowKDEValues.push_back(_estimator->getValue(&q));
+      } else {
+        windowKDEValues.push_back(0);
+      }
     }
 
     _estimator->_shouldConsiderWeights = true;    
@@ -562,10 +577,17 @@ QVector<double> DESDA::getKDEValues(const QVector<qreal> *X)
     _estimator->setClusters(consideredClusters);
     _estimator->_shouldConsiderWeights = false;
 
+    double domainMinValue = getDomainMinValue(consideredClusters);
+    double domainMaxValue = getDomainMaxValue(consideredClusters);
+
     for(qreal x: *X)
     {
-      std::vector<double> q = {x};
-      KDEValues.push_back(_estimator->getValue(&q));
+      if(x > domainMinValue && x < domainMaxValue){
+        std::vector<double> q = {x};
+        KDEValues.push_back(_estimator->getValue(&q));
+      } else {
+        KDEValues.push_back(0);
+      }
     }
 
     return KDEValues;
@@ -751,13 +773,17 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
       _examinedClustersW.push_back(currentClusters[val]->getCWeight());
   }
 
+  double domainMinValue = getDomainMinValue(currentClusters);
+  double domainMaxValue = getDomainMaxValue(currentClusters);
+
   for(qreal x: *X)
   {
-    std::vector<double> pt;
-    pt.push_back(x);
-    enhancedKDEValues.push_back(
-      _enhancedKDE->getValue(&pt)
-    );
+    if(x > domainMinValue && x < domainMaxValue){
+        std::vector<double> pt = {x};
+        enhancedKDEValues.push_back(_enhancedKDE->getValue(&pt));
+    } else {
+        enhancedKDEValues.push_back(0);
+    }
   }
 
   // Restore weights

@@ -141,6 +141,12 @@ class DESDA
     void updateAverageMaxAbsAsInLastKPSSMSteps();
     void updateExaminedClustersAsVector();
 
+    // Domain reduction
+    double getDomainMinValue(const std::vector<clusterPtr> &clusters);
+    double getDomainMaxValue(const std::vector<clusterPtr> &clusters);
+    double _h;
+
+
 
     // Rare elements
     double _psi = 20.4;
