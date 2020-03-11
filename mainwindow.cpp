@@ -818,7 +818,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
-  int l = 8;
+  int l = 4;
 
   groupingThread gt(&storedMedoids, parser);
 

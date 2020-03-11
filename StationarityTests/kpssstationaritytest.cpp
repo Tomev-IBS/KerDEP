@@ -30,12 +30,6 @@ double KPSSStationarityTest::getTestsValue()
   return testValue;
 }
 
-// Around III 2020 PK asked to implement also test value for test given by formula (11) of KPSS work.
-double KPSSStationarityTest::getPKTestValue()
-{
-  return _PKTestValue;
-}
-
 double KPSSStationarityTest::addNewSample(double sample)
 {
   _regressionRests.push_back(sample - _avg);

@@ -544,19 +544,6 @@ double DESDA::getStationarityTestValue()
   return stationarityTest->getTestsValue();
 }
 
-/** DESDA::getPKStationarityTestValue
- *
- * @brief Returns PK stationarity test value.
- *
- * Be aware that this method should be called AFTER getStationarityTestValue, as it calculates both values.
- *
- * @return PK Stationarity test value.
- */
-double DESDA::getPKStationarityTestValue()
-{
-  return stationarityTest->getPKTestValue();
-}
-
 double DESDA::emEStDev()
 {
   return stDev(emEVals);
