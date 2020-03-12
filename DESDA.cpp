@@ -53,10 +53,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));  
 }
 
-int round(int val){
-  return ceil(val) - val >= 0.5 ? ceil(val) : floor(val);
-}
-
 int sgn(double val)
 {
   return (val > 0) - (val < 0);
@@ -230,7 +226,9 @@ void DESDA::enhanceWeightsOfUncommonElements()
   _examinedClustersIndicesInUncommonClustersVector.clear();
   auto uncommonElements = getAtypicalElements();
 
-  std::vector<double> _examinedClustersEnhancedWeights = {};
+  std::vector<double> examinedClustersEnhancedWeights = {};
+
+  qDebug() << "_averageMaxPredictionAInLastKPSSMSteps = " << _averageMaxPredictionAInLastKPSSMSteps;
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
@@ -238,8 +236,9 @@ void DESDA::enhanceWeightsOfUncommonElements()
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     if(std::count(_examinedClustersIndicesInUncommonClustersVector.begin(),
-                  _examinedClustersIndicesInUncommonClustersVector.end(), i))
-      _examinedClustersEnhancedWeights.push_back(weightEnhancer);
+                  _examinedClustersIndicesInUncommonClustersVector.end(), i)){
+      examinedClustersEnhancedWeights.push_back(weightEnhancer);
+    }
     ue->setCWeight(ue->getCWeight() * weightEnhancer);
   }
 
@@ -370,7 +369,12 @@ void DESDA::updateAverageMaxAbsAsInLastKPSSMSteps()
     offset = offset < 0 ? 0 : offset;
     double sumOfConsideredAs =
             std::accumulate(_maxAbsAs.begin() + offset, _maxAbsAs.end(), 0);
+
     int consideredElementsNumber = _maxAbsAs.size() < _kpssM ? _maxAbsAs.size() : _kpssM;
+
+    qDebug() << "sumOfConsideredAs = " << sumOfConsideredAs;
+    qDebug() << "consideredElementsNumber = " << consideredElementsNumber;
+
     _averageMaxPredictionAInLastKPSSMSteps = sumOfConsideredAs / consideredElementsNumber;
 }
 
