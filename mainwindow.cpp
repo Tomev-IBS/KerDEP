@@ -1214,45 +1214,45 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ============ SUMS =========== //
       error1SejwTextLabel
-          .setText("L1_w    =" + formatNumberForDisplay(_summaricWindowKDEError1));
+          .setText("L1_w  =" + formatNumberForDisplay(_summaricWindowKDEError1));
       error1SejTextLabel
-          .setText("L1_m    =" + formatNumberForDisplay(_summaricKDEError1));
+          .setText("L1_m  =" + formatNumberForDisplay(_summaricKDEError1));
       error1SejpTextLabel
-          .setText("L1_p    =" + formatNumberForDisplay(_summaricKDEPError1));
+          .setText("L1_p  =" + formatNumberForDisplay(_summaricKDEPError1));
       error1SejsTextLabel
-          .setText("L1_d    =" + formatNumberForDisplay(_summaricKDESError1));
+          .setText("L1_d  =" + formatNumberForDisplay(_summaricKDESError1));
       error1SejnTextLabel
-          .setText("L1_n    =" + formatNumberForDisplay(_summaricKDENError1));
+          .setText("L1_n  =" + formatNumberForDisplay(_summaricKDENError1));
       error2SejwTextLabel
-          .setText("L2_w    =" + formatNumberForDisplay(_summaricWindowKDEError2));
+          .setText("L2_w  =" + formatNumberForDisplay(_summaricWindowKDEError2));
       error2SejTextLabel
-          .setText("L2_m    =" + formatNumberForDisplay(_summaricKDEError2));
+          .setText("L2_m  =" + formatNumberForDisplay(_summaricKDEError2));
       error2SejpTextLabel
-          .setText("L2_p    =" + formatNumberForDisplay(_summaricKDEPError2));
+          .setText("L2_p  =" + formatNumberForDisplay(_summaricKDEPError2));
       error2SejsTextLabel
-          .setText("L2_d    =" + formatNumberForDisplay(_summaricKDESError2));
+          .setText("L2_d  =" + formatNumberForDisplay(_summaricKDESError2));
       error2SejnTextLabel
-          .setText("L2_n    =" + formatNumberForDisplay(_summaricKDENError2));
+          .setText("L2_n  =" + formatNumberForDisplay(_summaricKDENError2));
       errorSupSejwTextLabel
-          .setText("sup_w   =" + formatNumberForDisplay(_summaricWindowKDEErrorSup));
+          .setText("sup_w =" + formatNumberForDisplay(_summaricWindowKDEErrorSup));
       errorSupSejTextLabel
-          .setText("sup_m   =" + formatNumberForDisplay(_summaricKDEErrorSup));
+          .setText("sup_m =" + formatNumberForDisplay(_summaricKDEErrorSup));
       errorSupSejpTextLabel
-          .setText("sup_p   =" + formatNumberForDisplay(_summaricKDEPErrorSup));
+          .setText("sup_p =" + formatNumberForDisplay(_summaricKDEPErrorSup));
       errorSupSejsTextLabel
-          .setText("sup_d   =" + formatNumberForDisplay(_summaricKDESErrorSup));
+          .setText("sup_d =" + formatNumberForDisplay(_summaricKDESErrorSup));
       errorSupSejnTextLabel
-          .setText("sup_n   =" + formatNumberForDisplay(_summaricKDENErrorSup));
+          .setText("sup_n =" + formatNumberForDisplay(_summaricKDENErrorSup));
       errorModSejwTextLabel
-          .setText("mod_w   =" + formatNumberForDisplay(_summaricWindowKDEErrorMod));
+          .setText("mod_w =" + formatNumberForDisplay(_summaricWindowKDEErrorMod));
       errorModSejTextLabel
-          .setText("mod_m   =" + formatNumberForDisplay(_summaricKDEErrorMod));
+          .setText("mod_m =" + formatNumberForDisplay(_summaricKDEErrorMod));
       errorModSejpTextLabel
-          .setText("mod_p   =" + formatNumberForDisplay(_summaricKDEPErrorMod));
+          .setText("mod_p =" + formatNumberForDisplay(_summaricKDEPErrorMod));
       errorModSejsTextLabel
-          .setText("mod_d   =" + formatNumberForDisplay(_summaricKDESErrorMod));
+          .setText("mod_d =" + formatNumberForDisplay(_summaricKDESErrorMod));
       errorModSejnTextLabel
-          .setText("mod_n   =" + formatNumberForDisplay(_summaricKDENErrorMod));
+          .setText("mod_n =" + formatNumberForDisplay(_summaricKDENErrorMod));
 
 
       // ============= LEFT SIDE UPDATE ================ //
