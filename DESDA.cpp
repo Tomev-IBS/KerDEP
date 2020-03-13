@@ -18,13 +18,13 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
-             double desiredRarity, groupingThread *gt, double v,
+             double desiredRarity, groupingThread *gt,
              double newWeightB, int mE, int kpssX, int lambda):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
-  _storedMedoids(storedMedoids), _desiredRarity(desiredRarity),
-  _grpThread(gt), _v(v), _newWeightB(newWeightB),
+  _storedMedoids(storedMedoids), _r(desiredRarity),
+  _grpThread(gt), _newWeightB(newWeightB),
   _enhancedKDE(enchancedKDE), _mE(mE), _lambda(lambda)
 {
   _objects.clear();
@@ -43,7 +43,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = 1000;
   _m = _maxM;
 
-  _kpssM = _maxM * 0.2;
+  _kpssM = _maxM * 0.5;
   int l = kpssX * pow(_kpssM / 100, 0.25);
 
   _sgmKPSS = -1;
@@ -134,19 +134,17 @@ void DESDA::performStep()
   _estimator->setSmoothingParameters(smoothingParameters);
   _estimatorDerivative->setSmoothingParameters(smoothingParameters);
   _enhancedKDE->setSmoothingParameters(smoothingParameters);
-  _h = smoothingParameters[0];
+  _h = smoothingParameters[0]; // For smaller domain counting
+
+  qDebug() << "Reservoir size in step " << _stepNumber
+           << " is: " << getClustersForEstimator().size() << ".";
 
   countKDEValuesOnClusters();
   updatePrognosisParameters();
   updateMaxAbsAVector();
   updateAverageMaxAbsAsInLastKPSSMSteps();
+  updateAverageMaxAbsAsInLastMinMSteps();
   updateExaminedClustersAsVector();
-
-  qDebug() << "Reservoir size in step "
-             << _stepNumber << " is: " << _m;
-
-  //avg = getAverageOfFirstMSampleValues(_mE);
-  avg = getNewEmEValue();
 
   // Start at 0
   stationarityTest->addNewSample(
@@ -155,10 +153,9 @@ void DESDA::performStep()
 
   _sgmKPSS = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1); // sgmKPSS
 
-  emE._currentKDEValue = avg;
-
   updateWeights();
 
+  emE._currentKDEValue = getNewEmEValue();
   emE.updatePrediction();
 
   ++_stepNumber;
@@ -168,9 +165,10 @@ void DESDA::updateWeights()
 {
   _examinedClustersWStar.clear();
   auto consideredClusters = getClustersForEstimator();
+  auto m = consideredClusters.size();
 
   for(int i = 0; i < consideredClusters.size(); ++i){
-    double newWeight = 1.0 - _sgmKPSS * i / consideredClusters.size();
+    double newWeight = 2 * (1.0 - i * _sgmKPSS / m);
     consideredClusters[i]->setCWeight(newWeight);
     if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i))
         _examinedClustersWStar.push_back(newWeight);
@@ -228,8 +226,6 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   std::vector<double> examinedClustersEnhancedWeights = {};
 
-  qDebug() << "_averageMaxPredictionAInLastKPSSMSteps = " << _averageMaxPredictionAInLastKPSSMSteps;
-
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
     double weightEnhancer = 2 * sigmoid(ue->predictionParameters[1] / _averageMaxPredictionAInLastKPSSMSteps) - 1;
@@ -278,22 +274,11 @@ void DESDA::updatePrognosisParameters()
 
 void DESDA::updateM()
 {
-  int m = 0;
-
   if(emE.predictionParameters.size() < 2) return;
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
-  // Old m
-  //m = round(1.05 * _maxM * ( 1 - _lambda * _u_i * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
-  // 8 X 2019 m
-  // m = round(1.1 * _maxM * ( 1 - _lambda * fabs(emE.predictionParameters[1]))); // getStdDevOfFirstMSampleValues(_mE)));
-  // 11 III 2020, article
-  _m = round(_maxM * (1 - 0.8 * _sgmKPSS));
-
-  /* This is not needed in article's approach.
-  m = std::max(m, _minM);
-  _m = std::min(m, _maxM);
-  */
+  _m = (_maxM - (_maxM - _minM) * _sgmKPSS);
+  _m = _m < _clusters->size() + 1 ? _m : _clusters->size() + 1;
 }
 
 void DESDA::updateDelta()
@@ -335,11 +320,11 @@ double DESDA::getNewEmEValue()
 void DESDA::updateMaxAbsAVector()
 {
   // Add new value
-  _maxAbsAs.push_back(getCurrentMaxAbsA());
+  _maxAbsAs.insert(_maxAbsAs.begin(), getCurrentMaxAbsA());
 
   // Ensure size is as expected
   while(_maxAbsAs.size() > _maxM)
-      _maxAbsAs.erase(_maxAbsAs.begin(), _maxAbsAs.begin() + 1);
+      _maxAbsAs.pop_back();
 }
 
 /** DESDA::getCurrentMaxAbsA
@@ -365,17 +350,27 @@ double DESDA::getCurrentMaxAbsA()
  */
 void DESDA::updateAverageMaxAbsAsInLastKPSSMSteps()
 {
-    int offset = _maxAbsAs.size() - _kpssM;
-    offset = offset < 0 ? 0 : offset;
-    double sumOfConsideredAs =
-            std::accumulate(_maxAbsAs.begin() + offset, _maxAbsAs.end(), 0);
-
     int consideredElementsNumber = _maxAbsAs.size() < _kpssM ? _maxAbsAs.size() : _kpssM;
 
-    qDebug() << "sumOfConsideredAs = " << sumOfConsideredAs;
-    qDebug() << "consideredElementsNumber = " << consideredElementsNumber;
+    double sumOfConsideredAbsAs = 0;
 
-    _averageMaxPredictionAInLastKPSSMSteps = sumOfConsideredAs / consideredElementsNumber;
+    for(int i = 0; i < consideredElementsNumber; ++i){
+      sumOfConsideredAbsAs += _maxAbsAs[i];
+    }
+
+    _averageMaxPredictionAInLastKPSSMSteps = sumOfConsideredAbsAs / consideredElementsNumber;
+}
+
+void DESDA::updateAverageMaxAbsAsInLastMinMSteps()
+{
+    double sumOfConsideredAbsAs = 0;
+    int consideredElementsNumber = _maxAbsAs.size() < _minM ? _maxAbsAs.size() : _minM;
+
+    for(int i = 0; i < consideredElementsNumber; ++i){
+      sumOfConsideredAbsAs += _maxAbsAs[i];
+    }
+
+    _averageMaxPredictionAInLastMinMSteps = sumOfConsideredAbsAs / consideredElementsNumber;
 }
 
 void DESDA::updateExaminedClustersAsVector()

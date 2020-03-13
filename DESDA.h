@@ -22,8 +22,7 @@ class DESDA
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::shared_ptr<cluster>> *storedMedoids,
-          double desiredRarity, groupingThread *gt,
-          double v, double newWeightB, int mE, int kpssX, int lambda);
+          double desiredRarity, groupingThread *gt, double newWeightB, int mE, int kpssX, int lambda);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
@@ -49,7 +48,7 @@ class DESDA
     double _stDev = 1;
 
     int _maxM = 1000;
-    int _minM = 200;
+    int _minM = 100;
     int _mE = 0; // Cardinality of observed new objects
     int _m = 0; // Cardinality of objects to build KDE
     int _lambda = 100;
@@ -105,10 +104,9 @@ class DESDA
     double _positionalSecondGradeEstimator = 0.0;
     double _maxEstimatorValueOnDomain = 0.0;
     double _a = 0.0;
-    double _desiredRarity = 0.01;
     double _previousUncommonClustersWeight = 0.0;
-    double _v = 1.0;
     double _averageMaxPredictionAInLastKPSSMSteps = 0;
+    double _averageMaxPredictionAInLastMinMSteps = 0;
 
     cluster emE;
     bool _shouldCluster = false;
@@ -139,6 +137,7 @@ class DESDA
     void updateMaxAbsAVector();
     double getCurrentMaxAbsA();
     void updateAverageMaxAbsAsInLastKPSSMSteps();
+    void updateAverageMaxAbsAsInLastMinMSteps();
     void updateExaminedClustersAsVector();
 
     // Domain reduction
