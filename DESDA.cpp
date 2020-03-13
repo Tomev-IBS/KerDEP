@@ -222,6 +222,8 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
 void DESDA::enhanceWeightsOfUncommonElements()
 {
   _examinedClustersIndicesInUncommonClustersVector.clear();
+  qDebug() << "Enhancing weights of the uncommon.";
+
   auto uncommonElements = getAtypicalElements();
 
   std::vector<double> examinedClustersEnhancedWeights = {};
@@ -692,9 +694,13 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
 
 std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
 {
+  //qDebug() << "Accelerated KDE Values on clusters.";
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(consideredClusters);
+
+  //qDebug() << "Standard weights:" << standardWeights;
+
   sigmoidallyEnhanceClustersWeights(&consideredClusters);
 
   std::vector<double> AKDEValues = {};
@@ -741,30 +747,31 @@ std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const 
   return indexesValues;
 }
 
-double DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues)
+void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues)
 {
   int m = sortedIndicesValues.size();
   double mr = _r * m;
 
-  if(mr <= 0.5) return sortedIndicesValues[0].second;
-  if(mr >= m - 0.5) return sortedIndicesValues[m - 1].second;
+  if(mr < 0.5){
+      _quantileEstimator = sortedIndicesValues[0].second;
+      return;
+  }
 
-  int i = mr + 0.5 - 1; // Indices of elements in Kruszewski starts from 1
+  int i = mr + 0.5;
 
-  _quantileEstimator = (0.5 + i - mr) * sortedIndicesValues[i].second;
-  _quantileEstimator += (0.5 - i + mr) * sortedIndicesValues[i + 1].second;
+  _quantileEstimator = (0.5 + i - mr) * sortedIndicesValues[i - 1].second; // Remembert that indices in the formulas start from 1.
+  _quantileEstimator += (0.5 - i + mr) * sortedIndicesValues[i].second; // Remembert that indices in the formulas start from 1.
 }
 
 QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
 {
-  //qDebug() << "EKDE values getting.";
-
   QVector<double> enhancedKDEValues = {};
   auto currentClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(currentClusters);
 
-  sigmoidallyEnhanceClustersWeights(&currentClusters);
   enhanceWeightsOfUncommonElements();
+  sigmoidallyEnhanceClustersWeights(&currentClusters);
+
   _enhancedKDE->setClusters(currentClusters);
 
   _examinedClustersW.clear();

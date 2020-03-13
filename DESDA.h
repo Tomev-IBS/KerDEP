@@ -153,7 +153,7 @@ class DESDA
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();
     std::vector<std::pair<int, double> > getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues);
-    double recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues);
+    void recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues);
 };
 
 #endif // DESDA_H

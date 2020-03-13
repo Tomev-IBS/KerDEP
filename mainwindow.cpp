@@ -1015,7 +1015,6 @@ void MainWindow::on_pushButton_start_clicked()
 
       _quantileEstimatorValue = DESDAAlgorithm._quantileEstimator;
 
-
       double maxKDEValue = 0.0;
 
       for(int i = 0; i < _lessElementsEstimatorY.size(); ++i)
@@ -1300,10 +1299,10 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 462 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 463 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", r = " + QString::number(DESDAAlgorithm._r) +
-                        ", lepsza wersja)\\";
+                        ", lepsza wersja z poprawionymi elementami odosobnionymi)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
