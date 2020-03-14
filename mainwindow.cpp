@@ -886,7 +886,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   //==================== SUMMARIC ERRORS=================//
 
-  horizontalOffset = 0.72;
+  horizontalOffset = 0.85;
   verticalOffset = 0.01;
 
   verticalOffset += verticalStep;
@@ -1299,10 +1299,10 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 467 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 468 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", r = " + QString::number(DESDAAlgorithm._r) +
-                        ", mMin = 200, m_KPSS = 1000, w=0.99)\\";
+                        ", Testy)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
