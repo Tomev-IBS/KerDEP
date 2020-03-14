@@ -69,7 +69,7 @@ class MainWindow : public QMainWindow
     double _maxEstimatorValueOnDomain = 0;
     double _previousUncommonClustersWeight = 0.0;
 
-    int screenGenerationFrequency = 2;
+    int screenGenerationFrequency = 1;
 
     // Errors
     double _errorEJ = 0.0, _errorEJP = 0.0;
