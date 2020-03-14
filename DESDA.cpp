@@ -152,6 +152,7 @@ void DESDA::performStep()
   );
 
   _sgmKPSS = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1); // sgmKPSS
+  _r = 0.01 + 0.09 * _sgmKPSS;
 
   updateWeights();
 
