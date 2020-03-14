@@ -1275,6 +1275,8 @@ void MainWindow::on_pushButton_start_clicked()
       sgmKPSS2TextLabel.setText("sgmKPSS2 = " + formatNumberForDisplay(
                                     2 * DESDAAlgorithm._sgmKPSS - 1));
 
+      rTextLabel.setText("r    = " + QString::number(DESDAAlgorithm._r));
+
       for(int i = 0; i < DESDAAlgorithm._examinedClustersW.size(); ++i){
         wTextLabels[i].setText(wTextLabelsLabels[i] + formatNumberForDisplay(
                                    DESDAAlgorithm._examinedClustersW[i]));
@@ -1299,7 +1301,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 469 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 470 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", r according to formula 52)\\";
 
