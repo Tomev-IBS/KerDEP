@@ -129,6 +129,8 @@ void DESDA::performStep()
   updateExaminedClustersIndices(); // For labels update
   updateDelta(); // To remove after new prognosis formulas are implemented
 
+  qDebug() << "Error domain size: " << getErrorDomain().size();
+
   // Calculate smoothing parameter for m
   auto currentClusters = getClustersForEstimator();
   _h = calculateH(currentClusters);
