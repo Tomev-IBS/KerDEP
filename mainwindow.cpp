@@ -1292,7 +1292,7 @@ void MainWindow::on_pushButton_start_clicked()
                                   DESDAAlgorithm._examinedClustersAs[i]));
       }
 
-      maxAbsATextLabel.setText("max(|a|)      = " + formatNumberForDisplay(
+      maxAbsATextLabel.setText("max(|a|)     = " + formatNumberForDisplay(
                                    DESDAAlgorithm.getMaxAbsAOnLastKPSSMSteps()));
 
       ui->widget_plot->replot();

@@ -793,11 +793,6 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
 {
   int m = sortedIndicesValues.size();
 
-  if(m == 0){
-      _quantileEstimator = 0;
-      return;
-  }
-
   double mr = _r * m;
 
   if(mr < 0.5){
