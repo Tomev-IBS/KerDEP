@@ -195,7 +195,7 @@ void DESDA::updateExaminedClustersIndices()
   auto m = getClustersForEstimator().size();
 
   for(auto val : desiredClustersLocations)
-      _examinedClustersIndices.push_back(int(val * m) - 1);
+      _examinedClustersIndices.push_back(round(val * m) - 1);
 }
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
