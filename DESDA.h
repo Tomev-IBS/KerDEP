@@ -141,10 +141,13 @@ class DESDA
     void updateExaminedClustersAsVector();
 
     // Domain reduction
-    double getDomainMinValue(const std::vector<clusterPtr> &clusters);
-    double getDomainMaxValue(const std::vector<clusterPtr> &clusters);
+    double getDomainMinValue(const std::vector<clusterPtr> &clusters, double h);
+    double getDomainMaxValue(const std::vector<clusterPtr> &clusters, double h);
+    QVector<double> getErrorDomain();
+    QVector<double> getWindowedErrorDomain();
     double _h;
-
+    double _hWindowed;
+    double calculateH(const std::vector<clusterPtr> &clusters);
 
 
     // Rare elements
