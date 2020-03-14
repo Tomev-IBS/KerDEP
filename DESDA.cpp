@@ -736,12 +736,12 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
 
 std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
 {
-  //qDebug() << "Accelerated KDE Values on clusters.";
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(consideredClusters);
 
-  //qDebug() << "Standard weights:" << standardWeights;
+  if(consideredClusters.size() == 1)
+      return {consideredClusters[0]->_currentKDEValue};
 
   sigmoidallyEnhanceClustersWeights(&consideredClusters);
 
@@ -752,6 +752,7 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
     auto c = consideredClusters[0];
     consideredClusters.erase(consideredClusters.begin(), consideredClusters.begin() + 1);
     _enhancedKDE->setClusters(consideredClusters);
+    _enhancedKDE->setSmoothingParameters({_h});
 
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
     AKDEValues.push_back(_enhancedKDE->getValue(&x));
