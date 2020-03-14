@@ -171,6 +171,10 @@ void DESDA::updateWeights()
   auto consideredClusters = getClustersForEstimator();
   auto m = consideredClusters.size();
 
+  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
+      _examinedClustersWStar.push_back(0);
+  }
+
   for(int i = 0; i < consideredClusters.size(); ++i){
     double newWeight = 2 * (1.0 - i * _sgmKPSS / m);
     consideredClusters[i]->setCWeight(newWeight);
@@ -191,7 +195,7 @@ void DESDA::updateExaminedClustersIndices()
   auto m = getClustersForEstimator().size();
 
   for(auto val : desiredClustersLocations)
-      _examinedClustersIndices.push_back(int(val * m));
+      _examinedClustersIndices.push_back(int(val * m) - 1);
 }
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
@@ -226,6 +230,7 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
 void DESDA::enhanceWeightsOfUncommonElements()
 {
   _examinedClustersIndicesInUncommonClustersVector.clear();
+
   auto uncommonElements = getAtypicalElements();
 
   std::vector<double> examinedClustersEnhancedWeights = {};
@@ -244,9 +249,13 @@ void DESDA::enhanceWeightsOfUncommonElements()
   }
 
   int i = 0;
+  _examinedClustersWStar3.clear();
   for(auto val : _examinedClustersIndicesInUncommonClustersVector){
     if(val == -1){
         _examinedClustersWStar3.push_back(1);
+    }
+    else if(val == -2){
+        _examinedClustersWStar3.push_back(0);
     }
     else {
         _examinedClustersWStar3.push_back(i);
@@ -553,6 +562,10 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 {
   _examinedClustersWStar2.clear();
 
+  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
+      _examinedClustersWStar2.push_back(0);
+  }
+
   QVector<qreal> clustersXs = {};
 
   for(auto c : *clusters)
@@ -573,6 +586,9 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
     _u_i = 1.0 / (1 + exp(- (_alpha * fabs(getStationarityTestValue()) - _beta)));
 
   _newWeightB = _u_i;
+
+  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j)
+      _examinedClustersWStar2.push_back(0);
 
   for(int i = 0; i < clusters->size(); ++i)
   {
@@ -728,6 +744,10 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
   recountQuantileEstimatorValue(sortedIndicesValues);
   std::vector<clusterPtr> atypicalElements = {};
 
+  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
+       _examinedClustersIndicesInUncommonClustersVector.push_back(-2);
+  }
+
   for(int i = 0; i < sortedIndicesValues.size(); ++i){
     if(_quantileEstimator > sortedIndicesValues[i].second){
       atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
@@ -831,8 +851,12 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
   _enhancedKDE->setSmoothingParameters({_h});
 
   _examinedClustersW.clear();
-  for(auto val : _examinedClustersIndices){
-      _examinedClustersW.push_back(currentClusters[val]->getCWeight());
+
+  for(auto index : _examinedClustersIndices){
+      if(index < 0)
+          _examinedClustersW.push_back(0);
+      else
+        _examinedClustersW.push_back(currentClusters[index]->getCWeight());
   }
 
   double domainMinValue = getDomainMinValue(currentClusters, _h);

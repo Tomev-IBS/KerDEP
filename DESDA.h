@@ -76,7 +76,7 @@ class DESDA
     double getMaxAbsAOnLastKPSSMSteps();
 
     /** According to 2020 first article **/
-    std::vector<unsigned int> _examinedClustersIndices = {};
+    std::vector<int> _examinedClustersIndices = {};
     std::vector<double> _maxAbsAs = {};
     std::vector<double> _examinedClustersAs = {};
     std::vector<double> _examinedClustersWStar = {};
