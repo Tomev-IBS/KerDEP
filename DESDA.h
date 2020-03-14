@@ -85,6 +85,9 @@ class DESDA
     std::vector<int> _examinedClustersIndicesInUncommonClustersVector = {};
     std::vector<double> _examinedClustersW = {};
 
+    QVector<double> getErrorDomain();
+    QVector<double> getWindowedErrorDomain();
+
   protected:
 
     const double _MAX_A = 1.5;
@@ -141,8 +144,7 @@ class DESDA
     // Domain reduction
     double getDomainMinValue(const std::vector<clusterPtr> &clusters, double h);
     double getDomainMaxValue(const std::vector<clusterPtr> &clusters, double h);
-    QVector<double> getErrorDomain();
-    QVector<double> getWindowedErrorDomain();
+
     double _h;
     double _hWindowed;
     double calculateH(const std::vector<clusterPtr> &clusters);

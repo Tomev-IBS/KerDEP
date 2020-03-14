@@ -18,6 +18,8 @@
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
 
+#include "DESDA.h"
+
 enum positionalSecondGradeEstimatorCountingMethods
 {
   STANDARD = 0,
@@ -62,18 +64,7 @@ class MainWindow : public QMainWindow
 
     double _longestStepExecutionInSecs = 0;
 
-    // Uncommon clusters dynamic parameter
-    const double MAX_A                = 1.5;
-    const double MIN_A                = 0.01;
-    double _a                         = 1;
-    double _maxEstimatorValueOnDomain = 0;
-    double _previousUncommonClustersWeight = 0.0;
-
     int screenGenerationFrequency = 10;
-
-    // Errors
-    double _errorEJ = 0.0, _errorEJP = 0.0;
-    std::vector<qreal> ModelValues;
 
     // Default settings
     const qreal MAX_X                 = 999.0;
@@ -111,12 +102,25 @@ class MainWindow : public QMainWindow
     QVector<double> _kernelPrognosisDerivativeValues;
 
     // Enhancement
+    QVector<double> _modelPlotY;
     QVector<double> _sigmoidallyEnhancedPlotY;
     QVector<double> _rareElementsEnhancedPlotY;
     QVector<double> _lessElementsEstimatorY;
     QVector<double> _weightedEstimatorY;
     QVector<double> _windowedEstimatorY;
-    QVector<double> _lastSigmoidallyEnhancedPlotY;
+
+    QVector<double> _windowedModelPlotY;
+    QVector<double> _windowedEstimatorErrorY;
+    QVector<double> _modelPlotErrorY;
+    QVector<double> _lessElementsEstimatorErrorY;
+    QVector<double> _weightedEstimatorErrorY;
+    QVector<double> _sigmoidallyEnhancedErrorPlotY;
+    QVector<double> _rareElementsEnhancedErrorPlotY;
+
+    QVector<double> getTargetFunctionValuesOnDomain(QVector<double> *domain);
+
+
+    // Errors
     double _summaricWindowKDEError1 = 0, _summaricKDEError1 = 0, _summaricKDEPError1 = 0, _summaricKDESError1 = 0, _summaricKDENError1 = 0,
     _summaricWindowKDEError2 = 0, _summaricKDEError2 = 0, _summaricKDEPError2 = 0, _summaricKDESError2 = 0, _summaricKDENError2 = 0,
     _summaricWindowKDEErrorSup = 0, _summaricKDEErrorSup = 0, _summaricKDEPErrorSup = 0, _summaricKDESErrorSup = 0, _summaricKDENErrorSup = 0,
@@ -124,6 +128,11 @@ class MainWindow : public QMainWindow
 
     double  modelExtrema = 0.0, windowKDEExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0, WKDEExtrema = 0.0, REESEExtrema = 0,
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;
+
+    double calculateL1Error(const QVector<double> &model, const QVector<double> estimated);
+    double calculateL2Error(const QVector<double> &model, const QVector<double> estimated);
+    double calculateSupError(const QVector<double> &model, const QVector<double> estimated);
+    double findExtrema(const QVector<double> &values, const QVector<double> domain);
 
     QVector<double> maxAs = {};
     QVector<std::pair<double, double>> _atypicalElementsValuesAndDerivatives = {};
@@ -145,8 +154,9 @@ class MainWindow : public QMainWindow
     int positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
 
     QStringList kernelTypes;
+    std::shared_ptr<function> targetFunction;
 
-    void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
+    void drawPlots(DESDA* DESDAAlgorithm);
     void clearPlot();
     void addPlot(const QVector<qreal> *Y, const QPen &pen);
     void resizePlot();

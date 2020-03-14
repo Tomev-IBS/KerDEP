@@ -61,6 +61,65 @@ void MainWindow::testNewFunctionalities()
   qDebug() << "Finish test.";
 }
 
+QVector<double> MainWindow::getTargetFunctionValuesOnDomain(QVector<double> *domain)
+{
+  QVector<double> values = {};
+  for(auto val : *domain){
+    std::vector<double> x = {val};
+    values.push_back(targetFunction->getValue(&x));
+  }
+  return values;
+}
+
+double MainWindow::calculateL1Error(const QVector<double> &model, const QVector<double> estimated)
+{
+  QVector<qreal> errorHolder = {};
+
+  for(int i = 0; i < model.size(); ++i)
+    errorHolder.push_back(fabs(model[i] - estimated[i]));
+
+  return numericIntegral(&errorHolder);
+}
+
+double MainWindow::calculateL2Error(const QVector<double> &model, const QVector<double> estimated)
+{
+  QVector<qreal> errorHolder = {};
+
+  for(int i = 0; i < model.size(); ++i)
+    errorHolder.push_back(pow(model[i] - estimated[i], 2));
+
+  return numericIntegral(&errorHolder);
+}
+
+double MainWindow::calculateSupError(const QVector<double> &model, const QVector<double> estimated)
+{
+  double sup = fabs(model[0] - estimated[0]);
+
+  for(int i = 0; i < model.size(); ++i){
+    double val = fabs(model[i] - estimated[i]);
+    sup = val > sup ? val : sup;
+  }
+
+  return sup;
+}
+
+double MainWindow::findExtrema(const QVector<double> &values, const QVector<double> domain)
+{
+  double extrema = domain[0];
+  double maxVal = values[0];
+
+  for(int i = 0; i < values.size(); ++i){
+    double val = values[i];
+
+    if(val > maxVal){
+      maxVal = val;
+      extrema = domain[i];
+    }
+  }
+
+  return extrema;
+}
+
 MainWindow::~MainWindow()
 {
   delete ui;
@@ -111,61 +170,60 @@ void MainWindow::setupKernelsTable()
     refreshTargetFunctionTable();
 }
 
-void MainWindow::drawPlots(kernelDensityEstimator* estimator, function* targetFunction)
+void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
 {
     clearPlot();
     resizePlot();
 
-    QVector<qreal> X;
-    QVector<qreal> modelDistributionY;
-
-    ModelValues.clear();
-
-    double modelMax = 0.0;
-
-    foreach(auto x, _domain)
-    {
-      double val = targetFunction->getValue(x.get());
-
-      if(val > modelMax)
-      {
-        modelMax = val;
-        modelExtrema = x->at(0);
-      }
-
-      modelDistributionY.append(val);
-      ModelValues.push_back(val);
-      X.append(x->at(0));
+    // Generate plot of model function
+    if(ui->checkBox_showEstimatedPlot->isChecked()){
+      QVector<qreal> modelDistributionY = getTargetFunctionValuesOnDomain(&_drawableDomain);
+      addPlot(&modelDistributionY, _MODEL_PLOT_PEN);
     }
 
-    // Generate plot of model function
-    if(ui->checkBox_showEstimatedPlot->isChecked())
-      addPlot(&modelDistributionY, _MODEL_PLOT_PEN);
-
     // Generate less elements KDE plot (navy blue)
-    if(ui->checkBox_showEstimationPlot->isChecked())
-        addPlot(&_lessElementsEstimatorY, _KDE_PLOT_PEN);
+    if(ui->checkBox_showEstimationPlot->isChecked()){
+      _lessElementsEstimatorY =
+          DESDAAlgorithm->getKDEValues(&_drawableDomain);
+      addPlot(&_lessElementsEstimatorY, _KDE_PLOT_PEN);
+    }
 
     // Generate weighted estimator plot (light blue)
-    if(ui->checkBox_showWeightedEstimationPlot->isChecked())
-        addPlot(&_weightedEstimatorY, _WEIGHTED_PLOT_PEN);
+    if(ui->checkBox_showWeightedEstimationPlot->isChecked()){
+        _weightedEstimatorY =
+            DESDAAlgorithm->getWeightedKDEValues(&_drawableDomain);
+      addPlot(&_weightedEstimatorY, _WEIGHTED_PLOT_PEN);
+    }
 
-    // Generate full estomator plot (BLACK)
-    if(ui->checbox_showFullEstimator->isChecked())
+    // Generate full estimator plot (BLACK)
+    if(ui->checbox_showFullEstimator->isChecked()){
+        _windowedEstimatorY =
+            DESDAAlgorithm->getWindowKDEValues(&_drawableDomain);
       addPlot(&_windowedEstimatorY, _WINDOWED_PLOT_PEN);
+    }
 
     // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
       addPlot(&_kernelPrognosisDerivativeValues, _DERIVATIVE_PLOT_PEN);
 
-    if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked())
-      addPlot(&_sigmoidallyEnhancedPlotY, _DESDA_KDE_PLOT_PEN);
+    if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()){
+        _sigmoidallyEnhancedPlotY =
+            DESDAAlgorithm->getEnhancedKDEValues(&_drawableDomain);
+        addPlot(&_sigmoidallyEnhancedPlotY, _DESDA_KDE_PLOT_PEN);
+    }
 
-    if(ui->checkBox_showUnusualClusters->isChecked())
+    if(ui->checkBox_showUnusualClusters->isChecked()){
+        _atypicalElementsValuesAndDerivatives =
+            DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+        _quantileEstimatorValue = DESDAAlgorithm->_quantileEstimator;
       markUncommonClusters();
+    }
 
-    if(ui->checkBox_REESEKDE->isChecked())
-      addPlot(&_rareElementsEnhancedPlotY, _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN);
+    if(ui->checkBox_REESEKDE->isChecked()){
+        _rareElementsEnhancedPlotY =
+            DESDAAlgorithm->getRareElementsEnhancedKDEValues(&_drawableDomain);
+        addPlot(&_rareElementsEnhancedPlotY, _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN);
+    }
     // Draw plots
     ui->widget_plot->replot();
 
@@ -720,8 +778,7 @@ void MainWindow::on_pushButton_start_clicked()
   fillMeans(&means);
   fillStandardDeviations(&stDevs);
 
-  std::shared_ptr<function>
-    targetFunction(generateTargetFunction(&means, &stDevs));
+  targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
   std::shared_ptr<kernelDensityEstimator>
     estimator(generateKernelDensityEstimator(dimensionsNumber));
@@ -769,8 +826,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
   gt.initialize(medoidsNumber, sampleSize);
-
-  _a = MIN_A;
 
   _longestStepExecutionInSecs = 0;
 
@@ -994,221 +1049,44 @@ void MainWindow::on_pushButton_start_clicked()
       // TR TODO: Notice that this should be placed inside DESDA algorithm
       DESDAAlgorithm.gamma = 1.0 / avgMaxA;
 
-      _windowedEstimatorY =
-          DESDAAlgorithm.getWindowKDEValues(&_drawableDomain);
-
-      _lessElementsEstimatorY =
-          DESDAAlgorithm.getKDEValues(&_drawableDomain);
-
-      _weightedEstimatorY =
-          DESDAAlgorithm.getWeightedKDEValues(&_drawableDomain);
-
-      _sigmoidallyEnhancedPlotY =
-          DESDAAlgorithm.getEnhancedKDEValues(&_drawableDomain);
-
-      _rareElementsEnhancedPlotY =
-          DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_drawableDomain);      
-
-      _atypicalElementsValuesAndDerivatives =
-                DESDAAlgorithm.getAtypicalElementsValuesAndDerivatives();
-
-      _quantileEstimatorValue = DESDAAlgorithm._quantileEstimator;
-
-      double maxKDEValue = 0.0;
-
-      for(int i = 0; i < _lessElementsEstimatorY.size(); ++i)
-      {
-        double val = _lessElementsEstimatorY[i];
-
-        if(val > maxKDEValue)
-        {
-          maxKDEValue = val;
-          KDEExtrema = _drawableDomain[i];
-        }
-      }
-
-      maxKDEValue = 0.0;
-
-      for(int i = 0; i < _weightedEstimatorY.size(); ++i)
-      {
-        double val = _weightedEstimatorY[i];
-
-        if(val > maxKDEValue)
-        {
-          maxKDEValue = val;
-          WKDEExtrema = _drawableDomain[i];
-        }
-      }
-
-      maxKDEValue = 0.0;
-
-      for(int i = 0; i < _sigmoidallyEnhancedPlotY.size(); ++i)
-      {
-        double val = _sigmoidallyEnhancedPlotY[i];
-
-        if(val > maxKDEValue)
-        {
-          maxKDEValue = val;
-          KDEPExtrema = _drawableDomain[i];
-        }
-      }
-
-      maxKDEValue = 0;
-
-      for(int i = 0; i < _rareElementsEnhancedPlotY.size(); ++i)
-      {
-        double val = _rareElementsEnhancedPlotY[i];
-
-        if(val > maxKDEValue)
-        {
-          maxKDEValue = val;
-          REESEExtrema = _drawableDomain[i];
-        }
-      }
-
-      maxKDEValue = 0;
-
-      for(int i = 0; i < _windowedEstimatorY.size(); ++i)
-      {
-        double val = _windowedEstimatorY[i];
-
-        if(val > maxKDEValue)
-        {
-          maxKDEValue = val;
-          windowKDEExtrema = _drawableDomain[i];
-        }
-      }
-
-      drawPlots(estimator.get(), targetFunction.get());
-
-      QVector<qreal> errorHolder = {};
-
-      // ser1_ej + sersup_ej
-      double sup_ej = 0.0, sup_ejp = 0.0, sup_ejs = 0.0;
-
-      for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - _lessElementsEstimatorY[i]);
-        errorHolder.push_back(val);
-        sup_ej = val > sup_ej ? val : sup_ej;
-      }
-
-      _errorEJ = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser1_ejp + sersup_ejp
-      for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - _sigmoidallyEnhancedPlotY[i]);
-        errorHolder.push_back(val);
-        sup_ejp = val > sup_ejp ? val : sup_ejp;
-      }
-
-      _errorEJP = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser_ejs + sersup_ejs
-      for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - _weightedEstimatorY[i]);
-        errorHolder.push_back(val);
-        sup_ejs = val > sup_ejs ? val : sup_ejs;
-      }
-
-      double error_ejs = 0;
-      error_ejs = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser_1ejn + sersup_ejn
-      double errorEJN = 0, sup_ejn = 0;
-      for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - _rareElementsEnhancedPlotY[i]);
-        errorHolder.push_back(val);
-        sup_ejn = val > sup_ejn ? val : sup_ejn;
-      }
-
-      errorEJN = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser_1ejw + sersup_ejw
-      double errorEJW = 0, sup_ejw = 0;
-      for(int i = 0; i < ModelValues.size(); ++i){
-        double val = fabs(ModelValues[i] - _windowedEstimatorY[i]);
-        errorHolder.push_back(val);
-        sup_ejw = val > sup_ejw ? val : sup_ejw;
-      }
-
-      errorEJW = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      double error2EJ = 0.0, error2EJP = 0.0, error2EJS = 0.0, error2EJN = 0, error2EJW = 0;
-
-      // ser2_ej
-      for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - _lessElementsEstimatorY[i], 2));
-      }
-
-      error2EJ = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser2_ejp
-      for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - _sigmoidallyEnhancedPlotY[i], 2));
-      }
-
-      error2EJP = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser2_ejp
-      for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - _weightedEstimatorY[i], 2));
-      }
-
-      error2EJS = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser2_ejn
-      for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - _rareElementsEnhancedPlotY[i], 2));
-      }
-
-      error2EJN = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      // ser2_ejw
-      for(int i = 0; i < ModelValues.size(); ++i){
-        errorHolder.push_back(pow(ModelValues[i] - _windowedEstimatorY[i], 2));
-      }
-
-      error2EJW = numericIntegral(&errorHolder);
-      errorHolder.clear();
-
-      double mod_ejw = 0, mod_ej = 0, mod_ejp = 0, mod_ejs = 0, mod_ejn = 0;
-      mod_ej = fabs(modelExtrema - KDEExtrema);
-      mod_ejp = fabs(modelExtrema - KDEPExtrema);
-      mod_ejs = fabs(modelExtrema - WKDEExtrema);
-      mod_ejn = fabs(modelExtrema - REESEExtrema);
-      mod_ejw = fabs(modelExtrema - windowKDEExtrema);
-
+      // Error calculations
       if(stepNumber >= 2000)
       {
-        _summaricKDEError1    += _errorEJ;
-        _summaricKDEPError1   += _errorEJP;
-        _summaricKDESError1   += error_ejs;
-        _summaricKDENError1   += errorEJN;
-        _summaricWindowKDEError1 += errorEJW;
-        _summaricKDEError2    += error2EJ;
-        _summaricKDEPError2   += error2EJP;
-        _summaricKDESError2   += error2EJS;
-        _summaricKDENError2   += error2EJN;
-        _summaricWindowKDEError2 += error2EJW;
-        _summaricKDEErrorSup  += sup_ej;
-        _summaricKDEPErrorSup += sup_ejp;
-        _summaricKDESErrorSup += sup_ejs;
-        _summaricKDENErrorSup += sup_ejn;
-        _summaricWindowKDEErrorSup += sup_ejw;
-        _summaricKDEErrorMod  += mod_ej;
-        _summaricKDEPErrorMod += mod_ejp;
-        _summaricKDESErrorMod += mod_ejs;
-        _summaricKDENErrorMod += mod_ejn;
-        _summaricWindowKDEErrorMod += mod_ejw;
+        auto windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
+        auto errorDomain = DESDAAlgorithm.getErrorDomain();
+
+        _windowedModelPlotY = getTargetFunctionValuesOnDomain(&windowedErrorDomain);
+        _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&windowedErrorDomain);
+        _modelPlotErrorY = getTargetFunctionValuesOnDomain(&errorDomain);
+        _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&errorDomain);
+        _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&errorDomain);
+        _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&errorDomain);
+        _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&errorDomain);
+
+
+        _summaricWindowKDEError1 += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY);
+        _summaricKDEError1    += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _summaricKDEPError1   += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY);
+        _summaricKDESError1   += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
+        _summaricKDENError1   += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+
+        _summaricWindowKDEError2 += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY);
+        _summaricKDEError2    += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _summaricKDEPError2   += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY);
+        _summaricKDESError2   += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
+        _summaricKDENError2   += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+
+        _summaricWindowKDEErrorSup += calculateSupError(_windowedModelPlotY, _windowedEstimatorErrorY);
+        _summaricKDEErrorSup  += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _summaricKDEPErrorSup += calculateSupError(_modelPlotErrorY, _weightedEstimatorErrorY);
+        _summaricKDESErrorSup += calculateSupError(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
+        _summaricKDENErrorSup += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+
+        _summaricWindowKDEErrorMod += fabs(findExtrema(_windowedModelPlotY, windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, windowedErrorDomain));
+        _summaricKDEErrorMod  += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_lessElementsEstimatorErrorY, errorDomain));
+        _summaricKDEPErrorMod += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_weightedEstimatorErrorY, errorDomain));
+        _summaricKDESErrorMod += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, errorDomain));
+        _summaricKDENErrorMod += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, errorDomain));
       }
 
       // ============ SUMS =========== //
@@ -1295,14 +1173,17 @@ void MainWindow::on_pushButton_start_clicked()
       maxAbsATextLabel.setText("max(|a|)     = " + formatNumberForDisplay(
                                    DESDAAlgorithm.getMaxAbsAOnLastKPSSMSteps()));
 
-      ui->widget_plot->replot();
+      //ui->widget_plot->replot();
+
+      drawPlots(&DESDAAlgorithm);
+
       qApp->processEvents();
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 479 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 480 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", testy dziedziny dla całek)\\";
+                        ", uaktualnione liczenie błędów,  mmin=200, mkpss=500)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
