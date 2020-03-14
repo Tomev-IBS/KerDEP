@@ -38,8 +38,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _mE = 1000;
   _m = _maxM;
-  _minM = _maxM / 10;
-  _kpssM = _maxM;
+  _minM = _maxM / 5;
+  _kpssM = _maxM / 2;
   int l = round(kpssX * pow(_kpssM / 100, 0.25));
 
   _sgmKPSS = -1;
@@ -129,8 +129,6 @@ void DESDA::performStep()
   updateExaminedClustersIndices(); // For labels update
   updateDelta(); // To remove after new prognosis formulas are implemented
 
-  //qDebug() << "Error domain size: " << getErrorDomain().size();
-
   // Calculate smoothing parameter for m
   auto currentClusters = getClustersForEstimator();
   _h = calculateH(currentClusters);
@@ -163,6 +161,8 @@ void DESDA::performStep()
 
   // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
+
+  qDebug() << "Error domain size: " << getErrorDomain().size();
 
   ++_stepNumber;
 }
