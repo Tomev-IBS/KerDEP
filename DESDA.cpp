@@ -321,6 +321,11 @@ void DESDA::updateMaxAbsAVector()
   // Ensure size is as expected
   while(_maxAbsAs.size() > _maxM)
       _maxAbsAs.pop_back();
+
+  _examinedClustersAs.clear();
+  for(auto index : _examinedClustersIndices){
+      _examinedClustersAs.push_back(_maxAbsAs[index]);
+  }
 }
 
 /** DESDA::getCurrentMaxAbsA
