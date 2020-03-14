@@ -35,9 +35,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _maxM = 2 * mE;
 
   _samplingAlgorithm->changeReservoirMaxSize(_maxM);
-  _clustersExaminedForAsIndices = {(unsigned int)(0.2 * _maxM),
-                                   (unsigned int)(0.5 * _maxM),
-                                   (unsigned int)(0.8 * _maxM)};
 
   _mE = 1000;
   _m = _maxM;
@@ -104,21 +101,19 @@ double sigmoid(double x){
 void DESDA::performStep()
 {
   // Reservoir movement
-    _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
+  _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
 
-    std::shared_ptr<cluster> newCluster =
-        std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
-    newCluster->setTimestamp(_stepNumber);
+  std::shared_ptr<cluster> newCluster =
+      std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
+  newCluster->setTimestamp(_stepNumber);
 
-    while(_clusters->size() >= _maxM)
-    {
-      _clusters->pop_back();
-      _objects.erase(_objects.begin(), _objects.begin() + 1);
-    }
+  while(_clusters->size() >= _maxM)
+  {
+    _clusters->pop_back();
+    _objects.erase(_objects.begin(), _objects.begin() + 1);
+  }
 
-    _clusters->insert(_clusters->begin(), newCluster);
-
-    updateExaminedClustersIndices();
+  _clusters->insert(_clusters->begin(), newCluster);
 
   // Count h for window estimator
   _hWindowed = calculateH(*_clusters);
@@ -131,8 +126,8 @@ void DESDA::performStep()
 
   // M update
   updateM();
+  updateExaminedClustersIndices(); // For labels update
   updateDelta(); // To remove after new prognosis formulas are implemented
-  updateExaminedClustersAsVector(); // For labels update
 
   // Calculate smoothing parameter for m
   auto currentClusters = getClustersForEstimator();
@@ -276,11 +271,10 @@ void DESDA::updatePrognosisParameters()
 
 void DESDA::updateM()
 {
-  if(emE.predictionParameters.size() < 2) return;
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
   _m = (_maxM - (_maxM - _minM) * _sgmKPSS);
-  _m = _m < _clusters->size() + 1 ? _m : _clusters->size() + 1;
+  _m = _m < _clusters->size() ? _m : _clusters->size();
 }
 
 void DESDA::updateDelta()
@@ -373,18 +367,6 @@ void DESDA::updateAverageMaxAbsAsInLastMinMSteps()
     }
 
     _averageMaxPredictionAInLastMinMSteps = sumOfConsideredAbsAs / consideredElementsNumber;
-}
-
-void DESDA::updateExaminedClustersAsVector()
-{
-    _examinedClustersAs.clear();
-
-    for(auto val : _clustersExaminedForAsIndices){
-      if(_clusters->size() > val)
-        _examinedClustersAs.push_back((*_clusters)[val]->predictionParameters[1]);
-      else
-        _examinedClustersAs.push_back(0);
-    }
 }
 
 double DESDA::getDomainMinValue(const std::vector<clusterPtr> &clusters, double h)

@@ -854,7 +854,7 @@ void MainWindow::on_pushButton_start_clicked()
                        "max(|a|)      = 0");
   verticalOffset += verticalStep;
 
-  std::vector<QString> aTextLabelsLabels = {"a(int(0.2m0)) = ", "a(int(0.5m0)) = ", "a(int(0.8m0)) = "};
+  std::vector<QString> aTextLabelsLabels = {"a(int(0.2m)) = ", "a(int(0.5m)) = ", "a(int(0.8m)) = "};
   std::vector<plotLabel> aTextLabels = {};
 
   for(int i = 0; i < aTextLabelsLabels.size(); ++i){
@@ -1300,9 +1300,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 473 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 474 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", r according to formula 52, mMin=200, mKPSS = m_a = 1000, w = 0.99, fixed h)\\";
+                        ", testy)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
