@@ -15,7 +15,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
              std::shared_ptr<kernelDensityEstimator> enchancedKDE,
              double weightModifier,
-             weightedSilvermanSmoothingParameterCounter *smoothingParamCounter,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
@@ -23,10 +22,9 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              double newWeightB, int mE, int kpssX, int lambda):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
-  _smoothingParamCounter(smoothingParamCounter), _clusters(clusters),
-  _storedMedoids(storedMedoids), _r(desiredRarity),
-  _grpThread(gt), _newWeightB(newWeightB),
-  _enhancedKDE(enchancedKDE), _mE(mE), _lambda(lambda)
+  _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
+  _grpThread(gt), _newWeightB(newWeightB), _enhancedKDE(enchancedKDE), _mE(mE),
+  _lambda(lambda)
 {
   _objects.clear();
   std::shared_ptr<sample> e1000Sample =
@@ -129,42 +127,37 @@ void DESDA::performStep()
   stationarityTest->addNewSample(
     std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
-
   _sgmKPSS = sigmoid(_psi * stationarityTest->getTestsValue() - 11.1); // sgmKPSS
 
   // M update
   updateM();
   updateDelta(); // To remove after new prognosis formulas are implemented
+  updateExaminedClustersAsVector(); // For labels update
 
   // Calculate smoothing parameter for m
   auto currentClusters = getClustersForEstimator();
   _h = calculateH(currentClusters);
 
-  /*
-  _smoothingParamCounter->setClusters(_clusters, 0);
-  std::vector<double> smoothingParameters = { _smoothingParamCounter->countSmoothingParameterValue() * _smoothingParameterMultiplier };
-  _estimator->setSmoothingParameters(smoothingParameters);
-  _estimatorDerivative->setSmoothingParameters(smoothingParameters);
-  _enhancedKDE->setSmoothingParameters(smoothingParameters);
-  _h = smoothingParameters[0]; // For smaller domain counting
-  */
+  // Update weights
+  updateWeights();
 
   qDebug() << "Reservoir size in step " << _stepNumber
            << " is: " << getClustersForEstimator().size() << ".";
 
+
+  // Update prognosis
   countKDEValuesOnClusters();
   updatePrognosisParameters();
+  emE._currentKDEValue = getNewEmEValue(); // To be removed
+  emE.updatePrediction(); // To be removed
+
+  // Update a
   updateMaxAbsAVector();
   updateAverageMaxAbsAsInLastKPSSMSteps();
   updateAverageMaxAbsAsInLastMinMSteps();
-  updateExaminedClustersAsVector();
 
+  // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
-
-  updateWeights();
-
-  emE._currentKDEValue = getNewEmEValue();
-  emE.updatePrediction();
 
   ++_stepNumber;
 }
@@ -817,6 +810,12 @@ std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const 
 void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues)
 {
   int m = sortedIndicesValues.size();
+
+  if(m == 0){
+      _quantileEstimator = 0;
+      return;
+  }
+
   double mr = _r * m;
 
   if(mr < 0.5){

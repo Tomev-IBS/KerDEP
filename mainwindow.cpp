@@ -790,7 +790,6 @@ void MainWindow::on_pushButton_start_clicked()
     kernelPrognoser,
     _enchancedKDE,
     ui->lineEdit_weightModifier->text().toDouble(),
-    &smoothingParamCounter,
     algorithm,
     clusters,
     &storedMedoids,
@@ -806,7 +805,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "iw    = " + QString::number(screenGenerationFrequency));
+                       "iw   = " + QString::number(screenGenerationFrequency));
   verticalOffset += verticalStep;
 
   plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -1301,9 +1300,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 472 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 473 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", r according to formula 52, testy)\\";
+                        ", r according to formula 52, mMin=200, mKPSS = m_a = 1000, w = 0.99, fixed h)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

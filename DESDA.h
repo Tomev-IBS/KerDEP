@@ -18,7 +18,6 @@ class DESDA
           std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
           std::shared_ptr<kernelDensityEstimator> enchancedKDE,
           double weightModifier,
-          weightedSilvermanSmoothingParameterCounter *_smoothingParamCounter,
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::shared_ptr<cluster>> *storedMedoids,
