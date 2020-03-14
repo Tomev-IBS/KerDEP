@@ -805,6 +805,10 @@ void MainWindow::on_pushButton_start_clicked()
                        "i    = 0");
   verticalOffset += verticalStep;
 
+  plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "iw    = " + QString::number(screenGenerationFrequency));
+  verticalOffset += verticalStep;
+
   plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "seed = " + ui->lineEdit_seed->text());
   verticalOffset += verticalStep;
@@ -961,7 +965,7 @@ void MainWindow::on_pushButton_start_clicked()
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    if(stepNumber % 10 == 0)
+    if(stepNumber % screenGenerationFrequency == 0)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
 
@@ -1295,10 +1299,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 468 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 469 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", r = " + QString::number(DESDAAlgorithm._r) +
-                        ", Testy)\\";
+                        ", r according to formula 52)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
