@@ -39,7 +39,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = 1000;
   _m = _maxM;
   _minM = _maxM / 10;
-  _kpssM = _maxM / 2;
+  _kpssM = _maxM;
   int l = round(kpssX * pow(_kpssM / 100, 0.25));
 
   _sgmKPSS = -1;
@@ -161,8 +161,6 @@ void DESDA::performStep()
 
   // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
-
-  qDebug() << "Error domain size: " << getErrorDomain().size();
 
   ++_stepNumber;
 }
@@ -426,7 +424,7 @@ QVector<double> DESDA::getErrorDomain() {
 
     QVector<double> domain = {};
 
-    double stepSize = (domainMaxValue - domainMinValue) / _maxM;
+    double stepSize = (domainMaxValue - domainMinValue) / (_maxM / 10);
 
     for(auto val = domainMinValue; val <= domainMaxValue;  val += stepSize){
       domain.push_back(val);
@@ -445,7 +443,7 @@ QVector<double> DESDA::getWindowedErrorDomain()
 
     QVector<double> domain = {};
 
-    double stepSize = (domainMaxValue - domainMinValue) / _maxM;
+    double stepSize = (domainMaxValue - domainMinValue) / (_maxM / 10);
 
     for(auto val = domainMinValue; val <= domainMaxValue;  val += stepSize){
       domain.push_back(val);
