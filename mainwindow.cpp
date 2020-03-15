@@ -1181,9 +1181,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 485 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 486 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", uaktualniony wzór 36,  mmin=100, mkpss=500)\\";
+                        ", uaktualniony wzór 36,  mmin=100, mkpss=100)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
