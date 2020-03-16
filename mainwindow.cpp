@@ -859,6 +859,7 @@ void MainWindow::on_pushButton_start_clicked()
                        "i    = 0");
   verticalOffset += verticalStep;
 
+  screenGenerationFrequency = 10;
   plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "iw   = " + QString::number(screenGenerationFrequency));
   verticalOffset += verticalStep;
@@ -1181,7 +1182,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 488 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 489 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", mmin=mkpss=100)\\";
 
