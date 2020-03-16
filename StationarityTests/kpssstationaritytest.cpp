@@ -1,6 +1,7 @@
 #include "kpssstationaritytest.h"
 
 #include <cmath>
+#include <QDebug>
 
 KPSSStationarityTest::KPSSStationarityTest(int maxM)
   : _maxM(maxM)

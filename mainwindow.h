@@ -64,7 +64,7 @@ class MainWindow : public QMainWindow
 
     double _longestStepExecutionInSecs = 0;
 
-    int screenGenerationFrequency = 10;
+    int screenGenerationFrequency = 1;
 
     // Default settings
     const qreal MAX_X                 = 999.0;

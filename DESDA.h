@@ -43,7 +43,7 @@ class DESDA
 
     double delta = 0, gamma = 50000.0;
     double w_E = 0.98; // w_EmE
-    double avg = 0;
+    double _avg = 0;
     double _stDev = 1;
 
     int _maxM = 1000;
