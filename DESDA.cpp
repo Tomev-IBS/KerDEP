@@ -46,7 +46,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _stepNumber = 1;
 
-  stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));  
+  stationarityTest.reset(new KPSSStationarityTest(_kpssM, _avg, l));
 }
 
 int sgn(double val)
@@ -98,6 +98,17 @@ double sigmoid(double x){
     return 1.0 / (1.0 + exp(-x));
 }
 
+double average(std::vector<double> values){
+  double average = 0;
+
+  for(auto val : values)
+    average += val;
+
+  average /= values.size();
+
+  return average;
+}
+
 void DESDA::performStep()
 {
   // Reservoir movement
@@ -119,6 +130,21 @@ void DESDA::performStep()
   _hWindowed = calculateH(*_clusters);
 
   // KPSS count
+  std::vector<double> values = {};
+
+  if(_clusters->size() > _kpssM){
+    for(int i = 0; i < _kpssM; ++i){
+      auto c = (*_clusters)[i];
+      values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+    }
+  } else {
+    for(auto c : *_clusters){
+      values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+    }
+  }
+
+  _avg = average(values);
+
   stationarityTest->addNewSample(
     std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
@@ -138,7 +164,6 @@ void DESDA::performStep()
 
   qDebug() << "Reservoir size in step " << _stepNumber
            << " is: " << getClustersForEstimator().size() << ".";
-
 
   // Update prognosis
   countKDEValuesOnClusters();

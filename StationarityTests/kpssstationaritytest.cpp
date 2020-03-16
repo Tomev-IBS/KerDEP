@@ -1,6 +1,7 @@
 #include "kpssstationaritytest.h"
 
 #include <cmath>
+#include <QDebug>
 
 KPSSStationarityTest::KPSSStationarityTest(int maxM, double &avg, int l)
   : _avg(avg), _l(l), _maxM(maxM)
