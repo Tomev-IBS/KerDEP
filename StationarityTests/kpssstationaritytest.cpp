@@ -12,16 +12,17 @@ double KPSSStationarityTest::getTestsValue()
 {
   int T = _samples.size();
 
-  if(T == 0) return 0;
+  if(T < 2) return 0;
 
   double testValue = 0.0;
 
   _l = round(4 * pow(T / 100, 0.25));
 
+  calculateRegressionRests();
   testValue = getSumOfSquaredRegressionRests();
   testValue /= T * T;
 
-  testValue /=  getLongRunVarianceEstimator();
+  testValue /= getLongRunVarianceEstimator();
 
   return testValue;
 }
@@ -57,8 +58,6 @@ void KPSSStationarityTest::calculateRegressionRests()
 // It's sum of S_t^2
 double KPSSStationarityTest::getSumOfSquaredRegressionRests()
 {
-  calculateRegressionRests();
-
   double ithSum = 0;
   double sumOfSquaredRests = 0;
 
