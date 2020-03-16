@@ -8,17 +8,18 @@
 class KPSSStationarityTest : public i_stationarityTest
 {
   public:
-    KPSSStationarityTest(int maxM, double &avg, int l = 0);
+    KPSSStationarityTest(int maxM);
     double getTestsValue();
     void addNewSample(double sample);
     void setSampleSize(int newSize);
   private:
     int _l = 0;
     int _maxM = 0;
-    double & _avg;
+    std::vector<double> _samples = {};
     std::vector<double> _regressionRests = {};
 
-    double getSumOfRegressionRests();
+    void calculateRegressionRests();
+    double getSumOfSquaredRegressionRests();
     double getLongRunVarianceEstimator();
     double getBarlettWindow(int s, int l);
 };

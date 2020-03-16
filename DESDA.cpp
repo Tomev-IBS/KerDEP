@@ -40,13 +40,12 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _minM = _maxM / 10;
   _kpssM = _maxM / 2;
-  int l = round(kpssX * pow(_kpssM / 100, 0.25));
 
   _sgmKPSS = -1;
 
   _stepNumber = 1;
 
-  stationarityTest.reset(new KPSSStationarityTest(_kpssM, avg, l));  
+  stationarityTest.reset(new KPSSStationarityTest(_kpssM));
 }
 
 int sgn(double val)

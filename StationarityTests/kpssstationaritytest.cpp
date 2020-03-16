@@ -2,26 +2,23 @@
 
 #include <cmath>
 
-KPSSStationarityTest::KPSSStationarityTest(int maxM, double &avg, int l)
-  : _avg(avg), _l(l), _maxM(maxM)
+KPSSStationarityTest::KPSSStationarityTest(int maxM)
+  : _maxM(maxM)
 {}
 
 // It's eta with hat from 1992 KPSS work.
 double KPSSStationarityTest::getTestsValue()
 {
-  if(_regressionRests.size() == 0)
-    return 0;
+  int T = _samples.size();
+
+  if(T == 0) return 0;
 
   double testValue = 0.0;
-  int m = std::min(_maxM, static_cast<int>(_regressionRests.size()));
 
-  // Testing linear change of l basing on 1992 KPSS insight on it's
-  // relation with m (page 169, bottom).
-  // TR TODO: This should be put outside of the test.
-  //_l = floor(12.0 * pow(m / 100, 0.25) * m / 500);
+  _l = round(4 * pow(T / 100, 0.25));
 
-  testValue = getSumOfRegressionRests();
-  testValue /= m * m;
+  testValue = getSumOfSquaredRegressionRests();
+  testValue /= T * T;
 
   testValue /=  getLongRunVarianceEstimator();
 
@@ -30,11 +27,10 @@ double KPSSStationarityTest::getTestsValue()
 
 void KPSSStationarityTest::addNewSample(double sample)
 {
-  _regressionRests.push_back(sample - _avg);
+  _samples.push_back(sample);
 
-  while(_regressionRests.size() > _maxM){
-    _regressionRests.erase(_regressionRests.begin(), _regressionRests.begin() + 1);
-  }
+  while(_samples.size() > _maxM)
+    _samples.erase(_samples.begin(), _samples.begin() + 1);
 }
 
 void KPSSStationarityTest::setSampleSize(int newSize)
@@ -42,18 +38,35 @@ void KPSSStationarityTest::setSampleSize(int newSize)
   _maxM = newSize;
 }
 
-// It's sum of S_t^2
-double KPSSStationarityTest::getSumOfRegressionRests()
+void KPSSStationarityTest::calculateRegressionRests()
 {
+  _regressionRests.clear();
+
+  double averageSampleValue = 0;
+
+  for(auto val : _samples)
+    averageSampleValue += val;
+
+  averageSampleValue /= _samples.size();
+
+  for(auto val : _samples)
+    _regressionRests.push_back(val - averageSampleValue);
+}
+
+// It's sum of S_t^2
+double KPSSStationarityTest::getSumOfSquaredRegressionRests()
+{
+  calculateRegressionRests();
+
   double ithSum = 0;
-  double sumOfSquaredSums = 0;
+  double sumOfSquaredRests = 0;
 
   for(auto val : _regressionRests) {
     ithSum += val;
-    sumOfSquaredSums += ithSum * ithSum;
+    sumOfSquaredRests += ithSum * ithSum;
   }
 
-  return sumOfSquaredSums;
+  return sumOfSquaredRests;
 }
 
 // It's s^2(l) from 1992 KPSS work.
@@ -61,7 +74,7 @@ double KPSSStationarityTest::getLongRunVarianceEstimator()
 {
   double estimator = 0;
 
-  int m = std::min(_maxM, static_cast<int>(_regressionRests.size()));
+  int T = _samples.size();
 
   for(auto val : _regressionRests)
     estimator += val * val;
@@ -72,13 +85,13 @@ double KPSSStationarityTest::getLongRunVarianceEstimator()
 
     esSum = 0;
 
-    for(auto t = s + 1; t < m; ++t)
+    for(auto t = s + 1; t < T; ++t)
       esSum += (_regressionRests[t]) * (_regressionRests[t - s]);
 
     estimator += 2 * esSum * getBarlettWindow(s, _l);
   }
 
-  estimator /= m;
+  estimator /= T;
 
   return estimator;
 }
