@@ -39,8 +39,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = 1000;
   _m = _maxM;
 
-  _minM = _maxM / 5;
-  _kpssM = _maxM / 5;
+  _minM = _maxM;
+  _kpssM = _maxM;
 
   _sgmKPSS = -1;
   _stepNumber = 1;
@@ -126,7 +126,7 @@ void DESDA::performStep()
   _clusters->insert(_clusters->begin(), newCluster);
 
   // Count h for window estimator
-  _hWindowed = calculateH(*_clusters);
+  _hWindowed = 0.9 * calculateH(*_clusters);
 
   // KPSS count
   std::vector<double> values = {};
@@ -156,7 +156,7 @@ void DESDA::performStep()
 
   // Calculate smoothing parameter for m
   auto currentClusters = getClustersForEstimator();
-  _h = calculateH(currentClusters);
+  _h = 0.9 * calculateH(currentClusters);
 
   // Update weights
   updateWeights();
