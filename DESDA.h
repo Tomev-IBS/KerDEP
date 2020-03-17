@@ -151,7 +151,7 @@ class DESDA
 
 
     // Rare elements
-    double _psi = 10.2;
+    double _psi = 20.4;
 
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();

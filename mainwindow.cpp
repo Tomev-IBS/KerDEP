@@ -876,6 +876,10 @@ void MainWindow::on_pushButton_start_clicked()
                        "m0   = " + ui->lineEdit_sampleSize->text());
   verticalOffset += verticalStep;
 
+  plotLabel mMinTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "mmin = " + QString::number(DESDAAlgorithm._minM));
+  verticalOffset += verticalStep;
+
   plotLabel mTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "m    = " + QString::number(sampleSize));
   verticalOffset += verticalStep;
