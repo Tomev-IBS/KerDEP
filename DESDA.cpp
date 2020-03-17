@@ -40,7 +40,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10;
-  _kpssM = _maxM / 10;
+  _kpssM = _maxM / 5;
 
   _sgmKPSS = -1;
   _stepNumber = 1;
