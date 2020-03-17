@@ -81,12 +81,12 @@ double KPSSStationarityTest::getLongRunVarianceEstimator()
 
   double esSum = 0;
 
-  for(auto s = 0; s < _l; ++s){
+  for(auto s = 1; s <= _l; ++s){
 
     esSum = 0;
 
-    for(auto t = s + 1; t < T; ++t)
-      esSum += (_regressionRests[t]) * (_regressionRests[t - s]);
+    for(auto t = s + 1; t <= T; ++t)
+      esSum += (_regressionRests[t - 1]) * (_regressionRests[t - s - 1]);
 
     estimator += 2 * esSum * getBarlettWindow(s, _l);
   }
