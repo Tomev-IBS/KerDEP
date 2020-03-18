@@ -263,7 +263,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
-    double weightEnhancer = 2 * sigmoid(4 * ue->predictionParameters[1] / _averageMaxPredictionAInLastKPSSMSteps) - 1;
+    double weightEnhancer = 2 * sigmoid(4 * ue->predictionParameters[1] / _averageMaxPredictionAInLastMinMSteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     for(int j = 0; j < std::count(_examinedClustersIndicesInUncommonClustersVector.begin(),
@@ -591,7 +591,7 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
     double beta = 4 * c->predictionParameters[1];
-    beta /= _averageMaxPredictionAInLastKPSSMSteps;
+    beta /= _averageMaxPredictionAInLastMinMSteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
 
     double weightEnhancement = 1 + _sgmKPSS * beta;

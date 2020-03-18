@@ -1176,7 +1176,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       maxAbsATextLabel.setText("avg max(|a|) = " + formatNumberForDisplay(
-                                   DESDAAlgorithm._averageMaxPredictionAInLastKPSSMSteps));
+                                   DESDAAlgorithm._averageMaxPredictionAInLastMinMSteps));
 
       //ui->widget_plot->replot();
 
@@ -1186,9 +1186,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 495 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 496 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", testy)\\";
+                        ", testy, średnia z a na mmin)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
