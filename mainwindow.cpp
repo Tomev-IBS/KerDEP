@@ -1175,8 +1175,8 @@ void MainWindow::on_pushButton_start_clicked()
                                   DESDAAlgorithm._examinedClustersAs[i]));
       }
 
-      maxAbsATextLabel.setText("max(|a|)     = " + formatNumberForDisplay(
-                                   DESDAAlgorithm.getMaxAbsAOnLastKPSSMSteps()));
+      maxAbsATextLabel.setText("avg max(|a|) = " + formatNumberForDisplay(
+                                   DESDAAlgorithm._averageMaxPredictionAInLastKPSSMSteps));
 
       //ui->widget_plot->replot();
 

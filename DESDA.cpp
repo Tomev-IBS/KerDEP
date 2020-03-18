@@ -371,7 +371,7 @@ void DESDA::updateMaxAbsAVector()
 */
 double DESDA::getCurrentMaxAbsA()
 {
-  if(_clusters->size() < 0) return -1;
+  if(_clusters->size() < 0) return -1; // Should not happen.
   double maxA = fabs((*_clusters)[0]->predictionParameters[1]);
   for(auto c : *_clusters){
     double currentA = fabs(c->predictionParameters[1]);

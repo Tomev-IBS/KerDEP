@@ -88,6 +88,8 @@ class DESDA
     QVector<double> getErrorDomain();
     QVector<double> getWindowedErrorDomain();
 
+    double _averageMaxPredictionAInLastKPSSMSteps = 0;
+
   protected:
 
     const double _MAX_A = 1.5;
@@ -106,7 +108,6 @@ class DESDA
     double _maxEstimatorValueOnDomain = 0.0;
     double _a = 0.0;
     double _previousUncommonClustersWeight = 0.0;
-    double _averageMaxPredictionAInLastKPSSMSteps = 0;
     double _averageMaxPredictionAInLastMinMSteps = 0;
 
     cluster emE;
