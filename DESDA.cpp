@@ -40,7 +40,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10;
-  _kpssM = _maxM / 5;
+  _kpssM = _maxM;
 
   _sgmKPSS = -1;
   _stepNumber = 1;
@@ -164,7 +164,7 @@ void DESDA::performStep()
   qDebug() << "Reservoir size in step " << _stepNumber
            << " is: " << getClustersForEstimator().size() << ".";
 
-  // Update prognosis
+  // Update clusters prognosis
   countKDEValuesOnClusters();
   updatePrognosisParameters();
   emE._currentKDEValue = getNewEmEValue(); // To be removed
@@ -174,6 +174,8 @@ void DESDA::performStep()
   updateMaxAbsAVector();
   updateAverageMaxAbsAsInLastKPSSMSteps();
   updateAverageMaxAbsAsInLastMinMSteps();
+
+  // Update beta parameter
 
   _examinedClustersAs.clear();
   for(auto index : _examinedClustersIndices){
@@ -586,6 +588,22 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 {
   _examinedClustersWStar2.clear();
 
+  for(int i = 0; i < clusters->size(); ++i){
+    auto c = (*clusters)[i];
+    double beta = 4 * c->predictionParameters[1];
+    beta /= _averageMaxPredictionAInLastKPSSMSteps;
+    beta = _beta0 * (2 * sigmoid(beta) - 1);
+
+    double weightEnhancement = 1 + _sgmKPSS * beta;
+    c->setCWeight(c->getCWeight() * weightEnhancement);
+
+    if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i))
+      _examinedClustersWStar2.push_back(weightEnhancement);
+  }
+
+  /* OLD VERSION
+  _examinedClustersWStar2.clear();
+
   for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
       _examinedClustersWStar2.push_back(0);
   }
@@ -629,6 +647,7 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 
     c->setCWeight(enhancedWeight);
   }
+  */
 }
 
 QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)

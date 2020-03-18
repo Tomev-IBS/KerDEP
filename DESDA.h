@@ -41,11 +41,16 @@ class DESDA
     double _u_i = 0.0;
     std::vector<double> _selectedVValues = {};
 
+    // Prediction
     double delta = 0, gamma = 50000.0;
     double w_E = 0.98; // w_EmE
     double _avg = 0;
     double _stDev = 1;
 
+    // New prediction
+    double _beta0 = 0.5;
+
+    // Sizes
     int _maxM = 1000;
     int _minM = 200;
     int _mE = 0; // Cardinality of observed new objects
