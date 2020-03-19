@@ -167,13 +167,16 @@ void DESDA::performStep()
   // Update clusters prognosis
   countKDEValuesOnClusters();
   updatePrognosisParameters();
+  countDerivativeValuesOnClusters();
   emE._currentKDEValue = getNewEmEValue(); // To be removed
   emE.updatePrediction(); // To be removed
 
   // Update a
   updateMaxAbsAVector();
+  updateMaxAbsDerivativeVector();
   updateAverageMaxAbsAsInLastKPSSMSteps();
   updateAverageMaxAbsAsInLastMinMSteps();
+  updateAverageMaxAbsDerivativeInLastMinMSteps();
 
   // Update beta parameter
 
@@ -320,6 +323,25 @@ void DESDA::updatePrognosisParameters()
     c->updatePrediction();
 }
 
+/** @brief DESDA::countDerivativeValuesOnClusters
+ *  Calculates derivative values on points represented by current clusters and
+ *  assings them to clusters.
+ */
+void DESDA::countDerivativeValuesOnClusters()
+{
+  // Get the domain. Formally only m would be needed, but it will not hurt
+  // to count on whole domain.
+  QVector<double> domain = {};
+
+  for(auto c : *_clusters)
+    domain.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+
+  auto derivativeValues = getKernelPrognosisDerivativeValues(&domain);
+
+  for(int i = 0; i < _clusters->size(); ++i)
+    (*_clusters)[i]->_currentDerivativeValue = derivativeValues[i];
+}
+
 void DESDA::updateM()
 {
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
@@ -371,8 +393,7 @@ void DESDA::updateMaxAbsAVector()
   _maxAbsAs.insert(_maxAbsAs.begin(), getCurrentMaxAbsA());
 
   // Ensure size is as expected
-  while(_maxAbsAs.size() > _maxM)
-      _maxAbsAs.pop_back();
+  while(_maxAbsAs.size() > _maxM) _maxAbsAs.pop_back();
 }
 
 /** DESDA::getCurrentMaxAbsA
@@ -389,6 +410,28 @@ double DESDA::getCurrentMaxAbsA()
   }
 
   return maxA;
+}
+
+void DESDA::updateMaxAbsDerivativeVector()
+{
+  // Add new value.
+  _maxAbsDerivatives.insert(_maxAbsDerivatives.begin(),
+                              getCurrentMaxAbsDerivativeValue());
+  // Ensure size is proper.
+  while(_maxAbsDerivatives.size() > _maxM) _maxAbsDerivatives.pop_back();
+}
+
+double DESDA::getCurrentMaxAbsDerivativeValue()
+{
+  if(_clusters->size() < 0) return -1; // Should not happen.
+  double maxAbsDerivative = fabs((*_clusters)[0]->_currentDerivativeValue);
+  for(auto c : *_clusters){
+    double currentDerivative = fabs(c->_currentDerivativeValue);
+    maxAbsDerivative =
+        currentDerivative > maxAbsDerivative ? currentDerivative : maxAbsDerivative;
+  }
+
+  return maxAbsDerivative;
 }
 
 /** DESDA::updateAverageMaxAbsAsInLastKPSSMSteps
@@ -419,6 +462,20 @@ void DESDA::updateAverageMaxAbsAsInLastMinMSteps()
     }
 
     _averageMaxPredictionAInLastMinMSteps = sumOfConsideredAbsAs / consideredElementsNumber;
+}
+
+void DESDA::updateAverageMaxAbsDerivativeInLastMinMSteps()
+{
+  double sumOfConsideredMaxAbsDerivatives = 0;
+  int consideredElementsNumber =
+      _maxAbsDerivatives.size() < _minM ? _maxAbsAs.size() : _minM;
+
+  for(int i = 0; i < consideredElementsNumber; ++i){
+    sumOfConsideredMaxAbsDerivatives += _maxAbsDerivatives[i];
+  }
+
+  _averageMaxDerivativeValueInLastMinMSteps = sumOfConsideredMaxAbsDerivatives;
+  _averageMaxDerivativeValueInLastMinMSteps /= consideredElementsNumber;
 }
 
 double DESDA::getDomainMinValue(const std::vector<clusterPtr> &clusters, double h)

@@ -83,11 +83,11 @@ class DESDA
     /** According to 2020 first article **/
     std::vector<int> _examinedClustersIndices = {};
     std::vector<double> _maxAbsAs = {};
+    std::vector<double> _maxAbsDerivatives = {};
     std::vector<double> _examinedClustersAs = {};
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
     std::vector<double> _examinedClustersWStar3 = {};
-    std::vector<int> _examinedClustersIndicesInUncommonClustersVector = {};
     std::vector<double> _examinedClustersW = {};
 
     QVector<double> getErrorDomain();
@@ -95,6 +95,7 @@ class DESDA
 
     double _averageMaxPredictionAInLastKPSSMSteps = 0;
     double _averageMaxPredictionAInLastMinMSteps = 0;
+    double _averageMaxDerivativeValueInLastMinMSteps = 0;
 
   protected:
 
@@ -138,13 +139,17 @@ class DESDA
     std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
     void updatePrognosisParameters();
+    void countDerivativeValuesOnClusters();
     void updateM();
     void updateDelta();
     double getNewEmEValue();
     void updateMaxAbsAVector();
     double getCurrentMaxAbsA();
+    void updateMaxAbsDerivativeVector();
+    double getCurrentMaxAbsDerivativeValue();
     void updateAverageMaxAbsAsInLastKPSSMSteps();
     void updateAverageMaxAbsAsInLastMinMSteps();
+    void updateAverageMaxAbsDerivativeInLastMinMSteps();
     void updateExaminedClustersAsVector();
 
     // Domain reduction
