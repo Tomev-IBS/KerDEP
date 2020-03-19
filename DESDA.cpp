@@ -166,20 +166,20 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  /* WINDOW
   while(_clusters->size() >= _maxM)
   {
     _clusters->pop_back();
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
-  */
 
-  while(_clusters->size() >= _maxM && !_shouldCluster)
+  /* Random deletion
+  while(_clusters->size() >= _maxM)
   {
     int indexToDelete = randomizeIndexToDelete();
     _clusters->erase(_clusters->begin() + indexToDelete, _clusters->begin() + indexToDelete + 1);
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
+  */
 
   _clusters->insert(_clusters->begin(), newCluster);
 
