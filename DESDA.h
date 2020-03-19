@@ -134,6 +134,12 @@ class DESDA
 
     groupingThread *_grpThread;
 
+    // Random deletion
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> dist;
+    double _d = 0;
+
+    int randomizeIndexToDelete();
     void updateWeights();
     void updateExaminedClustersIndices();
     std::vector<std::shared_ptr<cluster>> getClustersForEstimator();

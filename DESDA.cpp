@@ -46,6 +46,9 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _stepNumber = 1;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM));
+
+  generator = std::default_random_engine(5625); // Seed should be as in UI, can be passed to constructor
+  dist = std::uniform_real_distribution<double>(0.0, 1.0);
 }
 
 int sgn(double val)
@@ -108,6 +111,52 @@ double average(std::vector<double> values){
   return average;
 }
 
+int DESDA::randomizeIndexToDelete(){
+
+    std::vector<double> partialProbabilities = {};
+    std::vector<double> probabilities = {};
+    double partialProbabilitesSum = 0;
+    auto m = _clusters->size();
+
+    //qDebug() << "Clusters size: " << m;
+
+    for(size_t i = 1; i <= m; ++i){
+        partialProbabilities.push_back( (double)(_d * i) / (m + 1.0) + 0.5 - 0.5 * _d );
+        partialProbabilitesSum += partialProbabilities.back();
+    }
+
+    qDebug() << "Partial probabilities: " << partialProbabilities;
+    qDebug() << "pProbabilities sum: " << partialProbabilitesSum;
+
+    double pSum = 0;
+
+    for(auto pProbability : partialProbabilities){
+        probabilities.push_back(pProbability / partialProbabilitesSum);
+        pSum += probabilities.back();
+    }
+
+    qDebug() << "Probabilities: " << probabilities;
+    qDebug() << "Sum: " << pSum;
+
+    double deletionProbability = dist(generator);
+    double currentProbability = 0;
+
+    int i;
+
+    qDebug() << "Deletion probablity: " << deletionProbability;
+
+    for(i = 0; i < m; ++i){
+        currentProbability += probabilities[i];
+
+        qDebug() << "Current prob:" << currentProbability;
+
+        if(currentProbability > deletionProbability) break;
+    }
+
+    qDebug() << "Removing " << i << " cluster.";
+    return i;
+}
+
 void DESDA::performStep()
 {
   // Reservoir movement
@@ -117,9 +166,18 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
+  /* WINDOW
   while(_clusters->size() >= _maxM)
   {
     _clusters->pop_back();
+    _objects.erase(_objects.begin(), _objects.begin() + 1);
+  }
+  */
+
+  while(_clusters->size() >= _maxM && !_shouldCluster)
+  {
+    int indexToDelete = randomizeIndexToDelete();
+    _clusters->erase(_clusters->begin() + indexToDelete, _clusters->begin() + indexToDelete + 1);
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
 
