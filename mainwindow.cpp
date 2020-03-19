@@ -874,6 +874,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
               "beta = " + QString::number(DESDAAlgorithm._beta0));
+  verticalOffset += verticalStep;
 
   plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "m0   = " + ui->lineEdit_sampleSize->text());
@@ -917,11 +918,11 @@ void MainWindow::on_pushButton_start_clicked()
                        "max(|a|)      = 0");
   verticalOffset += verticalStep;
 
-  std::vector<QString> aTextLabelsLabels = {"a(int(0.2m)) = ", "a(int(0.5m)) = ", "a(int(0.8m)) = "};
-  std::vector<plotLabel> aTextLabels = {};
+  std::vector<QString> gTextLabelsLabels = {"g(int(0.2m)) = ", "g(int(0.5m)) = ", "g(int(0.8m)) = "};
+  std::vector<plotLabel> gTextLabels = {};
 
-  for(int i = 0; i < aTextLabelsLabels.size(); ++i){
-    aTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, aTextLabelsLabels[i]));
+  for(int i = 0; i < gTextLabelsLabels.size(); ++i){
+    gTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, gTextLabelsLabels[i]));
     verticalOffset += verticalStep;
   }
 
@@ -1174,7 +1175,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       for(int i = 0; i < DESDAAlgorithm._examinedClustersAs.size(); ++i){
-          aTextLabels[i].setText(aTextLabelsLabels[i] + formatNumberForDisplay(
+          gTextLabels[i].setText(gTextLabelsLabels[i] + formatNumberForDisplay(
                                   DESDAAlgorithm._examinedClustersAs[i]));
       }
 
