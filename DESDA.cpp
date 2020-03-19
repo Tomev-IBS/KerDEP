@@ -222,6 +222,8 @@ void DESDA::updateExaminedClustersIndices()
 
   for(auto val : desiredClustersLocations)
       _examinedClustersIndices.push_back(round(val * m) - 1);
+
+  qDebug() << _examinedClustersIndices;
 }
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
@@ -787,6 +789,8 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
   recountQuantileEstimatorValue(sortedIndicesValues);
   std::vector<clusterPtr> atypicalElements = {};
 
+  QVector<int> atypicalElementsIndices = {}; // For debug
+
   for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
        _examinedClustersIndicesInUncommonClustersVector.push_back(-2);
   }
@@ -795,14 +799,23 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
     if(_quantileEstimator > sortedIndicesValues[i].second){
       atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
 
-      for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j){
+      for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), sortedIndicesValues[i].first); ++j){
            _examinedClustersIndicesInUncommonClustersVector.push_back(atypicalElements.size() - 1);
       }
 
+      atypicalElementsIndices.push_back(sortedIndicesValues[i].first);
     }
     else
       for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
         _examinedClustersIndicesInUncommonClustersVector.push_back(-1);
+  }
+
+  qDebug() << atypicalElementsIndices;
+
+  for(auto eIndex : _examinedClustersIndices){
+    if(atypicalElementsIndices.contains(eIndex)){
+      qDebug() << "FOR " << eIndex << " w*** should not be 1!";
+    }
   }
 
   return atypicalElements;
