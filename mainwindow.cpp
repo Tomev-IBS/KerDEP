@@ -856,48 +856,48 @@ void MainWindow::on_pushButton_start_clicked()
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
   plotLabel iTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "i    = 0");
+                       "i     = 0");
   verticalOffset += verticalStep;
 
   screenGenerationFrequency = 1;
   plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "iw   = " + QString::number(screenGenerationFrequency));
+                       "iw    = " + QString::number(screenGenerationFrequency));
   verticalOffset += verticalStep;
 
   plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "seed = " + ui->lineEdit_seed->text());
+                       "seed  = " + ui->lineEdit_seed->text());
   verticalOffset += verticalStep;
 
   plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "v    = 0.99");
+                       "v     = 0.99");
   verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-              "beta = " + QString::number(DESDAAlgorithm._beta0));
+              "beta0 = " + QString::number(DESDAAlgorithm._beta0));
   verticalOffset += verticalStep;
 
   plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "m0   = " + ui->lineEdit_sampleSize->text());
+                       "m0    = " + ui->lineEdit_sampleSize->text());
   verticalOffset += verticalStep;
 
   plotLabel mMinTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "mmin = " + QString::number(DESDAAlgorithm._minM));
+                       "mmin  = " + QString::number(DESDAAlgorithm._minM));
   verticalOffset += verticalStep;
 
   plotLabel mTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "m    = " + QString::number(sampleSize));
+                       "m     = " + QString::number(sampleSize));
   verticalOffset += verticalStep;
 
   plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "r    = " + QString::number(DESDAAlgorithm._r));
+                       "r     = " + QString::number(DESDAAlgorithm._r));
   verticalOffset += verticalStep;
 
   plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "q    = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+                       "q     = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
   verticalOffset += verticalStep;
   plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "rare = 0");
+                       "rare  = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -1143,14 +1143,14 @@ void MainWindow::on_pushButton_start_clicked()
 
       // ============= LEFT SIDE UPDATE ================ //
       iTextLabel
-          .setText(      "i    = " + QString::number(stepNumber));
+          .setText(      "i     = " + QString::number(stepNumber));
 
       rareElementsTextLabel
-          .setText(      "rare = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
+          .setText(      "rare  = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
 
-      mTextLabel.setText("m    = " + QString::number(DESDAAlgorithm._m));
+      mTextLabel.setText("m     = " + QString::number(DESDAAlgorithm._m));
 
-      qTextLabel.setText("q    =" + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+      qTextLabel.setText("q     =" + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
       KPSSTextLabel.setText(   "KPSS     = " + formatNumberForDisplay(
                                 DESDAAlgorithm.getStationarityTestValue()));
@@ -1182,8 +1182,7 @@ void MainWindow::on_pushButton_start_clicked()
       maxAbsATextLabel.setText("avg max(|g|) = " + formatNumberForDisplay(
                                    DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
 
-      //ui->widget_plot->replot();
-
+      ui->widget_plot->replot();
       drawPlots(&DESDAAlgorithm);
 
       qApp->processEvents();

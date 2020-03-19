@@ -183,7 +183,7 @@ void DESDA::performStep()
       if(index < 0)
           _examinedClustersDerivatives.push_back(0);
       else
-        _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
+         _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
   }
 
   /*
@@ -288,7 +288,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(auto idx : _examinedClustersIndices){
       if(idx < 0) examinedClustersIds.push_back("");
-      examinedClustersIds.push_back(clusters[idx]->getClustersId());
+      else examinedClustersIds.push_back(clusters[idx]->getClustersId());
   }
 
   bool wasExaminedClusterUncommon = false;
