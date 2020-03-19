@@ -1072,7 +1072,6 @@ void MainWindow::on_pushButton_start_clicked()
         _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&errorDomain);
         _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&errorDomain);
 
-
         _summaricWindowKDEError1 += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY);
         _summaricKDEError1    += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
         _summaricKDEPError1   += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY);
@@ -1163,6 +1162,8 @@ void MainWindow::on_pushButton_start_clicked()
 
       rTextLabel.setText("r    = " + QString::number(DESDAAlgorithm._r));
 
+      drawPlots(&DESDAAlgorithm);
+
       for(int i = 0; i < DESDAAlgorithm._examinedClustersW.size(); ++i){
         wTextLabels[i].setText(wTextLabelsLabels[i] + formatNumberForDisplay(
                                    DESDAAlgorithm._examinedClustersW[i]));
@@ -1174,7 +1175,7 @@ void MainWindow::on_pushButton_start_clicked()
                                    DESDAAlgorithm._examinedClustersWStar3[i]));
       }
 
-      for(int i = 0; i < DESDAAlgorithm._examinedClustersAs.size(); ++i){
+      for(int i = 0; i < DESDAAlgorithm._examinedClustersDerivatives.size(); ++i){
           gTextLabels[i].setText(gTextLabelsLabels[i] + formatNumberForDisplay(
                                   DESDAAlgorithm._examinedClustersDerivatives[i]));
       }
@@ -1182,14 +1183,14 @@ void MainWindow::on_pushButton_start_clicked()
       maxAbsATextLabel.setText("avg max(|g|) = " + formatNumberForDisplay(
                                    DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
 
+
       ui->widget_plot->replot();
-      drawPlots(&DESDAAlgorithm);
 
       qApp->processEvents();
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 502 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 503 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
                         ", testy nowego użycia pochodnej, iw=10)\\";
 
