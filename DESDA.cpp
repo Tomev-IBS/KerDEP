@@ -662,16 +662,20 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 {
   _examinedClustersWStar2.clear();
 
+  for(auto index : _examinedClustersIndices)
+    if(index < 0) _examinedClustersWStar2.push_back(0);
+
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
     double beta = 4 * c->_currentDerivativeValue;
     beta /= _averageMaxDerivativeValueInLastMinMSteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
+    if(_averageMaxDerivativeValueInLastMinMSteps < 1e-5) beta = 0;
 
     double weightEnhancement = 1 + _sgmKPSS * beta;
     c->setCWeight(c->getCWeight() * weightEnhancement);
 
-    if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i))
+    for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
       _examinedClustersWStar2.push_back(weightEnhancement);
   }
 }
