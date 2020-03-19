@@ -257,38 +257,43 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
  */
 void DESDA::enhanceWeightsOfUncommonElements()
 {
-  _examinedClustersIndicesInUncommonClustersVector.clear();
-
   auto uncommonElements = getAtypicalElements();
 
   std::vector<double> examinedClustersEnhancedWeights = {};
+  std::vector<double> weightsEnhancers = {};
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
     double weightEnhancer = 2 * sigmoid(4 * ue->predictionParameters[1] / _averageMaxPredictionAInLastMinMSteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
-    for(int j = 0; j < std::count(_examinedClustersIndicesInUncommonClustersVector.begin(),
-                                  _examinedClustersIndicesInUncommonClustersVector.end(), i); ++j){
-      examinedClustersEnhancedWeights.push_back(weightEnhancer);
-    }
-
+    weightsEnhancers.push_back(weightEnhancer);
     ue->setCWeight(ue->getCWeight() * weightEnhancer);
   }
 
-  int i = 0;
+  // For labels
   _examinedClustersWStar3.clear();
-  for(auto val : _examinedClustersIndicesInUncommonClustersVector){
-    if(val == -1){
-        _examinedClustersWStar3.push_back(1);
+  auto clusters = getClustersForEstimator();
+  std::vector<std::string> examinedClustersIds = {};
+
+  for(auto idx : _examinedClustersIndices)
+      examinedClustersIds.push_back(clusters[idx]->getClustersId());
+
+  bool wasExaminedClusterUncommon = false;
+
+  for(int i = 0; i < _examinedClustersIndices.size(); ++i){
+
+    wasExaminedClusterUncommon = false;
+
+    for(int j = 0; j < uncommonElements.size(); ++j){
+      if(examinedClustersIds[i].compare(uncommonElements[j]->getClustersId()))
+        continue;
+      wasExaminedClusterUncommon = true;
+      _examinedClustersWStar3.push_back(weightsEnhancers[j]);
+      break;
     }
-    else if(val == -2){
-        _examinedClustersWStar3.push_back(0);
-    }
-    else {
-        _examinedClustersWStar3.push_back(i);
-        ++i;
-    }
+    if(!wasExaminedClusterUncommon)
+      _examinedClustersWStar3.push_back(1);
   }
 }
 
@@ -319,8 +324,9 @@ void DESDA::updateM()
 {
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
-  _m = round(_maxM - (_maxM - _minM) * _sgmKPSS);
+  _m = round(1.05 * (_maxM - (_maxM - _minM) * _sgmKPSS));
   _m = _m < _clusters->size() ? _m : _clusters->size();
+  _m = _m > _maxM ? _maxM : _m;
 }
 
 void DESDA::updateDelta()
@@ -789,32 +795,9 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
   recountQuantileEstimatorValue(sortedIndicesValues);
   std::vector<clusterPtr> atypicalElements = {};
 
-  QVector<int> atypicalElementsIndices = {}; // For debug
-
-  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
-       _examinedClustersIndicesInUncommonClustersVector.push_back(-2);
-  }
-
   for(int i = 0; i < sortedIndicesValues.size(); ++i){
     if(_quantileEstimator > sortedIndicesValues[i].second){
       atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
-
-      for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), sortedIndicesValues[i].first); ++j){
-           _examinedClustersIndicesInUncommonClustersVector.push_back(atypicalElements.size() - 1);
-      }
-
-      atypicalElementsIndices.push_back(sortedIndicesValues[i].first);
-    }
-    else
-      for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
-        _examinedClustersIndicesInUncommonClustersVector.push_back(-1);
-  }
-
-  qDebug() << atypicalElementsIndices;
-
-  for(auto eIndex : _examinedClustersIndices){
-    if(atypicalElementsIndices.contains(eIndex)){
-      qDebug() << "FOR " << eIndex << " w*** should not be 1!";
     }
   }
 
