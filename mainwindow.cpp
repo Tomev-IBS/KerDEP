@@ -859,7 +859,7 @@ void MainWindow::on_pushButton_start_clicked()
                        "i    = 0");
   verticalOffset += verticalStep;
 
-  screenGenerationFrequency = 10;
+  screenGenerationFrequency = 1;
   plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "iw   = " + QString::number(screenGenerationFrequency));
   verticalOffset += verticalStep;
