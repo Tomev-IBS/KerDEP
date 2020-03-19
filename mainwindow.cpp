@@ -868,9 +868,12 @@ void MainWindow::on_pushButton_start_clicked()
                        "seed = " + ui->lineEdit_seed->text());
   verticalOffset += verticalStep;
 
-  plotLabel wTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "w    = 0.99");
+  plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "v    = 0.99");
   verticalOffset += verticalStep;
+
+  plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+              "beta = " + QString::number(DESDAAlgorithm._beta0));
 
   plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "m0   = " + ui->lineEdit_sampleSize->text());

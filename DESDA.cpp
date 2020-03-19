@@ -608,54 +608,6 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
     if(std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i))
       _examinedClustersWStar2.push_back(weightEnhancement);
   }
-
-  /* OLD VERSION
-  _examinedClustersWStar2.clear();
-
-  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j){
-      _examinedClustersWStar2.push_back(0);
-  }
-
-  QVector<qreal> clustersXs = {};
-
-  for(auto c : *clusters)
-    clustersXs.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-
-  QVector<double> derivativeVal = getKernelPrognosisDerivativeValues(&clustersXs);
-
-  _selectedVValues.clear();
-
-  // Enhance weights of clusters
-  double enhancedWeight = 0.0;
-  double v_i = 0.0;
-
-  _u_i = 0.0;
-
-  // Count u_i
-  if(_stepNumber >= 1000)
-    _u_i = 1.0 / (1 + exp(- (_alpha * fabs(getStationarityTestValue()) - _beta)));
-
-  _newWeightB = _u_i;
-
-  for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), -1); ++j)
-      _examinedClustersWStar2.push_back(0);
-
-  for(int i = 0; i < clusters->size(); ++i)
-  {
-    auto c = (*clusters)[i];
-    enhancedWeight = c->getCWeight();
-
-    // Count v_i
-    v_i = 2 * delta * ( 1.0 / (1.0 + exp(- gamma * derivativeVal[i])) - 0.5);
-
-    enhancedWeight *= (1 + v_i);
-
-    for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
-        _examinedClustersWStar2.push_back(1 + v_i);
-
-    c->setCWeight(enhancedWeight);
-  }
-  */
 }
 
 QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
