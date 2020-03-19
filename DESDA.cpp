@@ -222,8 +222,6 @@ void DESDA::updateExaminedClustersIndices()
 
   for(auto val : desiredClustersLocations)
       _examinedClustersIndices.push_back(round(val * m) - 1);
-
-  qDebug() << _examinedClustersIndices;
 }
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
@@ -276,8 +274,10 @@ void DESDA::enhanceWeightsOfUncommonElements()
   auto clusters = getClustersForEstimator();
   std::vector<std::string> examinedClustersIds = {};
 
-  for(auto idx : _examinedClustersIndices)
+  for(auto idx : _examinedClustersIndices){
+      if(idx < 0) examinedClustersIds.push_back("");
       examinedClustersIds.push_back(clusters[idx]->getClustersId());
+  }
 
   bool wasExaminedClusterUncommon = false;
 
