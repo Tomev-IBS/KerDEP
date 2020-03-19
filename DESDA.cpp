@@ -178,8 +178,15 @@ void DESDA::performStep()
   updateAverageMaxAbsAsInLastMinMSteps();
   updateAverageMaxAbsDerivativeInLastMinMSteps();
 
-  // Update beta parameter
+  _examinedClustersDerivatives.clear();
+  for(auto index : _examinedClustersIndices){
+      if(index < 0)
+          _examinedClustersDerivatives.push_back(0);
+      else
+        _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
+  }
 
+  /*
   _examinedClustersAs.clear();
   for(auto index : _examinedClustersIndices){
       if(index < 0)
@@ -187,6 +194,7 @@ void DESDA::performStep()
       else
         _examinedClustersAs.push_back(currentClusters[index]->predictionParameters[1]);
   }
+  */
 
   // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
@@ -265,7 +273,8 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
-    double weightEnhancer = 2 * sigmoid(4 * ue->predictionParameters[1] / _averageMaxPredictionAInLastMinMSteps) - 1;
+    double weightEnhancer = 2 * sigmoid(4 * ue->_currentDerivativeValue /
+                                        _averageMaxDerivativeValueInLastMinMSteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     weightsEnhancers.push_back(weightEnhancer);
@@ -655,8 +664,8 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
-    double beta = 4 * c->predictionParameters[1];
-    beta /= _averageMaxPredictionAInLastMinMSteps;
+    double beta = 4 * c->_currentDerivativeValue;
+    beta /= _averageMaxDerivativeValueInLastMinMSteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
 
     double weightEnhancement = 1 + _sgmKPSS * beta;
@@ -943,7 +952,7 @@ QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivative
   for(auto a : atypicalElements){
     std::pair<double, double> valueDerivative = std::pair<double, double>(0, 0);
     valueDerivative.first = std::stod(a->getObject()->attributesValues["Val0"]);
-    valueDerivative.second = a->predictionParameters[1];
+    valueDerivative.second = a->_currentDerivativeValue;
     atypicalElementsValuesAndDerivatives.push_back(valueDerivative);
   }
 

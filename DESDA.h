@@ -85,6 +85,7 @@ class DESDA
     std::vector<double> _maxAbsAs = {};
     std::vector<double> _maxAbsDerivatives = {};
     std::vector<double> _examinedClustersAs = {};
+    std::vector<double> _examinedClustersDerivatives = {};
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
     std::vector<double> _examinedClustersWStar3 = {};

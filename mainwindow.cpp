@@ -1176,7 +1176,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       for(int i = 0; i < DESDAAlgorithm._examinedClustersAs.size(); ++i){
           gTextLabels[i].setText(gTextLabelsLabels[i] + formatNumberForDisplay(
-                                  DESDAAlgorithm._examinedClustersAs[i]));
+                                  DESDAAlgorithm._examinedClustersDerivatives[i]));
       }
 
       maxAbsATextLabel.setText("avg max(|g|) = " + formatNumberForDisplay(
@@ -1190,9 +1190,9 @@ void MainWindow::on_pushButton_start_clicked()
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 500 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 501 ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", test w3s, new m)\\";
+                        ", testy nowego użycia pochodnej)\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
