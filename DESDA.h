@@ -98,6 +98,9 @@ class DESDA
     double _averageMaxPredictionAInLastMinMSteps = 0;
     double _averageMaxDerivativeValueInLastMinMSteps = 0;
 
+    double _h;
+    double _hWindowed;
+
   protected:
 
     const double _MAX_A = 1.5;
@@ -163,13 +166,11 @@ class DESDA
     double getDomainMinValue(const std::vector<clusterPtr> &clusters, double h);
     double getDomainMaxValue(const std::vector<clusterPtr> &clusters, double h);
 
-    double _h;
-    double _hWindowed;
     double calculateH(const std::vector<clusterPtr> &clusters);
 
 
     // Rare elements
-    double _psi = 10.2;
+    double _psi = 1.8;
 
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();

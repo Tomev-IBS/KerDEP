@@ -853,13 +853,16 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
+  QString expNum = "516";
+  QString expDesc = "psi=1.8, s=-5.22, mMin=100";
+  screenGenerationFrequency = 10;
+
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
   plotLabel iTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "i     = 0");
   verticalOffset += verticalStep;
 
-  screenGenerationFrequency = 10;
   plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "iw    = " + QString::number(screenGenerationFrequency));
   verticalOffset += verticalStep;
@@ -953,6 +956,17 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset = 0.01;
 
   verticalOffset += verticalStep;
+
+  plotLabel expNumTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "Exp" + expNum);
+   verticalOffset += verticalStep;
+   verticalOffset += verticalStep;
+   verticalOffset += verticalStep;
+
+   plotLabel hTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
+   verticalOffset += verticalStep;
+   plotLabel hwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
+   verticalOffset += verticalStep;
+   verticalOffset += verticalStep;
 
   plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = ");
   verticalOffset += verticalStep;
@@ -1160,7 +1174,7 @@ void MainWindow::on_pushButton_start_clicked()
       sgmKPSS2TextLabel.setText("sgmKPSS2 = " + formatNumberForDisplay(
                                     2 * DESDAAlgorithm._sgmKPSS - 1));
 
-      rTextLabel.setText("r    = " + QString::number(DESDAAlgorithm._r));
+      rTextLabel.setText("r     = " + QString::number(DESDAAlgorithm._r));
 
       drawPlots(&DESDAAlgorithm);
 
@@ -1184,15 +1198,18 @@ void MainWindow::on_pushButton_start_clicked()
                                    DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
 
 
+      hTextLabel.setText( "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
+      hwTextLabel.setText("hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
+
       ui->widget_plot->replot();
 
       qApp->processEvents();
 
       QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment 507 ("
+      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
                         "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", testy nowego użycia pochodnej, iw=10)\\";
+                        ", " + expDesc + ")\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
