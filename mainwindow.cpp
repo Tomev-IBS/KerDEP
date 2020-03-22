@@ -799,7 +799,7 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          4000 /* delay */,
+                                          1000 /* delay */,
                                           false /* should jump */)
   );
 
@@ -853,7 +853,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "518";
+  QString expNum = "519";
   QString expDesc = "psi=1.8, s=-5.22, mMin=100";
   screenGenerationFrequency = 10;
 
