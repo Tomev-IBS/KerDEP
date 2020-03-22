@@ -853,8 +853,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "519";
-  QString expDesc = "psi=1.8, s=-5.22, mMin=100";
+  QString expNum = "520";
+  QString expDesc = "psi=1.8, s=-5.22, mMin=200";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
