@@ -205,6 +205,19 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
     // Generate plot for kernel prognosis derivative
     if(ui->checkBox_kernelPrognosedPlot->isChecked())
       addPlot(&_kernelPrognosisDerivativeValues, _DERIVATIVE_PLOT_PEN);
+      //addPlot(&_kernelPrognosisDerivativeValues, _DERIVATIVE_PLOT_PEN);
+
+    // Generate plot for standarized prognosis derivative, assuming that
+    // normal derivative was generated first
+    if(ui->checkBox_standarizedDerivative->isChecked()){
+      QVector<double> standarizedDerivativeY = {};
+      for(auto val : _kernelPrognosisDerivativeValues){
+        standarizedDerivativeY.push_back(
+          0.05 * val / DESDAAlgorithm->_averageMaxDerivativeValueInLastMinMSteps
+        );
+      }
+      addPlot(&standarizedDerivativeY, _STANDARIZED_DERIVATIVE_PLOT_PEN);
+    }
 
     if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()){
         _sigmoidallyEnhancedPlotY =
@@ -853,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "521";
+  QString expNum = "523";
   QString expDesc = "psi=1.8, s=-5.22, mMin=200";
   screenGenerationFrequency = 10;
 
@@ -955,18 +968,19 @@ void MainWindow::on_pushButton_start_clicked()
   horizontalOffset = 0.85;
   verticalOffset = 0.01;
 
-  verticalOffset += verticalStep;
-
   plotLabel expNumTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "Exp" + expNum);
    verticalOffset += verticalStep;
    verticalOffset += verticalStep;
-   verticalOffset += verticalStep;
 
-   plotLabel hTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
-   verticalOffset += verticalStep;
-   plotLabel hwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
-   verticalOffset += verticalStep;
-   verticalOffset += verticalStep;
+  /*
+  verticalOffset += verticalStep;
+
+  plotLabel hTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
+  verticalOffset += verticalStep;
+  plotLabel hwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+  */
 
   plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = ");
   verticalOffset += verticalStep;
@@ -1034,6 +1048,22 @@ void MainWindow::on_pushButton_start_clicked()
   fillDomain(&_domain, nullptr);
   for(auto pt : _domain) _drawableDomain.push_back(pt->at(0));
 
+  ui->widget_plot->replot();
+  qApp->processEvents();
+
+  QString googleDriveDir = "D:\\Dysk Google\\"; // Home
+
+  QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    "v = " + ui->lineEdit_distributionProgression->text() +
+                    ", " + expDesc + ")\\";
+
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName,
+                                                          0, 0, 1, -1);
+
   for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber)
   {
     clock_t executionStartTime = clock();
@@ -1042,7 +1072,7 @@ void MainWindow::on_pushButton_start_clicked()
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    if(stepNumber % screenGenerationFrequency == 0)
+    if(stepNumber % screenGenerationFrequency == 0 || stepNumber < 10)
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
 
@@ -1198,18 +1228,14 @@ void MainWindow::on_pushButton_start_clicked()
                                    DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
 
 
+      /*
+      // DEBUG
       hTextLabel.setText( "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
       hwTextLabel.setText("hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
+      */
 
       ui->widget_plot->replot();
-
       qApp->processEvents();
-
-      QString googleDriveDir = "D:\\Dysk Google\\"; // Home
-
-      QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                        "v = " + ui->lineEdit_distributionProgression->text() +
-                        ", " + expDesc + ")\\";
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

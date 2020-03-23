@@ -46,13 +46,14 @@ class MainWindow : public QMainWindow
     QVector<double> _drawableDomain;
 
   private:
-    const QPen _MODEL_PLOT_PEN       = QPen(Qt::red);
-    const QPen _WINDOWED_PLOT_PEN    = QPen(Qt::black);
-    const QPen _KDE_PLOT_PEN         = QPen(Qt::blue);
-    const QPen _WEIGHTED_PLOT_PEN    = QPen(Qt::cyan);
-    const QPen _DERIVATIVE_PLOT_PEN  = QPen(Qt::darkRed);
-    const QPen _DESDA_KDE_PLOT_PEN   = QPen(Qt::magenta);
-    const QPen _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN = QPen(Qt::green);
+    const QPen _MODEL_PLOT_PEN                     = QPen(Qt::red);
+    const QPen _WINDOWED_PLOT_PEN                  = QPen(Qt::black);
+    const QPen _KDE_PLOT_PEN                       = QPen(Qt::blue);
+    const QPen _WEIGHTED_PLOT_PEN                  = QPen(Qt::cyan);
+    const QPen _DERIVATIVE_PLOT_PEN                = QPen(QColor(255, 165, 0));
+    const QPen _STANDARIZED_DERIVATIVE_PLOT_PEN    = QPen(Qt::yellow);
+    const QPen _DESDA_KDE_PLOT_PEN                 = QPen(Qt::magenta);
+    const QPen _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN   = QPen(Qt::green);
 
     std::vector<QCPAbstractItem *> _linesOnPlot;
 

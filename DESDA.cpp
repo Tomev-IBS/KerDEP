@@ -39,7 +39,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mE = 1000;
   _m = _maxM;
 
-  _minM = _maxM / 10;
+  _minM = _maxM / 5;
   _kpssM = _maxM;
 
   _sgmKPSS = -1;
@@ -331,7 +331,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
-    double weightEnhancer = 2 * sigmoid(4 * ue->_currentDerivativeValue /
+    double weightEnhancer = 2 * sigmoid(2.95 * ue->_currentDerivativeValue /
                                         _averageMaxDerivativeValueInLastMinMSteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
@@ -413,7 +413,7 @@ void DESDA::updateM()
 {
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
-  _m = round(1.05 * (_maxM - (_maxM - _minM) * _sgmKPSS));
+  _m = round(1.02 * _maxM - (1.02 * _maxM - _minM) * _sgmKPSS);
   _m = _m < _clusters->size() ? _m : _clusters->size();
   _m = _m > _maxM ? _maxM : _m;
 }
@@ -725,7 +725,7 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
-    double beta = 4 * c->_currentDerivativeValue;
+    double beta = 2.95 * c->_currentDerivativeValue;
     beta /= _averageMaxDerivativeValueInLastMinMSteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
     if(_averageMaxDerivativeValueInLastMinMSteps < 1e-5) beta = 0;

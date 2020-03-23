@@ -349,7 +349,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.01</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
@@ -640,7 +640,17 @@
          <item>
           <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
            <property name="text">
-            <string>Kernel prognosed Plot (Green)</string>
+            <string>Kernel prognosed Plot (Orange)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_standarizedDerivative">
+           <property name="text">
+            <string>Standarized Derivative Plot (Yellow)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -650,7 +660,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
            <property name="text">
-            <string>Sigmoidally Enhanced KDE (Dark Red)</string>
+            <string>Sigmoidally Enhanced KDE (Magenta)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -660,7 +670,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_REESEKDE">
            <property name="text">
-            <string>REE SE KDE (Magenta)</string>
+            <string>REE SE KDE (Green)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -736,7 +746,7 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
