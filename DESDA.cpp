@@ -331,7 +331,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
-    double weightEnhancer = 2 * sigmoid(2.95 * ue->_currentDerivativeValue /
+    double weightEnhancer = 2 * sigmoid(1.1 * ue->_currentDerivativeValue /
                                         _averageMaxDerivativeValueInLastMinMSteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
@@ -725,7 +725,7 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
-    double beta = 2.95 * c->_currentDerivativeValue;
+    double beta = 1.1 * c->_currentDerivativeValue;
     beta /= _averageMaxDerivativeValueInLastMinMSteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
     if(_averageMaxDerivativeValueInLastMinMSteps < 1e-5) beta = 0;

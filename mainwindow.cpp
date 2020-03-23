@@ -909,7 +909,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "q     = " + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
+                       "q     =" + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
   verticalOffset += verticalStep;
   plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -931,10 +931,10 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel maxAbsATextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "max(|a|)      = 0");
+                       "avg max(|g|)     = 0");
   verticalOffset += verticalStep;
 
-  std::vector<QString> gTextLabelsLabels = {"g(int(0.2m)) = ", "g(int(0.5m)) = ", "g(int(0.8m)) = "};
+  std::vector<QString> gTextLabelsLabels = {"g(int(0.2m))     = ", "g(int(0.5m))     = ", "g(int(0.8m))     = "};
   std::vector<plotLabel> gTextLabels = {};
 
   for(int i = 0; i < gTextLabelsLabels.size(); ++i){
@@ -982,67 +982,67 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
   */
 
-  plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = ");
+  plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = ");
+  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = ");
+  plotLabel error1SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = ");
+  plotLabel error1SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = ");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = ");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = ");
+  plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = ");
+  plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = ");
+  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = ");
+  plotLabel error2SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = ");
+  plotLabel error2SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = ");
+  plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = ");
+  plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = ");
+  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = ");
+  plotLabel errorSupSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = ");
+  plotLabel errorSupSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = ");
+  plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel errorModSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel errorModSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel errorModSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
   verticalOffset += verticalStep;
 
   fillDomain(&_domain, nullptr);

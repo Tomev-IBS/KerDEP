@@ -48,7 +48,7 @@ class DESDA
     double _stDev = 1;
 
     // New prediction
-    double _beta0 = 0.3;
+    double _beta0 = 0.2;
 
     // Sizes
     int _maxM = 1000;
