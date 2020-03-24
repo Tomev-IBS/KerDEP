@@ -1103,7 +1103,7 @@ void MainWindow::on_pushButton_start_clicked()
       DESDAAlgorithm.gamma = 1.0 / avgMaxA;
 
       // Error calculations
-      if(stepNumber >= 2000)
+      if(stepNumber >= 1000)
       {
         auto windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
         auto errorDomain = DESDAAlgorithm.getErrorDomain();
