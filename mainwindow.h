@@ -51,7 +51,7 @@ class MainWindow : public QMainWindow
     const QPen _KDE_PLOT_PEN                       = QPen(Qt::blue);
     const QPen _WEIGHTED_PLOT_PEN                  = QPen(Qt::cyan);
     const QPen _DERIVATIVE_PLOT_PEN                = QPen(QColor(255, 165, 0));
-    const QPen _STANDARIZED_DERIVATIVE_PLOT_PEN    = QPen(Qt::yellow);
+    const QPen _STANDARIZED_DERIVATIVE_PLOT_PEN    = QPen(Qt::darkYellow);
     const QPen _DESDA_KDE_PLOT_PEN                 = QPen(Qt::magenta);
     const QPen _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN   = QPen(Qt::green);
 

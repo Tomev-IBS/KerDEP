@@ -213,7 +213,7 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
       QVector<double> standarizedDerivativeY = {};
       for(auto val : _kernelPrognosisDerivativeValues){
         standarizedDerivativeY.push_back(
-          0.05 * val / DESDAAlgorithm->_averageMaxDerivativeValueInLastMinMSteps
+          0.1 * val / DESDAAlgorithm->_averageMaxDerivativeValueInLastMinMSteps
         );
       }
       addPlot(&standarizedDerivativeY, _STANDARIZED_DERIVATIVE_PLOT_PEN);
@@ -866,8 +866,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "527";
-  QString expDesc = "new formula 36, w=0.995, mMin=100";
+  QString expNum = "528";
+  QString expDesc = "tests ";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -931,14 +931,14 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel maxAbsATextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "avg max(|g|)     = 0");
+                       "avg max(|g|) = 0");
   verticalOffset += verticalStep;
 
-  std::vector<QString> gTextLabelsLabels = {"g(int(0.2m))     = ", "g(int(0.5m))     = ", "g(int(0.8m))     = "};
+  std::vector<QString> gTextLabelsLabels = {"g(int(0.2m)) = ", "g(int(0.5m)) = ", "g(int(0.8m)) = "};
   std::vector<plotLabel> gTextLabels = {};
 
   for(int i = 0; i < gTextLabelsLabels.size(); ++i){
-    gTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, gTextLabelsLabels[i]));
+    gTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, gTextLabelsLabels[i] + "0"));
     verticalOffset += verticalStep;
   }
 
@@ -955,10 +955,10 @@ void MainWindow::on_pushButton_start_clicked()
   std::vector<QString> wStar3TextLabelsLabels = {"w***(int(0.2m)) = ", "w***(int(0.5m)) = ", "w***(int(0.8m)) = "};
 
   for(int i = 0; i < wTextLabelsLabels.size(); ++i){
-    wStarTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, wStarTextLabelsLabels[i]));
-    wStar2TextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 3 * verticalStep, wStar2TextLabelsLabels[i]));
-    wStar3TextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 6 * verticalStep, wStar3TextLabelsLabels[i]));
-    wTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 9 * verticalStep, wTextLabelsLabels[i]));
+    wStarTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, wStarTextLabelsLabels[i] + "0"));
+    wStar2TextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 3 * verticalStep, wStar2TextLabelsLabels[i] + "0"));
+    wStar3TextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 6 * verticalStep, wStar3TextLabelsLabels[i] + "0"));
+    wTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 9 * verticalStep, wTextLabelsLabels[i] + "0"));
     verticalOffset += verticalStep;
   }
 
