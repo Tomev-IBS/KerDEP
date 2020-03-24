@@ -866,8 +866,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "529";
-  QString expDesc = "new formula 36, w=0.995";
+  QString expNum = "530";
+  QString expDesc = "new formula 36, w=0.99";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -885,7 +885,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "v     = 0.995");
+                       "v     = 0.99");
   verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
