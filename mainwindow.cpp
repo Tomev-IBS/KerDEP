@@ -885,7 +885,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "v     = " + formatNumberForDisplay(DESDAAlgorithm._v));
+                       "v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
   verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -1228,7 +1228,7 @@ void MainWindow::on_pushButton_start_clicked()
                                    DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
 
 
-      vTextLabel.setText("v     = " + formatNumberForDisplay(DESDAAlgorithm._v));
+      vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
 
       /*
       // DEBUG
