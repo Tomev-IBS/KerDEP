@@ -866,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "532";
+  QString expNum = "533";
   QString expDesc = "newer formula 36, w=0.999";
   screenGenerationFrequency = 10;
 
