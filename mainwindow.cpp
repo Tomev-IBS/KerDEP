@@ -866,8 +866,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "533";
-  QString expDesc = "newer formula 36, w=0.999";
+  QString expNum = "544";
+  QString expDesc = "formulas (36) and (52a) update, reservoir";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -885,7 +885,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "v     = 0.999");
+                       "v     = " + formatNumberForDisplay(DESDAAlgorithm._v));
   verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -1227,6 +1227,8 @@ void MainWindow::on_pushButton_start_clicked()
       maxAbsATextLabel.setText("avg max(|g|) = " + formatNumberForDisplay(
                                    DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
 
+
+      vTextLabel.setText("v     = " + formatNumberForDisplay(DESDAAlgorithm._v));
 
       /*
       // DEBUG

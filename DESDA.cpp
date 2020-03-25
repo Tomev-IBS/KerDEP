@@ -205,12 +205,16 @@ void DESDA::performStep()
   stationarityTest->addNewSample(
     std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
-  _sgmKPSS = sigmoid(0.305 * pow(stationarityTest->getTestsValue(), 1.0 / 1.75) - 0.157); // sgmKPSS
+  _sgmKPSS = sigmoid(0.61 * stationarityTest->getTestsValue() - 2.65); // sgmKPSS
+
 
   // M update
   updateM();
   updateExaminedClustersIndices(); // For labels update
   updateDelta(); // To remove after new prognosis formulas are implemented
+
+  _v = _m > _clusters->size() ? 1.0 - 1.0 / _clusters->size(): 1.0 - 1.0 / _m ;
+  cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameter for m
   auto currentClusters = getClustersForEstimator();

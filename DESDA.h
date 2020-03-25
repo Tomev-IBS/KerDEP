@@ -49,6 +49,7 @@ class DESDA
 
     // New prediction
     double _beta0 = 0.5;
+    double _v = 0.999; // deactualization w of clusters
 
     // Sizes
     int _maxM = 1000;
