@@ -866,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "544";
+  QString expNum = "545";
   QString expDesc = "formulas (36) and (52a) update, reservoir";
   screenGenerationFrequency = 10;
 
