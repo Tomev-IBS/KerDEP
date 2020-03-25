@@ -205,7 +205,7 @@ void DESDA::performStep()
   stationarityTest->addNewSample(
     std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
   );
-  _sgmKPSS = sigmoid(_psi * sqrt(stationarityTest->getTestsValue()) - 0.186); // sgmKPSS
+  _sgmKPSS = sigmoid(0.305 * pow(stationarityTest->getTestsValue(), 1.0 / 1.75) - 0.157); // sgmKPSS
 
   // M update
   updateM();
