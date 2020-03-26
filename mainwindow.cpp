@@ -1030,7 +1030,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
+  plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_w = 0");
   verticalOffset += verticalStep;
 
   plotLabel modMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
@@ -1146,20 +1146,20 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("L1_w  =" + formatNumberForDisplay(_L1_w));
       L1MTextLabel
           .setText("L1_m  =" + formatNumberForDisplay(_L1_m));
-      L1PTextLabel
-          .setText("L1_p  =" + formatNumberForDisplay(_L1_d));
       L1DTextLabel
-          .setText("L1_d  =" + formatNumberForDisplay(_L1_p));
+          .setText("L1_d  =" + formatNumberForDisplay(_L1_d));
+      L1PTextLabel
+          .setText("L1_p  =" + formatNumberForDisplay(_L1_p));
       L1NTextLabel
           .setText("L1_n  =" + formatNumberForDisplay(_L1_n));
       L2WTextLabel
           .setText("L2_w  =" + formatNumberForDisplay(_L2_w));
       L2MTextLabel
           .setText("L2_m  =" + formatNumberForDisplay(_L2_m));
-      L2PTextLabel
-          .setText("L2_p  =" + formatNumberForDisplay(_L2_d));
       L2DTextLabel
-          .setText("L2_d  =" + formatNumberForDisplay(_L2_p));
+          .setText("L2_d  =" + formatNumberForDisplay(_L2_d));
+      L2PTextLabel
+          .setText("L2_p  =" + formatNumberForDisplay(_L2_p));
       L2NTextLabel
           .setText("L2_n  =" + formatNumberForDisplay(_L2_n));
       supWTextLabel
@@ -1176,10 +1176,10 @@ void MainWindow::on_pushButton_start_clicked()
           .setText("mod_w =" + formatNumberForDisplay(_mod_w));
       modMTextLabel
           .setText("mod_m =" + formatNumberForDisplay(_mod_m));
-      modPTextLabel
-          .setText("mod_p =" + formatNumberForDisplay(_mod_p));
       modDTextLabel
           .setText("mod_d =" + formatNumberForDisplay(_mod_d));
+      modPTextLabel
+          .setText("mod_p =" + formatNumberForDisplay(_mod_p));
       modNTextLabel
           .setText("mod_n =" + formatNumberForDisplay(_mod_n));
 
