@@ -122,10 +122,10 @@ class MainWindow : public QMainWindow
 
 
     // Errors
-    double _summaricWindowKDEError1 = 0, _summaricKDEError1 = 0, _summaricKDEPError1 = 0, _summaricKDESError1 = 0, _summaricKDENError1 = 0,
-    _summaricWindowKDEError2 = 0, _summaricKDEError2 = 0, _summaricKDEPError2 = 0, _summaricKDESError2 = 0, _summaricKDENError2 = 0,
-    _summaricWindowKDEErrorSup = 0, _summaricKDEErrorSup = 0, _summaricKDEPErrorSup = 0, _summaricKDESErrorSup = 0, _summaricKDENErrorSup = 0,
-    _summaricWindowKDEErrorMod = 0, _summaricKDEErrorMod = 0, _summaricKDEPErrorMod = 0, _summaricKDESErrorMod = 0, _summaricKDENErrorMod = 0;
+    double _L1_w = 0, _L1_m = 0, _L1_d = 0, _L1_p = 0, _L1_n = 0,
+    _L2_w = 0, _L2_m = 0, _L2_d = 0, _L2_p = 0, _L2_n = 0,
+    _sup_w = 0, _sup_m = 0, _sup_d = 0, _sup_p = 0, _sup_n = 0,
+    _mod_w = 0, _mod_m = 0, _mod_d = 0, _mod_p = 0, _mod_n = 0;
 
     double  modelExtrema = 0.0, windowKDEExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0, WKDEExtrema = 0.0, REESEExtrema = 0,
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;

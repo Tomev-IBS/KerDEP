@@ -884,10 +884,6 @@ void MainWindow::on_pushButton_start_clicked()
                        "seed  = " + ui->lineEdit_seed->text());
   verticalOffset += verticalStep;
 
-  plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
-  verticalOffset += verticalStep;
-
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
               "beta0 = " + QString::number(DESDAAlgorithm._beta0));
   verticalOffset += verticalStep;
@@ -904,8 +900,12 @@ void MainWindow::on_pushButton_start_clicked()
                        "m     = " + QString::number(sampleSize));
   verticalOffset += verticalStep;
 
+  plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
+  verticalOffset += verticalStep;
+
   plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "r     = " + QString::number(DESDAAlgorithm._r));
+                       "r     =" + formatNumberForDisplay(DESDAAlgorithm._r));
   verticalOffset += verticalStep;
 
   plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -982,67 +982,67 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
   */
 
-  plotLabel error1SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
+  plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = 0");
+  plotLabel L1MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = 0");
+  plotLabel L1DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = 0");
+  plotLabel L1PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = 0");
   verticalOffset += verticalStep;
 
-  plotLabel error1SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel error2SejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = 0");
+  plotLabel L1NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
+  plotLabel L2WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = 0");
+  plotLabel L2MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = 0");
+  plotLabel L2DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = 0");
+  plotLabel L2PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorSupSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = 0");
+  plotLabel L2NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
+  plotLabel supWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
+  plotLabel supMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = 0");
+  plotLabel supDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejpTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = 0");
+  plotLabel supPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = 0");
   verticalOffset += verticalStep;
 
-  plotLabel errorModSejnTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
+  plotLabel supNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
   verticalOffset += verticalStep;
 
   fillDomain(&_domain, nullptr);
@@ -1116,72 +1116,72 @@ void MainWindow::on_pushButton_start_clicked()
         _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&errorDomain);
         _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&errorDomain);
 
-        _summaricWindowKDEError1 += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY);
-        _summaricKDEError1    += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
-        _summaricKDEPError1   += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY);
-        _summaricKDESError1   += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
-        _summaricKDENError1   += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+        _L1_w += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY);
+        _L1_m    += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _L1_d   += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY);
+        _L1_p   += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
+        _L1_n   += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
-        _summaricWindowKDEError2 += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY);
-        _summaricKDEError2    += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
-        _summaricKDEPError2   += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY);
-        _summaricKDESError2   += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
-        _summaricKDENError2   += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+        _L2_w += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY);
+        _L2_m    += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _L2_d   += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY);
+        _L2_p   += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
+        _L2_n   += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
-        _summaricWindowKDEErrorSup += calculateSupError(_windowedModelPlotY, _windowedEstimatorErrorY);
-        _summaricKDEErrorSup  += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
-        _summaricKDEPErrorSup += calculateSupError(_modelPlotErrorY, _weightedEstimatorErrorY);
-        _summaricKDESErrorSup += calculateSupError(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
-        _summaricKDENErrorSup += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+        _sup_w += calculateSupError(_windowedModelPlotY, _windowedEstimatorErrorY);
+        _sup_m  += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _sup_d += calculateSupError(_modelPlotErrorY, _weightedEstimatorErrorY);
+        _sup_p += calculateSupError(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
+        _sup_n += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
-        _summaricWindowKDEErrorMod += fabs(findExtrema(_windowedModelPlotY, windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, windowedErrorDomain));
-        _summaricKDEErrorMod  += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_lessElementsEstimatorErrorY, errorDomain));
-        _summaricKDEPErrorMod += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_weightedEstimatorErrorY, errorDomain));
-        _summaricKDESErrorMod += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, errorDomain));
-        _summaricKDENErrorMod += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, errorDomain));
+        _mod_w += fabs(findExtrema(_windowedModelPlotY, windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, windowedErrorDomain));
+        _mod_m  += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_lessElementsEstimatorErrorY, errorDomain));
+        _mod_d += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_weightedEstimatorErrorY, errorDomain));
+        _mod_p += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, errorDomain));
+        _mod_n += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, errorDomain));
       }
 
       // ============ SUMS =========== //
-      error1SejwTextLabel
-          .setText("L1_w  =" + formatNumberForDisplay(_summaricWindowKDEError1));
-      error1SejTextLabel
-          .setText("L1_m  =" + formatNumberForDisplay(_summaricKDEError1));
-      error1SejpTextLabel
-          .setText("L1_p  =" + formatNumberForDisplay(_summaricKDEPError1));
-      error1SejsTextLabel
-          .setText("L1_d  =" + formatNumberForDisplay(_summaricKDESError1));
-      error1SejnTextLabel
-          .setText("L1_n  =" + formatNumberForDisplay(_summaricKDENError1));
-      error2SejwTextLabel
-          .setText("L2_w  =" + formatNumberForDisplay(_summaricWindowKDEError2));
-      error2SejTextLabel
-          .setText("L2_m  =" + formatNumberForDisplay(_summaricKDEError2));
-      error2SejpTextLabel
-          .setText("L2_p  =" + formatNumberForDisplay(_summaricKDEPError2));
-      error2SejsTextLabel
-          .setText("L2_d  =" + formatNumberForDisplay(_summaricKDESError2));
-      error2SejnTextLabel
-          .setText("L2_n  =" + formatNumberForDisplay(_summaricKDENError2));
-      errorSupSejwTextLabel
-          .setText("sup_w =" + formatNumberForDisplay(_summaricWindowKDEErrorSup));
-      errorSupSejTextLabel
-          .setText("sup_m =" + formatNumberForDisplay(_summaricKDEErrorSup));
-      errorSupSejpTextLabel
-          .setText("sup_p =" + formatNumberForDisplay(_summaricKDEPErrorSup));
-      errorSupSejsTextLabel
-          .setText("sup_d =" + formatNumberForDisplay(_summaricKDESErrorSup));
-      errorSupSejnTextLabel
-          .setText("sup_n =" + formatNumberForDisplay(_summaricKDENErrorSup));
-      errorModSejwTextLabel
-          .setText("mod_w =" + formatNumberForDisplay(_summaricWindowKDEErrorMod));
-      errorModSejTextLabel
-          .setText("mod_m =" + formatNumberForDisplay(_summaricKDEErrorMod));
-      errorModSejpTextLabel
-          .setText("mod_p =" + formatNumberForDisplay(_summaricKDEPErrorMod));
-      errorModSejsTextLabel
-          .setText("mod_d =" + formatNumberForDisplay(_summaricKDESErrorMod));
-      errorModSejnTextLabel
-          .setText("mod_n =" + formatNumberForDisplay(_summaricKDENErrorMod));
+      L1WTextLabel
+          .setText("L1_w  =" + formatNumberForDisplay(_L1_w));
+      L1MTextLabel
+          .setText("L1_m  =" + formatNumberForDisplay(_L1_m));
+      L1PTextLabel
+          .setText("L1_p  =" + formatNumberForDisplay(_L1_d));
+      L1DTextLabel
+          .setText("L1_d  =" + formatNumberForDisplay(_L1_p));
+      L1NTextLabel
+          .setText("L1_n  =" + formatNumberForDisplay(_L1_n));
+      L2WTextLabel
+          .setText("L2_w  =" + formatNumberForDisplay(_L2_w));
+      L2MTextLabel
+          .setText("L2_m  =" + formatNumberForDisplay(_L2_m));
+      L2PTextLabel
+          .setText("L2_p  =" + formatNumberForDisplay(_L2_d));
+      L2DTextLabel
+          .setText("L2_d  =" + formatNumberForDisplay(_L2_p));
+      L2NTextLabel
+          .setText("L2_n  =" + formatNumberForDisplay(_L2_n));
+      supWTextLabel
+          .setText("sup_w =" + formatNumberForDisplay(_sup_w));
+      supMTextLabel
+          .setText("sup_m =" + formatNumberForDisplay(_sup_m));
+      supDTextLabel
+          .setText("sup_d =" + formatNumberForDisplay(_sup_d));
+      supPTextLabel
+          .setText("sup_p =" + formatNumberForDisplay(_sup_p));
+      supNTextLabel
+          .setText("sup_n =" + formatNumberForDisplay(_sup_n));
+      modWTextLabel
+          .setText("mod_w =" + formatNumberForDisplay(_mod_w));
+      modMTextLabel
+          .setText("mod_m =" + formatNumberForDisplay(_mod_m));
+      modPTextLabel
+          .setText("mod_p =" + formatNumberForDisplay(_mod_p));
+      modDTextLabel
+          .setText("mod_d =" + formatNumberForDisplay(_mod_d));
+      modNTextLabel
+          .setText("mod_n =" + formatNumberForDisplay(_mod_n));
 
 
       // ============= LEFT SIDE UPDATE ================ //
@@ -1204,7 +1204,7 @@ void MainWindow::on_pushButton_start_clicked()
       sgmKPSS2TextLabel.setText("sgmKPSS2 = " + formatNumberForDisplay(
                                     2 * DESDAAlgorithm._sgmKPSS - 1));
 
-      rTextLabel.setText("r     = " + QString::number(DESDAAlgorithm._r));
+      rTextLabel.setText("r     =" + formatNumberForDisplay(DESDAAlgorithm._r));
 
       drawPlots(&DESDAAlgorithm);
 
