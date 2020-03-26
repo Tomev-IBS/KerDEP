@@ -866,8 +866,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "549";
-  QString expDesc = "v = p, reservoir";
+  QString expNum = "550";
+  QString expDesc = "v = p, reservoir, beta0=0.3";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
