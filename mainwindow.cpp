@@ -866,8 +866,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "545";
-  QString expDesc = "formulas (36) and (52a) update, reservoir";
+  QString expNum = "549";
+  QString expDesc = "v = p, reservoir";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -1054,8 +1054,7 @@ void MainWindow::on_pushButton_start_clicked()
   QString googleDriveDir = "D:\\Dysk Google\\"; // Home
 
   QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                    "v = " + ui->lineEdit_distributionProgression->text() +
-                    ", " + expDesc + ")\\";
+                    + expDesc + ")\\";
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 

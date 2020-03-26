@@ -23,6 +23,29 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
+    switch(_currentIteration){ // P Updating scenario from first article
+      case 1: {
+        progressionSize = 0;
+        break;
+      }
+      case 3001: {
+        progressionSize=0.0001;
+        break;
+      }
+      case 5001: {
+        progressionSize = 0.01;
+        break;
+      }
+      case 7001: {
+        progressionSize = 0.001;
+        break;
+      }
+      case 9001: {
+        progressionSize = 0;
+        break;
+      }
+    }
+
     if(_currentIteration > _delay){
       if(_shouldJump && ! _hasJumped){
         _hasJumped = true;
