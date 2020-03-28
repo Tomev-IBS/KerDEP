@@ -187,9 +187,12 @@ void DESDA::performStep()
     if(_removalsSinceLastDerivativeRemoval >= removalStepThreshold)
     {
       int indexToRemove = findIndexOfClusterWithLowestDerivative();
+      _valueOfLastRemovedClusterWithLowestDerivative
+          = stod((*_clusters)[indexToRemove]->getObject()->attributesValues["Val0"]);
       _clusters->erase(_clusters->begin() + indexToRemove);
       _objects.erase(_objects.begin(), _objects.begin() + 1);
       _removalsSinceLastDerivativeRemoval = 0;
+      ++_numberOfRemovedObjectsWithLowestDerivative;
       qDebug() << "Removed cluster with lowest derivative!";
     } else {
       _clusters->pop_back();

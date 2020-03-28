@@ -101,6 +101,10 @@ class DESDA
     double _h;
     double _hWindowed;
 
+    // Lowest derivative removal
+    double _valueOfLastRemovedClusterWithLowestDerivative = 0;
+    int _numberOfRemovedObjectsWithLowestDerivative = 0;
+
   protected:
 
     int _stepNumber = 0;

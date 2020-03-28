@@ -230,6 +230,15 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
             DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
         _quantileEstimatorValue = DESDAAlgorithm->_quantileEstimator;
       markUncommonClusters();
+
+
+      // Last removed cluster with lowest derivative
+      if(DESDAAlgorithm->_numberOfRemovedObjectsWithLowestDerivative > 0){
+        QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
+        verticalLine->start->setCoords(DESDAAlgorithm->_valueOfLastRemovedClusterWithLowestDerivative, 0);
+        verticalLine->end->setCoords(DESDAAlgorithm->_valueOfLastRemovedClusterWithLowestDerivative, 0.05);
+        verticalLine->setPen(QPen(Qt::blue));
+      }
     }
 
     if(ui->checkBox_REESEKDE->isChecked()){
@@ -328,7 +337,7 @@ unsigned long long MainWindow::markUncommonClusters()
     verticalLine->start->setCoords(x.first, 0);
     verticalLine->end->setCoords(x.first, -_quantileEstimatorValue);
     if(x.second > 0)
-      verticalLine->setPen(QPen(Qt::blue));
+      verticalLine->setPen(QPen(Qt::green));
     else
       verticalLine->setPen(QPen(Qt::red));
     _linesOnPlot.push_back(verticalLine);
@@ -866,7 +875,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "552";
+  QString expNum = "554";
   QString expDesc = "reservoir, v=0.01, deterministic lowest derivative cluster removal";
   screenGenerationFrequency = 10;
 
@@ -961,6 +970,19 @@ void MainWindow::on_pushButton_start_clicked()
     wTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 9 * verticalStep, wTextLabelsLabels[i] + "0"));
     verticalOffset += verticalStep;
   }
+
+
+  //====================  SECOND COLUMN =================//
+
+  horizontalOffset = 0.20;
+  verticalOffset = 9 * verticalStep;
+
+  plotLabel kuTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                           "ku = 10");
+  verticalOffset += verticalStep;
+
+  plotLabel luTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                          "lu = 0");
 
 
   //==================== SUMMARIC ERRORS=================//
@@ -1229,6 +1251,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
 
+      luTextLabel.setText("lu = " + QString::number(DESDAAlgorithm._numberOfRemovedObjectsWithLowestDerivative));
       /*
       // DEBUG
       hTextLabel.setText( "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
