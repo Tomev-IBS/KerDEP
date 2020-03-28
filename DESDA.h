@@ -21,7 +21,7 @@ class DESDA
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::shared_ptr<cluster>> *storedMedoids,
-          double desiredRarity, groupingThread *gt, double newWeightB, int mE, int kpssX, int lambda);
+          double desiredRarity, groupingThread *gt, double newWeightB, int mE);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
@@ -41,13 +41,11 @@ class DESDA
     double _u_i = 0.0;
 
     // Prediction
-    double delta = 0, gamma = 50000.0;
-    double w_E = 0.98; // w_EmE
     double _avg = 0;
     double _stDev = 1;
 
     // New prediction
-    double _beta0 = 0.3;
+    double _beta0 = 0.5;
     double _v = 0.999; // deactualization w of clusters
 
     // Sizes
@@ -55,11 +53,8 @@ class DESDA
     int _minM = 200;
     int _mE = 0; // Cardinality of observed new objects
     int _m = 0; // Cardinality of objects to build KDE
-    int _lambda = 100;
 
     double _newWeightB = 0;
-    double _alpha = 2 * 5.1;
-    double _beta = 1 * 5.5;
     int _kpssM = 0; // m_Eta
 
     // From 31 XI 2019 mail
@@ -101,10 +96,6 @@ class DESDA
     double _h;
     double _hWindowed;
 
-    // Lowest derivative removal
-    double _valueOfLastRemovedClusterWithLowestDerivative = 0;
-    int _numberOfRemovedObjectsWithLowestDerivative = 0;
-
   protected:
 
     int _stepNumber = 0;
@@ -136,12 +127,6 @@ class DESDA
     std::default_random_engine generator;
     std::uniform_real_distribution<double> dist;
     double _d = 0;
-
-    // Deterministic removal of cluster with smallest derivative value
-    int _removalsSinceLastDerivativeRemoval = 0;
-    const double _REMOVAL_COEFFICIENT = 10.0;
-    int findIndexOfClusterWithLowestDerivative();
-
 
     int randomizeIndexToDelete();
     void updateWeights();

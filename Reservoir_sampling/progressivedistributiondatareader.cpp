@@ -23,31 +23,30 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
-    /*
+
+    // 26 III 2020 article formuka
     switch(_currentIteration){ // P Updating scenario from first article
       case 1: {
-        progressionSize = 0;
+        progressionSize = 0.0001;
         break;
       }
-      case 3001: {
-        progressionSize=0.0001;
+      case 2000: {
+        progressionSize=0.01;
         break;
       }
       case 5001: {
-        progressionSize = 0.01;
-        break;
-      }
-      case 7001: {
         progressionSize = 0.001;
         break;
       }
-      case 9001: {
+      case 8000: {
+        progressionSize = 1;
+        break;
+      }
+      case 8001: {
         progressionSize = 0;
         break;
       }
     }
-    */
-
 
     if(_currentIteration > _delay){
       if(_shouldJump && ! _hasJumped){

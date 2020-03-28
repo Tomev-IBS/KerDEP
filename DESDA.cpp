@@ -19,12 +19,11 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
              double desiredRarity, groupingThread *gt,
-             double newWeightB, int mE, int kpssX, int lambda):
+             double newWeightB, int mE):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
-  _grpThread(gt), _newWeightB(newWeightB), _enhancedKDE(enchancedKDE), _mE(mE),
-  _lambda(lambda)
+  _grpThread(gt), _newWeightB(newWeightB), _enhancedKDE(enchancedKDE), _mE(mE)
 {
   _objects.clear();
 
@@ -179,26 +178,12 @@ void DESDA::performStep()
 
   _sgmKPSS = sigmoid(0.61 * stationarityTest->getTestsValue() - 2.65); // sgmKPSS
   _d = _sgmKPSS;
-  double removalStepThreshold = _REMOVAL_COEFFICIENT / _d;
 
   // Making place for new cluster
   while(_clusters->size() >= _maxM)
   {
-    if(_removalsSinceLastDerivativeRemoval >= removalStepThreshold)
-    {
-      int indexToRemove = findIndexOfClusterWithLowestDerivative();
-      _valueOfLastRemovedClusterWithLowestDerivative
-          = stod((*_clusters)[indexToRemove]->getObject()->attributesValues["Val0"]);
-      _clusters->erase(_clusters->begin() + indexToRemove);
-      _objects.erase(_objects.begin(), _objects.begin() + 1);
-      _removalsSinceLastDerivativeRemoval = 0;
-      ++_numberOfRemovedObjectsWithLowestDerivative;
-      qDebug() << "Removed cluster with lowest derivative!";
-    } else {
-      _clusters->pop_back();
-      _objects.erase(_objects.begin(), _objects.begin() + 1);
-      ++_removalsSinceLastDerivativeRemoval;
-    }
+    _clusters->pop_back();
+    _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
 
   _clusters->insert(_clusters->begin(), newCluster);
@@ -241,16 +226,6 @@ void DESDA::performStep()
       else
          _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
   }
-
-  /*
-  _examinedClustersAs.clear();
-  for(auto index : _examinedClustersIndices){
-      if(index < 0)
-          _examinedClustersAs.push_back(0);
-      else
-        _examinedClustersAs.push_back(currentClusters[index]->predictionParameters[1]);
-  }
-  */
 
   // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
@@ -575,22 +550,6 @@ QVector<double> DESDA::getWindowedErrorDomain()
     }
 
     return domain;
-}
-
-int DESDA::findIndexOfClusterWithLowestDerivative()
-{
-  double lowestDerivativeValue = (*_clusters)[0]->_currentDerivativeValue;
-  int lowestDerivativeClusterIndex = 0;
-
-  for(size_t i = 0; i < _clusters->size(); ++i){
-    double currentDerivativeValue = (*_clusters)[i]->_currentDerivativeValue;
-    if(currentDerivativeValue < lowestDerivativeValue){
-      lowestDerivativeValue = currentDerivativeValue;
-      lowestDerivativeClusterIndex = i;
-    }
-  }
-
-  return lowestDerivativeClusterIndex;
 }
 
 double DESDA::calculateH(const std::vector<clusterPtr> &clusters)

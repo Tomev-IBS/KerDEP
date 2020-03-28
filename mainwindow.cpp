@@ -230,15 +230,6 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
             DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
         _quantileEstimatorValue = DESDAAlgorithm->_quantileEstimator;
       markUncommonClusters();
-
-
-      // Last removed cluster with lowest derivative
-      if(DESDAAlgorithm->_numberOfRemovedObjectsWithLowestDerivative > 0){
-        QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
-        verticalLine->start->setCoords(DESDAAlgorithm->_valueOfLastRemovedClusterWithLowestDerivative, 0);
-        verticalLine->end->setCoords(DESDAAlgorithm->_valueOfLastRemovedClusterWithLowestDerivative, 0.05);
-        verticalLine->setPen(QPen(Qt::blue));
-      }
     }
 
     if(ui->checkBox_REESEKDE->isChecked()){
@@ -860,8 +851,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int lambda = 500;
-
   DESDA DESDAAlgorithm(
     estimator,
     kernelPrognoser,
@@ -871,12 +860,12 @@ void MainWindow::on_pushButton_start_clicked()
     clusters,
     &storedMedoids,
     ui->lineEdit_rarity->text().toDouble(),
-    &gt, newWeightB, mE, l, lambda
+    &gt, newWeightB, mE
   );
 
 
-  QString expNum = "554";
-  QString expDesc = "reservoir, v=0.01, deterministic lowest derivative cluster removal";
+  QString expNum = "555";
+  QString expDesc = "reservoir, v=0.01, new formula (59), beta0=0.5";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -975,15 +964,7 @@ void MainWindow::on_pushButton_start_clicked()
   //====================  SECOND COLUMN =================//
 
   horizontalOffset = 0.20;
-  verticalOffset = 9 * verticalStep;
-
-  plotLabel kuTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                           "ku = 10");
-  verticalOffset += verticalStep;
-
-  plotLabel luTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                          "lu = 0");
-
+  verticalOffset = 0.01 + 9 * verticalStep;
 
   //==================== SUMMARIC ERRORS=================//
 
@@ -1120,9 +1101,6 @@ void MainWindow::on_pushButton_start_clicked()
 
       avgMaxA /= maxAs.size();
 
-      // TR TODO: Notice that this should be placed inside DESDA algorithm
-      DESDAAlgorithm.gamma = 1.0 / avgMaxA;
-
       // Error calculations
       if(stepNumber >= 1000)
       {
@@ -1251,8 +1229,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
 
-      luTextLabel.setText("lu = " + QString::number(DESDAAlgorithm._numberOfRemovedObjectsWithLowestDerivative));
-      /*
+       /*
       // DEBUG
       hTextLabel.setText( "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
       hwTextLabel.setText("hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
