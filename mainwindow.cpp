@@ -866,8 +866,8 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "550";
-  QString expDesc = "v = p, reservoir, beta0=0.3";
+  QString expNum = "552";
+  QString expDesc = "reservoir, v=0.01, deterministic lowest derivative cluster removal";
   screenGenerationFrequency = 10;
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;

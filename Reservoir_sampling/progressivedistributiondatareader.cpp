@@ -23,6 +23,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
+    /*
     switch(_currentIteration){ // P Updating scenario from first article
       case 1: {
         progressionSize = 0;
@@ -45,6 +46,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
         break;
       }
     }
+    */
+
 
     if(_currentIteration > _delay){
       if(_shouldJump && ! _hasJumped){

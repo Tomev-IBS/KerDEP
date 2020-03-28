@@ -39,7 +39,6 @@ class DESDA
     stationarityTestPtr stationarityTest;
 
     double _u_i = 0.0;
-    std::vector<double> _selectedVValues = {};
 
     // Prediction
     double delta = 0, gamma = 50000.0;
@@ -104,12 +103,6 @@ class DESDA
 
   protected:
 
-    const double _MAX_A = 1.5;
-    const double _MIN_A = 0.01;
-
-    std::vector<double> _EmEWeights = {};
-    double _EmEWeightsSum = 0.0;
-
     int _stepNumber = 0;
     int _numberOfClustersForGrouping = 100;
     int _medoidsNumber = 50;
@@ -120,9 +113,6 @@ class DESDA
     double _maxEstimatorValueOnDomain = 0.0;
     double _a = 0.0;
     double _previousUncommonClustersWeight = 0.0;
-
-    cluster emE;
-    bool _shouldCluster = false;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;
@@ -143,6 +133,12 @@ class DESDA
     std::uniform_real_distribution<double> dist;
     double _d = 0;
 
+    // Deterministic removal of cluster with smallest derivative value
+    int _removalsSinceLastDerivativeRemoval = 0;
+    const double _REMOVAL_COEFFICIENT = 10.0;
+    int findIndexOfClusterWithLowestDerivative();
+
+
     int randomizeIndexToDelete();
     void updateWeights();
     void updateExaminedClustersIndices();
@@ -153,7 +149,6 @@ class DESDA
     void countDerivativeValuesOnClusters();
     void updateM();
     void updateDelta();
-    double getNewEmEValue();
     void updateMaxAbsAVector();
     double getCurrentMaxAbsA();
     void updateMaxAbsDerivativeVector();

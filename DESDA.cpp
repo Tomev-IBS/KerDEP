@@ -27,10 +27,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _lambda(lambda)
 {
   _objects.clear();
-  std::shared_ptr<sample> e1000Sample =
-      std::make_shared<distributionDataSample>();
-  emE = cluster(e1000Sample);
-  emE._deactualizationParameter = w_E;
 
   _maxM = 2 * mE;
 
@@ -166,59 +162,56 @@ void DESDA::performStep()
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  while(_clusters->size() >= _maxM)
-  {
-    _clusters->pop_back();
-    _objects.erase(_objects.begin(), _objects.begin() + 1);
-  }
-
-  /* Random deletion
-  while(_clusters->size() >= _maxM)
-  {
-    int indexToDelete = randomizeIndexToDelete();
-    _clusters->erase(_clusters->begin() + indexToDelete, _clusters->begin() + indexToDelete + 1);
-    _objects.erase(_objects.begin(), _objects.begin() + 1);
-  }
-  */
-
-  _clusters->insert(_clusters->begin(), newCluster);
-
-  // Count h for window estimator
-  _hWindowed = 0.9 * calculateH(*_clusters);
-
   // KPSS count
-  std::vector<double> values = {};
+  std::vector<double> values =
+    {stod(newCluster->getObject()->attributesValues["Val0"])};
 
-  if(_clusters->size() > _kpssM){
-    for(int i = 0; i < _kpssM; ++i){
-      auto c = (*_clusters)[i];
-      values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
-    }
-  } else {
-    for(auto c : *_clusters){
-      values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
-    }
+  for(size_t i = 0; i < _clusters->size() && values.size() <_kpssM ; ++i){
+    auto c = (*_clusters)[i];
+    values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
   }
 
   _avg = average(values);
 
   stationarityTest->addNewSample(
-    std::stod(_clusters->front()->getObject()->attributesValues["Val0"])
+    std::stod(newCluster->getObject()->attributesValues["Val0"])
   );
-  _sgmKPSS = sigmoid(0.61 * stationarityTest->getTestsValue() - 2.65); // sgmKPSS
 
+  _sgmKPSS = sigmoid(0.61 * stationarityTest->getTestsValue() - 2.65); // sgmKPSS
+  _d = _sgmKPSS;
+  double removalStepThreshold = _REMOVAL_COEFFICIENT / _d;
+
+  // Making place for new cluster
+  while(_clusters->size() >= _maxM)
+  {
+    if(_removalsSinceLastDerivativeRemoval >= removalStepThreshold)
+    {
+      int indexToRemove = findIndexOfClusterWithLowestDerivative();
+      _clusters->erase(_clusters->begin() + indexToRemove);
+      _objects.erase(_objects.begin(), _objects.begin() + 1);
+      _removalsSinceLastDerivativeRemoval = 0;
+      qDebug() << "Removed cluster with lowest derivative!";
+    } else {
+      _clusters->pop_back();
+      _objects.erase(_objects.begin(), _objects.begin() + 1);
+      ++_removalsSinceLastDerivativeRemoval;
+    }
+  }
+
+  _clusters->insert(_clusters->begin(), newCluster);
 
   // M update
   updateM();
   updateExaminedClustersIndices(); // For labels update
-  updateDelta(); // To remove after new prognosis formulas are implemented
 
   _v = _m > _clusters->size() ? 1.0 - 1.0 / _clusters->size(): 1.0 - 1.0 / _m ;
   cluster::_deactualizationParameter = _v;
 
-  // Calculate smoothing parameter for m
+  // Calculate smoothing parameterers
+  double smoothingParameterEnhancer = 0.9;
+  _hWindowed = smoothingParameterEnhancer * calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
-  _h = 0.9 * calculateH(currentClusters);
+  _h = smoothingParameterEnhancer * calculateH(currentClusters);
 
   // Update weights
   updateWeights();
@@ -230,8 +223,6 @@ void DESDA::performStep()
   countKDEValuesOnClusters();
   updatePrognosisParameters();
   countDerivativeValuesOnClusters();
-  emE._currentKDEValue = getNewEmEValue(); // To be removed
-  emE.updatePrediction(); // To be removed
 
   // Update a
   updateMaxAbsAVector();
@@ -422,37 +413,6 @@ void DESDA::updateM()
   _m = _m > _maxM ? _maxM : _m;
 }
 
-void DESDA::updateDelta()
-{
-    if(emE.predictionParameters.size() < 2) return;
-
-    double sigmoidArg = _s;
-    sigmoidArg += _mu * fabs(emE.predictionParameters[1]);
-    delta = sigmoid(sigmoidArg);
-}
-
-double DESDA::getNewEmEValue()
-{
-    // Initialize EmEWeights vector
-    _EmEWeights.clear();
-    _EmEWeightsSum = 0;
-
-    for(int i = 0; i < _mE; ++i){
-        double val = 1.0 - _newWeightB * i / _mE;
-        _EmEWeights.push_back(val);
-        _EmEWeightsSum += val;
-    }
-
-    // Get weighted average
-    double avg = 0;
-    double mE = std::min((int)_clusters->size(), _mE);
-    for(int i = 0; i < mE; ++i){
-        avg += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]) * _EmEWeights[i];
-    }
-
-    return avg / _EmEWeightsSum;
-}
-
 /** DESDA::updateMaxAbsAVector
  * @brief Updates vector of absolute values of a. This vector should store _maxM
  * values at most and it's values should be counted on all stored clusters (as
@@ -612,6 +572,22 @@ QVector<double> DESDA::getWindowedErrorDomain()
     }
 
     return domain;
+}
+
+int DESDA::findIndexOfClusterWithLowestDerivative()
+{
+  double lowestDerivativeValue = (*_clusters)[0]->_currentDerivativeValue;
+  int lowestDerivativeClusterIndex = 0;
+
+  for(size_t i = 0; i < _clusters->size(); ++i){
+    double currentDerivativeValue = (*_clusters)[i]->_currentDerivativeValue;
+    if(currentDerivativeValue < lowestDerivativeValue){
+      lowestDerivativeValue = currentDerivativeValue;
+      lowestDerivativeClusterIndex = i;
+    }
+  }
+
+  return lowestDerivativeClusterIndex;
 }
 
 double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
@@ -853,11 +829,6 @@ double DESDA::getStdDevOfFirstMSampleValues(int M)
 
   _stDev = pow(var, 0.5);
   return _stDev;
-}
-
-cluster DESDA::getEmECluster()
-{
-  return emE;
 }
 
 double DESDA::getStationarityTestValue()
