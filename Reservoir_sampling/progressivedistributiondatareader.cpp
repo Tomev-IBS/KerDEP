@@ -24,7 +24,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     */
 
 
-    // 26 III 2020 article formuka
+    // 26 III 2020 article formula
     switch(_currentIteration){ // P Updating scenario from first article
       case 1: {
         progressionSize = 0.0001;
