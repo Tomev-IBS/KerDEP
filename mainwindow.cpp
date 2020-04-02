@@ -443,8 +443,9 @@ void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::share
     }
 
     qreal val = ui->lineEdit_minX->text().toDouble();
-    qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;  // Traveling case
+    //qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000;  // Traveling case
     //qreal maxVal = 3 + ui->lineEdit_distributionProgression->text().toDouble(); /* should jump */
+    qreal maxVal = ui->lineEdit_maxX->text().toDouble();
 
     //while(val <= ui->lineEdit_maxX->text().toDouble())
     while(val <= maxVal)
