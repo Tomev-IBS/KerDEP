@@ -44,6 +44,8 @@ class MainWindow : public QMainWindow
 
     QVector<std::shared_ptr<point>> _domain;
     QVector<double> _drawableDomain;
+    QVector<double> _windowedErrorDomain;
+    QVector<double> _errorDomain;
 
   private:
     const QPen _MODEL_PLOT_PEN                     = QPen(Qt::red);
@@ -130,8 +132,8 @@ class MainWindow : public QMainWindow
     double  modelExtrema = 0.0, windowKDEExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0, WKDEExtrema = 0.0, REESEExtrema = 0,
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;
 
-    double calculateL1Error(const QVector<double> &model, const QVector<double> estimated);
-    double calculateL2Error(const QVector<double> &model, const QVector<double> estimated);
+    double calculateL1Error(const QVector<double> &model, const QVector<double> estimated, const QVector<double> &domain);
+    double calculateL2Error(const QVector<double> &model, const QVector<double> estimated, const QVector<double> &domain);
     double calculateSupError(const QVector<double> &model, const QVector<double> estimated);
     double findExtrema(const QVector<double> &values, const QVector<double> domain);
 

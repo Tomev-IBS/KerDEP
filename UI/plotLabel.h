@@ -6,9 +6,11 @@
 class plotLabel
 {
   public:
-    plotLabel(QCustomPlot* plot, const double &hOffset, const double &vOffset, QString text);
+    plotLabel(QCustomPlot* plot, const double &hOffset,
+              const double &vOffset, QString text);
     plotLabel(const plotLabel &pl);
     void setText(QString text);
+    void setFont(const QFont &newFont);
   private:
     QFont _label_font = QFont("Courier New", 18);
     QCPItemText _label;

@@ -71,24 +71,46 @@ QVector<double> MainWindow::getTargetFunctionValuesOnDomain(QVector<double> *dom
   return values;
 }
 
-double MainWindow::calculateL1Error(const QVector<double> &model, const QVector<double> estimated)
+double MainWindow::calculateL1Error(const QVector<double> &model, const QVector<double> estimated, const QVector<double> &domain)
 {
   QVector<qreal> errorHolder = {};
 
   for(int i = 0; i < model.size(); ++i)
     errorHolder.push_back(fabs(model[i] - estimated[i]));
 
-  return numericIntegral(&errorHolder);
+  double avg = 0;
+
+  for(auto val : errorHolder)
+    avg += val;
+
+  if(errorHolder.size() > 0) avg /= errorHolder.size();
+
+  double min = domain[0];
+  double max = domain[domain.size() - 1];
+  double len = max - min;
+
+  return avg * len;
 }
 
-double MainWindow::calculateL2Error(const QVector<double> &model, const QVector<double> estimated)
+double MainWindow::calculateL2Error(const QVector<double> &model, const QVector<double> estimated, const QVector<double> &domain)
 {
   QVector<qreal> errorHolder = {};
 
   for(int i = 0; i < model.size(); ++i)
     errorHolder.push_back(pow(model[i] - estimated[i], 2));
 
-  return numericIntegral(&errorHolder);
+  double avg = 0;
+
+  for(auto val : errorHolder)
+    avg += val;
+
+  if(errorHolder.size() > 0) avg /= errorHolder.size();
+
+  double min = domain[0];
+  double max = domain[domain.size() - 1];
+  double len = max - min;
+
+  return avg * len;
 }
 
 double MainWindow::calculateSupError(const QVector<double> &model, const QVector<double> estimated)
@@ -255,8 +277,8 @@ void MainWindow::resizePlot()
 {
     // Resize plot
     qreal   minX = ui->lineEdit_minX->text().toDouble(),
-            //maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
-            maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
+            maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
+            //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
             //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // /* should jump */
             minY = ui->lineEdit_minY->text().toDouble(),
             maxY = ui->lineEdit_maxY->text().toDouble();
@@ -864,9 +886,29 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "555";
-  QString expDesc = "reservoir, new formula (59), beta0=0.5";
+  QString expNum = "564";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc = "reservoir, v=formula (59), beta0=0.5";
   screenGenerationFrequency = 10;
+
+  QString googleDriveDir = "D:\\Dysk Google\\"; // Home
+
+  QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
+
+  clearPlot();
+  resizePlot();
+
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
+  expNumLabel.setFont(QFont("Courier New", 250));
+
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName,
+                                                           0, 0, 1, -1);
+  expNumLabel.setText("");
 
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
@@ -971,11 +1013,11 @@ void MainWindow::on_pushButton_start_clicked()
   horizontalOffset = 0.85;
   verticalOffset = 0.01;
 
+  /*
   plotLabel expNumTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "Exp" + expNum);
    verticalOffset += verticalStep;
    verticalOffset += verticalStep;
 
-  /*
   verticalOffset += verticalStep;
 
   plotLabel hTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
@@ -1054,17 +1096,7 @@ void MainWindow::on_pushButton_start_clicked()
   ui->widget_plot->replot();
   qApp->processEvents();
 
-  QString googleDriveDir = "D:\\Dysk Google\\"; // Home
-
-  QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                    + expDesc + ")\\";
-
-  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName,
-                                                          0, 0, 1, -1);
+  int numberOfErrorCalculations = 1;
 
   for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber)
   {
@@ -1104,83 +1136,91 @@ void MainWindow::on_pushButton_start_clicked()
       // Error calculations
       if(stepNumber >= 1000)
       {
-        auto windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
-        auto errorDomain = DESDAAlgorithm.getErrorDomain();
+        _windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
+        _errorDomain = DESDAAlgorithm.getErrorDomain();
 
-        _windowedModelPlotY = getTargetFunctionValuesOnDomain(&windowedErrorDomain);
-        _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&windowedErrorDomain);
-        _modelPlotErrorY = getTargetFunctionValuesOnDomain(&errorDomain);
-        _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&errorDomain);
-        _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&errorDomain);
-        _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&errorDomain);
-        _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&errorDomain);
+        _windowedModelPlotY = getTargetFunctionValuesOnDomain(&_windowedErrorDomain);
+        _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&_windowedErrorDomain);
+        _modelPlotErrorY = getTargetFunctionValuesOnDomain(&_errorDomain);
+        _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&_errorDomain);
+        _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&_errorDomain);
+        _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&_errorDomain);
+        _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_errorDomain);
 
-        _L1_w += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY);
-        _L1_m    += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
-        _L1_d   += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY);
-        _L1_p   += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
-        _L1_n   += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+        _L1_w += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomain);
+        _L1_m += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY, _errorDomain);
+        _L1_d += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY, _errorDomain);
+        _L1_p += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY, _errorDomain);
+        _L1_n += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY, _errorDomain);
 
-        _L2_w += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY);
-        _L2_m    += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY);
-        _L2_d   += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY);
-        _L2_p   += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
-        _L2_n   += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
+        _L2_w += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomain);
+        _L2_m += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY, _errorDomain);
+        _L2_d += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY, _errorDomain);
+        _L2_p += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY, _errorDomain);
+        _L2_n += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY, _errorDomain);
 
         _sup_w += calculateSupError(_windowedModelPlotY, _windowedEstimatorErrorY);
-        _sup_m  += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
+        _sup_m += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
         _sup_d += calculateSupError(_modelPlotErrorY, _weightedEstimatorErrorY);
         _sup_p += calculateSupError(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
         _sup_n += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
-        _mod_w += fabs(findExtrema(_windowedModelPlotY, windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, windowedErrorDomain));
-        _mod_m  += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_lessElementsEstimatorErrorY, errorDomain));
-        _mod_d += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_weightedEstimatorErrorY, errorDomain));
-        _mod_p += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, errorDomain));
-        _mod_n += fabs(findExtrema(_modelPlotErrorY, errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, errorDomain));
+        _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
+        _mod_m += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
+        _mod_d += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
+        _mod_p += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
+        _mod_n += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
+        _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
+        _mod_m += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
+        _mod_d += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
+        _mod_p += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
+        _mod_n += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
+
+        ++numberOfErrorCalculations;
       }
 
       // ============ SUMS =========== //
+
       L1WTextLabel
-          .setText("L1_w  =" + formatNumberForDisplay(_L1_w));
+          .setText("L1_w  =" + formatNumberForDisplay(_L1_w / numberOfErrorCalculations));
       L1MTextLabel
-          .setText("L1_m  =" + formatNumberForDisplay(_L1_m));
+          .setText("L1_m  =" + formatNumberForDisplay(_L1_m / numberOfErrorCalculations));
       L1DTextLabel
-          .setText("L1_d  =" + formatNumberForDisplay(_L1_d));
+          .setText("L1_d  =" + formatNumberForDisplay(_L1_d / numberOfErrorCalculations));
       L1PTextLabel
-          .setText("L1_p  =" + formatNumberForDisplay(_L1_p));
+          .setText("L1_p  =" + formatNumberForDisplay(_L1_p / numberOfErrorCalculations));
       L1NTextLabel
-          .setText("L1_n  =" + formatNumberForDisplay(_L1_n));
+          .setText("L1_n  =" + formatNumberForDisplay(_L1_n / numberOfErrorCalculations));
       L2WTextLabel
-          .setText("L2_w  =" + formatNumberForDisplay(_L2_w));
+          .setText("L2_w  =" + formatNumberForDisplay(_L2_w / numberOfErrorCalculations));
       L2MTextLabel
-          .setText("L2_m  =" + formatNumberForDisplay(_L2_m));
+          .setText("L2_m  =" + formatNumberForDisplay(_L2_m / numberOfErrorCalculations));
       L2DTextLabel
-          .setText("L2_d  =" + formatNumberForDisplay(_L2_d));
+          .setText("L2_d  =" + formatNumberForDisplay(_L2_d / numberOfErrorCalculations));
       L2PTextLabel
-          .setText("L2_p  =" + formatNumberForDisplay(_L2_p));
+          .setText("L2_p  =" + formatNumberForDisplay(_L2_p / numberOfErrorCalculations));
       L2NTextLabel
-          .setText("L2_n  =" + formatNumberForDisplay(_L2_n));
+          .setText("L2_n  =" + formatNumberForDisplay(_L2_n / numberOfErrorCalculations));
       supWTextLabel
-          .setText("sup_w =" + formatNumberForDisplay(_sup_w));
+          .setText("sup_w =" + formatNumberForDisplay(_sup_w / numberOfErrorCalculations));
       supMTextLabel
-          .setText("sup_m =" + formatNumberForDisplay(_sup_m));
+          .setText("sup_m =" + formatNumberForDisplay(_sup_m / numberOfErrorCalculations));
       supDTextLabel
-          .setText("sup_d =" + formatNumberForDisplay(_sup_d));
+          .setText("sup_d =" + formatNumberForDisplay(_sup_d / numberOfErrorCalculations));
       supPTextLabel
-          .setText("sup_p =" + formatNumberForDisplay(_sup_p));
+          .setText("sup_p =" + formatNumberForDisplay(_sup_p / numberOfErrorCalculations));
       supNTextLabel
-          .setText("sup_n =" + formatNumberForDisplay(_sup_n));
+          .setText("sup_n =" + formatNumberForDisplay(_sup_n / numberOfErrorCalculations));
       modWTextLabel
-          .setText("mod_w =" + formatNumberForDisplay(_mod_w));
+          .setText("mod_w =" + formatNumberForDisplay(_mod_w / numberOfErrorCalculations));
       modMTextLabel
-          .setText("mod_m =" + formatNumberForDisplay(_mod_m));
+          .setText("mod_m =" + formatNumberForDisplay(_mod_m / numberOfErrorCalculations));
       modDTextLabel
-          .setText("mod_d =" + formatNumberForDisplay(_mod_d));
+          .setText("mod_d =" + formatNumberForDisplay(_mod_d / numberOfErrorCalculations));
       modPTextLabel
-          .setText("mod_p =" + formatNumberForDisplay(_mod_p));
+          .setText("mod_p =" + formatNumberForDisplay(_mod_p / numberOfErrorCalculations));
       modNTextLabel
-          .setText("mod_n =" + formatNumberForDisplay(_mod_n));
+          .setText("mod_n =" + formatNumberForDisplay(_mod_n / numberOfErrorCalculations));
 
 
       // ============= LEFT SIDE UPDATE ================ //
