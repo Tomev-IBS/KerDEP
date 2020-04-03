@@ -89,9 +89,8 @@ class DESDA
     QVector<double> getErrorDomain();
     QVector<double> getWindowedErrorDomain();
 
-    double _averageMaxPredictionAInLastKPSSMSteps = 0;
-    double _averageMaxPredictionAInLastMinMSteps = 0;
-    double _averageMaxDerivativeValueInLastMinMSteps = 0;
+    double _averageMaxDerivativeValueInLastMASteps = 0;
+    int _mA = 100;
 
     double _h;
     double _hWindowed;
@@ -142,9 +141,7 @@ class DESDA
     double getCurrentMaxAbsA();
     void updateMaxAbsDerivativeVector();
     double getCurrentMaxAbsDerivativeValue();
-    void updateAverageMaxAbsAsInLastKPSSMSteps();
-    void updateAverageMaxAbsAsInLastMinMSteps();
-    void updateAverageMaxAbsDerivativeInLastMinMSteps();
+    void updateAverageMaxAbsDerivativeInLastMASteps();
     void updateExaminedClustersAsVector();
 
     // Domain reduction
@@ -153,9 +150,6 @@ class DESDA
 
     double calculateH(const std::vector<clusterPtr> &clusters);
 
-
-    // Rare elements
-    double _psi = 0.333;
 
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();

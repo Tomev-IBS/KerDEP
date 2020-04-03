@@ -33,6 +33,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _mE = 1000;
   _m = _maxM;
+  _mA = _maxM; // For avg max |a| calculation
 
   _minM = _maxM / 10;
   _kpssM = _maxM;
@@ -196,7 +197,7 @@ void DESDA::performStep()
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameterers
-  double smoothingParameterEnhancer = 1;
+  double smoothingParameterEnhancer = 0.9;
   _hWindowed = smoothingParameterEnhancer * calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
   _h = smoothingParameterEnhancer * calculateH(currentClusters);
@@ -215,9 +216,7 @@ void DESDA::performStep()
   // Update a
   updateMaxAbsAVector();
   updateMaxAbsDerivativeVector();
-  updateAverageMaxAbsAsInLastKPSSMSteps();
-  updateAverageMaxAbsAsInLastMinMSteps();
-  updateAverageMaxAbsDerivativeInLastMinMSteps();
+  updateAverageMaxAbsDerivativeInLastMASteps();
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices){
@@ -305,7 +304,7 @@ void DESDA::enhanceWeightsOfUncommonElements()
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
     double weightEnhancer = 2 * sigmoid(1.1 * ue->_currentDerivativeValue /
-                                        _averageMaxDerivativeValueInLastMinMSteps) - 1;
+                                        _averageMaxDerivativeValueInLastMASteps) - 1;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     weightsEnhancers.push_back(weightEnhancer);
@@ -443,48 +442,18 @@ double DESDA::getCurrentMaxAbsDerivativeValue()
   return maxAbsDerivative;
 }
 
-/** DESDA::updateAverageMaxAbsAsInLastKPSSMSteps
- * @brief Updates the value of average max abs(a) in last KPSS M number of steps.
- *
- * Thus should be called after max(abs(a)) vector update.
- */
-void DESDA::updateAverageMaxAbsAsInLastKPSSMSteps()
-{
-    int consideredElementsNumber = _maxAbsAs.size() < _kpssM ? _maxAbsAs.size() : _kpssM;
-
-    double sumOfConsideredAbsAs = 0;
-
-    for(int i = 0; i < consideredElementsNumber; ++i){
-      sumOfConsideredAbsAs += _maxAbsAs[i];
-    }
-
-    _averageMaxPredictionAInLastKPSSMSteps = sumOfConsideredAbsAs / consideredElementsNumber;
-}
-
-void DESDA::updateAverageMaxAbsAsInLastMinMSteps()
-{
-    double sumOfConsideredAbsAs = 0;
-    int consideredElementsNumber = _maxAbsAs.size() < _minM ? _maxAbsAs.size() : _minM;
-
-    for(int i = 0; i < consideredElementsNumber; ++i){
-      sumOfConsideredAbsAs += _maxAbsAs[i];
-    }
-
-    _averageMaxPredictionAInLastMinMSteps = sumOfConsideredAbsAs / consideredElementsNumber;
-}
-
-void DESDA::updateAverageMaxAbsDerivativeInLastMinMSteps()
+void DESDA::updateAverageMaxAbsDerivativeInLastMASteps()
 {
   double sumOfConsideredMaxAbsDerivatives = 0;
   int consideredElementsNumber =
-      _maxAbsDerivatives.size() < _minM ? _maxAbsAs.size() : _minM;
+      _maxAbsDerivatives.size() < _mA ? _maxAbsAs.size() : _mA;
 
   for(int i = 0; i < consideredElementsNumber; ++i){
     sumOfConsideredMaxAbsDerivatives += _maxAbsDerivatives[i];
   }
 
-  _averageMaxDerivativeValueInLastMinMSteps = sumOfConsideredMaxAbsDerivatives;
-  _averageMaxDerivativeValueInLastMinMSteps /= consideredElementsNumber;
+  _averageMaxDerivativeValueInLastMASteps = sumOfConsideredMaxAbsDerivatives;
+  _averageMaxDerivativeValueInLastMASteps /= consideredElementsNumber;
 }
 
 double DESDA::getDomainMinValue(const std::vector<clusterPtr> &clusters, double h)
@@ -668,9 +637,9 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
     double beta = 1.1 * c->_currentDerivativeValue;
-    beta /= _averageMaxDerivativeValueInLastMinMSteps;
+    beta /= _averageMaxDerivativeValueInLastMASteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
-    if(_averageMaxDerivativeValueInLastMinMSteps < 1e-5) beta = 0;
+    if(_averageMaxDerivativeValueInLastMASteps < 1e-5) beta = 0;
 
     double weightEnhancement = 1 + _sgmKPSS * beta;
     c->setCWeight(c->getCWeight() * weightEnhancement);

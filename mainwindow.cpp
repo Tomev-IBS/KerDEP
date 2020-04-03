@@ -235,7 +235,7 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
       QVector<double> standarizedDerivativeY = {};
       for(auto val : _kernelPrognosisDerivativeValues){
         standarizedDerivativeY.push_back(
-          0.1 * val / DESDAAlgorithm->_averageMaxDerivativeValueInLastMinMSteps
+          0.1 * val / DESDAAlgorithm->_averageMaxDerivativeValueInLastMASteps
         );
       }
       addPlot(&standarizedDerivativeY, _STANDARIZED_DERIVATIVE_PLOT_PEN);
@@ -887,9 +887,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "566";
+  QString expNum = "567";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, 566, but with 1h not 0,9h";
+  QString expDesc = "reservoir, 565, but with avgmax a calculated on m0";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
@@ -1115,26 +1115,6 @@ void MainWindow::on_pushButton_start_clicked()
       _kernelPrognosisDerivativeValues =
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&_drawableDomain);
 
-      double maxA = 0, meanA = 0, currentMaxA = 0, avgMaxA = 0;
-
-      for(auto val : _kernelPrognosisDerivativeValues){
-        meanA += fabs(val);
-        currentMaxA = currentMaxA < fabs(val) ? fabs(val) : currentMaxA;
-      }
-
-      if(stepNumber > sampleSize)
-        maxAs.pop_front();
-
-      maxAs.push_back(currentMaxA);
-
-      for(auto val : maxAs)
-      {
-        avgMaxA += val;
-        maxA = val > maxA ? val : maxA;
-      }
-
-      avgMaxA /= maxAs.size();
-
       // Error calculations
       if(stepNumber >= 1000)
       {
@@ -1266,7 +1246,7 @@ void MainWindow::on_pushButton_start_clicked()
       }
 
       maxAbsATextLabel.setText("avg max(|g|) = " + formatNumberForDisplay(
-                                   DESDAAlgorithm._averageMaxDerivativeValueInLastMinMSteps));
+                                   DESDAAlgorithm._averageMaxDerivativeValueInLastMASteps));
 
 
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
