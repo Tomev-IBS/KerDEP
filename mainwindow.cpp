@@ -887,13 +887,13 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "564";
+  QString expNum = "565";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=formula (59), beta0=0.5";
+  QString expDesc = "reservoir, like 564 on WIT PC";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
-  QString driveDir = "\\\\beabourg\\private"; // WIT PCs
+  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
