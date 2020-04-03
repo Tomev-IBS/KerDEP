@@ -892,9 +892,10 @@ void MainWindow::on_pushButton_start_clicked()
   QString expDesc = "reservoir, v=formula (59), beta0=0.5";
   screenGenerationFrequency = 10;
 
-  QString googleDriveDir = "D:\\Dysk Google\\"; // Home
+  //QString driveDir = "D:\\Dysk Google\\"; // Home
+  QString driveDir = "\\\\beabourg\\private"; // WIT PCs
 
-  QString dirPath = googleDriveDir + "TR Badania\\Eksperyment " + expNum + " ("
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
   clearPlot();
