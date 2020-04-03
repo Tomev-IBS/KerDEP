@@ -196,7 +196,7 @@ void DESDA::performStep()
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameterers
-  double smoothingParameterEnhancer = 0.9;
+  double smoothingParameterEnhancer = 1;
   _hWindowed = smoothingParameterEnhancer * calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
   _h = smoothingParameterEnhancer * calculateH(currentClusters);
