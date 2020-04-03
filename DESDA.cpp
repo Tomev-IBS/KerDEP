@@ -33,7 +33,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _mE = 1000;
   _m = _maxM;
-  _mA = _maxM; // For avg max |a| calculation
+  _mA = _maxM / 10; // For avg max |a| calculation
 
   _minM = _maxM / 10;
   _kpssM = _maxM;
@@ -385,7 +385,7 @@ void DESDA::updateM()
 {
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
-  _m = round(1.11 * _maxM - (1.11 * _maxM - _minM) * _sgmKPSS);
+  _m = round(1.05 * _maxM - (1.05 * _maxM - _minM) * _sgmKPSS);
   _m = _m < _clusters->size() ? _m : _clusters->size();
   _m = _m > _maxM ? _maxM : _m;
 }
