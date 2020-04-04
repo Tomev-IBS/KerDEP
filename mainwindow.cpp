@@ -895,9 +895,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "583";
+  QString expNum = "584";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, 565, but seed=" + seedString;
+  QString expDesc = "reservoir, 570, but with more screens around 1000";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
@@ -1108,6 +1108,12 @@ void MainWindow::on_pushButton_start_clicked()
 
   int numberOfErrorCalculations = 1;
 
+  QVector<int> additionalScreensSteps = {};
+
+  for(int i = 990; i < 1011; ++i){
+      additionalScreensSteps.append(i);
+  }
+
   for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber)
   {
     clock_t executionStartTime = clock();
@@ -1116,7 +1122,8 @@ void MainWindow::on_pushButton_start_clicked()
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    if(stepNumber % screenGenerationFrequency == 0 || stepNumber < 10)
+    if(stepNumber % screenGenerationFrequency == 0 || stepNumber < 10
+       || additionalScreensSteps.contains(stepNumber))
     {
       qDebug() << "Drawing in step number " << stepNumber << ".";
 
