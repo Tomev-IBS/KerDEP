@@ -814,6 +814,7 @@ void MainWindow::on_pushButton_start_clicked()
   QString seedString = ui->lineEdit_seed->text();
 
   // Log that application started generating KDE
+  // Standard seed was 5625.
   qDebug() << "KDE animation started.";
   qDebug() << "Seed: " + seedString +
               ", Sample size: " + ui->lineEdit_sampleSize->text();
@@ -895,9 +896,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "584";
+  QString expNum = "585";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, 570, but with more screens around 1000";
+  QString expDesc = "reservoir, 565, but max |a| is used instead of avg max";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home

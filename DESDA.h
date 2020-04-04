@@ -90,6 +90,7 @@ class DESDA
     QVector<double> getWindowedErrorDomain();
 
     double _averageMaxDerivativeValueInLastMASteps = 0;
+    double _maxAbsDerivativeValueInCurrentStep = 0;
     int _mA = 100;
 
     double _h;
@@ -142,6 +143,7 @@ class DESDA
     void updateMaxAbsDerivativeVector();
     double getCurrentMaxAbsDerivativeValue();
     void updateAverageMaxAbsDerivativeInLastMASteps();
+    void updateMaxAbsDerivativeInCurrentStep();
     void updateExaminedClustersAsVector();
 
     // Domain reduction

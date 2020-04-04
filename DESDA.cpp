@@ -217,6 +217,7 @@ void DESDA::performStep()
   updateMaxAbsAVector();
   updateMaxAbsDerivativeVector();
   updateAverageMaxAbsDerivativeInLastMASteps();
+  updateMaxAbsDerivativeInCurrentStep();
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices){
@@ -303,8 +304,12 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
+    /*
     double weightEnhancer = 2 * sigmoid(1.1 * ue->_currentDerivativeValue /
-                                        _averageMaxDerivativeValueInLastMASteps) - 1;
+                                   _averageMaxDerivativeValueInLastMASteps) - 1;
+    */
+    double weightEnhancer = ue->_currentDerivativeValue /
+                            _maxAbsDerivativeValueInCurrentStep;
     weightEnhancer *= _sgmKPSS;
     weightEnhancer += 1;
     weightsEnhancers.push_back(weightEnhancer);
@@ -454,6 +459,19 @@ void DESDA::updateAverageMaxAbsDerivativeInLastMASteps()
 
   _averageMaxDerivativeValueInLastMASteps = sumOfConsideredMaxAbsDerivatives;
   _averageMaxDerivativeValueInLastMASteps /= consideredElementsNumber;
+}
+
+void DESDA::updateMaxAbsDerivativeInCurrentStep()
+{
+  auto consideredClusters = getClustersForEstimator();
+  _maxAbsDerivativeValueInCurrentStep = 0;
+  for(auto c : consideredClusters){
+    auto cAbsDerivativeValue = fabs(c->_currentDerivativeValue);
+    _maxAbsDerivativeValueInCurrentStep =
+        _maxAbsDerivativeValueInCurrentStep > cAbsDerivativeValue ?
+                                            _maxAbsDerivativeValueInCurrentStep
+                                            : cAbsDerivativeValue;
+  }
 }
 
 double DESDA::getDomainMinValue(const std::vector<clusterPtr> &clusters, double h)
@@ -636,10 +654,16 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 
   for(int i = 0; i < clusters->size(); ++i){
     auto c = (*clusters)[i];
-    double beta = 1.1 * c->_currentDerivativeValue;
+    double beta = _beta0 * c->_currentDerivativeValue /
+        _maxAbsDerivativeValueInCurrentStep;
+    if(_maxAbsDerivativeValueInCurrentStep == 0)
+      beta = 0;
+
+    /*
     beta /= _averageMaxDerivativeValueInLastMASteps;
     beta = _beta0 * (2 * sigmoid(beta) - 1);
     if(_averageMaxDerivativeValueInLastMASteps < 1e-5) beta = 0;
+    */
 
     double weightEnhancement = 1 + _sgmKPSS * beta;
     c->setCWeight(c->getCWeight() * weightEnhancement);
