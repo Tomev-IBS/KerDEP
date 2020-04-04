@@ -483,8 +483,8 @@ distribution* MainWindow::generateTargetDistribution(
 
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
-    double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
-    //double maxMean = ui->lineEdit_maxX->text().toDouble();
+    //double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
+    double maxMean = ui->lineEdit_maxX->text().toDouble();
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
