@@ -25,7 +25,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
 
 
     // 26 III 2020 article formula
-    switch(_currentIteration - 1){ // P Updating scenario from first article
+    //switch(_currentIteration - 1){ // P Updating scenario from first article
+    switch(_currentIteration){ // For exps with seed, remove later
       case 1: {
         progressionSize = 0.0001;
         break;
