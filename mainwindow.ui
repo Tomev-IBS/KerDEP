@@ -447,7 +447,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_seed">
            <property name="text">
-            <string>6</string>
+            <string>7</string>
            </property>
           </widget>
          </item>
