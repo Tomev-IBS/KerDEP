@@ -804,9 +804,11 @@ void MainWindow::on_pushButton_start_clicked()
 
   if(!canAnimationBePerformed(dimensionsNumber)) return;
 
+  QString seedString = ui->lineEdit_seed->text();
+
   // Log that application started generating KDE
   qDebug() << "KDE animation started.";
-  qDebug() << "Seed: " + ui->lineEdit_seed->text() +
+  qDebug() << "Seed: " + seedString +
               ", Sample size: " + ui->lineEdit_sampleSize->text();
 
   srand(static_cast<unsigned int>(ui->lineEdit_seed->text().toInt()));
@@ -852,7 +854,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
-  int l = 4;
 
   groupingThread gt(&storedMedoids, parser);
 
@@ -887,9 +888,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "569";
+  QString expNum = "570";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, 565, but (46) uses 1 not 1,1";
+  QString expDesc = "reservoir, 565, but seed=" + seedString;
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home

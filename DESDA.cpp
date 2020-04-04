@@ -385,7 +385,7 @@ void DESDA::updateM()
 {
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
-  _m = round(1 * _maxM - (1 * _maxM - _minM) * _sgmKPSS);
+  _m = round(1.1 * _maxM - (1.1 * _maxM - _minM) * _sgmKPSS);
   _m = _m < _clusters->size() ? _m : _clusters->size();
   _m = _m > _maxM ? _maxM : _m;
 }
