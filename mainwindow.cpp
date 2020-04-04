@@ -235,7 +235,7 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
       QVector<double> standarizedDerivativeY = {};
       for(auto val : _kernelPrognosisDerivativeValues){
         standarizedDerivativeY.push_back(
-          0.1 * val / DESDAAlgorithm->_averageMaxDerivativeValueInLastMASteps
+          0.1 * val / DESDAAlgorithm->_maxAbsDerivativeValueInCurrentStep
         );
       }
       addPlot(&standarizedDerivativeY, _STANDARIZED_DERIVATIVE_PLOT_PEN);
@@ -896,9 +896,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "585";
+  QString expNum = "586";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, 565, but max |a| is used instead of avg max";
+  QString expDesc = "reservoir, 565 (fixed 585), but max |a| is used instead of avg max, sz423";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
@@ -982,7 +982,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
 
   plotLabel maxAbsATextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "avg max(|g|) = 0");
+                       "max(|g|)     = 0");
   verticalOffset += verticalStep;
 
   std::vector<QString> gTextLabelsLabels = {"g(int(0.2m)) = ", "g(int(0.5m)) = ", "g(int(0.8m)) = "};
@@ -1261,8 +1261,8 @@ void MainWindow::on_pushButton_start_clicked()
                                   DESDAAlgorithm._examinedClustersDerivatives[i]));
       }
 
-      maxAbsATextLabel.setText("avg max(|g|) = " + formatNumberForDisplay(
-                                   DESDAAlgorithm._averageMaxDerivativeValueInLastMASteps));
+      maxAbsATextLabel.setText("max(|g|)     = " + formatNumberForDisplay(
+                                   DESDAAlgorithm._maxAbsDerivativeValueInCurrentStep));
 
 
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
