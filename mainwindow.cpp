@@ -483,17 +483,24 @@ distribution* MainWindow::generateTargetDistribution(
 
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
-    double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
+    //double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
+    double maxMean = ui->lineEdit_maxX->text().toDouble();
 
     for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
     {
         contributions.push_back
         (
-            (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
-            ->text().toDouble()
+            (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions
+              ->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+              ->text().toDouble()
         );
 
-        elementalDistributions.push_back(std::shared_ptr<distribution>(new normalDistribution(seed, (*means)[functionIndex].get(), (*stDevs)[functionIndex].get(), maxMean)));
+        elementalDistributions.push_back(
+              std::shared_ptr<distribution>(
+                new normalDistribution(seed,
+                                       (*means)[functionIndex].get(),
+                                       (*stDevs)[functionIndex].get(),
+                                       maxMean)));
     }
 
     return new complexDistribution(seed, &elementalDistributions, &contributions);

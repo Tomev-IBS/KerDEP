@@ -3,7 +3,8 @@
 
 #include <QDebug>
 
-normalDistribution::normalDistribution(int seed, vector<double> *means, vector<double> *stDevs, double maxMean) :
+normalDistribution::normalDistribution(int seed, vector<double> *means,
+                                       vector<double> *stDevs, double maxMean) :
     means(means), stDevs(stDevs), _maxMean(maxMean)
 {
     generator = std::default_random_engine(seed);
