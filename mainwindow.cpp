@@ -888,7 +888,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "571";
+  QString expNum = "572";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, 565, but seed=" + seedString;
   screenGenerationFrequency = 10;
