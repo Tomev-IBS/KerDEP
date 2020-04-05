@@ -197,7 +197,7 @@ void DESDA::performStep()
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameterers
-  double smoothingParameterEnhancer = 0.9;
+  double smoothingParameterEnhancer = 1.0;
   _hWindowed = smoothingParameterEnhancer * calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
   _h = smoothingParameterEnhancer * calculateH(currentClusters);
@@ -696,7 +696,7 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
       }
     }
 
-    _estimator->_shouldConsiderWeights = true;    
+    _estimator->_shouldConsiderWeights = true;
     _estimator->setClusters(getClustersForEstimator());
 
     return windowKDEValues;

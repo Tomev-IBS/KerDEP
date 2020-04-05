@@ -845,7 +845,7 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          1000 /* delay */,
+                                          0 /* delay */,
                                           false /* should jump */)
   );
 
@@ -896,9 +896,10 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "586";
+  QString expNum = "588";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, 565 (fixed 585), but max |a| is used instead of avg max, sz423";
+  QString expDesc = "reservoir, v=0.01, beta0=" +
+      QString::number(DESDAAlgorithm._beta0) + ",sz001";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
