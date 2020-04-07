@@ -155,6 +155,13 @@ int DESDA::randomizeIndexToDelete(){
 
 void DESDA::performStep()
 {
+  // Making place for new cluster
+  while(_clusters->size() >= _maxM)
+  {
+    _clusters->pop_back();
+    _objects.erase(_objects.begin(), _objects.begin() + 1);
+  }
+
   // Reservoir movement
   _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
 
@@ -179,13 +186,6 @@ void DESDA::performStep()
 
   _sgmKPSS = sigmoid(0.61 * stationarityTest->getTestsValue() - 2.65); // sgmKPSS
   _d = _sgmKPSS;
-
-  // Making place for new cluster
-  while(_clusters->size() >= _maxM)
-  {
-    _clusters->pop_back();
-    _objects.erase(_objects.begin(), _objects.begin() + 1);
-  }
 
   _clusters->insert(_clusters->begin(), newCluster);
 
@@ -659,12 +659,6 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
     if(_maxAbsDerivativeValueInCurrentStep == 0)
       beta = 0;
 
-    /*
-    beta /= _averageMaxDerivativeValueInLastMASteps;
-    beta = _beta0 * (2 * sigmoid(beta) - 1);
-    if(_averageMaxDerivativeValueInLastMASteps < 1e-5) beta = 0;
-    */
-
     double weightEnhancement = 1 + _sgmKPSS * beta;
     c->setCWeight(c->getCWeight() * weightEnhancement);
 
@@ -704,11 +698,11 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
 
 QVector<double> DESDA::getKDEValues(const QVector<qreal> *X)
 {
-    QVector<qreal> x;
     QVector<double> KDEValues = {};
 
     auto consideredClusters = getClustersForEstimator();
     _estimator->setClusters(consideredClusters);
+    _estimator->setSmoothingParameters({_h});
     _estimator->_shouldConsiderWeights = false;
 
     double domainMinValue = getDomainMinValue(consideredClusters, _h);
@@ -729,17 +723,24 @@ QVector<double> DESDA::getKDEValues(const QVector<qreal> *X)
 
 QVector<double> DESDA::getWeightedKDEValues(const QVector<qreal> *X)
 {
-    QVector<qreal> x;
     QVector<double> weightedKDEValues = {};
 
     auto consideredClusters = getClustersForEstimator();
     _estimator->setClusters(consideredClusters);
+    _estimator->setSmoothingParameters({_h});
     _estimator->_shouldConsiderWeights = true;
+
+    double domainMinValue = getDomainMinValue(consideredClusters, _h);
+    double domainMaxValue = getDomainMaxValue(consideredClusters, _h);
 
     for(qreal x: *X)
     {
-      std::vector<double> q = {x};
-      weightedKDEValues.push_back(_estimator->getValue(&q));
+      if(x > domainMinValue && x < domainMaxValue){
+        std::vector<double> q = {x};
+        weightedKDEValues.push_back(_estimator->getValue(&q));
+      } else {
+        weightedKDEValues.push_back(0);
+      }
     }
 
     return weightedKDEValues;
