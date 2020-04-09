@@ -896,16 +896,16 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "628";
+  QString expNum = "614";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0.001, beta0=" +
-      QString::number(DESDAAlgorithm._beta0) + ",sz477";
+  QString expDesc = "reservoir, v=0.01, beta0=" +
+      QString::number(DESDAAlgorithm._beta0) + ",sz001";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+  QString dirPath = driveDir + "Badania TR\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
   clearPlot();
