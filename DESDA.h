@@ -45,7 +45,7 @@ class DESDA
     double _stDev = 1;
 
     // New prediction
-    double _beta0 = 0.8;
+    double _beta0 = 0.0;
     double _v = 0.999; // deactualization w of clusters
 
     // Sizes
