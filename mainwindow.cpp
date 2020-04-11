@@ -905,7 +905,7 @@ void MainWindow::on_pushButton_start_clicked()
   //QString driveDir = "D:\\Dysk Google\\"; // Home
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
-  QString dirPath = driveDir + "Badania TR\\Eksperyment " + expNum + " ("
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
   clearPlot();
