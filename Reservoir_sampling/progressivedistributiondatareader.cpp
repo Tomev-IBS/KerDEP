@@ -23,33 +23,15 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
-
     // 26 III 2020 article formula
-    /*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
-        break;
       case 2000:
-        progressionSize = 1;
-        break;
-      case 2001:
-        progressionSize = 0;
-        break;
-      case 4000:
-        progressionSize = -1;
-        break;
-      case 4001:
-        progressionSize = 0;
-        break;
+        progressionSize = 0.1;
       case 6000:
-        progressionSize = 1;
-        break;
-      case 6001:
         progressionSize = 0;
-        break;
-    }*/
-    progressionSize = 0;
+    }
 
     if(_currentIteration > _delay){
       if(_shouldJump && ! _hasJumped){
