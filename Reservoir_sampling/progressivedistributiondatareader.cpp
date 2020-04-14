@@ -23,7 +23,27 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
+
     // 26 III 2020 article formula
+    switch(_currentIteration - 1){ // For exps with seed, remove later
+      case 0:
+        progressionSize = 0.0001;
+        break;
+      case 2000:
+        progressionSize = 0.01;
+        break;
+      case 5000:
+        progressionSize = 0.001;
+        break;
+      case 8000:
+        progressionSize = 1;
+        break;
+      case 8001:
+        progressionSize = 0;
+        break;
+    }
+
+    /*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
@@ -47,6 +67,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
         progressionSize = 0;
         break;
     }
+    */
 
     if(_currentIteration > _delay){
       if(_shouldJump && ! _hasJumped){
