@@ -159,7 +159,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>405</string>
+            <string>45</string>
            </property>
           </widget>
          </item>
@@ -349,7 +349,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.01</string>
+            <string>0.001</string>
            </property>
           </widget>
          </item>
