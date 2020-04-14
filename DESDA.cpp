@@ -187,6 +187,9 @@ void DESDA::performStep()
   _sgmKPSS = sigmoid(0.61 * stationarityTest->getTestsValue() - 2.65); // sgmKPSS
   _d = _sgmKPSS;
 
+  // Beta0 update
+  _beta0 = 0.75 * _sgmKPSS; // According to formula from 13 IV 2020
+
   _clusters->insert(_clusters->begin(), newCluster);
 
   // M update
