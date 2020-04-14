@@ -25,6 +25,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
 
 
     // 26 III 2020 article formula
+    /*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0.0001;
@@ -39,6 +40,19 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
         progressionSize = 1;
         break;
       case 8001:
+        progressionSize = 0;
+        break;
+    }
+    */
+
+    switch(_currentIteration - 1){ // For exps with seed, remove later
+      case 0:
+        progressionSize = 0;
+        break;
+      case 2000:
+        progressionSize = 0.02;
+        break;
+      case 6000:
         progressionSize = 0;
         break;
     }
