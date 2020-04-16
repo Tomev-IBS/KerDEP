@@ -896,9 +896,10 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "681";
+  QString expNum = "682";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0.05, beta0=(52a),sz477";
+  QString expDesc = "reservoir, v=0.1, beta0=0.7, mMin=" + QString::number(DESDAAlgorithm._minM) +
+                    ",sz001";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Dysk Google\\"; // Home
@@ -1111,9 +1112,11 @@ void MainWindow::on_pushButton_start_clicked()
 
   QVector<int> additionalScreensSteps = {};
 
+  /*
   for(int i = 990; i < 1011; ++i){
       additionalScreensSteps.append(i);
   }
+  */
 
   for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber)
   {
@@ -1266,6 +1269,7 @@ void MainWindow::on_pushButton_start_clicked()
 
 
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
+      betaTextLabel.setText("beta0 = " + QString::number(DESDAAlgorithm._beta0));
 
        /*
       // DEBUG
