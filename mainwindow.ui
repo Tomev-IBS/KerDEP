@@ -159,7 +159,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>205</string>
+            <string>85</string>
            </property>
           </widget>
          </item>
