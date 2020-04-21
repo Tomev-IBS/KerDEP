@@ -35,7 +35,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = _maxM / 10;
+  //_minM = _maxM / 10;
+  _minM = 90;
   _kpssM = _maxM;
 
   _sgmKPSS = -1;
@@ -188,7 +189,8 @@ void DESDA::performStep()
   _d = _sgmKPSS;
 
   // Beta0 update
-  _beta0 = 2.0/3 * _sgmKPSS; // According to formula from 13 IV 2020
+  //_beta0 = 2.0/3 * _sgmKPSS; // According to formula from 13 IV 2020
+  _beta0 = 2.0 / 3;
 
   _clusters->insert(_clusters->begin(), newCluster);
 
