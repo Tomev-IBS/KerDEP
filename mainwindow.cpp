@@ -975,10 +975,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   plotLabel sgmKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "sgmKPSS  = 0");
-  verticalOffset += verticalStep;
 
-  plotLabel sgmKPSS2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "sgmKPSS2 = 0"); // 2 sgmKPSS - 1
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -1240,9 +1237,6 @@ void MainWindow::on_pushButton_start_clicked()
 
       sgmKPSSTextLabel.setText( "sgmKPSS  = " + formatNumberForDisplay(
                                     DESDAAlgorithm._sgmKPSS));
-
-      sgmKPSS2TextLabel.setText("sgmKPSS2 = " + formatNumberForDisplay(
-                                    2 * DESDAAlgorithm._sgmKPSS - 1));
 
       rTextLabel.setText("r     =" + formatNumberForDisplay(DESDAAlgorithm._r));
 
