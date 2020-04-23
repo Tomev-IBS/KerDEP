@@ -36,7 +36,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mA = _maxM / 10; // For avg max |a| calculation
 
   _minM = _maxM / 10;
-  _kpssM = _maxM / 2;
+  _kpssM = _maxM / 10;
 
   _sgmKPSS = -1;
   _stepNumber = 1;
