@@ -396,8 +396,10 @@ void DESDA::updateM()
   if(_sgmKPSS /*sgmKPSS*/ < 0) return;
 
   _m = round(1.1 * _maxM - (1.1 * _maxM - 0.9 * _minM) * _sgmKPSS);
-  _m = _m < _clusters->size() ? _m : _clusters->size();
+  _m = _m < _minM ? _minM : _m;
+  _m = _clusters->size() < _m ? _clusters->size() : _m;
   _m = _m > _maxM ? _maxM : _m;
+
 }
 
 /** DESDA::updateMaxAbsAVector
