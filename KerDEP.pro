@@ -16,6 +16,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES     +=  main.cpp\
     DESDAReservoir.cpp \
+  UI/plotLabelDoubleDataPreparator.cpp \
+  UI/plotLabelIntDataPreparator.cpp \
                 mainwindow.cpp \
                 QCustomPlot/qcustomplot.cpp \
                 KDE/kerneldensityestimator.cpp \
@@ -83,6 +85,9 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
+  UI/i_plotLabelDataPreparator.h \
+  UI/plotLabelDoubleDataPreparator.h \
+  UI/plotLabelIntDataPreparator.h \
                 groupingThread/groupingThread.h \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.h \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/numerical/gowersNumericalAttributesDistanceMeasure.h \

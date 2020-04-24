@@ -1,8 +1,8 @@
 #include "plotLabel.h"
 
 plotLabel::plotLabel(QCustomPlot *plot, const double &hOffset,
-                     const double &vOffset, QString text)
-  : _label(plot)
+                     const double &vOffset, QString text, void* value)
+  : _label(plot), _value(value)
 {
   _label_font.setStyleHint(QFont::TypeWriter);
   _label.setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
@@ -32,4 +32,9 @@ void plotLabel::setText(QString text)
 void plotLabel::setFont(const QFont &newFont)
 {
   _label.setFont(newFont);
+}
+
+void plotLabel::updateText()
+{
+  if(_value == nullptr) return;
 }

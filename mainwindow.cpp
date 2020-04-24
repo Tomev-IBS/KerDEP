@@ -902,8 +902,8 @@ void MainWindow::on_pushButton_start_clicked()
                       QString::number(DESDAAlgorithm._kpssM) +", sz421";
   screenGenerationFrequency = 10;
 
-  //QString driveDir = "D:\\Dysk Google\\"; // Home
-  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
@@ -911,6 +911,7 @@ void MainWindow::on_pushButton_start_clicked()
   clearPlot();
   resizePlot();
 
+  // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
   expNumLabel.setFont(QFont("Courier New", 250));
 
@@ -922,6 +923,8 @@ void MainWindow::on_pushButton_start_clicked()
                                                            0, 0, 1, -1);
   expNumLabel.setText("");
 
+  QVector<std::shared_ptr<plotLabel>> plotLabels = {};
+
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
   plotLabel iTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -932,16 +935,20 @@ void MainWindow::on_pushButton_start_clicked()
                        "iw    = " + QString::number(screenGenerationFrequency));
   verticalOffset += verticalStep;
 
-  plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "seed  = " + ui->lineEdit_seed->text());
+  /*plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "seed  = " + ui->lineEdit_seed->text());*/
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
+                                 "seed  = " + ui->lineEdit_seed->text()));
   verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
               "beta0 = " + QString::number(DESDAAlgorithm._beta0));
   verticalOffset += verticalStep;
 
-  plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "m0    = " + ui->lineEdit_sampleSize->text());
+  /*plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "m0    = " + ui->lineEdit_sampleSize->text());*/
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
+                                 "m0    = " + ui->lineEdit_sampleSize->text()));
   verticalOffset += verticalStep;
 
   plotLabel mMinTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -1021,20 +1028,6 @@ void MainWindow::on_pushButton_start_clicked()
 
   horizontalOffset = 0.85;
   verticalOffset = 0.01;
-
-  /*
-  plotLabel expNumTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "Exp" + expNum);
-   verticalOffset += verticalStep;
-   verticalOffset += verticalStep;
-
-  verticalOffset += verticalStep;
-
-  plotLabel hTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
-  verticalOffset += verticalStep;
-  plotLabel hwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-  */
 
   plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
   verticalOffset += verticalStep;
@@ -1265,11 +1258,7 @@ void MainWindow::on_pushButton_start_clicked()
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
       betaTextLabel.setText("beta0 = " + QString::number(DESDAAlgorithm._beta0));
 
-       /*
-      // DEBUG
-      hTextLabel.setText( "h  = " + formatNumberForDisplay(DESDAAlgorithm._h));
-      hwTextLabel.setText("hw = " + formatNumberForDisplay(DESDAAlgorithm._hWindowed));
-      */
+      for(auto label : plotLabels) label->updateText();
 
       ui->widget_plot->replot();
       qApp->processEvents();
