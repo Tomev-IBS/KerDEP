@@ -11,6 +11,8 @@
 #include <fstream>
 
 #include "UI/plotLabel.h"
+#include "UI/plotLabelDoubleDataPreparator.h"
+#include "UI/plotLabelIntDataPreparator.h"
 
 #include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
@@ -271,7 +273,6 @@ void MainWindow::addPlot(const QVector<qreal> *Y, const QPen &pen)
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(_drawableDomain, *Y);
   ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(pen);
 }
-
 
 void MainWindow::resizePlot()
 {
@@ -819,7 +820,9 @@ void MainWindow::on_pushButton_start_clicked()
   qDebug() << "Seed: " + seedString +
               ", Sample size: " + ui->lineEdit_sampleSize->text();
 
-  srand(static_cast<unsigned int>(ui->lineEdit_seed->text().toInt()));
+  stepNumber = 0;
+
+  srand(static_cast<unsigned int>(seedString.toInt()));
 
   fillMeans(&means);
   fillStandardDeviations(&stDevs);
@@ -896,14 +899,13 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "748";
+  QString expNum = "749";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0-1-0-1, beta0=0.66..., mKPSS=" +
-                      QString::number(DESDAAlgorithm._kpssM) +", sz421";
+  QString expDesc = "reservoir, v=0-1-0-1, beta0=(55a), 10 percent, sz421";
   screenGenerationFrequency = 10;
 
-  QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  //QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
@@ -924,39 +926,50 @@ void MainWindow::on_pushButton_start_clicked()
   expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
-
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
-  plotLabel iTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "i     = 0");
+  plotLabels.push_back(std::make_shared<plotLabel>( ui->widget_plot,
+    horizontalOffset, verticalOffset, "i     = ", &stepNumber,
+    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
-  plotLabel iwTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "iw    = " + QString::number(screenGenerationFrequency));
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+    horizontalOffset, verticalOffset, "iw    = "
+    + QString::number(screenGenerationFrequency)));
   verticalOffset += verticalStep;
 
-  /*plotLabel seedTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "seed  = " + ui->lineEdit_seed->text());*/
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
-                                 "seed  = " + ui->lineEdit_seed->text()));
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+    horizontalOffset, verticalOffset, "seed  = " + seedString));
   verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
               "beta0 = " + QString::number(DESDAAlgorithm._beta0));
   verticalOffset += verticalStep;
 
-  /*plotLabel m0TextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "m0    = " + ui->lineEdit_sampleSize->text());*/
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
                                  "m0    = " + ui->lineEdit_sampleSize->text()));
   verticalOffset += verticalStep;
 
+  /*
   plotLabel mMinTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "mmin  = " + QString::number(DESDAAlgorithm._minM));
   verticalOffset += verticalStep;
+  */
 
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+    horizontalOffset, verticalOffset, "mmin  = "
+    + QString::number(DESDAAlgorithm._minM)));
+  verticalOffset += verticalStep;
+
+  /*
   plotLabel mTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "m     = " + QString::number(sampleSize));
+  verticalOffset += verticalStep;
+  */
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+    horizontalOffset, verticalOffset, "m     = ", &(DESDAAlgorithm._m),
+    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
   plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -971,8 +984,15 @@ void MainWindow::on_pushButton_start_clicked()
                        "q     =" + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
   verticalOffset += verticalStep;
+
+
+  /*
   plotLabel rareElementsTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "rare  = 0");
+  */
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+    horizontalOffset, verticalOffset, "rare  = ", &(DESDAAlgorithm._m),
+    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -1127,6 +1147,8 @@ void MainWindow::on_pushButton_start_clicked()
       // Error calculations
       if(stepNumber >= 1000)
       {
+        // TODO: Prepare separate object for errors calculation.
+
         _windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
         _errorDomain = DESDAAlgorithm.getErrorDomain();
 
@@ -1215,13 +1237,14 @@ void MainWindow::on_pushButton_start_clicked()
 
 
       // ============= LEFT SIDE UPDATE ================ //
-      iTextLabel
-          .setText(      "i     = " + QString::number(stepNumber));
+      //iTextLabel.setText("i     = " + QString::number(stepNumber));
 
+      /*
       rareElementsTextLabel
           .setText(      "rare  = " + QString::number(_atypicalElementsValuesAndDerivatives.size()));
+      */
 
-      mTextLabel.setText("m     = " + QString::number(DESDAAlgorithm._m));
+      //mTextLabel.setText("m     = " + QString::number(DESDAAlgorithm._m));
 
       qTextLabel.setText("q     =" + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
