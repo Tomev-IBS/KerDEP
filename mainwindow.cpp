@@ -899,9 +899,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "761";
+  QString expNum = "762";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0.001, beta0=(55a), 25 percent, sz422";
+  QString expDesc = "reservoir, v=0.01, beta0=(55a), 25 percent, sz423";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
