@@ -184,7 +184,7 @@ void DESDA::performStep()
     std::stod(newCluster->getObject()->attributesValues["Val0"])
   );
 
-  _sgmKPSS = sigmoid(0.79 * stationarityTest->getTestsValue() - 2.78);
+  _sgmKPSS = sigmoid(0.99 * stationarityTest->getTestsValue() - 2.93);
   _d = _sgmKPSS;
 
   // Beta0 update
