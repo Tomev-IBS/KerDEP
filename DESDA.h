@@ -65,7 +65,7 @@ class DESDA
     // Rare elements
     double _r = 0.05;
     double _quantileEstimator = 0;
-    int rareElementsNumber = 0;
+    int _rareElementsNumber = 0;
     QVector<double> getRareElementsEnhancedKDEValues(const QVector<qreal> *X);
     std::vector<std::shared_ptr<cluster>> getAtypicalElements();
     QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();

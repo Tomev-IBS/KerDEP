@@ -992,7 +992,7 @@ void MainWindow::on_pushButton_start_clicked()
                        "rare  = 0");
   */
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-    horizontalOffset, verticalOffset, "rare  = ", &(DESDAAlgorithm._m),
+    horizontalOffset, verticalOffset, "rare  = ", &(DESDAAlgorithm._rareElementsNumber),
     std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;

@@ -818,6 +818,7 @@ std::vector<clusterPtr> DESDA::getAtypicalElements()
     }
   }
 
+  _rareElementsNumber = atypicalElements.size();
   return atypicalElements;
 }
 
