@@ -878,7 +878,6 @@ void MainWindow::on_pushButton_start_clicked()
   _longestStepExecutionInSecs = 0;
 
   double newWeightB = 0.5;
-  int mE = ui->lineEdit_sampleSize->text().toInt() / 2;
 
   clusters = &storedMedoids;
 
@@ -895,14 +894,14 @@ void MainWindow::on_pushButton_start_clicked()
     clusters,
     &storedMedoids,
     ui->lineEdit_rarity->text().toDouble(),
-    &gt, newWeightB, mE
+    &gt, newWeightB
   );
 
 
-  QString expNum = "834";
+  QString expNum = "835";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0.1, mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz261";
+  QString expDesc = "reservoir, v=0.1, m0 =" + QString::number(DESDAAlgorithm._maxM) +
+                    ", sz263";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
