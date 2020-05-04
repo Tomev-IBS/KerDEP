@@ -19,7 +19,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
              double desiredRarity, groupingThread *gt,
-             double newWeightB, int mE):
+             double newWeightB):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
@@ -27,9 +27,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 {
   _objects.clear();
 
-  _maxM = 2 * mE;
-
-  _samplingAlgorithm->changeReservoirMaxSize(_maxM);
+  _maxM = _samplingAlgorithm->getReservoidMaxSize();
 
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
