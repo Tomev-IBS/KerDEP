@@ -898,10 +898,10 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "837";
+  QString expNum = "838";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0.1, m0 =" + QString::number(DESDAAlgorithm._maxM) +
-                    ", sz422";
+  QString expDesc = "reservoir, v=0.01, m0 =" + QString::number(DESDAAlgorithm._maxM) +
+                    ", sz423";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
