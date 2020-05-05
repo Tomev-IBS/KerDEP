@@ -51,7 +51,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
         progressionSize = 0;
         break;
       case 2000:
-        progressionSize = 0.001;
+        progressionSize = 0.1;
         break;
       case 6000:
         progressionSize = 0;
