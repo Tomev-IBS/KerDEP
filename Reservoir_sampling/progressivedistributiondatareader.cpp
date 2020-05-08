@@ -45,13 +45,13 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    /*
+    //*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
         break;
       case 2000:
-        progressionSize = 0.1;
+        progressionSize = 0.0;
         break;
       case 6000:
         progressionSize = 0;
@@ -59,7 +59,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    //*
+    /*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
