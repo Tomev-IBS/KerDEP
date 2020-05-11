@@ -32,8 +32,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = 500;
-  _kpssM = 1000; // This is independent of maxM.
+  _minM = 100;
+  _kpssM = 500; // This is independent of maxM.
 
   _sgmKPSS = -1;
   _stepNumber = 1;
@@ -188,10 +188,10 @@ void DESDA::performStep()
   //_sgmKPSS = sigmoid(0.490 * stationarityTest->getTestsValue() - 2.559); // 16 percent
   //_sgmKPSS = sigmoid(0.457 * stationarityTest->getTestsValue() - 2.535); // 15 percent
   //_sgmKPSS = sigmoid(0.423 * stationarityTest->getTestsValue() - 2.513); // 14 percent
-  _sgmKPSS = sigmoid(0.393 * stationarityTest->getTestsValue() - 2.487); // 13 percent
+  //_sgmKPSS = sigmoid(0.393 * stationarityTest->getTestsValue() - 2.487); // 13 percent
   //_sgmKPSS = sigmoid(0.360 * stationarityTest->getTestsValue() - 2.466); // 12 percent
   //_sgmKPSS = sigmoid(0.329 * stationarityTest->getTestsValue() - 2.435); // 11 percent
-  //_sgmKPSS = sigmoid(0.298 * stationarityTest->getTestsValue() - 2.417); // 10 percent
+  _sgmKPSS = sigmoid(0.298 * stationarityTest->getTestsValue() - 2.417); // 10 percent
   _d = _sgmKPSS;
 
   // Beta0 update
