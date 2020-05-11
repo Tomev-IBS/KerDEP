@@ -190,8 +190,8 @@ void DESDA::performStep()
   //_sgmKPSS = sigmoid(0.423 * stationarityTest->getTestsValue() - 2.513); // 14 percent
   //_sgmKPSS = sigmoid(0.393 * stationarityTest->getTestsValue() - 2.487); // 13 percent
   //_sgmKPSS = sigmoid(0.360 * stationarityTest->getTestsValue() - 2.466); // 12 percent
-  //_sgmKPSS = sigmoid(0.329 * stationarityTest->getTestsValue() - 2.435); // 11 percent
-  _sgmKPSS = sigmoid(0.298 * stationarityTest->getTestsValue() - 2.417); // 10 percent
+  _sgmKPSS = sigmoid(0.329 * stationarityTest->getTestsValue() - 2.435); // 11 percent
+  //_sgmKPSS = sigmoid(0.298 * stationarityTest->getTestsValue() - 2.417); // 10 percent
   _d = _sgmKPSS;
 
   // Beta0 update
