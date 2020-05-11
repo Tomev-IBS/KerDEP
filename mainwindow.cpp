@@ -903,7 +903,7 @@ void MainWindow::on_pushButton_start_clicked()
   QString expDesc = "reservoir, v=0-1-0-1, m0="+QString::number(sampleSize) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", mKPSS=" + QString::number(DESDAAlgorithm._kpssM) +
-                    ", 11 percent, sz001";
+                    ", 11 percent, sz003";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
