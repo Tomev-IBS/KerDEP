@@ -181,8 +181,8 @@ void DESDA::performStep()
     std::stod(newCluster->getObject()->attributesValues["Val0"])
   );
 
-  //_sgmKPSS = sigmoid(0.625 * stationarityTest->getTestsValue() - 2.659); // 20 percent
-  _sgmKPSS = sigmoid(0.592 * stationarityTest->getTestsValue() - 2.634); // 19 percent
+  _sgmKPSS = sigmoid(0.625 * stationarityTest->getTestsValue() - 2.659); // 20 percent
+  //_sgmKPSS = sigmoid(0.592 * stationarityTest->getTestsValue() - 2.634); // 19 percent
   //_sgmKPSS = sigmoid(0.556 * stationarityTest->getTestsValue() - 2.608); // 18 percent
   //_sgmKPSS = sigmoid(0.523 * stationarityTest->getTestsValue() - 2.583); // 17 percent
   //_sgmKPSS = sigmoid(0.490 * stationarityTest->getTestsValue() - 2.559); // 16 percent
