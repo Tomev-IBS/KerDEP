@@ -947,6 +947,10 @@ void MainWindow::on_pushButton_start_clicked()
               "beta0 = " + QString::number(DESDAAlgorithm._beta0));
   verticalOffset += verticalStep;
 
+  plotLabel mKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+              "mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
+  verticalOffset += verticalStep;
+
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
                                  "m0    = " + ui->lineEdit_sampleSize->text()));
   verticalOffset += verticalStep;
