@@ -108,6 +108,8 @@ double MainWindow::calculateL2Error(const QVector<double> &model, const QVector<
 
   if(errorHolder.size() > 0) avg /= errorHolder.size();
 
+  avg = pow(avg, 0.5);
+
   double min = domain[0];
   double max = domain[domain.size() - 1];
   double len = max - min;
@@ -898,7 +900,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "926";
+  QString expNum = "927";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, v=0-1-0-1, mKPSS="
                     + QString::number(DESDAAlgorithm._kpssM) +
