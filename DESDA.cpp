@@ -182,8 +182,8 @@ void DESDA::performStep()
   );
 
   //_sgmKPSS = sigmoid(0.995 * stationarityTest->getTestsValue() - 2.932); // 30 percent
-  //_sgmKPSS = sigmoid(0.954 * stationarityTest->getTestsValue() - 2.902); // 29 percent
-  _sgmKPSS = sigmoid(0.916 * stationarityTest->getTestsValue() - 2.874); // 28 percent
+  _sgmKPSS = sigmoid(0.954 * stationarityTest->getTestsValue() - 2.902); // 29 percent
+  //_sgmKPSS = sigmoid(0.916 * stationarityTest->getTestsValue() - 2.874); // 28 percent
   //_sgmKPSS = sigmoid(0.878 * stationarityTest->getTestsValue() - 2.846); // 27 percent
   //_sgmKPSS = sigmoid(0.842 * stationarityTest->getTestsValue() - 2.819); // 26 percent
   //_sgmKPSS = sigmoid(0.804 * stationarityTest->getTestsValue() - 2.791); // 25 percent
