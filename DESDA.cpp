@@ -32,8 +32,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = 500; // 50, 100, 200, 500
-  _kpssM = 1000; // This is independent of maxM.
+  _minM = 100; // 50, 100, 200, 500
+  _kpssM = 500; // This is independent of maxM.
 
   _sgmKPSS = -1;
   _stepNumber = 1;
@@ -181,6 +181,16 @@ void DESDA::performStep()
     std::stod(newCluster->getObject()->attributesValues["Val0"])
   );
 
+  //_sgmKPSS = sigmoid(0.995 * stationarityTest->getTestsValue() - 2.932); // 30 percent
+  //_sgmKPSS = sigmoid(0.954 * stationarityTest->getTestsValue() - 2.902); // 29 percent
+  //_sgmKPSS = sigmoid(0.916 * stationarityTest->getTestsValue() - 2.874); // 28 percent
+  //_sgmKPSS = sigmoid(0.878 * stationarityTest->getTestsValue() - 2.846); // 27 percent
+  //_sgmKPSS = sigmoid(0.842 * stationarityTest->getTestsValue() - 2.819); // 26 percent
+  //_sgmKPSS = sigmoid(0.804 * stationarityTest->getTestsValue() - 2.791); // 25 percent
+  //_sgmKPSS = sigmoid(0.773 * stationarityTest->getTestsValue() - 2.768); // 24 percent
+  //_sgmKPSS = sigmoid(0.732 * stationarityTest->getTestsValue() - 2.732); // 23 percent
+  //_sgmKPSS = sigmoid(0.696 * stationarityTest->getTestsValue() - 2.711); // 22 percent
+  _sgmKPSS = sigmoid(0.661 * stationarityTest->getTestsValue() - 2.685); // 21 percent
   //_sgmKPSS = sigmoid(0.625 * stationarityTest->getTestsValue() - 2.659); // 20 percent
   //_sgmKPSS = sigmoid(0.592 * stationarityTest->getTestsValue() - 2.634); // 19 percent
   //_sgmKPSS = sigmoid(0.556 * stationarityTest->getTestsValue() - 2.608); // 18 percent
@@ -188,7 +198,7 @@ void DESDA::performStep()
   //_sgmKPSS = sigmoid(0.490 * stationarityTest->getTestsValue() - 2.559); // 16 percent
   //_sgmKPSS = sigmoid(0.457 * stationarityTest->getTestsValue() - 2.535); // 15 percent
   //_sgmKPSS = sigmoid(0.423 * stationarityTest->getTestsValue() - 2.513); // 14 percent
-  _sgmKPSS = sigmoid(0.393 * stationarityTest->getTestsValue() - 2.487); // 13 percent
+  //_sgmKPSS = sigmoid(0.393 * stationarityTest->getTestsValue() - 2.487); // 13 percent
   //_sgmKPSS = sigmoid(0.360 * stationarityTest->getTestsValue() - 2.466); // 12 percent
   //_sgmKPSS = sigmoid(0.329 * stationarityTest->getTestsValue() - 2.435); // 11 percent
   //_sgmKPSS = sigmoid(0.298 * stationarityTest->getTestsValue() - 2.417); // 10 percent
