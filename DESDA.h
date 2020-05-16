@@ -3,6 +3,7 @@
 
 #include <QDebug>
 #include <memory>
+#include <map>
 
 #include "KDE/kerneldensityestimator.h"
 #include "KDE/weightedSilvermanSmoothingParameterCounter.h"
@@ -70,6 +71,7 @@ class DESDA
     QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();
 
     // General purpose
+    int _sgmKPSSPercent = 25;
     double _sgmKPSS = 0;
 
     // Analysis
@@ -152,11 +154,26 @@ class DESDA
 
     double calculateH(const std::vector<clusterPtr> &clusters);
 
-
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();
     std::vector<std::pair<int, double> > getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues);
     void recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues);
+
+    // Only one of these parameters should be left, but I need this for
+    // more accurate experiments preparation.
+    std::map<int, std::vector<double>> _sgmKPSSParameters = {
+      {10, {0.298, 2.417}}, {11, {0.329, 2.435}}, {12, {0.360, 2.466}},
+      {13, {0.393, 2.487}}, {14, {0.423, 2.513}}, {15, {0.457, 2.535}},
+      {16, {0.490, 2.559}}, {17, {0.523, 2.583}}, {18, {0.556, 2.608}},
+      {19, {0.592, 2.634}}, {20, {0.625, 2.659}}, {21, {0.661, 2.685}},
+      {22, {0.696, 2.711}}, {23, {0.732, 2.732}}, {24, {0.773, 2.768}},
+      {25, {0.804, 2.781}}, {26, {0.842, 2.819}}, {27, {0.878, 2.846}},
+      {28, {0.916, 2.874}}, {29, {0.954, 2.902}}, {30, {0.995, 2.932}}
+    };
+
+    //_sgmKPSS = sigmoid(0.995 * stationarityTest->getTestsValue() - 2.932); // 30 percent
+    //_sgmKPSS = sigmoid(0.954 * stationarityTest->getTestsValue() - 2.902); // 29 percent
+    //_sgmKPSS = sigmoid(0.916 * stationarityTest->getTestsValue() - 2.874); // 28 percent
 };
 
 #endif // DESDA_H

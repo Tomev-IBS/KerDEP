@@ -582,7 +582,6 @@ function* MainWindow::generateTargetFunction(
           ->text().toDouble()
       );
 
-
       elementalFunctions.push_back(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->at(functionIndex).get(),
                                                                                                           stDevs->at(functionIndex).get())));
   }
@@ -900,11 +899,12 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "935";
+  QString expNum = "936";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, v=0-1-0-1, mKPSS="
                     + QString::number(DESDAAlgorithm._kpssM) +
-                    ", 30 percent, sz421";
+                    ", " + QString::number(DESDAAlgorithm._sgmKPSSPercent) +
+                    " percent, sz001";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
