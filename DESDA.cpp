@@ -193,6 +193,7 @@ void DESDA::performStep()
   _beta0 = 2.0/3 * _sgmKPSS; // According to formula from 13 IV 2020
 
   _clusters->insert(_clusters->begin(), newCluster);
+  _clustersForWindowed.insert(_clustersForWindowed.begin(), newCluster);
 
   // M update
   updateM();
