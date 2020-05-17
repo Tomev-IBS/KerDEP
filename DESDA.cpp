@@ -160,7 +160,7 @@ void DESDA::performStep()
     _objects.erase(_objects.begin(), _objects.begin() + 1);
   }
 
-  while(_clusters->size() >= _m){
+  while(_clusters->size() > _m){
     _clusters->pop_back();
   }
 
@@ -212,7 +212,7 @@ void DESDA::performStep()
   updateWeights();
 
   qDebug() << "Reservoir size in step " << _stepNumber
-           << " is: " << getClustersForEstimator().size() << ".";
+           << " is: " << currentClusters.size() << ".";
 
   // Update clusters prognosis
   countKDEValuesOnClusters();
