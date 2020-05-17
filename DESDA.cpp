@@ -154,10 +154,14 @@ int DESDA::randomizeIndexToDelete(){
 void DESDA::performStep()
 {
   // Making place for new cluster
-  while(_clusters->size() >= _maxM)
+  while(_clustersForWindowed.size() >= _maxM)
   {
-    _clusters->pop_back();
+    _clustersForWindowed.pop_back();
     _objects.erase(_objects.begin(), _objects.begin() + 1);
+  }
+
+  while(_clusters->size() >= _m){
+    _clusters->pop_back();
   }
 
   // Reservoir movement
@@ -283,11 +287,13 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator()
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator()
 {
-    std::vector<std::shared_ptr<cluster>> consideredClusters = {};
+  return _clustersForWindowed;
 
-    for(auto c : *_clusters) consideredClusters.push_back(c);
+  std::vector<std::shared_ptr<cluster>> consideredClusters = {};
 
-    return consideredClusters;
+  for(auto c : *_clusters) consideredClusters.push_back(c);
+
+  return consideredClusters;
 }
 
 /** DESDA::enhanceWeightsOfUncommonElements
@@ -396,7 +402,6 @@ void DESDA::updateM()
   _m = _m < _minM ? _minM : _m;
   _m = _clusters->size() < _m ? _clusters->size() : _m;
   _m = _m > _maxM ? _maxM : _m;
-
 }
 
 /** DESDA::updateMaxAbsAVector

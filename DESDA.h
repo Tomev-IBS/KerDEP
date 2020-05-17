@@ -118,6 +118,7 @@ class DESDA
     weightedSilvermanSmoothingParameterCounter *_smoothingParamCounter;
     reservoirSamplingAlgorithm *_samplingAlgorithm;
     std::vector<std::shared_ptr<cluster>> *_clusters;
+    std::vector<std::shared_ptr<cluster>> _clustersForWindowed;
     std::vector<std::shared_ptr<sample>> _objects;
 
     std::vector<std::shared_ptr<cluster>> *_storedMedoids;
