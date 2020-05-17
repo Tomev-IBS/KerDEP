@@ -899,7 +899,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "945";
+  QString expNum = "946";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, v=0-1-0-1, mKPSS="
                     + QString::number(DESDAAlgorithm._kpssM) +
