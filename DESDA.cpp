@@ -36,7 +36,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _kpssM = 500; // This is independent of maxM.
 
   _sgmKPSS = -1;
-  _sgmKPSSPercent = 32;
+  _sgmKPSSPercent = 33;
   _stepNumber = 1;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM));
