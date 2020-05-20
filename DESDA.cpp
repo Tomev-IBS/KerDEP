@@ -32,11 +32,11 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = 100; // 50, 100, 200, 500
+  _minM = 50; // 50, 100, 200, 500
   _kpssM = 500; // This is independent of maxM.
 
   _sgmKPSS = -1;
-  _sgmKPSSPercent = 40;
+  _sgmKPSSPercent = 30;
   _stepNumber = 1;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM));
