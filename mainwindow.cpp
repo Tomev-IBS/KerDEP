@@ -899,12 +899,12 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "993";
+  QString expNum = "994";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, v=0, m0="
                     + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz260";
+                    ", sz003";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
@@ -1157,46 +1157,53 @@ void MainWindow::on_pushButton_start_clicked()
       {
         // TODO: Prepare separate object for errors calculation.
 
+        qDebug() << "Getting windowed domain.";
         _windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
+        qDebug() << "Getting non-windowed domain.";
         _errorDomain = DESDAAlgorithm.getErrorDomain();
 
+        qDebug() << "Getting model plot on windowed.";
         _windowedModelPlotY = getTargetFunctionValuesOnDomain(&_windowedErrorDomain);
+        qDebug() << "Getting KDE plot on windowed.";
         _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&_windowedErrorDomain);
+        qDebug() << "Getting model plot.";
         _modelPlotErrorY = getTargetFunctionValuesOnDomain(&_errorDomain);
+        qDebug() << "Getting KDE plot on lesser elements.";
         _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&_errorDomain);
+        qDebug() << "Getting weighted KDE plot.";
         _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&_errorDomain);
+        qDebug() << "Getting sgm KDE plot.";
         _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&_errorDomain);
+        qDebug() << "Getting rare KDE plot.";
         _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_errorDomain);
 
+        qDebug() << "Calculating L1.";
         _L1_w += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomain);
         _L1_m += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY, _errorDomain);
         _L1_d += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY, _errorDomain);
         _L1_p += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY, _errorDomain);
         _L1_n += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY, _errorDomain);
 
+        qDebug() << "Calculating L2.";
         _L2_w += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomain);
         _L2_m += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY, _errorDomain);
         _L2_d += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY, _errorDomain);
         _L2_p += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY, _errorDomain);
         _L2_n += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY, _errorDomain);
 
+        qDebug() << "Calculating sup.";
         _sup_w += calculateSupError(_windowedModelPlotY, _windowedEstimatorErrorY);
         _sup_m += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
         _sup_d += calculateSupError(_modelPlotErrorY, _weightedEstimatorErrorY);
         _sup_p += calculateSupError(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
         _sup_n += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
+        qDebug() << "Calculating mod.";
         _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
         _mod_m += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
         _mod_d += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
         _mod_p += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
         _mod_n += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
-        _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
-        _mod_m += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
-        _mod_d += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
-        _mod_p += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
-        _mod_n += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
-
         ++numberOfErrorCalculations;
       }
 
