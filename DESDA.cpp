@@ -204,9 +204,9 @@ void DESDA::performStep()
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameterers
-  _hWindowed = smoothingParameterEnhancer * calculateH(*_clusters);
+  _hWindowed = _smoothingParameterEnhancer * calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
-  _h = smoothingParameterEnhancer * calculateH(currentClusters);
+  _h = _smoothingParameterEnhancer * calculateH(currentClusters);
 
   // Update weights
   updateWeights();
