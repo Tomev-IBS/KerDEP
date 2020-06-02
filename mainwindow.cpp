@@ -945,6 +945,7 @@ void MainWindow::on_pushButton_start_clicked()
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
     horizontalOffset, verticalOffset, "seed  = " + seedString));
   verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
 
   plotLabel KPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "KPSS     = 0");
@@ -952,6 +953,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   plotLabel sgmKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "sgmKPSS  = 0");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
   plotLabel mKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -983,9 +985,11 @@ void MainWindow::on_pushButton_start_clicked()
     horizontalOffset, verticalOffset, "m     = ", &(DESDAAlgorithm._m),
     std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
 
   plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
               "beta0 = " + QString::number(DESDAAlgorithm._beta0));
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
   /*
@@ -1056,7 +1060,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   //==================== SUMMARIC ERRORS=================//
 
-  horizontalOffset = 0.86;
+  horizontalOffset = 0.87;
   verticalOffset = 0.01;
 
   plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
