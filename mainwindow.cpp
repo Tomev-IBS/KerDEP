@@ -907,8 +907,8 @@ void MainWindow::on_pushButton_start_clicked()
                     ", sz472";
   screenGenerationFrequency = 10;
 
-  //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
@@ -945,8 +945,12 @@ void MainWindow::on_pushButton_start_clicked()
     horizontalOffset, verticalOffset, "seed  = " + seedString));
   verticalOffset += verticalStep;
 
-  plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-              "beta0 = " + QString::number(DESDAAlgorithm._beta0));
+  plotLabel KPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "KPSS     = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel sgmKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "sgmKPSS  = 0");
   verticalOffset += verticalStep;
 
   plotLabel mKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
@@ -979,9 +983,15 @@ void MainWindow::on_pushButton_start_clicked()
     std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
+  plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+              "beta0 = " + QString::number(DESDAAlgorithm._beta0));
+  verticalOffset += verticalStep;
+
+  /*
   plotLabel vTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
   verticalOffset += verticalStep;
+  */
 
   plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "r     =" + formatNumberForDisplay(DESDAAlgorithm._r));
@@ -1004,16 +1014,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel KPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "KPSS     = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel sgmKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "sgmKPSS  = 0");
-
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
+  /*
   plotLabel maxAbsATextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
                        "max(|g|)     = 0");
   verticalOffset += verticalStep;
@@ -1045,7 +1046,7 @@ void MainWindow::on_pushButton_start_clicked()
     wTextLabels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset + 9 * verticalStep, wTextLabelsLabels[i] + "0"));
     verticalOffset += verticalStep;
   }
-
+  */
 
   //====================  SECOND COLUMN =================//
 
@@ -1054,7 +1055,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   //==================== SUMMARIC ERRORS=================//
 
-  horizontalOffset = 0.85;
+  horizontalOffset = 0.86;
   verticalOffset = 0.01;
 
   plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
@@ -1273,6 +1274,7 @@ void MainWindow::on_pushButton_start_clicked()
 
       drawPlots(&DESDAAlgorithm);
 
+      /*
       for(int i = 0; i < DESDAAlgorithm._examinedClustersW.size(); ++i){
         wTextLabels[i].setText(wTextLabelsLabels[i] + formatNumberForDisplay(
                                    DESDAAlgorithm._examinedClustersW[i]));
@@ -1294,6 +1296,8 @@ void MainWindow::on_pushButton_start_clicked()
 
 
       vTextLabel.setText("v     =" + formatNumberForDisplay(DESDAAlgorithm._v));
+      */
+
       betaTextLabel.setText("beta0 = " + QString::number(DESDAAlgorithm._beta0));
 
       for(auto label : plotLabels) label->updateText();
