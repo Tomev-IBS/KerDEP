@@ -901,14 +901,15 @@ void MainWindow::on_pushButton_start_clicked()
 
   QString expNum = "1056";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, bimodal, v=tor, m0="
-                    + QString::number(DESDAAlgorithm._maxM) +
+  QString expDesc = "reservoir, bimodal, v=tor, "
+                    + QString::number(DESDAAlgorithm._smoothingParameterEnhancer)
+                    + "h, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz472";
   screenGenerationFrequency = 10;
 
-  QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  //QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";

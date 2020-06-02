@@ -97,6 +97,7 @@ class DESDA
 
     double _h;
     double _hWindowed;
+    double _smoothingParameterEnhancer;
 
   protected:
 

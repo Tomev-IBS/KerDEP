@@ -38,6 +38,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
   _stepNumber = 1;
+  _smoothingParameterEnhancer = 0.6;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM));
 
@@ -203,7 +204,6 @@ void DESDA::performStep()
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameterers
-  double smoothingParameterEnhancer = 1.0;
   _hWindowed = smoothingParameterEnhancer * calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
   _h = smoothingParameterEnhancer * calculateH(currentClusters);
