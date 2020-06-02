@@ -38,7 +38,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
   _stepNumber = 1;
-  _smoothingParameterEnhancer = 0.8;
+  _smoothingParameterEnhancer = 0.9;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM));
 
