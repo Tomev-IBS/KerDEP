@@ -314,7 +314,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
-            <string>1400</string>
+            <string>1500</string>
            </property>
           </widget>
          </item>
