@@ -899,9 +899,9 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1090";
+  QString expNum = "1135";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, v=0-1-0-1, m0= "+ QString::number(DESDAAlgorithm._maxM) +
+  QString expDesc = "reservoir, przybliżona, v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz129";
   screenGenerationFrequency = 10;

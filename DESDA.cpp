@@ -1,4 +1,5 @@
 #include "DESDA.h"
+#include "KDE/pluginsmoothingparametercounter.h"
 
 #include <QTime>
 #include <QCoreApplication>
@@ -549,10 +550,26 @@ QVector<double> DESDA::getWindowedErrorDomain()
     return domain;
 }
 
+// TR: This should be generalized to all the
 double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
 {
     if(clusters.size() == 1) return 1;
 
+    /*
+    // Plugin method.
+    QVector<qreal> samples = {};
+
+    for(auto c: clusters){
+      samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
+    }
+
+    pluginSmoothingParameterCounter counter(&samples, 2);
+
+    return counter.countSmoothingParameterValue();
+    //*/
+
+    //*
+    // Normal method.
     double h = 0;
 
     // For normal Kernel
@@ -567,6 +584,7 @@ double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
     h *= stDev(clusterVals);
 
     return h;
+    //*/
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
