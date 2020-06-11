@@ -16,6 +16,15 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     vector<double>* targetPtr = static_cast<vector<double>*>(target);
     targetPtr->clear();
 
+    double bimodalMean = 5;
+    double trimodalMean = -2;
+
+    if(_currentIteration % 10 > 5){
+      for(int i = 0; i < targetPtr->size(); ++i){
+        (*targetPtr)[i] += bimodalMean;
+      }
+    }
+
     sourceDistribution->getValue(targetPtr);
 
     /*
@@ -26,7 +35,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
 
     // 26 III 2020 article formula
     // Stops at 0.2 + 30 + 3 + 1 = 34.2 without offset. Set maxX = 40.
-    /*
+    //*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0.0001;
@@ -60,7 +69,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    //*
+    /*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
