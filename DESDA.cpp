@@ -555,7 +555,7 @@ double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
 {
     if(clusters.size() == 1) return 1;
 
-    /*
+    //*
     // Plugin method.
     QVector<qreal> samples = {};
 
@@ -568,7 +568,7 @@ double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
     return counter.countSmoothingParameterValue();
     //*/
 
-    //*
+    /*
     // Normal method.
     double h = 0;
 
