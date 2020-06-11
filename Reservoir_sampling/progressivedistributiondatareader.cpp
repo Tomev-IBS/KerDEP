@@ -16,7 +16,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     vector<double>* targetPtr = static_cast<vector<double>*>(target);
     targetPtr->clear();
 
-    double bimodalMean = 5;
+    double bimodalMean = 10;
     double trimodalMean = -2;
 
     if(_currentIteration % 10 > 5){
