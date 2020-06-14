@@ -177,6 +177,8 @@ class DESDA
       {40, {1.416, 3.243}}
     };
 
+    int _modalsModuloSelector = 0;
+
     //_sgmKPSS = sigmoid(0.995 * stationarityTest->getTestsValue() - 2.932); // 30 percent
     //_sgmKPSS = sigmoid(0.954 * stationarityTest->getTestsValue() - 2.902); // 29 percent
     //_sgmKPSS = sigmoid(0.916 * stationarityTest->getTestsValue() - 2.874); // 28 percent

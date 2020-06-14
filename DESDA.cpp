@@ -33,7 +33,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = 200; // 50, 100, 200, 500 -- normally 100
+  _minM = 100; // 50, 100, 200, 500 -- normally 100
   _kpssM = 500; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -169,9 +169,27 @@ void DESDA::performStep()
   // Reservoir movement
   _samplingAlgorithm->performSingleStep(&_objects, _stepNumber);
 
+  // Artificial modulo modes adder
+
+  if(_modalsModuloSelector % 3 == 1){
+    _objects.back()->attributesValues["Val0"] =
+      std::to_string(stod(_objects.back()->attributesValues["Val0"]) - 5);
+  }
+
+  if(_modalsModuloSelector % 3 == 2){
+    _objects.back()->attributesValues["Val0"] =
+      std::to_string(stod(_objects.back()->attributesValues["Val0"]) + 5);
+  }
+
+  ++_modalsModuloSelector;
+
+  // End of modulo adder
+
   std::shared_ptr<cluster> newCluster =
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
+
+  qDebug() << stod(_objects.back()->attributesValues["Val0"]);
 
   // KPSS count
   std::vector<double> values =

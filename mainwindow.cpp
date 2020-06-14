@@ -484,6 +484,7 @@ distribution* MainWindow::generateTargetDistribution(
     vector<double> contributions;
     vector<std::shared_ptr<distribution>> elementalDistributions;
 
+    //int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
     int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
     //double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
@@ -838,8 +839,20 @@ void MainWindow::on_pushButton_start_clicked()
   kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
   _enchancedKDE.reset(generateKernelDensityEstimator(dimensionsNumber));
 
+ /*
   std::shared_ptr<distribution>
     targetDistribution(generateTargetDistribution(&means, &stDevs));
+  */
+
+  vector<double> tempMeans = {0.0};
+  vector<double> tempDevs = {1.0};
+
+  std::shared_ptr<distribution>
+    targetDistribution(std::shared_ptr<distribution>(
+                         new normalDistribution(seedString.toInt(),
+                                                &tempMeans,
+                                                &tempDevs,
+                                                50)));
 
   parser.reset(new distributionDataParser(&attributesData));
 
@@ -899,15 +912,15 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1152";
+  QString expNum = "1153";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, plugin 2, N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
+  QString expDesc = "reservoir, plugin 2, N(-5,1)N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz476";
+                    ", sz477";
   screenGenerationFrequency = 10;
 
-  //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
