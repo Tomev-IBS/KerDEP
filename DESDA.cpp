@@ -34,7 +34,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mA = _maxM / 10; // For avg max |a| calculation
 
   _minM = 100; // 50, 100, 200, 500
-  _kpssM = 500; // This is independent of maxM.
+  _kpssM = 750; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
@@ -563,7 +563,7 @@ double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
       samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
     }
 
-    pluginSmoothingParameterCounter counter(&samples, 4);
+    pluginSmoothingParameterCounter counter(&samples, 2);
 
     return counter.countSmoothingParameterValue();
     //*/
