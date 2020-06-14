@@ -919,8 +919,8 @@ void MainWindow::on_pushButton_start_clicked()
                     ", sz477";
   screenGenerationFrequency = 10;
 
-  QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  //QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
