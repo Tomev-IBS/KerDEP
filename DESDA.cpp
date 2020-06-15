@@ -563,7 +563,7 @@ double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
       samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
     }
 
-    pluginSmoothingParameterCounter counter(&samples, 3);
+    pluginSmoothingParameterCounter counter(&samples, 4);
 
     return counter.countSmoothingParameterValue();
     //*/
