@@ -839,20 +839,11 @@ void MainWindow::on_pushButton_start_clicked()
   kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
   _enchancedKDE.reset(generateKernelDensityEstimator(dimensionsNumber));
 
- /*
   std::shared_ptr<distribution>
     targetDistribution(generateTargetDistribution(&means, &stDevs));
-  */
 
-  vector<double> tempMeans = {0.0};
-  vector<double> tempDevs = {1.0};
-
-  std::shared_ptr<distribution>
-    targetDistribution(std::shared_ptr<distribution>(
-                         new normalDistribution(seedString.toInt(),
-                                                &tempMeans,
-                                                &tempDevs,
-                                                50)));
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
 
   parser.reset(new distributionDataParser(&attributesData));
 
@@ -862,8 +853,8 @@ void MainWindow::on_pushButton_start_clicked()
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
-                                          0 /* delay */,
-                                          false /* should jump */)
+                                          0,  /* delay */
+                                          new normalDistribution(seedString.toInt(), &alternativeDistributionMean, &alternativeDistributionStDevs, 50))
   );
 
   reader->gatherAttributesData(&attributesData);
@@ -912,7 +903,7 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1153";
+  QString expNum = "1153A";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, plugin 2, N(-5,1)N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +

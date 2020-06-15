@@ -6,12 +6,13 @@
 
 #include <QVector>
 #include <vector>
+#include <memory>
 
 class progressiveDistributionDataReader : public dataReader
 {
     public:
 
-        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay, bool shouldJump = false);
+        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay, distribution* alternativeSource);
 
         void getNextRawDatum(void *target);
         void gatherAttributesData(void *attributes);
@@ -26,10 +27,10 @@ class progressiveDistributionDataReader : public dataReader
         qreal progressionSize = 0.0;
         int _delay = 0;
         int _currentIteration = 1; // PK always starts from 1.
-        bool _hasJumped = false;
-        bool _shouldJump = false;
 
         std::vector<std::string> attributesOrder;
+        std::shared_ptr<distribution> _alternativeDistribution; // For non-random multimodals.
+
 
 
 

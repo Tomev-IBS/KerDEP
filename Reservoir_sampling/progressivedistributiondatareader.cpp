@@ -7,31 +7,38 @@
 
 #include <QDebug>
 
-progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize, int delay, bool shouldJump) :
-    sourceDistribution(source), progressionSize(progressionSize), _delay(delay), _shouldJump(shouldJump)
-{}
+progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize, int delay, distribution *alternativeSource) :
+    sourceDistribution(source), progressionSize(progressionSize), _delay(delay)
+
+{
+  _alternativeDistribution.reset(alternativeSource);
+}
 
 void progressiveDistributionDataReader::getNextRawDatum(void *target)
 {
     vector<double>* targetPtr = static_cast<vector<double>*>(target);
     targetPtr->clear();
 
-    double bimodalMean = 10;
-    double trimodalMean = -2;
-
-    if(_currentIteration % 10 > 5){
-      for(int i = 0; i < targetPtr->size(); ++i){
-        (*targetPtr)[i] += bimodalMean;
-      }
-    }
-
-    sourceDistribution->getValue(targetPtr);
+    //sourceDistribution->getValue(targetPtr);
+    _alternativeDistribution->getValue(targetPtr);
 
     /*
     for(auto attributeName : attributesOrder)
       (*attrs_ptr)[attributeName];
     */
 
+    int bimodalMean = 5;
+    int trimodalMean = -5;
+
+    if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
+       (_currentIteration - 1) % 3 == 7){
+      (*targetPtr)[0] += bimodalMean;
+    }
+
+    if((_currentIteration - 1) % 3 == 2 || (_currentIteration - 1) % 3 == 5 ||
+       (_currentIteration - 1) % 3 == 8){
+      (*targetPtr)[0] += trimodalMean;
+    }
 
     // 26 III 2020 article formula
     // Stops at 0.2 + 30 + 3 + 1 = 34.2 without offset. Set maxX = 40.
@@ -95,15 +102,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    if(_currentIteration > _delay){
-      if(_shouldJump && ! _hasJumped){
-        _hasJumped = true;
-        sourceDistribution->increaseMeans(progressionSize);
-      }
-
-      if(!_shouldJump)
-        sourceDistribution->increaseMeans(progressionSize);
-    }
+    sourceDistribution->increaseMeans(progressionSize);
+    _alternativeDistribution->increaseMeans(progressionSize);
 
     ++_currentIteration;
 }
