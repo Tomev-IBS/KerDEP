@@ -890,7 +890,7 @@ void MainWindow::on_pushButton_start_clicked()
 
   kernelPrognoser->_shouldConsiderWeights = false;
 
-  int pluginRank = 3;
+  int pluginRank = 4;
 
   DESDA DESDAAlgorithm(
     estimator,
@@ -905,12 +905,12 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1159";
+  QString expNum = "1160";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, plugin " + QString::number(pluginRank) +
                     ", N(-10,1)N(0,1)N(10,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz196";
+                    ", sz197";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
