@@ -905,9 +905,10 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1155";
+  QString expNum = "1156";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, plugin " + QString::number(pluginRank) + ", N(-5,1)N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
+  QString expDesc = "reservoir, plugin " + QString::number(pluginRank) +
+                    ", N(-5,1)N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz022";
   screenGenerationFrequency = 10;
