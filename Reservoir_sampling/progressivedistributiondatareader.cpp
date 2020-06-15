@@ -27,8 +27,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
-    int bimodalMean = 5;
-    int trimodalMean = -5;
+    int bimodalMean = 10;
+    int trimodalMean = -10;
 
     if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
        (_currentIteration - 1) % 3 == 7){

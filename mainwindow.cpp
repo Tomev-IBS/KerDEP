@@ -854,7 +854,7 @@ void MainWindow::on_pushButton_start_clicked()
     new progressiveDistributionDataReader(targetDistribution.get(),
                                           progressionSize,
                                           0,  /* delay */
-                                          new normalDistribution(seedString.toInt(), &alternativeDistributionMean, &alternativeDistributionStDevs, 50))
+                                          new normalDistribution(seedString.toInt(), &alternativeDistributionMean, &alternativeDistributionStDevs, 55))
   );
 
   reader->gatherAttributesData(&attributesData);
@@ -905,12 +905,12 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1156";
+  QString expNum = "1157";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, plugin " + QString::number(pluginRank) +
-                    ", N(-5,1)N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
+                    ", N(-10,1)N(0,1)N(10,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz022";
+                    ", sz129";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
