@@ -20,11 +20,12 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
              double desiredRarity, groupingThread *gt,
-             double newWeightB):
+             double newWeightB, double pluginRank):
   _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
   _estimatorDerivative(estimatorDerivative), _estimator(estimator),
   _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
-  _grpThread(gt), _newWeightB(newWeightB), _enhancedKDE(enchancedKDE)
+  _grpThread(gt), _newWeightB(newWeightB), _enhancedKDE(enchancedKDE),
+  _pluginRank(pluginRank)
 {
   _objects.clear();
 
@@ -550,7 +551,7 @@ QVector<double> DESDA::getWindowedErrorDomain()
     return domain;
 }
 
-// TR: This should be generalized to all the
+// TR: This should be generalized to all the dimensions.
 double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
 {
     if(clusters.size() == 1) return 1;
@@ -563,7 +564,7 @@ double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
       samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
     }
 
-    pluginSmoothingParameterCounter counter(&samples, 4);
+    pluginSmoothingParameterCounter counter(&samples, _pluginRank);
 
     return counter.countSmoothingParameterValue();
     //*/

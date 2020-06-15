@@ -16,8 +16,10 @@ double pluginSmoothingParameterCounter::countSmoothingParameterValue()
     case 3:
       return count3rdRankPluginSmoothingParameter();
     case 2:
-    default:
       return count2ndRankPluginSmoothingParameter();
+    case 0:
+    default:
+      return count0RankPluginSmoothingParameter();
   }
 
   return -1.0;
@@ -56,6 +58,14 @@ qreal pluginSmoothingParameterCounter::count1stRankPluginSmoothingParameter()
 {
   qreal h1 = countH1();
   return countPluginSmoothingParameter(h1);
+}
+
+qreal pluginSmoothingParameterCounter::count0RankPluginSmoothingParameter()
+{
+  // Calculation for normal kernel!
+  double h = pow(4 * M_PI / (3 * samples->size()), 0.2);
+  h *= countStandardDeviationEstimator();
+  return h;
 }
 
 inline bool pluginSmoothingParameterCounter::isNearlyEqual(double x, double y)

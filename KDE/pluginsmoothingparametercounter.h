@@ -23,6 +23,7 @@ public:
   qreal count3rdRankPluginSmoothingParameter();
   qreal count2ndRankPluginSmoothingParameter();
   qreal count1stRankPluginSmoothingParameter();
+  qreal count0RankPluginSmoothingParameter();
 
 private:
 

@@ -22,7 +22,8 @@ class DESDA
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::shared_ptr<cluster>> *storedMedoids,
-          double desiredRarity, groupingThread *gt, double newWeightB);
+          double desiredRarity, groupingThread *gt, double newWeightB,
+          double pluginRank=2);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
@@ -104,6 +105,7 @@ class DESDA
     int _stepNumber = 0;
     int _numberOfClustersForGrouping = 100;
     int _medoidsNumber = 50;
+    int _pluginRank = 2;
 
     double _weightModifier = 0.0;
     double _smoothingParameterMultiplier = 1.0;
