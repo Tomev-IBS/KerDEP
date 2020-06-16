@@ -911,7 +911,7 @@ void MainWindow::on_pushButton_start_clicked()
                     ", N(0,1)N(10,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", mKPSS=" + QString::number(DESDAAlgorithm._kpssM) + // This can just be commented out.
-                    ", sz001";
+                    ", sz002";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
