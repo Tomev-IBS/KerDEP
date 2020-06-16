@@ -30,6 +30,14 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     int bimodalMean = 10;
     int trimodalMean = -10;
 
+    // Bimodal selection scheme.
+    if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
+       (_currentIteration - 1) % 3 == 7 || (_currentIteration - 1) % 3 == 9){
+      (*targetPtr)[0] += bimodalMean;
+    }
+
+    /*
+    // Trimodal selection scheme.
     if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
        (_currentIteration - 1) % 3 == 7){
       (*targetPtr)[0] += bimodalMean;
@@ -39,6 +47,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
        (_currentIteration - 1) % 3 == 8){
       (*targetPtr)[0] += trimodalMean;
     }
+    //*/
 
     // 26 III 2020 article formula
     // Stops at 0.2 + 30 + 3 + 1 = 34.2 without offset. Set maxX = 40.
