@@ -38,7 +38,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     //*/
 
-    //*
+    /*
     // Trimodal selection scheme.
     if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
        (_currentIteration - 1) % 3 == 7){
