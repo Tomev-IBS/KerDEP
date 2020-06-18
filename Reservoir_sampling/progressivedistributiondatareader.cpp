@@ -32,21 +32,21 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
 
     /*
     // Bimodal selection scheme.
-    if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
-       (_currentIteration - 1) % 3 == 7 || (_currentIteration - 1) % 3 == 9){
+    if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
+       (_currentIteration - 1) % 10 == 7 || (_currentIteration - 1) % 10 == 9){
       (*targetPtr)[0] += bimodalMean;
     }
     //*/
 
     /*
     // Trimodal selection scheme.
-    if((_currentIteration - 1) % 3 == 1 || (_currentIteration - 1) % 3 == 4 ||
-       (_currentIteration - 1) % 3 == 7){
+    if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
+       (_currentIteration - 1) % 10 == 7){
       (*targetPtr)[0] += bimodalMean;
     }
 
-    if((_currentIteration - 1) % 3 == 2 || (_currentIteration - 1) % 3 == 5 ||
-       (_currentIteration - 1) % 3 == 8){
+    if((_currentIteration - 1) % 10 == 2 || (_currentIteration - 1) % 10 == 5 ||
+       (_currentIteration - 1) % 10 == 8){
       (*targetPtr)[0] += trimodalMean;
     }
     //*/
