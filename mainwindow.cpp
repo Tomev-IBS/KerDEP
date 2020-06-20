@@ -14,7 +14,7 @@
 #include "UI/plotLabelDoubleDataPreparator.h"
 #include "UI/plotLabelIntDataPreparator.h"
 
-#include "Functions/multivariatenormalprobabilitydensityfunction.h
+#include "Functions/multivariatenormalprobabilitydensityfunction.h"
 #include "Functions/complexfunction.h"
 
 #include "Distributions/distributions.h"
