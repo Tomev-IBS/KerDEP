@@ -905,13 +905,13 @@ void MainWindow::on_pushButton_start_clicked()
   );
 
 
-  QString expNum = "1195";
+  QString expNum = "1196";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, plugin " + QString::number(pluginRank) +
                     ", N(-5,1)N(0,1)N(5,1), v=tor, m0= "+ QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", mKPSS=" + QString::number(DESDAAlgorithm._kpssM) + // This can just be commented out.
-                    ", sz423";
+                    ", sz472";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "D:\\Test\\"; // Home
