@@ -19,8 +19,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     vector<double>* targetPtr = static_cast<vector<double>*>(target);
     targetPtr->clear();
 
-    sourceDistribution->getValue(targetPtr);
-    //_alternativeDistribution->getValue(targetPtr);
+    //sourceDistribution->getValue(targetPtr);
+    _alternativeDistribution->getValue(targetPtr);
 
     /*
     for(auto attributeName : attributesOrder)
@@ -38,7 +38,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     //*/
 
-    /*
+    //*
     // Trimodal selection scheme.
     if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
        (_currentIteration - 1) % 10 == 7){
