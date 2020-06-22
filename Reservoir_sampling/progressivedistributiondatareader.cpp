@@ -19,8 +19,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     vector<double>* targetPtr = static_cast<vector<double>*>(target);
     targetPtr->clear();
 
-    sourceDistribution->getValue(targetPtr);
-    //_alternativeDistribution->getValue(targetPtr);
+    //sourceDistribution->getValue(targetPtr);
+    _alternativeDistribution->getValue(targetPtr);
 
     /*
     for(auto attributeName : attributesOrder)
@@ -30,7 +30,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     int bimodalMean = 5;
     int trimodalMean = -5;
 
-    /*
+    //*
     // Bimodal selection scheme.
     if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
        (_currentIteration - 1) % 10 == 7 || (_currentIteration - 1) % 10 == 9){
