@@ -145,7 +145,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-5</string>
+            <string>-11</string>
            </property>
           </widget>
          </item>
@@ -159,7 +159,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>46</string>
+            <string>26</string>
            </property>
           </widget>
          </item>
@@ -314,7 +314,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
-            <string>1100</string>
+            <string>1200</string>
            </property>
           </widget>
          </item>
