@@ -29,12 +29,12 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 {
   _objects.clear();
 
-  _maxM = _samplingAlgorithm->getReservoidMaxSize();
+  _maxM = _samplingAlgorithm->getReservoidMaxSize(); // _maxM should be like 1000 + 100 for every mode
 
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = 100; // 50, 100, 200, 500 -- normally 100
+  _minM = 50; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;

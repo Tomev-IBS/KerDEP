@@ -30,7 +30,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     int bimodalMean = 5;
     int trimodalMean = -5;
 
-    /*
+    //*
     // Bimodal selection scheme.
     if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
        (_currentIteration - 1) % 10 == 7 || (_currentIteration - 1) % 10 == 9){
@@ -38,7 +38,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     //*/
 
-    //*
+    /*
     // Trimodal selection scheme.
     if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
        (_currentIteration - 1) % 10 == 7){
@@ -73,13 +73,13 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    /*
+    //*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
         break;
       case 2000:
-        progressionSize = 0;
+        progressionSize = 0.01;
         break;
       case 6000:
         progressionSize = 0;
@@ -87,7 +87,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    //*
+    /*
     switch(_currentIteration - 1){ // For exps with seed, remove later
       case 0:
         progressionSize = 0;
