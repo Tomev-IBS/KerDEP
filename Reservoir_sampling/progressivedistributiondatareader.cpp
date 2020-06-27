@@ -27,8 +27,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
       (*attrs_ptr)[attributeName];
     */
 
-    int bimodalMean = 5;
-    int trimodalMean = -5;
+    int bimodalMean = -5;
+    int trimodalMean = 5;
 
     /*
     // Bimodal selection scheme.
@@ -38,8 +38,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     //*/
 
-    //*
-    // Trimodal selection scheme.
+    /*
+    // Symmetric trimodal selection scheme.
     if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
        (_currentIteration - 1) % 10 == 7){
       (*targetPtr)[0] += bimodalMean;
@@ -47,6 +47,18 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
 
     if((_currentIteration - 1) % 10 == 2 || (_currentIteration - 1) % 10 == 5 ||
        (_currentIteration - 1) % 10 == 8){
+      (*targetPtr)[0] += trimodalMean;
+    }
+    //*/
+
+    //*
+    // Asymmetric trimodal selection scheme.
+    if((_currentIteration - 1) % 10 == 1 || (_currentIteration - 1) % 10 == 4 ||
+       (_currentIteration - 1) % 10 == 7 || (_currentIteration - 1) % 10 == 8){
+      (*targetPtr)[0] += bimodalMean;
+    }
+
+    if((_currentIteration - 1) % 10 == 2 || (_currentIteration - 1) % 10 == 5){
       (*targetPtr)[0] += trimodalMean;
     }
     //*/
