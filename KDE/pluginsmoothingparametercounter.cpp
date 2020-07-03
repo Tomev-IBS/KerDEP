@@ -174,7 +174,8 @@ qreal pluginSmoothingParameterCounter::countStandardDeviationEstimator()
     V /= (samples->size() - 1);
 
     substractor *= substractor;
-    substractor /= samples->size() * (samples->size() - 1);
+    substractor /= samples->size();
+    substractor /= (samples->size() - 1); // Has to be separated for large ints.
 
     V -= substractor;
 
