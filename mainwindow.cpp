@@ -56,9 +56,43 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::testNewFunctionalities()
 {
+  using namespace QtDataVisualization;
+
   qDebug() << "Start test.";
 
-  qDebug() << "Nothing to test.";
+  std::vector<double> demMeans = {0, 0};
+  std::vector<double> demDevs = {1, 1};
+  multivariateNormalProbabilityDensityFunction densityFunction =
+      multivariateNormalProbabilityDensityFunction(&demMeans, &demDevs);
+
+  std::vector<double> pt = {-1, -1};
+  qDebug() << pt << densityFunction.getValue(&pt);
+  pt = {0, 0};
+  qDebug() << pt << densityFunction.getValue(&pt);
+  pt = {1, 1};
+  qDebug() << pt << densityFunction.getValue(&pt);
+
+
+
+  surface.setFlags(surface.flags() ^ Qt::FramelessWindowHint);
+  QSurfaceDataArray *data = new QSurfaceDataArray;
+  QSurfaceDataRow *dataRow1 = new QSurfaceDataRow;
+  QSurfaceDataRow *dataRow2 = new QSurfaceDataRow;
+  QSurfaceDataRow *dataRow3 = new QSurfaceDataRow;
+
+  //*dataRow1 << QVector3D(0.0f, 0.1f, 0.5f) << QVector3D(1.0f, 0.5f, 0.5f);
+  //*dataRow2 << QVector3D(0.0f, 1.8f, 1.0f) << QVector3D(1.0f, 0.2f, 0.3f);
+  *dataRow1 << QVector3D(-1, 0, -1) << QVector3D(0, 0, -1) << QVector3D(1, 0, -1);
+  *dataRow2 << QVector3D(-1, 0, 0) << QVector3D(0, 1, 0) << QVector3D(1, 0, 0);
+  *dataRow3 << QVector3D(-1, 0, 1) << QVector3D(0, 0, 1) << QVector3D(1, 0, 1);
+  *data << dataRow1 << dataRow2 << dataRow3;
+
+  QSurface3DSeries *series = new QSurface3DSeries;
+  series->dataProxy()->resetArray(data);
+  surface.addSeries(series);
+  surface.show();
+
+  //qDebug() << "Nothing to test.";
 
   qDebug() << "Finish test.";
 }

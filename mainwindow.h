@@ -20,6 +20,8 @@
 
 #include "DESDA.h"
 
+#include <QtDataVisualization>
+
 enum positionalSecondGradeEstimatorCountingMethods
 {
   STANDARD = 0,
@@ -56,6 +58,9 @@ class MainWindow : public QMainWindow
     const QPen _STANDARIZED_DERIVATIVE_PLOT_PEN    = QPen(QColor(255, 220, 0)); // Yellow
     const QPen _DESDA_KDE_PLOT_PEN                 = QPen(Qt::magenta);
     const QPen _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN   = QPen(Qt::green);
+
+    // 3D plots
+    QtDataVisualization::Q3DSurface surface;
 
     std::vector<QCPAbstractItem *> _linesOnPlot;
 

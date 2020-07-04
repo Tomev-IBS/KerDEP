@@ -1,5 +1,6 @@
 #include "matrixoperationslibrary.h"
 #include <cmath>
+#include <QDebug>
 
 void fillCovarianceMatrix(double correlationCoefficient, vector<double> *stDevs, matrix *covarianceMatrix)
 {
@@ -21,7 +22,7 @@ void fillCholeskyDecompositionMatrix(matrixPtr baseMatrix, matrixPtr decomposedM
 {
     // Decomposing covariance matrix using Cholesky decomposition
     // Note that it was used only for normal distributions covariance matrices.
-    // Warning: May note work correctly.
+    // Warning: May not work correctly.
 
     double value;
     decomposedMatrix->clear();
@@ -175,7 +176,12 @@ void fillCopiedMatrix(matrixPtr baseMatrix, matrixPtr copy)
 
     for(std::shared_ptr<vector<double>> row : *baseMatrix)
     {
-        copy->push_back(row);
+        //copy->push_back(row);
+        copy->push_back(std::shared_ptr<vector<double>>(new vector<double>));
+        for(auto val : *row.get()){
+            copy->back()->push_back(val);
+        }
+
     }
 }
 
