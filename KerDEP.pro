@@ -12,11 +12,14 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET      =   KerDEP
 TEMPLATE    =   app
 CONFIG      +=  static
+CONFIG      +=  qwt
+INCLUDEPATH +=  D:/qwt-6.1.4/include/
 
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES     +=  main.cpp\
     DESDAReservoir.cpp \
+  UI/plot.cpp \
   UI/plotLabelDoubleDataPreparator.cpp \
   UI/plotLabelIntDataPreparator.cpp \
                 mainwindow.cpp \
@@ -87,6 +90,7 @@ HEADERS     +=  mainwindow.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
   UI/i_plotLabelDataPreparator.h \
+  UI/plot.h \
   UI/plotLabelDoubleDataPreparator.h \
   UI/plotLabelIntDataPreparator.h \
                 groupingThread/groupingThread.h \

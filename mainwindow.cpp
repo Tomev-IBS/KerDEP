@@ -41,6 +41,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+    contourPlot = new Plot(ui->widget_contour_plot);
+    QGridLayout *l = new QGridLayout(ui->widget_contour_plot);
+    l->setAlignment(ui->widget_contour_plot, Qt::AlignCenter);
+    l->addWidget(contourPlot, 0, 0, 1, 1, Qt::AlignTop|Qt::AlignLeft);
+    QSizePolicy p(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    contourPlot->setSizePolicy(p);
+
     setupValidators();
     setupPlot();
     setupKernelsTable();
@@ -48,10 +55,14 @@ MainWindow::MainWindow(QWidget *parent) :
     testNewFunctionalities();
 
     // Set font
-    //auto appFont = QFont("Monospace");
     auto appFont = QFont("Courier New");
     appFont.setStyleHint(QFont::TypeWriter);
     setFont(appFont);
+}
+
+MainWindow::~MainWindow(){
+  delete contourPlot;
+  delete ui;
 }
 
 void MainWindow::testNewFunctionalities()
@@ -60,39 +71,7 @@ void MainWindow::testNewFunctionalities()
 
   qDebug() << "Start test.";
 
-  std::vector<double> demMeans = {0, 0};
-  std::vector<double> demDevs = {1, 1};
-  multivariateNormalProbabilityDensityFunction densityFunction =
-      multivariateNormalProbabilityDensityFunction(&demMeans, &demDevs);
-
-  std::vector<double> pt = {-1, -1};
-  qDebug() << pt << densityFunction.getValue(&pt);
-  pt = {0, 0};
-  qDebug() << pt << densityFunction.getValue(&pt);
-  pt = {1, 1};
-  qDebug() << pt << densityFunction.getValue(&pt);
-
-
-
-  surface.setFlags(surface.flags() ^ Qt::FramelessWindowHint);
-  QSurfaceDataArray *data = new QSurfaceDataArray;
-  QSurfaceDataRow *dataRow1 = new QSurfaceDataRow;
-  QSurfaceDataRow *dataRow2 = new QSurfaceDataRow;
-  QSurfaceDataRow *dataRow3 = new QSurfaceDataRow;
-
-  //*dataRow1 << QVector3D(0.0f, 0.1f, 0.5f) << QVector3D(1.0f, 0.5f, 0.5f);
-  //*dataRow2 << QVector3D(0.0f, 1.8f, 1.0f) << QVector3D(1.0f, 0.2f, 0.3f);
-  *dataRow1 << QVector3D(-1, 0, -1) << QVector3D(0, 0, -1) << QVector3D(1, 0, -1);
-  *dataRow2 << QVector3D(-1, 0, 0) << QVector3D(0, 1, 0) << QVector3D(1, 0, 0);
-  *dataRow3 << QVector3D(-1, 0, 1) << QVector3D(0, 0, 1) << QVector3D(1, 0, 1);
-  *data << dataRow1 << dataRow2 << dataRow3;
-
-  QSurface3DSeries *series = new QSurface3DSeries;
-  series->dataProxy()->resetArray(data);
-  surface.addSeries(series);
-  surface.show();
-
-  //qDebug() << "Nothing to test.";
+  qDebug() << "Nothing to test.";
 
   qDebug() << "Finish test.";
 }
@@ -178,11 +157,6 @@ double MainWindow::findExtrema(const QVector<double> &values, const QVector<doub
   }
 
   return extrema;
-}
-
-MainWindow::~MainWindow()
-{
-  delete ui;
 }
 
 void MainWindow::setupValidators()
@@ -948,9 +922,9 @@ void MainWindow::on_pushButton_start_clicked()
                     ", sz475";
   screenGenerationFrequency = 10;
 
-  //QString driveDir = "D:\\Test\\"; // Home
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
 
+  //QString driveDir = "D:\\Test\\"; // Home
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1358,4 +1332,62 @@ void MainWindow::on_pushButton_start_clicked()
   }
 
   qDebug() << "Animation finished.";
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    qDebug() << "Clicked.";
+
+    // Prepare image location.
+    QString expNum = "11101 test";
+    QString expDesc = "desc";
+    QString driveDir = "D:\\Test\\"; // Home
+    QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                      + expDesc + ")\\";
+    if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+    // Contour levels calculation.
+    QList<double> contourLevels;
+    for ( double level = 0.0; level < 0.51; level += 0.05 )
+        contourLevels += level;
+
+    // Prepare model plot
+    std::vector<double> demMeans = {-7, 0};
+    std::vector<double> demDevs = {1, 1};
+    auto densityFunction =
+      new multivariateNormalProbabilityDensityFunction(&demMeans, &demDevs);
+    contourPlot->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+
+    // After adding plots set contours and stuff.
+    contourPlot->setContours(contourLevels);
+    contourPlot->showContour(true);
+    contourPlot->setAlpha(0);
+
+    // Set limit on axes.
+    contourPlot->setAxesLimit(10);
+
+    // Start the test
+    stepNumber = 0;
+
+    for(stepNumber = 0; stepNumber < 10 * 14; ++stepNumber){
+      demMeans[0] += 0.1;
+      densityFunction->setMeans(demMeans);
+      contourPlot->replot();
+      qApp->processEvents();
+      QString imageName = dirPath + QString::number(stepNumber) + ".png";
+      qDebug() << "Saved: " << ui->widget_contour_plot->grab().save(imageName);
+    }
+
+    qDebug() << "Done!";
+
+}
+
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+  int offset = 10; // Offset in px, so that scale is in
+  QMainWindow::resizeEvent(event);
+  int newSize = std::min(ui->widget_contour_plot->height(),
+                         ui->widget_contour_plot->width()) - offset;
+  //ui->widget->resize(newSize, newSize);
+  contourPlot->resize(newSize, newSize);
 }

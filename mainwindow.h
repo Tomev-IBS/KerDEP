@@ -21,6 +21,7 @@
 #include "DESDA.h"
 
 #include <QtDataVisualization>
+#include "UI/plot.h"
 
 enum positionalSecondGradeEstimatorCountingMethods
 {
@@ -60,7 +61,10 @@ class MainWindow : public QMainWindow
     const QPen _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN   = QPen(Qt::green);
 
     // 3D plots
-    QtDataVisualization::Q3DSurface surface;
+    //QtDataVisualization::Q3DSurface surface;
+
+    // Contour plots
+    Plot *contourPlot = nullptr;
 
     std::vector<QCPAbstractItem *> _linesOnPlot;
 
@@ -218,6 +222,9 @@ class MainWindow : public QMainWindow
     void on_pushButton_removeTargetFunction_clicked();
 
     double numericIntegral(const QVector<qreal> *Y);
+    void on_pushButton_clicked();
+
+    void resizeEvent(QResizeEvent* event);
 };
 
 enum kernelSettingsColumns

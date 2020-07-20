@@ -5,7 +5,7 @@
 
 multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(vector<double> *means, vector<double> *stDevs)
 {
-    double correlationCoefficient = 0.1;
+    double correlationCoefficient = 0.0;
     matrix covarianceMatrix;
 
     this->means = vector<double>(*means);
@@ -51,4 +51,9 @@ double multivariateNormalProbabilityDensityFunction::getValue(point *arguments)
     result /= qSqrt(covarianceMatrixDeterminant);
 
     return result;
+}
+
+void multivariateNormalProbabilityDensityFunction::setMeans(const vector<double> &newMeans)
+{
+  means = newMeans;
 }
