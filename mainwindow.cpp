@@ -1425,6 +1425,7 @@ void MainWindow::on_pushButton_clicked()
     QString i_label_header = "i = ";
     QString m_label_header = "m = ";
     QString time_label_header = "time = ";
+    QString h_label_header = "h = {";
 
     int pluginRank = 3;
     double newWeightB = 0.5;
@@ -1473,6 +1474,14 @@ void MainWindow::on_pushButton_clicked()
 
       DESDAAlgorithm.restoreClustersCWeights();
 
+      QString smoothingParameterValues = "";
+
+      for(auto val : DESDAAlgorithm._smoothingParametersVector){
+        smoothingParameterValues += QString::number(val) + ", ";
+      }
+
+      smoothingParameterValues.chop(2);
+
       endTime = time(NULL);
 
       ui->label_contour_plot_i
@@ -1481,6 +1490,9 @@ void MainWindow::on_pushButton_clicked()
           ->setText(m_label_header + QString::number(clusters->size()));
       ui->label_contour_plot_drawing_time
           ->setText(time_label_header + QString::number((endTime - startTime) / 60.0) + " min");
+      ui->label_contour_plot_h
+          ->setText(h_label_header + smoothingParameterValues + "}");
+
 
       qApp->processEvents();
 
