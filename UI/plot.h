@@ -326,10 +326,10 @@ class SpectrogramData2: public SpectrogramData
 {
   public:
 
-    multivariateNormalProbabilityDensityFunction *densityFunction;
+    function *densityFunction;
 
-    SpectrogramData2(multivariateNormalProbabilityDensityFunction* dFunction,
-                     float xy_interval_limit = 10.0) : densityFunction(dFunction)
+    SpectrogramData2(function* dFunction,float xy_interval_limit = 10.0)
+      : densityFunction(dFunction)
     {
       setInterval( Qt::XAxis, QwtInterval( -xy_interval_limit, xy_interval_limit ) );
       setInterval( Qt::YAxis, QwtInterval( -xy_interval_limit, xy_interval_limit ) );
@@ -343,6 +343,7 @@ class SpectrogramData2: public SpectrogramData
     virtual double value( double x, double y ) const
     {
       std::vector<double> pt = {x, y};
+
       if(densityFunction != nullptr){
         return densityFunction->getValue(&pt);
       }

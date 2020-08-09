@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <QDebug>
+
 kernelDensityEstimator::kernelDensityEstimator(
     vector<std::shared_ptr<vector<double>>>* samples,
     vector<double>* smoothingParameters,
@@ -34,7 +36,7 @@ unsigned long long kernelDensityEstimator::setClusters(std::vector<std::shared_p
   return this->clusters.size();
 }
 
-int kernelDensityEstimator::setSmoothingParameters(std::vector<double> smoothingParams)
+int kernelDensityEstimator::setSmoothingParameters(const std::vector<double> &smoothingParams)
 {
   smoothingParameters.clear();
 
@@ -63,6 +65,11 @@ double kernelDensityEstimator::getValue(vector<double>* x)
     }
 
     return getProductKernelValue(x);
+}
+
+int kernelDensityEstimator::getDimension()
+{
+  return kernels.size();
 }
 
 void kernelDensityEstimator::updateSPModifyingParameters()
@@ -120,7 +127,7 @@ double kernelDensityEstimator::getProductValuesFromClusters(vector<double>* x)
     addend = getProductKernelAddendFromClusterIndex(index++, x);
 
     if(_shouldConsiderWeights)
-      addend *= c.get()->getCWeight();
+      addend *= c->getCWeight();
 
     if(clusters.size() == additionalMultipliers.size())
     {
@@ -129,7 +136,7 @@ double kernelDensityEstimator::getProductValuesFromClusters(vector<double>* x)
 
     if(_shouldConsiderWeights)
     {
-      weight += (c.get()->getCWeight());
+      weight += c->getCWeight();
     }
     else
     {

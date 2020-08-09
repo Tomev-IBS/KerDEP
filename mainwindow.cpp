@@ -853,10 +853,10 @@ void MainWindow::on_pushButton_start_clicked()
   vector<double> alternativeDistributionMean = {0.0};
   vector<double> alternativeDistributionStDevs = {1.0};
 
-  parser.reset(new distributionDataParser(&attributesData));
-
   qreal progressionSize =
       ui->lineEdit_distributionProgression->text().toDouble();
+
+  parser.reset(new distributionDataParser(&attributesData));
 
   reader.reset(
     new progressiveDistributionDataReader(targetDistribution.get(),
@@ -922,9 +922,8 @@ void MainWindow::on_pushButton_start_clicked()
                     ", sz475";
   screenGenerationFrequency = 10;
 
-  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-
-  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "D:\\Test\\"; // Home
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1339,9 +1338,10 @@ void MainWindow::on_pushButton_clicked()
     qDebug() << "Clicked.";
 
     // Prepare image location.
-    QString expNum = "11101 test";
-    QString expDesc = "desc";
+    QString expNum = "2D kontury";
+    QString expDesc = "estymator dla różnych m";
     QString driveDir = "D:\\Test\\"; // Home
+    //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
     QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                       + expDesc + ")\\";
     if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
@@ -1356,7 +1356,17 @@ void MainWindow::on_pushButton_clicked()
     std::vector<double> demDevs = {1, 1};
     auto densityFunction =
       new multivariateNormalProbabilityDensityFunction(&demMeans, &demDevs);
-    contourPlot->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+    //contourPlot->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));  
+
+    // Create estimator object
+    std::shared_ptr<kernelDensityEstimator>
+      estimator(generateKernelDensityEstimator(2));
+
+    estimator->_shouldConsiderWeights = true;
+
+    std::vector<double> pt = {0, 0};
+
+    contourPlot->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), -10.0), QPen(QColor(0, 255, 0)));
 
     // After adding plots set contours and stuff.
     contourPlot->setContours(contourLevels);
@@ -1364,22 +1374,126 @@ void MainWindow::on_pushButton_clicked()
     contourPlot->setAlpha(0);
 
     // Set limit on axes.
-    contourPlot->setAxesLimit(10);
+    contourPlot->setAxesLimit(5);
+
+    // Add clusters to the estimator
+    means.clear();
+    means.push_back(std::make_shared<std::vector<double>>());
+    means.back()->push_back(0);
+    means.back()->push_back(0);
+
+    stDevs.clear();
+    stDevs.push_back(std::make_shared<std::vector<double>>());
+    stDevs.back()->push_back(1);
+    stDevs.back()->push_back(1);
+
+    std::shared_ptr<distribution>
+      targetDistribution(generateTargetDistribution(&means, &stDevs));
+
+    std::vector<double> meansForDistribution = {0.0, 0.0};
+    std::vector<double> stDevsForDistribution = {1.0, 1.0};
+
+    parser.reset(new distributionDataParser(&attributesData));
+
+    reader.reset(
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            0,
+                                            0,  /* delay */
+                                            new normalDistribution(0, &meansForDistribution, &stDevsForDistribution, 55))
+    );
+
+    reader->gatherAttributesData(&attributesData);
+    parser->setAttributesOrder(reader->getAttributesOrder());
+
+    reservoirSamplingAlgorithm* algorithm =
+      generateReservoirSamplingAlgorithm(reader.get(), parser.get());
+
+    objects.clear();
+    clusters = &storedMedoids;
+    clusters->clear();
+
+    /*
+    for(stepNumber = 0; stepNumber < 10; ++stepNumber){
+      algorithm->performSingleStep(&objects, stepNumber);
+      std::shared_ptr<cluster> newCluster =
+          std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
+      newCluster->setTimestamp(stepNumber);
+      clusters->push_back(newCluster);
+    }
+    */
+
+    QString i_label_header = "i = ";
+    QString m_label_header = "m = ";
+    QString time_label_header = "time = ";
+
+    int pluginRank = 3;
+    double newWeightB = 0.5;
+    groupingThread gt(&storedMedoids, parser);
+
+    kernelPrognoser.reset(generateKernelDensityEstimator(2));
+    _enchancedKDE.reset(generateKernelDensityEstimator(2));
+
+    DESDA DESDAAlgorithm(
+      estimator,
+      kernelPrognoser,
+      _enchancedKDE,
+      ui->lineEdit_weightModifier->text().toDouble(),
+      algorithm,
+      clusters,
+      &storedMedoids,
+      ui->lineEdit_rarity->text().toDouble(),
+      &gt, newWeightB, pluginRank
+    );
 
     // Start the test
     stepNumber = 0;
 
-    for(stepNumber = 0; stepNumber < 10 * 14; ++stepNumber){
-      demMeans[0] += 0.1;
-      densityFunction->setMeans(demMeans);
+    time_t startTime, endTime;
+
+    for(stepNumber = 0; stepNumber < 101; ++stepNumber){
+      //qDebug() << "Step number: " << stepNumber;
+      //demMeans[0] += 0.1;
+      //densityFunction->setMeans(demMeans);
+
+      startTime = time(NULL);
+
+      //algorithm->performSingleStep(&objects, stepNumber);
+      DESDAAlgorithm.performStep();
+      DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+      /*
+      std::shared_ptr<cluster> newCluster =
+          std::shared_ptr<cluster>(new cluster(stepNumber, objects.back()));
+      newCluster->setTimestamp(stepNumber);
+      clusters->push_back(newCluster);
+      estimator->setClusters(*clusters);
+      */
+
       contourPlot->replot();
       qApp->processEvents();
+
+      DESDAAlgorithm.restoreClustersCWeights();
+
+      endTime = time(NULL);
+
+      ui->label_contour_plot_i
+          ->setText(i_label_header + QString::number(stepNumber));
+      ui->label_contour_plot_m
+          ->setText(m_label_header + QString::number(clusters->size()));
+      ui->label_contour_plot_drawing_time
+          ->setText(time_label_header + QString::number((endTime - startTime) / 60.0) + " min");
+
+      qApp->processEvents();
+
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
-      qDebug() << "Saved: " << ui->widget_contour_plot->grab().save(imageName);
+      qDebug() << "Image name: " << imageName;
+      qDebug() << "Saved: " << ui->widget_contour_plot_holder->grab().save(imageName);
+
+      endTime = time(NULL);
+
+      qDebug() << "Real end time: " << (endTime - startTime) << " s";
     }
 
     qDebug() << "Done!";
-
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)

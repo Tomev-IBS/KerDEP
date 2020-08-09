@@ -38,6 +38,13 @@ class DESDA
     cluster getEmECluster();
     double getStationarityTestValue();
 
+    // 2D Plot changes
+    void prepareEstimatorForContourPlotDrawing();
+    std::vector<double> _unmodifiedCWeightsOfClusters = {};
+    void restoreClustersCWeights();
+
+
+
     stationarityTestPtr stationarityTest;
 
     double _u_i = 0.0;
@@ -96,8 +103,8 @@ class DESDA
     double _maxAbsDerivativeValueInCurrentStep = 0;
     int _mA = 100;
 
-    double _h;
-    double _hWindowed;
+    std::vector<double> _smoothingParametersVector;
+    std::vector<double> _windowedSmoothingParametersVector;
     double _smoothingParameterEnhancer;
 
   protected:
@@ -156,7 +163,7 @@ class DESDA
     double getDomainMinValue(const std::vector<clusterPtr> &clusters, double h);
     double getDomainMaxValue(const std::vector<clusterPtr> &clusters, double h);
 
-    double calculateH(const std::vector<clusterPtr> &clusters);
+    std::vector<double> calculateH(const std::vector<clusterPtr> &clusters);
 
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();

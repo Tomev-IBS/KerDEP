@@ -15,7 +15,7 @@ enum estimatorsKernelsType
     PRODUCT =   0
 };
 
-class kernelDensityEstimator
+class kernelDensityEstimator: public function
 {
     public:
         kernelDensityEstimator(vector<std::shared_ptr<vector<double>>>* samples, vector<double>* smoothingParameter, vector<string>* carriersRestrictions, int kernelType, vector<int>* kernelsIDs);
@@ -23,13 +23,15 @@ class kernelDensityEstimator
         void setSamples(vector<std::shared_ptr<vector<double>>>* samples);
         unsigned long long setClusters(std::vector<std::shared_ptr<cluster> > clusters);
 
-        int setSmoothingParameters(std::vector<double> smoothingParams);
+        int setSmoothingParameters(const std::vector<double> &smoothingParams);
 
         void setAdditionalMultipliers(std::vector<double> multipliers);
 
         double getValue(vector<double>* x);
 
         bool _shouldConsiderWeights = true;
+
+        int getDimension();
 
         void updateSPModifyingParameters();
 

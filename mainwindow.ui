@@ -112,13 +112,55 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QWidget" name="widget_contour_plot" native="true">
+         <widget class="QWidget" name="widget_contour_plot_holder" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QWidget" name="widget_contour_plot" native="true"/>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_contour_plot_data">
+             <property name="title">
+              <string>Data</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <widget class="QLabel" name="label_contour_plot_i">
+                <property name="text">
+                 <string>i = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_contour_plot_m">
+                <property name="text">
+                 <string>m = 0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_contour_plot_h">
+                <property name="text">
+                 <string>h = {1, 1}</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_contour_plot_drawing_time">
+                <property name="text">
+                 <string>Drawing time = </string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
@@ -323,6 +365,9 @@
              </property>
              <property name="maximum">
               <number>10</number>
+             </property>
+             <property name="value">
+              <number>2</number>
              </property>
             </widget>
            </item>

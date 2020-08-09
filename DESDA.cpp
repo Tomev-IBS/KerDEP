@@ -206,9 +206,9 @@ void DESDA::performStep()
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameterers
-  _hWindowed = _smoothingParameterEnhancer * calculateH(*_clusters);
+  _windowedSmoothingParametersVector = calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
-  _h = _smoothingParameterEnhancer * calculateH(currentClusters);
+  _smoothingParametersVector = calculateH(currentClusters);
 
   // Update weights
   updateWeights();
@@ -229,10 +229,12 @@ void DESDA::performStep()
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices){
-      if(index < 0)
-          _examinedClustersDerivatives.push_back(0);
-      else
-         _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
+    if(index < 0){
+      _examinedClustersDerivatives.push_back(0);
+    }
+    else {
+      _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
+    }
   }
 
   // Update uncommon elements
@@ -359,13 +361,18 @@ void DESDA::countKDEValuesOnClusters()
   std::vector<double> x;
 
   auto consideredClusters = getClustersForEstimator();
-  _estimator->setSmoothingParameters({_h});
   _estimator->setClusters(consideredClusters);
+
+  //_estimator->setSmoothingParameters({_h}); // Artifact after 1D
+  _estimator->setSmoothingParameters(_smoothingParametersVector);
 
   for(std::shared_ptr<cluster> c : *_clusters)
   {
     x.clear();
-    x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+    //x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
+    for(auto kvPair: c->getRepresentative()->attributesValues){
+      x.push_back(std::stod(c->getRepresentative()->attributesValues[kvPair.first]));
+    }
     double estimatorValueOnCluster = _estimator->getValue(&x);
     c->_currentKDEValue = estimatorValueOnCluster;
   }
@@ -518,8 +525,8 @@ QVector<double> DESDA::getErrorDomain() {
     std::vector<std::shared_ptr<cluster>> currentClusters
         = getClustersForEstimator();
 
-    double domainMinValue = getDomainMinValue(currentClusters, _h);
-    double domainMaxValue = getDomainMaxValue(currentClusters, _h);
+    double domainMinValue = getDomainMinValue(currentClusters, _smoothingParametersVector[0]);
+    double domainMaxValue = getDomainMaxValue(currentClusters, _smoothingParametersVector[0]);
 
     QVector<double> domain = {};
 
@@ -537,8 +544,8 @@ QVector<double> DESDA::getWindowedErrorDomain()
     std::vector<std::shared_ptr<cluster>> currentClusters
         = getClustersForWindowedEstimator();
 
-    double domainMinValue = getDomainMinValue(currentClusters, _hWindowed);
-    double domainMaxValue = getDomainMaxValue(currentClusters, _hWindowed);
+    double domainMinValue = getDomainMinValue(currentClusters, _windowedSmoothingParametersVector[0]);
+    double domainMaxValue = getDomainMaxValue(currentClusters, _windowedSmoothingParametersVector[0]);
 
     QVector<double> domain = {};
 
@@ -552,40 +559,32 @@ QVector<double> DESDA::getWindowedErrorDomain()
 }
 
 // TR: This should be generalized to all the dimensions.
-double DESDA::calculateH(const std::vector<clusterPtr> &clusters)
+std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters)
 {
-    if(clusters.size() == 1) return 1;
+  int dimensionsNumber = _estimator->getDimension();
+  std::vector<double> smoothingParameters = {};
 
-    //*
-    // Plugin method.
-    QVector<qreal> samples = {};
+  if(clusters.size() == 1){
+    for(int i = 0; i < dimensionsNumber; ++i){
+      smoothingParameters.push_back(1);
+    }
+    return smoothingParameters;
+  }
 
+  // Plugin method.
+  QVector<qreal> samples = {};
+
+  for(auto kvPair: clusters[0]->getRepresentative()->attributesValues){
+    samples.clear();
     for(auto c: clusters){
       samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
     }
-
     pluginSmoothingParameterCounter counter(&samples, _pluginRank);
+    smoothingParameters.push_back(counter.countSmoothingParameterValue()
+                                  * _smoothingParameterEnhancer);
+  }
 
-    return counter.countSmoothingParameterValue();
-    //*/
-
-    /*
-    // Normal method.
-    double h = 0;
-
-    // For normal Kernel
-    h = pow(4 * M_PI / (3 * clusters.size()), 0.2);
-
-    std::vector<double> clusterVals = {};
-
-    for(auto c : clusters){
-      clusterVals.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    }
-
-    h *= stDev(clusterVals);
-
-    return h;
-    //*/
+  return smoothingParameters;
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X)
@@ -602,11 +601,11 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
   if(prognosisCoefficients.size() == currentClusters.size())
   {
     _estimatorDerivative->setAdditionalMultipliers(prognosisCoefficients);
-    _estimatorDerivative->setSmoothingParameters({_h});
+    _estimatorDerivative->setSmoothingParameters({_smoothingParametersVector});
     _estimatorDerivative->setClusters(currentClusters);
 
-    double domainMinValue = getDomainMinValue(currentClusters, _h);
-    double domainMaxValue = getDomainMaxValue(currentClusters, _h);
+    double domainMinValue = getDomainMinValue(currentClusters, _smoothingParametersVector[0]);
+    double domainMaxValue = getDomainMaxValue(currentClusters, _smoothingParametersVector[0]);
 
     for(qreal x: *X)
     {
@@ -633,10 +632,10 @@ QVector<double> DESDA::getEnhancedKDEValues(const QVector<qreal> *X)
   QVector<double> enhancedKDEValues = {};
 
   _enhancedKDE->setClusters(currentClusters);
-  _enhancedKDE->setSmoothingParameters({_h});
+  _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
 
-  double domainMinValue = getDomainMinValue(currentClusters, _h);
-  double domainMaxValue = getDomainMaxValue(currentClusters, _h);
+  double domainMinValue = getDomainMinValue(currentClusters, _smoothingParametersVector[0]);
+  double domainMaxValue = getDomainMaxValue(currentClusters, _smoothingParametersVector[0]);
 
   for(qreal x: *X)
   {
@@ -703,11 +702,11 @@ QVector<double> DESDA::getWindowKDEValues(const QVector<qreal> *X)
 
     auto consideredClusters = getClustersForWindowedEstimator();
     _estimator->setClusters(consideredClusters);
-    _estimator->setSmoothingParameters({_hWindowed});
+    _estimator->setSmoothingParameters({_windowedSmoothingParametersVector});
     _estimator->_shouldConsiderWeights = false;
 
-    double domainMinValue = getDomainMinValue(consideredClusters, _h);
-    double domainMaxValue = getDomainMaxValue(consideredClusters, _h);
+    double domainMinValue = getDomainMinValue(consideredClusters, _smoothingParametersVector[0]);
+    double domainMaxValue = getDomainMaxValue(consideredClusters, _smoothingParametersVector[0]);
 
     for(qreal x: *X)
     {
@@ -731,11 +730,11 @@ QVector<double> DESDA::getKDEValues(const QVector<qreal> *X)
 
     auto consideredClusters = getClustersForEstimator();
     _estimator->setClusters(consideredClusters);
-    _estimator->setSmoothingParameters({_h});
+    _estimator->setSmoothingParameters({_smoothingParametersVector});
     _estimator->_shouldConsiderWeights = false;
 
-    double domainMinValue = getDomainMinValue(consideredClusters, _h);
-    double domainMaxValue = getDomainMaxValue(consideredClusters, _h);
+    double domainMinValue = getDomainMinValue(consideredClusters, _smoothingParametersVector[0]);
+    double domainMaxValue = getDomainMaxValue(consideredClusters, _smoothingParametersVector[0]);
 
     for(qreal x: *X)
     {
@@ -756,11 +755,11 @@ QVector<double> DESDA::getWeightedKDEValues(const QVector<qreal> *X)
 
     auto consideredClusters = getClustersForEstimator();
     _estimator->setClusters(consideredClusters);
-    _estimator->setSmoothingParameters({_h});
+    _estimator->setSmoothingParameters({_smoothingParametersVector});
     _estimator->_shouldConsiderWeights = true;
 
-    double domainMinValue = getDomainMinValue(consideredClusters, _h);
-    double domainMaxValue = getDomainMaxValue(consideredClusters, _h);
+    double domainMinValue = getDomainMinValue(consideredClusters, _smoothingParametersVector[0]);
+    double domainMaxValue = getDomainMaxValue(consideredClusters, _smoothingParametersVector[0]);
 
     for(qreal x: *X)
     {
@@ -821,6 +820,25 @@ double DESDA::getStationarityTestValue()
   return stationarityTest->getTestsValue();
 }
 
+void DESDA::prepareEstimatorForContourPlotDrawing()
+{
+  auto currentClusters = getClustersForEstimator();
+  _unmodifiedCWeightsOfClusters = getClustersWeights(*_clusters);
+
+  enhanceWeightsOfUncommonElements();
+  sigmoidallyEnhanceClustersWeights(&currentClusters);
+
+  _estimator->setClusters(currentClusters);
+  _estimator->setSmoothingParameters({_smoothingParametersVector});
+}
+
+void DESDA::restoreClustersCWeights()
+{
+  for(int i = 0; i < _clusters->size(); ++i){
+    (*_clusters)[i]->setCWeight(_unmodifiedCWeightsOfClusters[i]);
+  }
+}
+
 /** DESDA::getAtypicalElements
  * @brief Finds and returns vector of atypical elements.
  *
@@ -863,7 +881,7 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters()
     auto c = consideredClusters[0];
     consideredClusters.erase(consideredClusters.begin(), consideredClusters.begin() + 1);
     _enhancedKDE->setClusters(consideredClusters);
-    _enhancedKDE->setSmoothingParameters({_h});
+    _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
 
     x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
     AKDEValues.push_back(_enhancedKDE->getValue(&x));
@@ -928,7 +946,7 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
   sigmoidallyEnhanceClustersWeights(&currentClusters);
 
   _enhancedKDE->setClusters(currentClusters);
-  _enhancedKDE->setSmoothingParameters({_h});
+  _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
 
   _examinedClustersW.clear();
 
@@ -939,8 +957,8 @@ QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X)
         _examinedClustersW.push_back(currentClusters[index]->getCWeight());
   }
 
-  double domainMinValue = getDomainMinValue(currentClusters, _h);
-  double domainMaxValue = getDomainMaxValue(currentClusters, _h);
+  double domainMinValue = getDomainMinValue(currentClusters, _smoothingParametersVector[0]);
+  double domainMaxValue = getDomainMaxValue(currentClusters, _smoothingParametersVector[0]);
 
   for(qreal x: *X)
   {
