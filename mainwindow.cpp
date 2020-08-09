@@ -1339,8 +1339,9 @@ void MainWindow::on_pushButton_clicked()
 
     // Prepare image location.
     QString expNum = "2D kontury";
-    QString expDesc = "estymator dla różnych m";
-    QString driveDir = "D:\\Test\\"; // Home
+    QString expDesc = "estymator dla różnych m (1 - 1000)";
+    QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+    //QString driveDir = "D:\\Test\\"; // Home
     //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
     QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                       + expDesc + ")\\";
@@ -1451,7 +1452,7 @@ void MainWindow::on_pushButton_clicked()
 
     time_t startTime, endTime;
 
-    for(stepNumber = 0; stepNumber < 101; ++stepNumber){
+    for(stepNumber = 1; stepNumber < 1001; ++stepNumber){
       //qDebug() << "Step number: " << stepNumber;
       //demMeans[0] += 0.1;
       //densityFunction->setMeans(demMeans);

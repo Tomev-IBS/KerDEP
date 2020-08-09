@@ -13,7 +13,6 @@ TARGET      =   KerDEP
 TEMPLATE    =   app
 CONFIG      +=  static
 CONFIG      +=  qwt
-INCLUDEPATH +=  D:/qwt-6.1.4/include/
 
 QMAKE_CXXFLAGS += -std=c++11
 
