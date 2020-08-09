@@ -558,7 +558,6 @@ QVector<double> DESDA::getWindowedErrorDomain()
     return domain;
 }
 
-// TR: This should be generalized to all the dimensions.
 std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters)
 {
   int dimensionsNumber = _estimator->getDimension();
@@ -577,7 +576,8 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters)
   for(auto kvPair: clusters[0]->getRepresentative()->attributesValues){
     samples.clear();
     for(auto c: clusters){
-      samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
+      //samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
+      samples.append(std::stod(c->getObject()->attributesValues[kvPair.first]));
     }
     pluginSmoothingParameterCounter counter(&samples, _pluginRank);
     smoothingParameters.push_back(counter.countSmoothingParameterValue()
