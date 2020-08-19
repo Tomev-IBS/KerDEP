@@ -33,6 +33,8 @@
 
 #include "DESDA.h"
 
+#include <qwt_plot_textlabel.h>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -47,6 +49,20 @@ MainWindow::MainWindow(QWidget *parent) :
     l->addWidget(contourPlot, 0, 0, 1, 1, Qt::AlignTop|Qt::AlignLeft);
     QSizePolicy p(QSizePolicy::Maximum, QSizePolicy::Maximum);
     contourPlot->setSizePolicy(p);
+
+    /*
+    QLabel *label = new QLabel(ui->widget_contour_plot);
+    label->move(100, 100);
+    label->setText("Trying!");
+
+    auto plot_ui = new QWidget(ui->widget_contour_plot);
+    plot_ui->setGeometry(100, 100, 300, 100);
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, Qt::red);
+    plot_ui->setAutoFillBackground(true);
+    plot_ui->setPalette(pal);
+    plot_ui->show();
+    */
 
     setupValidators();
     setupPlot();
@@ -1335,10 +1351,21 @@ void MainWindow::on_pushButton_start_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
+  QFont labelFont;
+  labelFont.setPointSize(60);
+
+  QwtText title("Testing qwt text label \n Other line");
+  title.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
+  title.setFont(labelFont);
+
+  QwtPlotTextLabel textLabel;
+  textLabel.setText(title);
+  textLabel.attach(contourPlot);
+
     qDebug() << "Clicked.";
 
     // Prepare image location.
-    QString expNum = "2D kontury";
+    QString expNum = "2D kontury test";
     QString expDesc = "estymator dla różnych m (1 - 1000)";
     QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
     //QString driveDir = "D:\\Test\\"; // Home
@@ -1485,16 +1512,6 @@ void MainWindow::on_pushButton_clicked()
 
       endTime = time(NULL);
 
-      ui->label_contour_plot_i
-          ->setText(i_label_header + QString::number(stepNumber));
-      ui->label_contour_plot_m
-          ->setText(m_label_header + QString::number(clusters->size()));
-      ui->label_contour_plot_drawing_time
-          ->setText(time_label_header + QString::number((endTime - startTime) / 60.0) + " min");
-      ui->label_contour_plot_h
-          ->setText(h_label_header + smoothingParameterValues + "}");
-
-
       qApp->processEvents();
 
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
@@ -1516,5 +1533,5 @@ void MainWindow::resizeEvent(QResizeEvent* event)
   int newSize = std::min(ui->widget_contour_plot->height(),
                          ui->widget_contour_plot->width()) - offset;
   //ui->widget->resize(newSize, newSize);
-  contourPlot->resize(newSize, newSize);
+  contourPlot->resize(2 * newSize, newSize);
 }

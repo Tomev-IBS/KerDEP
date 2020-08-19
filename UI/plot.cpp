@@ -47,7 +47,7 @@ void Plot::setAxesLimit(const double &limit)
 {
   // Only one argument, because it has to be square.
   setAxisScale(Qt::XAxis, -limit, limit);
-  setAxisScale(Qt::ZAxis, -limit, limit);
+  setAxisScale(Qt::ZAxis, -2*limit, 2*limit);
 }
 
 void Plot::showContour( bool on )
