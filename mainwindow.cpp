@@ -1272,8 +1272,8 @@ void MainWindow::on_pushButton_clicked()
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "2D kontury test";
-  QString expDesc = "estymator dla różnych m (1 - 1000)";
+  QString expNum = "1283 (2D)";
+  QString expDesc = "v=tor na x_1";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1372,6 +1372,8 @@ void MainWindow::on_pushButton_clicked()
   _L2_n = 0;
   _sup_n = 0;
   _mod_n = 0;
+  int errorCalculationsNumber = 0;
+  double summaricL1 = 0, summaricL2 = 0, summaricSup = 0, summaricMod = 0;
 
   QwtContourPlotUI plotUi(&stepNumber, screenGenerationFrequency, seed,
                           &DESDAAlgorithm, &_L1_n, &_L2_n, &_sup_n, &_mod_n);
@@ -1391,11 +1393,9 @@ void MainWindow::on_pushButton_clicked()
     {
       DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
 
-      plotUi.updateTexts();
-      contourPlot->replot();
-
       // Error calculation
       if(stepNumber > 10){
+        ++errorCalculationsNumber;
         auto errorDomain =
             generate2DPlotErrorDomain(&DESDAAlgorithm);
         auto domainArea = calculate2DDomainArea(errorDomain);
@@ -1403,17 +1403,26 @@ void MainWindow::on_pushButton_clicked()
         auto modelValues = getFunctionsValueOnDomain(densityFunction, errorDomain);
         auto estimatorValues = getFunctionsValueOnDomain(estimator.get(), errorDomain);
 
-        _L1_n  += calculateL1Error(modelValues, estimatorValues, domainArea);
-        _L2_n  += calculateL2Error(modelValues, estimatorValues, domainArea);
-        _sup_n += calculateSupError(modelValues, estimatorValues);
+        summaricL1  += calculateL1Error(modelValues, estimatorValues, domainArea);
+        summaricL2  += calculateL2Error(modelValues, estimatorValues, domainArea);
+        summaricSup += calculateSupError(modelValues, estimatorValues);
+
+        _L1_n  += summaricL1 / errorCalculationsNumber;
+        _L2_n  += summaricL2 / errorCalculationsNumber;
+        _sup_n += summaricSup / errorCalculationsNumber;
 
         auto modelExtrema = find2DExtrema(modelValues, errorDomain);
         auto estimatorExtrema = find2DExtrema(estimatorValues, errorDomain);
 
-        // Mod is distance between two extreme points.
-        _mod_n += sqrt(pow(modelExtrema[0] - estimatorExtrema[0], 2) +
+        summaricMod += sqrt(pow(modelExtrema[0] - estimatorExtrema[0], 2) +
             pow(modelExtrema[1] - estimatorExtrema[1], 2));
+
+        // Mod is distance between two extreme points.
+        _mod_n += summaricMod / errorCalculationsNumber;
       }
+
+      plotUi.updateTexts();
+      contourPlot->replot();
 
       DESDAAlgorithm.restoreClustersCWeights();
 
