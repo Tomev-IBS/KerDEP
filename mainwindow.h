@@ -20,7 +20,6 @@
 
 #include "DESDA.h"
 
-#include <QtDataVisualization>
 #include "UI/plot.h"
 
 enum positionalSecondGradeEstimatorCountingMethods

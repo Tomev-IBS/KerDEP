@@ -72,8 +72,6 @@ MainWindow::~MainWindow(){
 
 void MainWindow::testNewFunctionalities()
 {
-  using namespace QtDataVisualization;
-
   qDebug() << "Start test.";
 
   qDebug() << "Nothing to test.";
