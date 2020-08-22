@@ -49,12 +49,17 @@ void normalDistribution::getValue(vector<double> *result)
 
 void normalDistribution::increaseMeans(double addend)
 {
+
     for(size_t i = 0; i < means->size(); ++i)
     {
         // TODO: FIXED THRESHOLD FOR RESEARCHES
         if(means->at(i) < _maxMean)
         {
-            means->push_back(means->at(i) + addend);
+            if(i = 0) { // Update only first dimension
+              means->push_back(means->at(i) + addend);
+            } else {
+              means->push_back(means->at(i));
+            }
             means->erase(means->begin());
         }
     }
