@@ -1266,6 +1266,8 @@ void MainWindow::on_pushButton_start_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
+  qDebug() << "2D Experiment start.";
+
   screenGenerationFrequency = 10;
   int seed = ui->lineEdit_seed->text().toInt();
 
@@ -1381,6 +1383,8 @@ void MainWindow::on_pushButton_clicked()
 
   for(stepNumber = 1; stepNumber < 1001; ++stepNumber){
 
+    qDebug() << "Step 1.";
+
     startTime = time(NULL);
 
     DESDAAlgorithm.performStep();
@@ -1389,6 +1393,8 @@ void MainWindow::on_pushButton_clicked()
     if(stepNumber % screenGenerationFrequency == 0 ||
        initialDrawingSteps.contains(stepNumber))
     {
+      qDebug() << "Estimator preparation.";
+
       DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
 
       // Error calculation
@@ -1419,12 +1425,21 @@ void MainWindow::on_pushButton_clicked()
         _mod_n += summaricMod / errorCalculationsNumber;
       }
 
+      qDebug() << "Texts updates.";
+
       plotUi.updateTexts();
+
+      qDebug() << "Replotting.";
+
       contourPlot->replot();
+
+      qDebug() << "Restoring weights.";
 
       DESDAAlgorithm.restoreClustersCWeights();
 
       endTime = time(NULL);
+
+      qDebug() << "Processing.";
 
       qApp->processEvents();
 

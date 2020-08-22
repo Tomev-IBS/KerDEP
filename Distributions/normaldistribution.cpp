@@ -55,7 +55,7 @@ void normalDistribution::increaseMeans(double addend)
         // TODO: FIXED THRESHOLD FOR RESEARCHES
         if(means->at(i) < _maxMean)
         {
-            if(i = 0) { // Update only first dimension
+            if(i == 0) { // Update only first dimension
               means->push_back(means->at(i) + addend);
             } else {
               means->push_back(means->at(i));
