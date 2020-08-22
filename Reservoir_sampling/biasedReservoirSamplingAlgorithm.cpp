@@ -56,3 +56,8 @@ void biasedReservoirSamplingAlgorithm::changeReservoirMaxSize(unsigned int newMa
   if (newMaxSize == 0) return;
   biasRate = 1.0 / newMaxSize;
 }
+
+std::vector<std::string> *biasedReservoirSamplingAlgorithm::getAttributesList()
+{
+  return reader->getAttributesOrder();
+}

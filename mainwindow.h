@@ -141,10 +141,11 @@ class MainWindow : public QMainWindow
     double  modelExtrema = 0.0, windowKDEExtrema = 0.0, KDEExtrema = 0.0, KDEPExtrema = 0.0, WKDEExtrema = 0.0, REESEExtrema = 0,
             lastModelExtrema = 0.0, lastKDEExtrema = 0.0, lastKDEPExtrema = 0.0, lastWKDEExtrema = 0.0;
 
-    double calculateL1Error(const QVector<double> &model, const QVector<double> estimated, const QVector<double> &domain);
-    double calculateL2Error(const QVector<double> &model, const QVector<double> estimated, const QVector<double> &domain);
+    double calculateL1Error(const QVector<double> &model, const QVector<double> estimated, const double &domainLength);
+    double calculateL2Error(const QVector<double> &model, const QVector<double> estimated, const double &domainLength);
     double calculateSupError(const QVector<double> &model, const QVector<double> estimated);
     double findExtrema(const QVector<double> &values, const QVector<double> domain);
+    point find2DExtrema(const QVector<double> &values, const QVector<point> &points);
 
     QVector<double> maxAs = {};
     QVector<std::pair<double, double>> _atypicalElementsValuesAndDerivatives = {};
@@ -212,7 +213,6 @@ class MainWindow : public QMainWindow
 
     QString formatNumberForDisplay(double number);
 
-
     void delay(int ms);
 
     void on_spinBox_dimensionsNumber_editingFinished();
@@ -225,6 +225,12 @@ class MainWindow : public QMainWindow
     void on_pushButton_clicked();
 
     void resizeEvent(QResizeEvent* event);
+
+    // 2D Plot
+    QVector<std::vector<double>> generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    double calculate2DDomainArea(const QVector<std::vector<double>>& domain);
+    QVector<double> getFunctionsValueOnDomain(function *func, QVector<point> domain);
+
 };
 
 enum kernelSettingsColumns

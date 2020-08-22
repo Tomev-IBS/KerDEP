@@ -31,6 +31,11 @@ void basicReservoirSamplingAlgorithm::changeReservoirMaxSize(unsigned int newMax
   reservoirMaxSize = newMaxSize;
 }
 
+std::vector<std::string>* basicReservoirSamplingAlgorithm::getAttributesList()
+{
+  return reader->getAttributesOrder();
+}
+
 void basicReservoirSamplingAlgorithm::addDatumToReservoir(std::vector<std::shared_ptr<sample>> *reservoir)
 {
   reader->getNextRawDatum(parser->buffer);

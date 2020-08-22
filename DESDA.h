@@ -26,13 +26,13 @@ class DESDA
           double pluginRank=2);
 
     void performStep();
-    QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X);
-    QVector<double> getEnhancedKDEValues(const QVector<qreal> *X);
+    QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension=0);
+    QVector<double> getEnhancedKDEValues(const QVector<qreal> *X, int dimension=0);
     std::vector<double> getClustersWeights(const std::vector<std::shared_ptr<cluster>> &clusters);
     void sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster>> *clusters);
-    QVector<double> getWindowKDEValues(const QVector<qreal> *X);
-    QVector<double> getKDEValues(const QVector<qreal> *X);
-    QVector<double> getWeightedKDEValues(const QVector<qreal> *X);
+    QVector<double> getWindowKDEValues(const QVector<qreal> *X, int dimension=0);
+    QVector<double> getKDEValues(const QVector<qreal> *X, int dimension=0);
+    QVector<double> getWeightedKDEValues(const QVector<qreal> *X, int dimension=0);
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();
@@ -42,8 +42,6 @@ class DESDA
     void prepareEstimatorForContourPlotDrawing();
     std::vector<double> _unmodifiedCWeightsOfClusters = {};
     void restoreClustersCWeights();
-
-
 
     stationarityTestPtr stationarityTest;
 
@@ -74,7 +72,7 @@ class DESDA
     double _r = 0.05;
     double _quantileEstimator = 0;
     int _rareElementsNumber = 0;
-    QVector<double> getRareElementsEnhancedKDEValues(const QVector<qreal> *X);
+    QVector<double> getRareElementsEnhancedKDEValues(const QVector<qreal> *X, int dimension=0);
     std::vector<std::shared_ptr<cluster>> getAtypicalElements();
     QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();
 
@@ -96,8 +94,8 @@ class DESDA
     std::vector<double> _examinedClustersWStar3 = {};
     std::vector<double> _examinedClustersW = {};
 
-    QVector<double> getErrorDomain();
-    QVector<double> getWindowedErrorDomain();
+    QVector<double> getErrorDomain(int dimension=0);
+    QVector<double> getWindowedErrorDomain(int dimension=0);
 
     double _averageMaxDerivativeValueInLastMASteps = 0;
     double _maxAbsDerivativeValueInCurrentStep = 0;
@@ -160,8 +158,9 @@ class DESDA
     void updateExaminedClustersAsVector();
 
     // Domain reduction
-    double getDomainMinValue(const std::vector<clusterPtr> &clusters, double h);
-    double getDomainMaxValue(const std::vector<clusterPtr> &clusters, double h);
+    std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);
+    double getDomainMinValue(const std::vector<double> &values, double h);
+    double getDomainMaxValue(const std::vector<double> &values, double h);
 
     std::vector<double> calculateH(const std::vector<clusterPtr> &clusters);
 

@@ -15,6 +15,7 @@ class basicReservoirSamplingAlgorithm : public reservoirSamplingAlgorithm
     void performSingleStep(std::vector<std::shared_ptr<sample>> *reservoir, int stepNumber);
     unsigned int getReservoidMaxSize();
     void changeReservoirMaxSize(unsigned int newMaxSize);
+    std::vector<std::string> *getAttributesList();
 
   private:
 

@@ -18,6 +18,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES     +=  main.cpp\
     DESDAReservoir.cpp \
+  UI/QwtContourPlotUI.cpp \
   UI/plot.cpp \
   UI/plotLabelDoubleDataPreparator.cpp \
   UI/plotLabelIntDataPreparator.cpp \
@@ -88,6 +89,7 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
+  UI/QwtContourPlotUI.h \
   UI/i_plotLabelDataPreparator.h \
   UI/plot.h \
   UI/plotLabelDoubleDataPreparator.h \
