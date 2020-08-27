@@ -1268,12 +1268,12 @@ void MainWindow::on_pushButton_clicked()
 {
   qDebug() << "2D Experiment start.";
 
-  screenGenerationFrequency = 10;
+  screenGenerationFrequency = 100;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1283 (2D)";
-  QString expDesc = "v=tor na x_1";
+  QString expNum = "1285 (2D)";
+  QString expDesc = "co 100 do 8k dla m_max=8k, v=0";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1283,7 +1283,7 @@ void MainWindow::on_pushButton_clicked()
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  for ( double level = 0.0; level < 0.51; level += 0.05 )
+  for ( double level = 0.05; level < 0.21; level += 0.05 )
     contourLevels += level;
 
   // Prepare model plot
@@ -1379,9 +1379,9 @@ void MainWindow::on_pushButton_clicked()
                           &DESDAAlgorithm, &_L1_n, &_L2_n, &_sup_n, &_mod_n);
   plotUi.attach(contourPlot);
   plotUi.updateTexts();
-  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  QVector<int> initialDrawingSteps = {};
 
-  for(stepNumber = 1; stepNumber < 1001; ++stepNumber){
+  for(stepNumber = 1; stepNumber < 8001; ++stepNumber){
 
     qDebug() << "Step 1.";
 
