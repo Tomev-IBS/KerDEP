@@ -1272,8 +1272,8 @@ void MainWindow::on_pushButton_clicked()
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1285 (2D)";
-  QString expDesc = "co 100 do 8k dla m_max=8k, v=0";
+  QString expNum = "1286 (2D)";
+  QString expDesc = "co 100, v=tor na x_1, sz22";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1381,7 +1381,7 @@ void MainWindow::on_pushButton_clicked()
   plotUi.updateTexts();
   QVector<int> initialDrawingSteps = {};
 
-  for(stepNumber = 1; stepNumber < 8001; ++stepNumber){
+  for(stepNumber = 1; stepNumber < 10001; ++stepNumber){
 
     qDebug() << "Step 1.";
 
