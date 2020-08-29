@@ -1268,12 +1268,12 @@ void MainWindow::on_pushButton_clicked()
 {
   qDebug() << "2D Experiment start.";
 
-  screenGenerationFrequency = 100;
+  screenGenerationFrequency = 1000;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1286 (2D)";
-  QString expDesc = "co 100, v=tor na x_1, sz22";
+  QString expNum = "1287 (2D)";
+  QString expDesc = "iw=1000, v=tor na x_1, sz001";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1379,7 +1379,7 @@ void MainWindow::on_pushButton_clicked()
                           &DESDAAlgorithm, &_L1_n, &_L2_n, &_sup_n, &_mod_n);
   plotUi.attach(contourPlot);
   plotUi.updateTexts();
-  QVector<int> initialDrawingSteps = {};
+  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
 
   for(stepNumber = 1; stepNumber < 10001; ++stepNumber){
 
@@ -1442,6 +1442,8 @@ void MainWindow::on_pushButton_clicked()
       qDebug() << "Processing.";
 
       qApp->processEvents();
+
+      densityFunction->setMeans(*means.back().get()); // Update after replot.
 
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
       qDebug() << "Image name: " << imageName;
