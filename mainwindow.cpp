@@ -1268,12 +1268,12 @@ void MainWindow::on_pushButton_clicked()
 {
   qDebug() << "2D Experiment start.";
 
-  screenGenerationFrequency = 100;
+  screenGenerationFrequency = 1000;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1288 (2D)";
-  QString expDesc = "iw=100, v=tor na x_1, sz001";
+  QString expNum = "1289 (2D)";
+  QString expDesc = "iw=1000, v=tor na x_1, sz001";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1287,10 +1287,20 @@ void MainWindow::on_pushButton_clicked()
     contourLevels += level;
 
   // Prepare model plot
-  std::vector<double> demMeans = {0, 0};
-  std::vector<double> demDevs = {1, 1};
+  //std::vector<double> demMeans = {0, 0};
+  //std::vector<double> demDevs = {1, 1};
+
+  // Add clusters to the estimator
+  means = {std::make_shared<std::vector<double>>()};
+  means.back()->push_back(0);
+  means.back()->push_back(0);
+
+  stDevs = {std::make_shared<std::vector<double>>()};
+  stDevs.back()->push_back(1);
+  stDevs.back()->push_back(1);
+
   auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(&demMeans, &demDevs);
+      new multivariateNormalProbabilityDensityFunction(means.back().get(), stDevs.back().get());
   contourPlot->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
 
   // Create estimator object
@@ -1310,15 +1320,6 @@ void MainWindow::on_pushButton_clicked()
 
   // Set limit on axes.
   contourPlot->setAxesLimit(5);
-
-  // Add clusters to the estimator
-  means = {std::make_shared<std::vector<double>>()};
-  means.back()->push_back(0);
-  means.back()->push_back(0);
-
-  stDevs = {std::make_shared<std::vector<double>>()};
-  stDevs.back()->push_back(1);
-  stDevs.back()->push_back(1);
 
   std::shared_ptr<distribution>
       targetDistribution(generateTargetDistribution(&means, &stDevs));
@@ -1379,19 +1380,22 @@ void MainWindow::on_pushButton_clicked()
                           &DESDAAlgorithm, &_L1_n, &_L2_n, &_sup_n, &_mod_n);
   plotUi.attach(contourPlot);
   plotUi.updateTexts();
-  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+  //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+  QVector<int> initialDrawingSteps = {};
 
   for(stepNumber = 1; stepNumber < 10001; ++stepNumber){
-
-    qDebug() << "Step 1.";
 
     startTime = time(NULL);
 
     DESDAAlgorithm.performStep();
 
+    qDebug() << "Means: " << (*means.back())[0] << ", " << (*means.back())[1];
+
     // Drawing
     if(stepNumber % screenGenerationFrequency == 0 ||
        initialDrawingSteps.contains(stepNumber))
+
+    //if(false)
     {
       qDebug() << "Estimator preparation.";
 
