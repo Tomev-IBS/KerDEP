@@ -1268,12 +1268,12 @@ void MainWindow::on_pushButton_clicked()
 {
   qDebug() << "2D Experiment start.";
 
-  screenGenerationFrequency = 10;
+  screenGenerationFrequency = 1;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1291 (2D)";
-  QString expDesc = "iw=10, v=tor na x_1, sz003";
+  QString expNum = "1292 (2D)";
+  QString expDesc = "iw=1, v=tor na x_1, sz129";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
