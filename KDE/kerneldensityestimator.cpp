@@ -163,8 +163,9 @@ int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c,
   std::unordered_map<std::string, std::string> attrVals
       = obj->attributesValues;
 
-  for(auto attrVal : attrVals)
-    smpl->push_back(std::stod(attrVal.second));
+  for(auto attribute: *(obj->attirbutesOrder)){
+    smpl->push_back(std::stod(attrVals[attribute]));
+  }
 
   return smpl->size();
 }

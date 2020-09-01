@@ -22,6 +22,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     sourceDistribution->getValue(targetPtr);
     //_alternativeDistribution->getValue(targetPtr);
 
+    qDebug() << "Sample: " << (*targetPtr)[0] << ", " << (*targetPtr)[1];
+
     /*
     for(auto attributeName : attributesOrder)
       (*attrs_ptr)[attributeName];
@@ -124,8 +126,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target)
     }
     /**/
 
-    sourceDistribution->increaseMeans(progressionSize);
-    _alternativeDistribution->increaseMeans(progressionSize);
+    sourceDistribution->increaseMeans(progressionSize, 0);
+    _alternativeDistribution->increaseMeans(progressionSize, 0);
 
     ++_currentIteration;
 }

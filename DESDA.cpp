@@ -370,8 +370,9 @@ void DESDA::countKDEValuesOnClusters()
   {
     x.clear();
     //x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    for(auto kvPair: c->getRepresentative()->attributesValues){
-      x.push_back(std::stod(c->getRepresentative()->attributesValues[kvPair.first]));
+    //for(auto kvPair: c->getRepresentative()->attributesValues){
+    for(auto attribute: *(_samplingAlgorithm->getAttributesList())){
+      x.push_back(std::stod(c->getRepresentative()->attributesValues[attribute]));
     }
     double estimatorValueOnCluster = _estimator->getValue(&x);
     c->_currentKDEValue = estimatorValueOnCluster;

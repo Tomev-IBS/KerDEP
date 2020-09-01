@@ -47,20 +47,23 @@ void normalDistribution::getValue(vector<double> *result)
     }
 }
 
-void normalDistribution::increaseMeans(double addend)
+void normalDistribution::increaseMeans(double addend, int index)
 {
-
-    for(size_t i = 0; i < means->size(); ++i)
-    {
-        // TODO: FIXED THRESHOLD FOR RESEARCHES
-        if(means->at(i) < _maxMean)
-        {
-            if(i == 0) { // Update only first dimension
-              means->push_back(means->at(0) + addend);
-            } else {
-              means->push_back(means->at(0));
-            }
-            means->erase(means->begin());
-        }
+  // Update mean at index, if it has been provided.
+  if(index > -1 || means->size() > index){
+    if(means->at(index) < _maxMean){
+      (*means)[index] += addend;
     }
+    return;
+  }
+
+  // Otherwise update all means
+  for(size_t i = 0; i < means->size(); ++i)
+  {
+    // TODO: FIXED THRESHOLD FOR RESEARCHES
+    if(means->at(i) < _maxMean)
+    {
+      (*means)[i] += addend;
+    }
+  }
 }

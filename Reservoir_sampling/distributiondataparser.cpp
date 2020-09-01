@@ -20,6 +20,7 @@ void distributionDataParser::parseData(void *target)
     sample->attributesValues[attributesOrder->at(i)] = std::to_string(data->at(i));
 
   sample->attributesData = attributesData;
+  sample->attributesOrder = attributesOrder;
 
   updateAttributesData(sample);
 }

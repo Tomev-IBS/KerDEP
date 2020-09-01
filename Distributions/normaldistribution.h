@@ -11,7 +11,7 @@ class normalDistribution : public distribution
         normalDistribution(int seed, vector<double>* means, vector<double>* stDevs, double maxMean);
 
         void getValue(vector<double>* result);
-        void increaseMeans(double addend);
+        void increaseMeans(double addend, int index=-1);
 
     private:      
         vector<double>* means;

@@ -16,11 +16,11 @@ void complexDistribution::getValue(vector<double> *result)
     elementalDistributions.at(distributionIndex)->getValue(result);
 }
 
-void complexDistribution::increaseMeans(double addend)
+void complexDistribution::increaseMeans(double addend, int index)
 {
     for(std::shared_ptr<distribution> elementalDistribution : elementalDistributions)
     {
-        elementalDistribution->increaseMeans(addend);
+        elementalDistribution->increaseMeans(addend, index);
     }
 }
 

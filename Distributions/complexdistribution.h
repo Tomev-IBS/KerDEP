@@ -12,7 +12,7 @@ class complexDistribution : public distribution
         complexDistribution(int seed, vector<std::shared_ptr<distribution>>* elementalDistributions, vector<double>* contributions);
 
         void getValue(vector<double>* result);
-        void increaseMeans(double addend);
+        void increaseMeans(double addend, int index=-1);
 
     private:
         vector<std::shared_ptr<distribution>> elementalDistributions;

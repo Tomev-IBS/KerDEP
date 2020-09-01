@@ -1268,12 +1268,12 @@ void MainWindow::on_pushButton_clicked()
 {
   qDebug() << "2D Experiment start.";
 
-  screenGenerationFrequency = 1;
+  screenGenerationFrequency = 2;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1292 (2D)";
-  QString expDesc = "iw=1, v=tor na x_1, sz129";
+  QString expNum = "1293 (2D)";
+  QString expDesc = "iw=1000, v=tor na x_1, sz001";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1394,8 +1394,6 @@ void MainWindow::on_pushButton_clicked()
     // Drawing
     if(stepNumber % screenGenerationFrequency == 0 ||
        initialDrawingSteps.contains(stepNumber))
-
-    //if(false)
     {
       qDebug() << "Estimator preparation.";
 
@@ -1429,6 +1427,8 @@ void MainWindow::on_pushButton_clicked()
         _mod_n += summaricMod / errorCalculationsNumber;
       }
 
+      densityFunction->setMeans(*means.back().get());
+
       qDebug() << "Texts updates.";
 
       plotUi.updateTexts();
@@ -1446,8 +1446,6 @@ void MainWindow::on_pushButton_clicked()
       qDebug() << "Processing.";
 
       qApp->processEvents();
-
-      densityFunction->setMeans(*means.back().get()); // Update after replot.
 
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
       qDebug() << "Image name: " << imageName;
