@@ -1268,13 +1268,13 @@ void MainWindow::on_pushButton_clicked()
 {
   qDebug() << "2D Experiment start.";
 
-  screenGenerationFrequency = 10;
+  screenGenerationFrequency = 1;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1308 (2D)";
+  QString expNum = "1309 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, sz195, m0=4k, mMin=400";
+  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, sz196, m0=4k, mMin=400";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
