@@ -119,10 +119,9 @@ double MainWindow::calculateL2Error(const QVector<double> &model,
 
   double avg = 0;
 
-  for(auto val : errorHolder)
-    avg += val;
+  for(auto val : errorHolder){ avg += val; }
 
-  if(errorHolder.size() > 0) avg /= errorHolder.size();
+  if(errorHolder.size() > 0){ avg /= errorHolder.size();}
 
   avg = pow(avg, 0.5);
 
@@ -1272,9 +1271,9 @@ void MainWindow::on_pushButton_clicked()
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1309 (2D)";
+  QString expNum = "1314 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, sz196, m0=4k, mMin=400";
+  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, m0=1k, mMin=400, errors test,  sz260";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1286,10 +1285,6 @@ void MainWindow::on_pushButton_clicked()
   QList<double> contourLevels;
   for ( double level = 0.05; level < 0.21; level += 0.05 )
     contourLevels += level;
-
-  // Prepare model plot
-  //std::vector<double> demMeans = {0, 0};
-  //std::vector<double> demDevs = {1, 1};
 
   // Add clusters to the estimator
   means = {std::make_shared<std::vector<double>>()};
@@ -1401,22 +1396,28 @@ void MainWindow::on_pushButton_clicked()
       DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
 
       // Error calculation
-      if(stepNumber > 10){
+      if(stepNumber >= 1){
         ++errorCalculationsNumber;
-        auto errorDomain =
-            generate2DPlotErrorDomain(&DESDAAlgorithm);
+        auto errorDomain = generate2DPlotErrorDomain(&DESDAAlgorithm);
         auto domainArea = calculate2DDomainArea(errorDomain);
 
-        auto modelValues = getFunctionsValueOnDomain(densityFunction, errorDomain);
-        auto estimatorValues = getFunctionsValueOnDomain(estimator.get(), errorDomain);
+        auto modelValues =
+            getFunctionsValueOnDomain(densityFunction, errorDomain);
+        auto estimatorValues =
+            getFunctionsValueOnDomain(estimator.get(), errorDomain);
+        QVector<double> zeros = {};
+
+        while(zeros.size() < estimatorValues.size()){
+          zeros.append(0);
+        }
 
         summaricL1  += calculateL1Error(modelValues, estimatorValues, domainArea);
         summaricL2  += calculateL2Error(modelValues, estimatorValues, domainArea);
         summaricSup += calculateSupError(modelValues, estimatorValues);
 
-        _L1_n  += summaricL1 / errorCalculationsNumber;
-        _L2_n  += summaricL2 / errorCalculationsNumber;
-        _sup_n += summaricSup / errorCalculationsNumber;
+        _L1_n  = summaricL1 / errorCalculationsNumber;
+        _L2_n  = summaricL2 / errorCalculationsNumber;
+        _sup_n = summaricSup / errorCalculationsNumber;
 
         auto modelExtrema = find2DExtrema(modelValues, errorDomain);
         auto estimatorExtrema = find2DExtrema(estimatorValues, errorDomain);
@@ -1425,7 +1426,7 @@ void MainWindow::on_pushButton_clicked()
             pow(modelExtrema[1] - estimatorExtrema[1], 2));
 
         // Mod is distance between two extreme points.
-        _mod_n += summaricMod / errorCalculationsNumber;
+        _mod_n = summaricMod / errorCalculationsNumber;
       }
 
       densityFunction->setMeans(*means.back().get());
@@ -1440,8 +1441,6 @@ void MainWindow::on_pushButton_clicked()
 
       qDebug() << "Restoring weights.";
 
-      DESDAAlgorithm.restoreClustersCWeights();
-
       endTime = time(NULL);
 
       qDebug() << "Processing.";
@@ -1452,6 +1451,8 @@ void MainWindow::on_pushButton_clicked()
       qDebug() << "Image name: " << imageName;
       qDebug() << "Saved: " << ui->widget_contour_plot_holder->grab().save(imageName);
     }
+
+    DESDAAlgorithm.restoreClustersCWeights();
 
     if(stepNumber == 10){
       initialDrawingSteps.clear();  // To reduce comparisons for drawing.

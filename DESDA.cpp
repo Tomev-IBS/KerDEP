@@ -316,10 +316,6 @@ void DESDA::enhanceWeightsOfUncommonElements()
 
   for(int i = 0; i < uncommonElements.size(); ++i){
     auto ue = uncommonElements[i];
-    /*
-    double weightEnhancer = 2 * sigmoid(1.1 * ue->_currentDerivativeValue /
-                                   _averageMaxDerivativeValueInLastMASteps) - 1;
-    */
     double weightEnhancer = ue->_currentDerivativeValue /
                             _maxAbsDerivativeValueInCurrentStep;
     weightEnhancer *= _sgmKPSS;
@@ -875,8 +871,8 @@ void DESDA::prepareEstimatorForContourPlotDrawing()
   auto currentClusters = getClustersForEstimator();
   _unmodifiedCWeightsOfClusters = getClustersWeights(*_clusters);
 
-  enhanceWeightsOfUncommonElements();
   sigmoidallyEnhanceClustersWeights(&currentClusters);
+  enhanceWeightsOfUncommonElements();
 
   _estimator->setClusters(currentClusters);
   _estimator->setSmoothingParameters({_smoothingParametersVector});
@@ -981,6 +977,15 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
 
   if(mr < 0.5){
       _quantileEstimator = sortedIndicesValues[0].second;
+
+      if(_quantileEstimator < 1e-6){
+        qDebug() << "mr = " << mr;
+        qDebug() << "Sorted indices values (using 0):";
+        for(auto pair: sortedIndicesValues){
+          qDebug() << "\t" << pair.second;
+        }
+      }
+
       return;
   }
 
@@ -988,6 +993,14 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
 
   _quantileEstimator = (0.5 + i - mr) * sortedIndicesValues[i - 1].second; // Remember that indices in the formulas start from 1.
   _quantileEstimator += (0.5 - i + mr) * sortedIndicesValues[i].second; // Remember that indices in the formulas start from 1.
+
+  if(_quantileEstimator < 1e-6){
+    qDebug() << "mr = " << mr;
+    qDebug() << "Sorted indices values (using " << i - 1 << "and" << i << "):";
+    for(auto pair: sortedIndicesValues){
+      qDebug() << "\t" << pair.second;
+    }
+  }
 }
 
 QVector<double> DESDA::getRareElementsEnhancedKDEValues(const QVector<qreal> *X, int dimension)
