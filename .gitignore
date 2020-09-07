@@ -1,3 +1,5 @@
 KerDEP.pro.user*
 QCustomPlot/*.txt
 *.autosave
+.idea/
+cmake-build-debug/

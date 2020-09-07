@@ -16,11 +16,11 @@ CONFIG      +=  qwt
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES     +=  main.cpp\
-    DESDAReservoir.cpp \
-  UI/QwtContourPlotUI.cpp \
-  UI/plot.cpp \
-  UI/plotLabelDoubleDataPreparator.cpp \
-  UI/plotLabelIntDataPreparator.cpp \
+                DESDAReservoir.cpp \
+                UI/QwtContourPlotUI.cpp \
+                UI/plot.cpp \
+                UI/plotLabelDoubleDataPreparator.cpp \
+                UI/plotLabelIntDataPreparator.cpp \
                 mainwindow.cpp \
                 QCustomPlot/qcustomplot.cpp \
                 KDE/kerneldensityestimator.cpp \
@@ -55,12 +55,12 @@ SOURCES     +=  main.cpp\
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp \
                 groupingThread/kMeansAlgorithm.cpp \
-    DESDA.cpp \
-    StationarityTests/kpssstationaritytest.cpp \
-    UI/plotLabel.cpp
+                DESDA.cpp \
+                StationarityTests/kpssstationaritytest.cpp \
+                UI/plotLabel.cpp
 
 HEADERS     +=  mainwindow.h \
-    DESDAReservoir.h \
+                DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
                 KDE/kerneldensityestimator.h \
@@ -88,11 +88,11 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
-  UI/QwtContourPlotUI.h \
-  UI/i_plotLabelDataPreparator.h \
-  UI/plot.h \
-  UI/plotLabelDoubleDataPreparator.h \
-  UI/plotLabelIntDataPreparator.h \
+                UI/QwtContourPlotUI.h \
+                UI/i_plotLabelDataPreparator.h \
+                UI/plot.h \
+                UI/plotLabelDoubleDataPreparator.h \
+                UI/plotLabelIntDataPreparator.h \
                 groupingThread/groupingThread.h \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.h \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/numerical/gowersNumericalAttributesDistanceMeasure.h \
@@ -118,11 +118,11 @@ HEADERS     +=  mainwindow.h \
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.h \
                 groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h \
-    groupingThread/kMeansAlgorithm.h \
-    DESDA.h \
-    StationarityTests/kpssstationaritytest.h \
-    StationarityTests/i_stationaritytest.h \
-    UI/plotLabel.h
+                groupingThread/kMeansAlgorithm.h \
+                DESDA.h \
+                StationarityTests/kpssstationaritytest.h \
+                StationarityTests/i_stationaritytest.h \
+                UI/plotLabel.h
 
 FORMS       +=  mainwindow.ui
 

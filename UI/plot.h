@@ -6,6 +6,8 @@
 #include "../Functions/multivariatenormalprobabilitydensityfunction.h"
 #include <QDebug>
 
+#ifndef CONTOUR_PLANE
+#define CONTOUR_PLANE
 class QwtRasterData::ContourPlane
 {
 public:
@@ -149,8 +151,10 @@ inline QPointF QwtRasterData::ContourPlane::intersection(
 
     return QPointF( x, y );
 }
+#endif
 
-
+#ifndef SPECTOGRAM_DATA
+#define SPECTOGRAM_DATA
 class SpectrogramData: public QwtRasterData
 {
 public:
@@ -320,8 +324,10 @@ public:
     return densityFunction.getValue(&pt);
   }
 };
+#endif
 
-
+#ifndef SPECTOGRAM2_DATA
+#define SPECTOGRAM2_DATA
 class SpectrogramData2: public SpectrogramData
 {
   public:
@@ -352,8 +358,10 @@ class SpectrogramData2: public SpectrogramData
       }
     }
 };
+#endif
 
-
+#ifndef QWT_PLOT
+#define QWT_PLOT
 class Plot: public QwtPlot
 {
     Q_OBJECT
@@ -376,3 +384,4 @@ private:
     int d_mapType;
     int d_alpha;
 };
+#endif
