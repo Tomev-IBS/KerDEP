@@ -136,9 +136,9 @@ add_executable(KerDEP
 include_directories(${QWT_INCLUDE_DIR})
 
 target_link_libraries(KerDEP PRIVATE
-                        Qt${QT_VERSION_MAJOR}::Widgets
-                        ${QWT_LIBRARY}
-                        Qt${QT_VERSION_MAJOR}::PrintSupport
-                        Qt${QT_VERSION_MAJOR}::Core
-                        Qt${QT_VERSION_MAJOR}::Gui
-)
+        Qt${QT_VERSION_MAJOR}::Widgets
+        ${QWT_LIBRARY}
+        Qt${QT_VERSION_MAJOR}::PrintSupport
+        Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Gui
+        )
