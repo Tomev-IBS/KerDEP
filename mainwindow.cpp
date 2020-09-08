@@ -37,9 +37,8 @@
 #include "UI/QwtContourPlotUI.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent),
-  ui(new Ui::MainWindow)
-{
+    QMainWindow(parent),
+    ui(new Ui::MainWindow) {
   kernelTypes << "Normal" << "Triangle" << "Epanecznikow" << "Dull";
 
   ui->setupUi(this);
@@ -48,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
   contourPlot = new Plot(ui->widget_contour_plot);
   QGridLayout *l = new QGridLayout(ui->widget_contour_plot);
   l->setAlignment(ui->widget_contour_plot, Qt::AlignCenter);
-  l->addWidget(contourPlot, 0, 0, 1, 1, Qt::AlignTop|Qt::AlignLeft);
+  l->addWidget(contourPlot, 0, 0, 1, 1, Qt::AlignTop | Qt::AlignLeft);
   QSizePolicy p(QSizePolicy::Maximum, QSizePolicy::Maximum);
   contourPlot->setSizePolicy(p);
 
@@ -65,13 +64,12 @@ MainWindow::MainWindow(QWidget *parent) :
   setFont(appFont);
 }
 
-MainWindow::~MainWindow(){
+MainWindow::~MainWindow() {
   delete contourPlot;
   delete ui;
 }
 
-void MainWindow::testNewFunctionalities()
-{
+void MainWindow::testNewFunctionalities() {
   qDebug() << "Start test.";
 
   qDebug() << "Nothing to test.";
@@ -79,10 +77,9 @@ void MainWindow::testNewFunctionalities()
   qDebug() << "Finish test.";
 }
 
-QVector<double> MainWindow::getTargetFunctionValuesOnDomain(QVector<double> *domain)
-{
+QVector<double> MainWindow::getTargetFunctionValuesOnDomain(QVector<double> *domain) {
   QVector<double> values = {};
-  for(auto val : *domain){
+  for(auto val : *domain) {
     std::vector<double> x = {val};
     values.push_back(targetFunction->getValue(&x));
   }
@@ -91,8 +88,7 @@ QVector<double> MainWindow::getTargetFunctionValuesOnDomain(QVector<double> *dom
 
 double MainWindow::calculateL1Error(const QVector<double> &model,
                                     const QVector<double> estimated,
-                                    const double &domainLength)
-{
+                                    const double &domainLength) {
   QVector<qreal> errorHolder = {};
 
   for(int i = 0; i < model.size(); ++i)
@@ -110,8 +106,7 @@ double MainWindow::calculateL1Error(const QVector<double> &model,
 
 double MainWindow::calculateL2Error(const QVector<double> &model,
                                     const QVector<double> estimated,
-                                    const double &domainLength)
-{
+                                    const double &domainLength) {
   QVector<qreal> errorHolder = {};
 
   for(int i = 0; i < model.size(); ++i)
@@ -119,9 +114,9 @@ double MainWindow::calculateL2Error(const QVector<double> &model,
 
   double avg = 0;
 
-  for(auto val : errorHolder){ avg += val; }
+  for(auto val : errorHolder) { avg += val; }
 
-  if(errorHolder.size() > 0){ avg /= errorHolder.size();}
+  if(errorHolder.size() > 0) { avg /= errorHolder.size(); }
 
   avg = pow(avg, 0.5);
 
@@ -129,11 +124,10 @@ double MainWindow::calculateL2Error(const QVector<double> &model,
 }
 
 double MainWindow::calculateSupError(const QVector<double> &model,
-                                     const QVector<double> estimated)
-{
+                                     const QVector<double> estimated) {
   double sup = fabs(model[0] - estimated[0]);
 
-  for(int i = 0; i < model.size(); ++i){
+  for(int i = 0; i < model.size(); ++i) {
     double val = fabs(model[i] - estimated[i]);
     sup = val > sup ? val : sup;
   }
@@ -142,15 +136,14 @@ double MainWindow::calculateSupError(const QVector<double> &model,
 }
 
 double MainWindow::findExtrema(const QVector<double> &values,
-                               const QVector<double> domain)
-{
+                               const QVector<double> domain) {
   double extrema = domain[0];
   double maxVal = values[0];
 
-  for(int i = 0; i < values.size(); ++i){
+  for(int i = 0; i < values.size(); ++i) {
     double val = values[i];
 
-    if(val > maxVal){
+    if(val > maxVal) {
       maxVal = val;
       extrema = domain[i];
     }
@@ -160,12 +153,11 @@ double MainWindow::findExtrema(const QVector<double> &values,
 }
 
 point MainWindow::find2DExtrema(const QVector<double> &values,
-                                const QVector<point> &points)
-{
+                                const QVector<point> &points) {
   int maxPointIndex = 0;
 
-  for(int i = 1; i < values.size(); ++i){
-    if(values[i] > values[maxPointIndex]){
+  for(int i = 1; i < values.size(); ++i) {
+    if(values[i] > values[maxPointIndex]) {
       maxPointIndex = i;
     }
   }
@@ -173,14 +165,13 @@ point MainWindow::find2DExtrema(const QVector<double> &values,
   return points[maxPointIndex];
 }
 
-void MainWindow::setupValidators()
-{
+void MainWindow::setupValidators() {
   QLocale locale = QLocale::English;
   locale.setNumberOptions(QLocale::c().numberOptions());
 
   std::unique_ptr<QIntValidator> naturalNumbersValidator(new QIntValidator(0, std::numeric_limits<int>::max(), this));
-  std::unique_ptr<QIntValidator> positiveNaturalNumbersValidator(new QIntValidator(1, std::numeric_limits<int>::max(), this));
-
+  std::unique_ptr<QIntValidator>
+      positiveNaturalNumbersValidator(new QIntValidator(1, std::numeric_limits<int>::max(), this));
   std::unique_ptr<QDoubleValidator> xAxisValidator(new QDoubleValidator(MIN_X, MAX_X, DECIMAL_NUMBERS, this));
   xAxisValidator->setLocale(locale);
   xAxisValidator->setNotation(QDoubleValidator::StandardNotation);
@@ -200,8 +191,7 @@ void MainWindow::setupValidators()
   ui->lineEdit_maxY->setValidator(yAxisValidator.get());
 }
 
-void MainWindow::setupPlot()
-{
+void MainWindow::setupPlot() {
   //ui->widget_plot->xAxis->setLabel("x");
   //ui->widget_plot->yAxis->setLabel("f(x)");
 
@@ -209,42 +199,40 @@ void MainWindow::setupPlot()
   ui->widget_plot->yAxis->setRange(DEFAULT_MIN_Y, DEFAULT_MAX_Y);
 }
 
-void MainWindow::setupKernelsTable()
-{
+void MainWindow::setupKernelsTable() {
   ui->tableWidget_dimensionKernels
-      ->horizontalHeader()->setStretchLastSection(true);
+    ->horizontalHeader()->setStretchLastSection(true);
 
   refreshKernelsTable();
   refreshTargetFunctionTable();
 }
 
-void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
-{
+void MainWindow::drawPlots(DESDA *DESDAAlgorithm) {
   clearPlot();
   resizePlot();
 
   // Generate plot of model function
-  if(ui->checkBox_showEstimatedPlot->isChecked()){
+  if(ui->checkBox_showEstimatedPlot->isChecked()) {
     QVector<qreal> modelDistributionY = getTargetFunctionValuesOnDomain(&_drawableDomain);
     addPlot(&modelDistributionY, _MODEL_PLOT_PEN);
   }
 
   // Generate less elements KDE plot (navy blue)
-  if(ui->checkBox_showEstimationPlot->isChecked()){
+  if(ui->checkBox_showEstimationPlot->isChecked()) {
     _lessElementsEstimatorY =
         DESDAAlgorithm->getKDEValues(&_drawableDomain);
     addPlot(&_lessElementsEstimatorY, _KDE_PLOT_PEN);
   }
 
   // Generate weighted estimator plot (light blue)
-  if(ui->checkBox_showWeightedEstimationPlot->isChecked()){
+  if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
     _weightedEstimatorY =
         DESDAAlgorithm->getWeightedKDEValues(&_drawableDomain);
     addPlot(&_weightedEstimatorY, _WEIGHTED_PLOT_PEN);
   }
 
   // Generate full estimator plot (BLACK)
-  if(ui->checbox_showFullEstimator->isChecked()){
+  if(ui->checbox_showFullEstimator->isChecked()) {
     _windowedEstimatorY =
         DESDAAlgorithm->getWindowKDEValues(&_drawableDomain);
     addPlot(&_windowedEstimatorY, _WINDOWED_PLOT_PEN);
@@ -257,30 +245,30 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
 
   // Generate plot for standarized prognosis derivative, assuming that
   // normal derivative was generated first
-  if(ui->checkBox_standarizedDerivative->isChecked()){
+  if(ui->checkBox_standarizedDerivative->isChecked()) {
     QVector<double> standarizedDerivativeY = {};
-    for(auto val : _kernelPrognosisDerivativeValues){
+    for(auto val : _kernelPrognosisDerivativeValues) {
       standarizedDerivativeY.push_back(
-            0.1 * val / DESDAAlgorithm->_maxAbsDerivativeValueInCurrentStep
-            );
+          0.1 * val / DESDAAlgorithm->_maxAbsDerivativeValueInCurrentStep
+                                      );
     }
     addPlot(&standarizedDerivativeY, _STANDARIZED_DERIVATIVE_PLOT_PEN);
   }
 
-  if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()){
+  if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
     _sigmoidallyEnhancedPlotY =
         DESDAAlgorithm->getEnhancedKDEValues(&_drawableDomain);
     addPlot(&_sigmoidallyEnhancedPlotY, _DESDA_KDE_PLOT_PEN);
   }
 
-  if(ui->checkBox_showUnusualClusters->isChecked()){
+  if(ui->checkBox_showUnusualClusters->isChecked()) {
     _atypicalElementsValuesAndDerivatives =
         DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
     _quantileEstimatorValue = DESDAAlgorithm->_quantileEstimator;
     markUncommonClusters();
   }
 
-  if(ui->checkBox_REESEKDE->isChecked()){
+  if(ui->checkBox_REESEKDE->isChecked()) {
     _rareElementsEnhancedPlotY =
         DESDAAlgorithm->getRareElementsEnhancedKDEValues(&_drawableDomain);
     addPlot(&_rareElementsEnhancedPlotY, _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN);
@@ -291,44 +279,38 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm)
   oldKerernelY = KDEEstimationY;
 }
 
-void MainWindow::addPlot(const QVector<qreal> *Y, const QPen &pen)
-{
+void MainWindow::addPlot(const QVector<qreal> *Y, const QPen &pen) {
   ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setData(_drawableDomain, *Y);
-  ui->widget_plot->graph(ui->widget_plot->graphCount()-1)->setPen(pen);
+  ui->widget_plot->graph(ui->widget_plot->graphCount() - 1)->setData(_drawableDomain, *Y);
+  ui->widget_plot->graph(ui->widget_plot->graphCount() - 1)->setPen(pen);
 }
 
-void MainWindow::resizePlot()
-{
+void MainWindow::resizePlot() {
   // Resize plot
-  qreal   minX = ui->lineEdit_minX->text().toDouble(),
+  qreal minX = ui->lineEdit_minX->text().toDouble(),
       maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
-      //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
-      //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // /* should jump */
-      minY = ui->lineEdit_minY->text().toDouble(),
+  //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
+  //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // /* should jump */
+  minY = ui->lineEdit_minY->text().toDouble(),
       maxY = ui->lineEdit_maxY->text().toDouble();
 
   // Check if sizes are entered correctly
-  if(minX < maxX)
-  {
+  if(minX < maxX) {
     // If so change
     ui->widget_plot->xAxis->setRange(minX, maxX);
   }
-  else
-  {
+  else {
     // If not log it and correct
     qDebug() << "Minimal x value cannot be lower than it's maximal value.";
     minX = ui->widget_plot->xAxis->range().minRange;
     maxX = ui->widget_plot->xAxis->range().maxRange;
   }
 
-  if(minY < maxY)
-  {
+  if(minY < maxY) {
     // If so change
     ui->widget_plot->yAxis->setRange(minY, maxY);
   }
-  else
-  {
+  else {
     // If not log it and correct
     qDebug() << "Minimal y value cannot be lower than it's maximal value.";
     minY = ui->widget_plot->yAxis->range().minRange;
@@ -342,8 +324,7 @@ void MainWindow::resizePlot()
   QVector<QString> labels;
   // Switch to an array
 
-  for(double i = minX; i <= maxX + 1; i += 1)
-  {
+  for(double i = minX; i <= maxX + 1; i += 1) {
     ticks << i;
     labels << QString::number(i);
   }
@@ -355,21 +336,19 @@ void MainWindow::resizePlot()
 
 }
 
-void MainWindow::clearPlot()
-{
+void MainWindow::clearPlot() {
   while(ui->widget_plot->graphCount() != 0)
     ui->widget_plot->removeGraph(0);
 
-  for(auto a : _linesOnPlot){
+  for(auto a : _linesOnPlot) {
     ui->widget_plot->removeItem(a);
   }
 
   _linesOnPlot.clear();
 }
 
-unsigned long long MainWindow::markUncommonClusters()
-{
-  for(auto x : _atypicalElementsValuesAndDerivatives){
+unsigned long long MainWindow::markUncommonClusters() {
+  for(auto x : _atypicalElementsValuesAndDerivatives) {
     // Only works for distribution data
     QCPItemLine *verticalLine = new QCPItemLine(ui->widget_plot);
     verticalLine->start->setCoords(x.first, 0);
@@ -384,8 +363,7 @@ unsigned long long MainWindow::markUncommonClusters()
   return _atypicalElementsValuesAndDerivatives.size();
 }
 
-QString MainWindow::formatNumberForDisplay(double number)
-{
+QString MainWindow::formatNumberForDisplay(double number) {
   // According to PK the number should be displayed as #.######
   QString result = " ";
 
@@ -404,66 +382,60 @@ QString MainWindow::formatNumberForDisplay(double number)
   return result;
 }
 
-void MainWindow::fillStandardDeviations(vector<std::shared_ptr<vector<double>>> *stDevs)
-{
-  int dimensionsNumber                = ui->spinBox_dimensionsNumber->value(),
-      targetFunctionElementsNumber    = ui->tableWidget_targetFunctions->rowCount();
-
-  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-  {
-    stDevs->push_back(std::make_shared<vector<double>>());
-
-    for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
-    {
-      stDevs->back().get()->push_back
-          (
-            (static_cast<QLineEdit*>(
-               (static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
-               ->cellWidget(dimensionIndex, 0)
-               ))
-            ->text().toDouble()
-            );
-    }
-  }
-}
-
-void MainWindow::fillMeans(vector<std::shared_ptr<vector<double>>> *means)
-{
+void MainWindow::fillStandardDeviations(vector<std::shared_ptr<vector<double>>> *stDevs) {
   int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
       targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
-  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-  {
-    means->push_back(std::make_shared<vector<double>>());
+  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex) {
+    stDevs->push_back(std::make_shared<vector<double>>());
 
-    for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex)
-    {
-      means->back()->push_back
+    for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex) {
+      stDevs->back().get()->push_back
           (
-            (static_cast<QLineEdit*>(
-               (static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
-               ->cellWidget(dimensionIndex, 0)
-               ))
-            ->text().toDouble()
-            );
+              (static_cast<QLineEdit *>(
+                  (static_cast<QTableWidget *>(ui->tableWidget_targetFunctions
+                                                 ->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
+                      ->cellWidget(dimensionIndex, 0)
+              ))
+                  ->text().toDouble()
+          );
     }
   }
 }
 
-void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::shared_ptr<point> *prototypePoint) {
+void MainWindow::fillMeans(vector<std::shared_ptr<vector<double>>> *means) {
+  int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
+      targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+
+  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex) {
+    means->push_back(std::make_shared<vector<double>>());
+
+    for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex) {
+      means->back()->push_back
+          (
+              (static_cast<QLineEdit *>(
+                  (static_cast<QTableWidget *>(ui->tableWidget_targetFunctions
+                                                 ->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
+                      ->cellWidget(dimensionIndex, 0)
+              ))
+                  ->text().toDouble()
+          );
+    }
+  }
+}
+
+void MainWindow::fillDomain(QVector<std::shared_ptr<point>> *domain, std::shared_ptr<point> *prototypePoint) {
   // Check if domain is nullpointer
   if(domain == nullptr) return;
 
   std::shared_ptr<point> pPoint;
 
   // Check if prototype is a null pointer
-  if(prototypePoint == nullptr)
-  {
+  if(prototypePoint == nullptr) {
     // If so make it a point pointer
     pPoint = std::make_shared<point>();
   }
-  else
-  {
+  else {
     pPoint = *prototypePoint;
   }
 
@@ -473,21 +445,17 @@ void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::share
   qreal maxVal = ui->lineEdit_maxX->text().toDouble();
 
   //while(val <= ui->lineEdit_maxX->text().toDouble())
-  while(val <= maxVal)
-  {
+  while(val <= maxVal) {
     pPoint.get()->push_back(val);
 
-    if(pPoint.get()->size() == (size_t) ui->spinBox_dimensionsNumber->value())
-    {
+    if(pPoint.get()->size() == (size_t) ui->spinBox_dimensionsNumber->value()) {
       domain->append(std::make_shared<point>());
 
-      foreach(qreal dimensionVal, *(pPoint.get()))
-      {
-        domain->back()->push_back(dimensionVal);
-      }
+          foreach(qreal dimensionVal, *(pPoint.get())) {
+          domain->back()->push_back(dimensionVal);
+        }
     }
-    else
-    {
+    else {
       fillDomain(domain, prototypePoint);
     }
 
@@ -497,12 +465,10 @@ void MainWindow::fillDomain(QVector<std::shared_ptr<point>>* domain,  std::share
   }
 }
 
-distribution* MainWindow::generateTargetDistribution(
+distribution *MainWindow::generateTargetDistribution(
     vector<std::shared_ptr<vector<double>>> *means,
-    vector<std::shared_ptr<vector<double>>> *stDevs)
-{
+    vector<std::shared_ptr<vector<double>>> *stDevs) {
   int seed = ui->lineEdit_seed->text().toInt();
-
   vector<double> contributions;
   vector<std::shared_ptr<distribution>> elementalDistributions;
 
@@ -512,17 +478,16 @@ distribution* MainWindow::generateTargetDistribution(
   //double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
   double maxMean = ui->lineEdit_maxX->text().toDouble();
 
-  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-  {
+  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex) {
     contributions.push_back
-        (
-          (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions
-                                   ->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
-          ->text().toDouble()
-          );
+                     (
+                         (static_cast<QLineEdit *>(ui->tableWidget_targetFunctions
+                                                     ->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+                             ->text().toDouble()
+                     );
 
     elementalDistributions.push_back(
-          std::shared_ptr<distribution>(
+        std::shared_ptr<distribution>(
             new normalDistribution(seed,
                                    (*means)[functionIndex].get(),
                                    (*stDevs)[functionIndex].get(),
@@ -533,14 +498,12 @@ distribution* MainWindow::generateTargetDistribution(
 }
 
 reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataReader *reader,
-                                                                           dataParser *parser)
-{
+                                                                           dataParser *parser) {
   int sampleSize = ui->lineEdit_sampleSize->text().toInt(),
       stepsNumber = ui->lineEdit_iterationsNumber->text().toInt(),
       samplingAlgorithmID = ui->comboBox_samplingAlgorithm->currentIndex();
 
-  switch(samplingAlgorithmID)
-  {
+  switch(samplingAlgorithmID) {
     case BIASED_RESERVOIR_SAMPLING_ALGORITHM:
       return new biasedReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
     case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
@@ -549,73 +512,72 @@ reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataR
   }
 }
 
-kernelDensityEstimator* MainWindow::generateKernelDensityEstimator(
-    int dimensionsNumber)
-{
+kernelDensityEstimator *MainWindow::generateKernelDensityEstimator(
+    int dimensionsNumber) {
   vector<int> kernelsIDs;
   vector<double> smoothingParameters;
   vector<std::string> carriersRestrictions;
 
-  for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber)
-  {
-    kernelsIDs.push_back((static_cast<QComboBox*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->currentIndex());
-    smoothingParameters.push_back((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->text().toDouble());
-    carriersRestrictions.push_back((static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->text().toStdString());
+  for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber) {
+    kernelsIDs.push_back(
+        (static_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))
+            ->currentIndex());
+    smoothingParameters.push_back((static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
+                                                                                                         SMOOTHING_PARAMETER_COLUMN_INDEX)))
+                                      ->text().toDouble());
+    carriersRestrictions.push_back((static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
+                                                                                                          CARRIER_RESTRICTION_COLUMN_INDEX)))
+                                       ->text().toStdString());
   }
 
   return new kernelDensityEstimator(
-        &samples,
-        &smoothingParameters,
-        &carriersRestrictions,
-        PRODUCT,
-        &kernelsIDs
-        );
+      &samples,
+      &smoothingParameters,
+      &carriersRestrictions,
+      PRODUCT,
+      &kernelsIDs
+                                   );
 }
 
-function* MainWindow::generateTargetFunction(
-    vector<std::shared_ptr<vector<double>>>* means,
-    vector<std::shared_ptr<vector<double>>>* stDevs)
-
-{
+function *MainWindow::generateTargetFunction(
+    vector<std::shared_ptr<vector<double>>> *means,
+    vector<std::shared_ptr<vector<double>>> *stDevs) {
   vector<double> contributions;
   vector<std::shared_ptr<function>> elementalFunctions;
-
   int targetFunctionElementsNumber = ui->tableWidget_targetFunctions
-      ->rowCount();
+                                       ->rowCount();
 
   // Check if contributions are set correctly. If they are, then last
   // contribution is >= 0;
-  if(static_cast<QLineEdit*>(ui->tableWidget_targetFunctions
-                             ->cellWidget(targetFunctionElementsNumber -1, CONTRIBUTION_COLUMN_INDEX)
-                             )->text().toDouble() <= 0
-     )
-  {
+  if(static_cast<QLineEdit *>(ui->tableWidget_targetFunctions
+                                ->cellWidget(targetFunctionElementsNumber - 1, CONTRIBUTION_COLUMN_INDEX)
+     )->text().toDouble() <= 0
+      ) {
     // If not then uniform distributions and log error
     qDebug() << "Contributions aren't set correctly. Uniforming "
                 "contributions.";
     uniformContributions();
   }
 
-  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex)
-  {
+  for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex) {
 
     contributions.push_back
-        (
-          (static_cast<QLineEdit*>(ui->tableWidget_targetFunctions->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
-          ->text().toDouble()
-          );
+                     (
+                         (static_cast<QLineEdit *>(ui->tableWidget_targetFunctions
+                                                     ->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+                             ->text().toDouble()
+                     );
 
-    elementalFunctions.push_back(std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->at(functionIndex).get(),
-                                                                                                            stDevs->at(functionIndex).get())));
+    elementalFunctions.push_back(
+        std::shared_ptr<function>(new multivariateNormalProbabilityDensityFunction(means->at(functionIndex).get(),
+                                                                                   stDevs->at(functionIndex).get())));
   }
 
   return new complexFunction(&contributions, &elementalFunctions);
 }
 
-int MainWindow::canAnimationBePerformed(int dimensionsNumber)
-{
-  switch(dimensionsNumber)
-  {
+int MainWindow::canAnimationBePerformed(int dimensionsNumber) {
+  switch(dimensionsNumber) {
     case 1:
       return 1;
     default:
@@ -624,24 +586,20 @@ int MainWindow::canAnimationBePerformed(int dimensionsNumber)
   }
 }
 
-void MainWindow::delay(int ms)
-{
-  QTime dieTime = QTime::currentTime().addMSecs( ms );
+void MainWindow::delay(int ms) {
+  QTime dieTime = QTime::currentTime().addMSecs(ms);
 
-  while( QTime::currentTime() < dieTime )
-  {
-    QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+  while(QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
 }
 
-void MainWindow::on_spinBox_dimensionsNumber_editingFinished()
-{
+void MainWindow::on_spinBox_dimensionsNumber_editingFinished() {
   refreshKernelsTable();
   refreshTargetFunctionTable();
 }
 
-void MainWindow::refreshKernelsTable()
-{
+void MainWindow::refreshKernelsTable() {
   // Get new number of rows
   int newNumberOfRows = ui->spinBox_dimensionsNumber->value();
 
@@ -654,36 +612,40 @@ void MainWindow::refreshKernelsTable()
   QLocale locale = QLocale::English;
   locale.setNumberOptions(QLocale::c().numberOptions());
 
-  QDoubleValidator* smoothingParameterValidator = new QDoubleValidator(MIN_SMOOTHING_P, MAX_SMOOTHING_P, DECIMAL_NUMBERS, this);
+  QDoubleValidator
+      *smoothingParameterValidator = new QDoubleValidator(MIN_SMOOTHING_P, MAX_SMOOTHING_P, DECIMAL_NUMBERS, this);
   smoothingParameterValidator->setLocale(locale);
   smoothingParameterValidator->setNotation(QDoubleValidator::StandardNotation);
 
-  for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber) addKernelToTable(rowNumber, smoothingParameterValidator);
+  for(int rowNumber = 0; rowNumber < newNumberOfRows; ++rowNumber)
+    addKernelToTable(rowNumber, smoothingParameterValidator);
 }
 
 void MainWindow::addKernelToTable(int rowNumber,
-                                  QDoubleValidator* smoothingParameterValidator)
-{
+                                  QDoubleValidator *smoothingParameterValidator) {
   // Add combobox with kernels
 
   ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, KERNEL_COLUMN_INDEX, new QComboBox());
 
-  (static_cast<QComboBox*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))->insertItems(0, kernelTypes);
+  (static_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))
+      ->insertItems(0, kernelTypes);
 
   // Add input box with validator for smoothing parameters
   ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX, new QLineEdit());
 
-  (static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setText("1.0");
-  (static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))->setValidator(smoothingParameterValidator);
+  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
+      ->setText("1.0");
+  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
+      ->setValidator(smoothingParameterValidator);
 
   // Add input box for carrier restriction value
   ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
 
-  (static_cast<QLineEdit*>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))->setText("None.");
+  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))
+      ->setText("None.");
 }
 
-void MainWindow::refreshTargetFunctionTable()
-{
+void MainWindow::refreshTargetFunctionTable() {
   int numberOfRows = ui->tableWidget_targetFunctions->rowCount(),
       dimensionsNumber = ui->spinBox_dimensionsNumber->value();
 
@@ -697,27 +659,27 @@ void MainWindow::refreshTargetFunctionTable()
   QLocale locale = QLocale::English;
   locale.setNumberOptions(QLocale::c().numberOptions());
 
-  QDoubleValidator* meanValidator = new QDoubleValidator(-10.0, 10.0, 3, this);
+  QDoubleValidator *meanValidator = new QDoubleValidator(-10.0, 10.0, 3, this);
   meanValidator->setLocale(locale);
   meanValidator->setNotation(QDoubleValidator::StandardNotation);
 
-  QDoubleValidator* stDevValidator = new QDoubleValidator(-5.0, 5.0, 3, this);
+  QDoubleValidator *stDevValidator = new QDoubleValidator(-5.0, 5.0, 3, this);
   stDevValidator->setLocale(locale);
   stDevValidator->setNotation(QDoubleValidator::StandardNotation);
 
-  QDoubleValidator* contributionValidator = new QDoubleValidator(0.0, 100.0, 3, this);
+  QDoubleValidator *contributionValidator = new QDoubleValidator(0.0, 100.0, 3, this);
   contributionValidator->setLocale(locale);
   contributionValidator->setNotation(QDoubleValidator::StandardNotation);
 
-  QTableWidget *targetFunctionTablePointer = static_cast<QTableWidget*>(ui->tableWidget_targetFunctions),
+  QTableWidget *targetFunctionTablePointer = static_cast<QTableWidget *>(ui->tableWidget_targetFunctions),
       *meansTablePointer, *stDevsTablePointer;
 
-  for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex)
-  {
+  for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex) {
     // TODO TR: Ensure that this doesn't result in memory leaks
     targetFunctionTablePointer->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QTableWidget());
 
-    meansTablePointer = static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
+    meansTablePointer =
+        static_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
     meansTablePointer->setRowCount(dimensionsNumber);
     meansTablePointer->setColumnCount(1);
     meansTablePointer->horizontalHeader()->hide();
@@ -725,83 +687,82 @@ void MainWindow::refreshTargetFunctionTable()
     // TODO TR: Ensure that this doesn't result in memory leaks
     targetFunctionTablePointer->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QTableWidget());
 
-    stDevsTablePointer = static_cast<QTableWidget*>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX));
+    stDevsTablePointer =
+        static_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX));
     stDevsTablePointer->setRowCount(dimensionsNumber);
     stDevsTablePointer->setColumnCount(1);
     stDevsTablePointer->horizontalHeader()->hide();
 
-    for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber)
-    {
+    for(int dimensionNumber = 0; dimensionNumber < dimensionsNumber; ++dimensionNumber) {
       meansTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-      (static_cast<QLineEdit*>(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
-      (static_cast<QLineEdit*>(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
+      (static_cast<QLineEdit *>(meansTablePointer->cellWidget(dimensionNumber, 0)))->setText("0.0");
+      (static_cast<QLineEdit *>(meansTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(meanValidator);
 
       stDevsTablePointer->setCellWidget(dimensionNumber, 0, new QLineEdit());
-      (static_cast<QLineEdit*>(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
-      (static_cast<QLineEdit*>(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(stDevValidator);
+      (static_cast<QLineEdit *>(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setText("1.0");
+      (static_cast<QLineEdit *>(stDevsTablePointer->cellWidget(dimensionNumber, 0)))->setValidator(stDevValidator);
     }
 
     // TODO TR: Ensure that this doesn't result in memory leaks
     targetFunctionTablePointer->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
-    (static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setMaxLength(6);
-    (static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))->setValidator(contributionValidator);
-    QObject::connect((static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))), SIGNAL(textEdited(QString)), this, SLOT(updateLastContribution()));
+    (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))
+        ->setMaxLength(6);
+    (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))
+        ->setValidator(contributionValidator);
+    QObject::connect(
+        (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))),
+        SIGNAL(textEdited(QString)), this, SLOT(updateLastContribution()));
   }
 
   // Disable last contribution cell, as it's filled automatically
-  (static_cast<QLineEdit*>(targetFunctionTablePointer->cellWidget(numberOfRows -1, CONTRIBUTION_COLUMN_INDEX)))->setEnabled(false);
+  (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(numberOfRows - 1, CONTRIBUTION_COLUMN_INDEX)))
+      ->setEnabled(false);
 
   uniformContributions();
 }
 
-void MainWindow::uniformContributions()
-{
+void MainWindow::uniformContributions() {
   int numberOfRows = ui->tableWidget_targetFunctions->rowCount(),
       lastRowIndex = numberOfRows - 1;
 
-  for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
-  {
-    static_cast<QLineEdit*>(
-          ui->tableWidget_targetFunctions
+  for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex) {
+    static_cast<QLineEdit *>(
+        ui->tableWidget_targetFunctions
           ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)
-          )->setText(QString::number(100.0/numberOfRows));
+    )->setText(QString::number(100.0 / numberOfRows));
   }
 
-  static_cast<QLineEdit*>(
-        ui->tableWidget_targetFunctions
+  static_cast<QLineEdit *>(
+      ui->tableWidget_targetFunctions
         ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)
-        )->setText(QString::number(countLastContribution()));
+  )->setText(QString::number(countLastContribution()));
 }
 
-qreal MainWindow::countLastContribution()
-{
+qreal MainWindow::countLastContribution() {
   qreal result = 100.0;
-
-  int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
+  int lastRowIndex = ui->tableWidget_targetFunctions->rowCount() - 1;
 
   for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
-    result -= (static_cast<QLineEdit*>
-               (ui->tableWidget_targetFunctions
-                ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))
-               )->text().toDouble();
+    result -= (static_cast<QLineEdit *>
+    (ui->tableWidget_targetFunctions
+       ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))
+    )->text().toDouble();
 
   return result;
 }
 
-void MainWindow::updateLastContribution()
-{
-  int lastRowIndex = ui->tableWidget_targetFunctions->rowCount()-1;
+void MainWindow::updateLastContribution() {
+  int lastRowIndex = ui->tableWidget_targetFunctions->rowCount() - 1;
   qreal lastContributionValue = countLastContribution();
 
-  (static_cast<QLineEdit*>(ui
-                           ->tableWidget_targetFunctions
-                           ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX))
-      )->setText(QString::number(lastContributionValue));
+  (static_cast<QLineEdit *>(ui
+      ->tableWidget_targetFunctions
+      ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX))
+  )->setText(QString::number(lastContributionValue));
 }
 
-void MainWindow::on_pushButton_addTargetFunction_clicked()
-{
-  int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() +1;
+void MainWindow::on_pushButton_addTargetFunction_clicked() {
+  int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() + 1;
 
   // Set row count
   ui->tableWidget_targetFunctions->setRowCount(newRowsNumber);
@@ -809,9 +770,8 @@ void MainWindow::on_pushButton_addTargetFunction_clicked()
   refreshTargetFunctionTable();
 }
 
-void MainWindow::on_pushButton_removeTargetFunction_clicked()
-{
-  int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() -1;
+void MainWindow::on_pushButton_removeTargetFunction_clicked() {
+  int newRowsNumber = ui->tableWidget_targetFunctions->rowCount() - 1;
 
   // Set row count
   ui->tableWidget_targetFunctions->setRowCount(newRowsNumber);
@@ -819,9 +779,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked()
   refreshTargetFunctionTable();
 }
 
-double MainWindow::numericIntegral(const QVector<qreal> *Y)
-{
-  double  integral = 0.0,
+double MainWindow::numericIntegral(const QVector<qreal> *Y) {
+  double integral = 0.0,
       domainDensity = ui->lineEdit_domainDensity->text().toDouble();
 
   for(auto y : *Y)
@@ -830,8 +789,7 @@ double MainWindow::numericIntegral(const QVector<qreal> *Y)
   return integral;
 }
 
-void MainWindow::on_pushButton_start_clicked()
-{
+void MainWindow::on_pushButton_start_clicked() {
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
   if(!canAnimationBePerformed(dimensionsNumber)) return;
@@ -863,21 +821,20 @@ void MainWindow::on_pushButton_start_clicked()
 
   std::shared_ptr<distribution>
       targetDistribution(generateTargetDistribution(&means, &stDevs));
-
   vector<double> alternativeDistributionMean = {0.0};
   vector<double> alternativeDistributionStDevs = {1.0};
-
   qreal progressionSize =
       ui->lineEdit_distributionProgression->text().toDouble();
 
   parser.reset(new distributionDataParser(&attributesData));
 
   reader.reset(
-        new progressiveDistributionDataReader(targetDistribution.get(),
-                                              progressionSize,
-                                              0,  /* delay */
-                                              new normalDistribution(seedString.toInt(), &alternativeDistributionMean, &alternativeDistributionStDevs, 55))
-        );
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            progressionSize,
+                                            0,  /* delay */
+                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
+                                                                   &alternativeDistributionStDevs, 55))
+              );
 
   reader->gatherAttributesData(&attributesData);
   parser->setAttributesOrder(reader->getAttributesOrder());
@@ -885,14 +842,13 @@ void MainWindow::on_pushButton_start_clicked()
   positionalSecondGradeEstimatorCountingMethod =
       ui->comboBox_rareElementsMethod->currentIndex();
 
-  reservoirSamplingAlgorithm* algorithm =
+  reservoirSamplingAlgorithm *algorithm =
       generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
   objects.clear();
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
   int medoidsNumber = 50;
-
   groupingThread gt(&storedMedoids, parser);
 
   gt.setAttributesData(&attributesData);
@@ -913,33 +869,30 @@ void MainWindow::on_pushButton_start_clicked()
   kernelPrognoser->_shouldConsiderWeights = false;
 
   int pluginRank = 3;
-
   DESDA DESDAAlgorithm(
-        estimator,
-        kernelPrognoser,
-        _enchancedKDE,
-        ui->lineEdit_weightModifier->text().toDouble(),
-        algorithm,
-        clusters,
-        &storedMedoids,
-        ui->lineEdit_rarity->text().toDouble(),
-        &gt, newWeightB, pluginRank
-        );
-
-
+      estimator,
+      kernelPrognoser,
+      _enchancedKDE,
+      ui->lineEdit_weightModifier->text().toDouble(),
+      algorithm,
+      clusters,
+      &storedMedoids,
+      ui->lineEdit_rarity->text().toDouble(),
+      &gt, newWeightB, pluginRank
+                      );
   QString expNum = "1281";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "reservoir, plugin " + QString::number(pluginRank) +
-      ", 0,2N(-5,1)0,4N(0,1)0,4N(5,1), v=0-1-0-1, m0="+ QString::number(DESDAAlgorithm._maxM) +
-      ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-      //", mKPSS=" + QString::number(DESDAAlgorithm._kpssM) + // This can just be commented out.
-      ", sz475";
+                    ", 0,2N(-5,1)0,4N(0,1)0,4N(5,1), v=0-1-0-1, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", mMin=" + QString::number(DESDAAlgorithm._minM) +
+                    //", mKPSS=" + QString::number(DESDAAlgorithm._kpssM) + // This can just be commented out.
+                    ", sz475";
   screenGenerationFrequency = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "D:\\Test\\"; // Home
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
-      + expDesc + ")\\";
+                    + expDesc + ")\\";
 
   clearPlot();
   resizePlot();
@@ -959,14 +912,15 @@ void MainWindow::on_pushButton_start_clicked()
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
-  plotLabels.push_back(std::make_shared<plotLabel>( ui->widget_plot,
-                                                    horizontalOffset, verticalOffset, "i     = ", &stepNumber,
-                                                    std::make_shared<plotLabelIntDataPreparator>()));
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "i     = ", &stepNumber,
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "iw    = "
-                                                   + QString::number(screenGenerationFrequency)));
+                                                                                     + QString::number(
+                                                                                         screenGenerationFrequency)));
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
@@ -993,7 +947,8 @@ void MainWindow::on_pushButton_start_clicked()
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "mmin  = "
-                                                   + QString::number(DESDAAlgorithm._minM)));
+                                                                                     + QString::number(
+                                                                                         DESDAAlgorithm._minM)));
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
@@ -1023,7 +978,7 @@ void MainWindow::on_pushButton_start_clicked()
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-   //====================  SECOND COLUMN =================//
+  //====================  SECOND COLUMN =================//
 
   horizontalOffset = 0.20;
   verticalOffset = 0.01 + 9 * verticalStep;
@@ -1103,7 +1058,6 @@ void MainWindow::on_pushButton_start_clicked()
   qApp->processEvents();
 
   int numberOfErrorCalculations = 1;
-
   QVector<int> additionalScreensSteps = {};
 
   /*
@@ -1112,8 +1066,7 @@ void MainWindow::on_pushButton_start_clicked()
   }
   */
 
-  for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber)
-  {
+  for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber) {
     clock_t executionStartTime = clock();
 
     DESDAAlgorithm.performStep();
@@ -1121,16 +1074,14 @@ void MainWindow::on_pushButton_start_clicked()
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
     if(stepNumber % screenGenerationFrequency == 0 || stepNumber < 10
-       || additionalScreensSteps.contains(stepNumber))
-    {
+       || additionalScreensSteps.contains(stepNumber)) {
       qDebug() << "Drawing in step number " << stepNumber << ".";
 
       _kernelPrognosisDerivativeValues =
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&_drawableDomain);
 
       // Error calculations
-      if(stepNumber >= 100)
-      {
+      if(stepNumber >= 100) {
         // TODO: Prepare separate object for errors calculation.
 
         qDebug() << "Getting windowed domain.";
@@ -1180,11 +1131,16 @@ void MainWindow::on_pushButton_start_clicked()
         _sup_n += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
         qDebug() << "Calculating mod.";
-        _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain) - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
-        _mod_m += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
-        _mod_d += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
-        _mod_p += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
-        _mod_n += fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
+        _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain)
+                       - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
+        _mod_m +=
+            fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
+        _mod_d +=
+            fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
+        _mod_p += fabs(
+            findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
+        _mod_n += fabs(
+            findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
         ++numberOfErrorCalculations;
       }
 
@@ -1236,11 +1192,11 @@ void MainWindow::on_pushButton_start_clicked()
 
       qTextLabel.setText("q     =" + formatNumberForDisplay(DESDAAlgorithm._quantileEstimator));
 
-      KPSSTextLabel.setText(   "KPSS     = " + formatNumberForDisplay(
-                                 DESDAAlgorithm.getStationarityTestValue()));
+      KPSSTextLabel.setText("KPSS     = " + formatNumberForDisplay(
+          DESDAAlgorithm.getStationarityTestValue()));
 
-      sgmKPSSTextLabel.setText( "sgmKPSS  = " + formatNumberForDisplay(
-                                  DESDAAlgorithm._sgmKPSS));
+      sgmKPSSTextLabel.setText("sgmKPSS  = " + formatNumberForDisplay(
+          DESDAAlgorithm._sgmKPSS));
 
       rTextLabel.setText("r     =" + formatNumberForDisplay(DESDAAlgorithm._r));
 
@@ -1263,27 +1219,27 @@ void MainWindow::on_pushButton_start_clicked()
   qDebug() << "Animation finished.";
 }
 
-void MainWindow::on_pushButton_clicked()
-{
+void MainWindow::on_pushButton_clicked() {
   qDebug() << "2D Experiment start.";
 
   screenGenerationFrequency = 1;
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1314 (2D)";
+  QString expNum = "1316 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, m0=1k, mMin=400, errors test,  sz260";
+  QString expDesc =
+      "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, m0=200, mMin=400, (faster) rare test, sz001";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Local
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
-      + expDesc + ")\\";
+                    + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  for ( double level = 0.05; level < 0.21; level += 0.05 )
+  for(double level = 0.05; level < 0.21; level += 0.05)
     contourLevels += level;
 
   // Add clusters to the estimator
@@ -1319,22 +1275,22 @@ void MainWindow::on_pushButton_clicked()
 
   std::shared_ptr<distribution>
       targetDistribution(generateTargetDistribution(&means, &stDevs));
-
   std::vector<double> meansForDistribution = {0.0, 0.0};
   std::vector<double> stDevsForDistribution = {1.0, 1.0};
 
   parser.reset(new distributionDataParser(&attributesData));
 
   reader.reset(
-        new progressiveDistributionDataReader(targetDistribution.get(), 0,
-                                              0,  /* delay */
-                                              new normalDistribution(0, &meansForDistribution, &stDevsForDistribution, 55))
-        );
+      new progressiveDistributionDataReader(targetDistribution.get(), 0,
+                                            0,  /* delay */
+                                            new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
+                                                                   55))
+              );
 
   reader->gatherAttributesData(&attributesData);
   parser->setAttributesOrder(reader->getAttributesOrder());
 
-  reservoirSamplingAlgorithm* samplingAlgorithm =
+  reservoirSamplingAlgorithm *samplingAlgorithm =
       generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
   objects.clear();
@@ -1349,16 +1305,16 @@ void MainWindow::on_pushButton_clicked()
   _enchancedKDE.reset(generateKernelDensityEstimator(2));
 
   DESDA DESDAAlgorithm(
-        estimator,
-        kernelPrognoser,
-        _enchancedKDE,
-        ui->lineEdit_weightModifier->text().toDouble(),
-        samplingAlgorithm,
-        clusters,
-        &storedMedoids,
-        ui->lineEdit_rarity->text().toDouble(),
-        &gt, newWeightB, pluginRank
-        );
+      estimator,
+      kernelPrognoser,
+      _enchancedKDE,
+      ui->lineEdit_weightModifier->text().toDouble(),
+      samplingAlgorithm,
+      clusters,
+      &storedMedoids,
+      ui->lineEdit_rarity->text().toDouble(),
+      &gt, newWeightB, pluginRank
+                      );
 
   // Start the test
   stepNumber = 0;
@@ -1371,7 +1327,6 @@ void MainWindow::on_pushButton_clicked()
   _mod_n = 0;
   int errorCalculationsNumber = 0;
   double summaricL1 = 0, summaricL2 = 0, summaricSup = 0, summaricMod = 0;
-
   QwtContourPlotUI plotUi(&stepNumber, screenGenerationFrequency, seed,
                           &DESDAAlgorithm, &_L1_n, &_L2_n, &_sup_n, &_mod_n);
   plotUi.attach(contourPlot);
@@ -1379,7 +1334,7 @@ void MainWindow::on_pushButton_clicked()
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   QVector<int> initialDrawingSteps = {};
 
-  for(stepNumber = 1; stepNumber < 10001; ++stepNumber){
+  for(stepNumber = 1; stepNumber < 10001; ++stepNumber) {
 
     startTime = time(NULL);
 
@@ -1389,41 +1344,39 @@ void MainWindow::on_pushButton_clicked()
 
     // Drawing
     if(stepNumber % screenGenerationFrequency == 0 ||
-       initialDrawingSteps.contains(stepNumber))
-    {
+       initialDrawingSteps.contains(stepNumber)) {
       qDebug() << "Estimator preparation.";
 
       DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
 
       // Error calculation
-      if(stepNumber >= 1){
+      if(stepNumber >= 1) {
         ++errorCalculationsNumber;
         auto errorDomain = generate2DPlotErrorDomain(&DESDAAlgorithm);
         auto domainArea = calculate2DDomainArea(errorDomain);
-
         auto modelValues =
             getFunctionsValueOnDomain(densityFunction, errorDomain);
         auto estimatorValues =
             getFunctionsValueOnDomain(estimator.get(), errorDomain);
         QVector<double> zeros = {};
 
-        while(zeros.size() < estimatorValues.size()){
+        while(zeros.size() < estimatorValues.size()) {
           zeros.append(0);
         }
 
-        summaricL1  += calculateL1Error(modelValues, estimatorValues, domainArea);
-        summaricL2  += calculateL2Error(modelValues, estimatorValues, domainArea);
+        summaricL1 += calculateL1Error(modelValues, estimatorValues, domainArea);
+        summaricL2 += calculateL2Error(modelValues, estimatorValues, domainArea);
         summaricSup += calculateSupError(modelValues, estimatorValues);
 
-        _L1_n  = summaricL1 / errorCalculationsNumber;
-        _L2_n  = summaricL2 / errorCalculationsNumber;
+        _L1_n = summaricL1 / errorCalculationsNumber;
+        _L2_n = summaricL2 / errorCalculationsNumber;
         _sup_n = summaricSup / errorCalculationsNumber;
 
         auto modelExtrema = find2DExtrema(modelValues, errorDomain);
         auto estimatorExtrema = find2DExtrema(estimatorValues, errorDomain);
 
         summaricMod += sqrt(pow(modelExtrema[0] - estimatorExtrema[0], 2) +
-            pow(modelExtrema[1] - estimatorExtrema[1], 2));
+                            pow(modelExtrema[1] - estimatorExtrema[1], 2));
 
         // Mod is distance between two extreme points.
         _mod_n = summaricMod / errorCalculationsNumber;
@@ -1454,7 +1407,7 @@ void MainWindow::on_pushButton_clicked()
 
     DESDAAlgorithm.restoreClustersCWeights();
 
-    if(stepNumber == 10){
+    if(stepNumber == 10) {
       initialDrawingSteps.clear();  // To reduce comparisons for drawing.
     }
 
@@ -1466,8 +1419,7 @@ void MainWindow::on_pushButton_clicked()
   qDebug() << "Done!";
 }
 
-void MainWindow::resizeEvent(QResizeEvent* event)
-{
+void MainWindow::resizeEvent(QResizeEvent *event) {
   int offset = 10; // Offset in px, so that scale is in
   QMainWindow::resizeEvent(event);
   int newSize = std::min(ui->widget_contour_plot->height(),
@@ -1476,8 +1428,7 @@ void MainWindow::resizeEvent(QResizeEvent* event)
   contourPlot->resize(2 * newSize, newSize);
 }
 
-double MainWindow::calculate2DDomainArea(const QVector<std::vector<double> > &domain)
-{
+double MainWindow::calculate2DDomainArea(const QVector<std::vector<double> > &domain) {
   // Given how 2D domain is calculated, it's easy to see, that only first and
   // last point of the domain are of interest (last holding max values, and
   // first holding mins).
@@ -1486,26 +1437,23 @@ double MainWindow::calculate2DDomainArea(const QVector<std::vector<double> > &do
   return xLen * yLen;
 }
 
-QVector<double> MainWindow::getFunctionsValueOnDomain(function *func, QVector<point> domain)
-{
+QVector<double> MainWindow::getFunctionsValueOnDomain(function *func, QVector<point> domain) {
   QVector<double> values = {};
 
-  for(auto pt : domain){
+  for(auto pt : domain) {
     values.push_back(func->getValue(&pt));
   }
 
   return values;
 }
 
-QVector<point> MainWindow::generate2DPlotErrorDomain(DESDA *DESDAAlgorithm)
-{
+QVector<point> MainWindow::generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
   QVector<point> domainValues = {};
-
   auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
   auto yDomainValues = DESDAAlgorithm->getErrorDomain(1);
 
-  for(auto x : xDomainValues){
-    for(auto y : yDomainValues){
+  for(auto x : xDomainValues) {
+    for(auto y : yDomainValues) {
       domainValues.push_back({x, y});
     }
   }
