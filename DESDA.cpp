@@ -345,9 +345,7 @@ void DESDA::countKDEValuesOnClusters() {
 
   for(std::shared_ptr<cluster> c : *_clusters) {
     x.clear();
-    //x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-    //for(auto kvPair: c->getRepresentative()->attributesValues){
-    for(auto attribute: *(_samplingAlgorithm->getAttributesList())) {
+    for(auto attribute: *c->getRepresentative()->attirbutesOrder) {
       x.push_back(std::stod(c->getRepresentative()->attributesValues[attribute]));
     }
     double estimatorValueOnCluster = _estimator->getValue(&x);
@@ -549,11 +547,10 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
   // Plugin method.
   QVector<qreal> samples = {};
 
-  for(auto kvPair: clusters[0]->getRepresentative()->attributesValues) {
+  for(auto attribute: *_samplingAlgorithm->getAttributesList()) {
     samples.clear();
     for(auto c: clusters) {
-      //samples.append(std::stod(c->getObject()->attributesValues["Val0"]));
-      samples.append(std::stod(c->getObject()->attributesValues[kvPair.first]));
+      samples.append(std::stod(c->getRepresentative()->attributesValues[attribute]));
     }
     pluginSmoothingParameterCounter counter(&samples, _pluginRank);
     smoothingParameters.push_back(counter.countSmoothingParameterValue()
