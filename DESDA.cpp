@@ -40,6 +40,9 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _smoothingParameterEnhancer = 0.9;
 
   stationarityTest.reset(new KPSSStationarityTest(_kpssM));
+  for(int i = 0; i < estimator->getDimension(); ++i) {
+    stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
+  }
 
   generator = std::default_random_engine(5625); // Seed should be as in UI, can be passed to constructor
   dist = std::uniform_real_distribution<double>(0.0, 1.0);
@@ -177,9 +180,14 @@ void DESDA::performStep() {
 
   stationarityTest->addNewSample(
       std::stod(newCluster->getObject()->attributesValues["Val0"])
-                                );
+   );
 
-  _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * stationarityTest->getTestsValue()
+  for(int i = 0; i < stationarityTests.size(); ++i){
+    std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
+    stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
+  }
+
+  _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
                      - _sgmKPSSParameters[_sgmKPSSPercent][1]);
   _d = _sgmKPSS;
 
@@ -796,7 +804,12 @@ double DESDA::getStdDevOfFirstMSampleValues(int M) {
 }
 
 double DESDA::getStationarityTestValue() {
-  return stationarityTest->getTestsValue();
+  std::vector<double> stationarityTestsValues = {};
+  for(auto test: stationarityTests){
+    stationarityTestsValues.push_back(test->getTestsValue());
+  }
+  return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
+  // return stationarityTest->getTestsValue();
 }
 
 void DESDA::prepareEstimatorForContourPlotDrawing() {

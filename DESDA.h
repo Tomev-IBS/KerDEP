@@ -44,6 +44,7 @@ class DESDA
     void restoreClustersCWeights();
 
     stationarityTestPtr stationarityTest;
+    std::vector<stationarityTestPtr> stationarityTests = {};
 
     double _u_i = 0.0;
 
