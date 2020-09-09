@@ -180,9 +180,9 @@ void DESDA::performStep() {
 
   stationarityTest->addNewSample(
       std::stod(newCluster->getObject()->attributesValues["Val0"])
-   );
+                                );
 
-  for(int i = 0; i < stationarityTests.size(); ++i){
+  for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
   }
@@ -805,7 +805,7 @@ double DESDA::getStdDevOfFirstMSampleValues(int M) {
 
 double DESDA::getStationarityTestValue() {
   std::vector<double> stationarityTestsValues = {};
-  for(auto test: stationarityTests){
+  for(auto test: stationarityTests) {
     stationarityTestsValues.push_back(test->getTestsValue());
   }
   return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
