@@ -344,7 +344,6 @@ void DESDA::countKDEValuesOnClusters() {
   auto consideredClusters = getClustersForEstimator();
   _estimator->setClusters(consideredClusters);
 
-  //_estimator->setSmoothingParameters({_h}); // Artifact after 1D
   _estimator->setSmoothingParameters(_smoothingParametersVector);
 
   for(std::shared_ptr<cluster> c : *_clusters) {
@@ -864,11 +863,10 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters() {
     consideredClusters.erase(consideredClusters.begin(), consideredClusters.begin() + 1);
     _enhancedKDE->setClusters(consideredClusters);
     _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
+    _enhancedKDE->_shouldConsiderWeights = true;
 
-    for(auto attributeData : *c->getRepresentative()->attributesData) {
-      //x.push_back(std::stod(c->getRepresentative()->attributesValues["Val0"]));
-      //x.push_back(std::stod(c->getRepresentative()->attributesValues["Val1"]));
-      x.push_back(std::stod(c->getRepresentative()->attributesValues[attributeData.first]));
+    for(auto attribute : *c->getRepresentative()->attirbutesOrder) {
+      x.push_back(std::stod(c->getRepresentative()->attributesValues[attribute]));
     }
     AKDEValues.push_back(_enhancedKDE->getValue(&x));
 
