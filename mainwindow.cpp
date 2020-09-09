@@ -1254,9 +1254,9 @@ void MainWindow::on_pushButton_clicked()
   int seed = ui->lineEdit_seed->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1318 (2D)";
+  QString expNum = "1319 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, m0=200, mMin=400, (faster) quantile test, sz001";
+  QString expDesc = "iw=" + QString::number(screenGenerationFrequency) + ", v=tor na x_1, m0=200, mMin=100, fast quantile test, sz003";
   QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1367,8 +1367,6 @@ void MainWindow::on_pushButton_clicked()
     startTime = time(NULL);
 
     DESDAAlgorithm.performStep();
-
-    qDebug() << "Means: " << (*means.back())[0] << ", " << (*means.back())[1];
 
     qDebug() << "Estimator preparation.";
     DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();

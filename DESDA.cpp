@@ -7,11 +7,8 @@
 #include <algorithm>
 #include <fstream>
 #include <math.h>
-#include <numeric>
 
 # define M_PI           3.14159265358979323846  /* pi */
-
-#include "Reservoir_sampling/distributionDataSample.h"
 
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
@@ -34,7 +31,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
   _mA = _maxM / 10; // For avg max |a| calculation
 
-  _minM = 400; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
+  _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
