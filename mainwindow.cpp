@@ -111,7 +111,7 @@ double MainWindow::calculateSupError(const QVector<double> &model,
                                      const QVector<double> estimated) {
   double sup = fabs(model[0] - estimated[0]);
 
-  for(int i = 0; i < model.size(); ++i) {
+  for(int i = 1; i < model.size(); ++i) {
     double val = fabs(model[i] - estimated[i]);
     sup = val > sup ? val : sup;
   }
