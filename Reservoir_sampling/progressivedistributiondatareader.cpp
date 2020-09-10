@@ -71,16 +71,20 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       break;
     //case 200: // Added for faster q test
       //progressionSize = 0.1;
-    case 2000:
+    //case 2000:
+    case 5000:
       progressionSize = 0.01;
       break;
-    case 5000:
+    //case 5000:
+    case 8000:
       progressionSize = 0.001;
       break;
-    case 8000:
+    //case 8000:
+    case 11000:
       progressionSize = 1;
       break;
-    case 8001:
+    //case 8001:
+    case 11001:
       progressionSize = 0;
       break;
   }
