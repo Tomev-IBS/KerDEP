@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
+#include <QDateTime>
 
 #include "UI/plotLabel.h"
 #include "UI/plotLabelIntDataPreparator.h"
@@ -52,12 +54,16 @@ MainWindow::~MainWindow() {
   delete ui;
 }
 
+void log(QString msg){
+ qDebug() << QDateTime::currentDateTime().toString("h:m:s ap") << ": " << msg;
+}
+
 void MainWindow::testNewFunctionalities() {
-  qDebug() << "Start test.";
+  log("Start test.");
 
-  qDebug() << "Nothing to test.";
+  log("Nothing to test.");
 
-  qDebug() << "Finish test.";
+  log("Finish test.");
 }
 
 QVector<double> MainWindow::getTargetFunctionValuesOnDomain(
@@ -285,7 +291,7 @@ void MainWindow::resizePlot() {
   }
   else {
     // If not log it and correct
-    qDebug() << "Minimal x value cannot be lower than it's maximal value.";
+    log("Minimal x value cannot be lower than it's maximal value.");
     minX = ui->widget_plot->xAxis->range().minRange;
     maxX = ui->widget_plot->xAxis->range().maxRange;
   }
@@ -296,7 +302,7 @@ void MainWindow::resizePlot() {
   }
   else {
     // If not log it and correct
-    qDebug() << "Minimal y value cannot be lower than it's maximal value.";
+    log("Minimal y value cannot be lower than it's maximal value.");
     minY = ui->widget_plot->yAxis->range().minRange;
     maxY = ui->widget_plot->yAxis->range().maxRange;
   }
@@ -538,8 +544,7 @@ function *MainWindow::generateTargetFunction(
      )->text().toDouble() <= 0
       ) {
     // If not then uniform distributions and log error
-    qDebug() << "Contributions aren't set correctly. Uniforming "
-                "contributions.";
+    log("Contributions aren't set correctly. Uniforming contributions.");
     uniformContributions();
   }
 
@@ -565,7 +570,7 @@ int MainWindow::canAnimationBePerformed(int dimensionsNumber) {
     case 1:
       return 1;
     default:
-      qDebug() << "Dimensions number is not equal 1. Animation cannot be performed.";
+      log("Dimensions number is not equal 1. Animation cannot be performed.");
       return -2;
   }
 }
@@ -782,9 +787,9 @@ void MainWindow::on_pushButton_start_clicked() {
 
   // Log that application started generating KDE
   // Standard seed was 5625.
-  qDebug() << "KDE animation started.";
-  qDebug() << "Seed: " + seedString +
-              ", Sample size: " + ui->lineEdit_sampleSize->text();
+  log("KDE animation started.");
+  log("Seed: " + seedString);
+  log("Sample size: " + ui->lineEdit_sampleSize->text());
 
   stepNumber = 0;
 
@@ -837,7 +842,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   gt.setAttributesData(&attributesData);
 
-  qDebug() << "Attributes data set.";
+  log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
   gt.initialize(medoidsNumber, sampleSize);
@@ -889,8 +894,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName,
-                                                          0, 0, 1, -1);
+  log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
   expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
@@ -1059,7 +1063,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
     if(stepNumber % screenGenerationFrequency == 0 || stepNumber < 10
        || additionalScreensSteps.contains(stepNumber)) {
-      qDebug() << "Drawing in step number " << stepNumber << ".";
+      log("Drawing in step number " +QString::number(stepNumber) + ".");
 
       _kernelPrognosisDerivativeValues =
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&_drawableDomain);
@@ -1068,24 +1072,24 @@ void MainWindow::on_pushButton_start_clicked() {
       if(stepNumber >= 100) {
         // TODO: Prepare separate object for errors calculation.
 
-        qDebug() << "Getting windowed domain.";
+        log("Getting windowed domain.");
         _windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
-        qDebug() << "Getting non-windowed domain.";
+        log("Getting non-windowed domain.");
         _errorDomain = DESDAAlgorithm.getErrorDomain();
 
-        qDebug() << "Getting model plot on windowed.";
+        log("Getting model plot on windowed.");
         _windowedModelPlotY = getTargetFunctionValuesOnDomain(&_windowedErrorDomain);
-        qDebug() << "Getting KDE plot on windowed.";
+        log("Getting KDE plot on windowed.");
         _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&_windowedErrorDomain);
-        qDebug() << "Getting model plot.";
+        log("Getting model plot.");
         _modelPlotErrorY = getTargetFunctionValuesOnDomain(&_errorDomain);
-        qDebug() << "Getting KDE plot on lesser elements.";
+        log("Getting KDE plot on lesser elements.");
         _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&_errorDomain);
-        qDebug() << "Getting weighted KDE plot.";
+        log("Getting weighted KDE plot.");
         _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&_errorDomain);
-        qDebug() << "Getting sgm KDE plot.";
+        log("Getting sgm KDE plot.");
         _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&_errorDomain);
-        qDebug() << "Getting rare KDE plot.";
+        log("Getting rare KDE plot.");
         _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_errorDomain);
 
         double _errorDomainLength =
@@ -1093,28 +1097,28 @@ void MainWindow::on_pushButton_start_clicked() {
         double _windowedErrorDomainLength =
             _windowedErrorDomain[_windowedErrorDomain.size() - 1] - _windowedErrorDomain[0];
 
-        qDebug() << "Calculating L1.";
+        log("Calculating L1.");
         _L1_w += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomainLength);
         _L1_m += calculateL1Error(_modelPlotErrorY, _lessElementsEstimatorErrorY, _errorDomainLength);
         _L1_d += calculateL1Error(_modelPlotErrorY, _weightedEstimatorErrorY, _errorDomainLength);
         _L1_p += calculateL1Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY, _errorDomainLength);
         _L1_n += calculateL1Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY, _errorDomainLength);
 
-        qDebug() << "Calculating L2.";
+        log("Calculating L2.");
         _L2_w += calculateL2Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomainLength);
         _L2_m += calculateL2Error(_modelPlotErrorY, _lessElementsEstimatorErrorY, _errorDomainLength);
         _L2_d += calculateL2Error(_modelPlotErrorY, _weightedEstimatorErrorY, _errorDomainLength);
         _L2_p += calculateL2Error(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY, _errorDomainLength);
         _L2_n += calculateL2Error(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY, _errorDomainLength);
 
-        qDebug() << "Calculating sup.";
+        log("Calculating sup.");
         _sup_w += calculateSupError(_windowedModelPlotY, _windowedEstimatorErrorY);
         _sup_m += calculateSupError(_modelPlotErrorY, _lessElementsEstimatorErrorY);
         _sup_d += calculateSupError(_modelPlotErrorY, _weightedEstimatorErrorY);
         _sup_p += calculateSupError(_modelPlotErrorY, _sigmoidallyEnhancedErrorPlotY);
         _sup_n += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
-        qDebug() << "Calculating mod.";
+        log("Calculating mod.");
         _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain)
                        - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
         _mod_m +=
@@ -1196,27 +1200,28 @@ void MainWindow::on_pushButton_start_clicked() {
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
-      qDebug() << "Image saved: " << ui->widget_plot->savePng(imageName, 0, 0, 1, -1);
+      log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
 
-  qDebug() << "Animation finished.";
+  log("Animation finished.");
 }
 
 void MainWindow::on_pushButton_clicked() {
-  qDebug() << "2D Experiment start.";
+  log("2D Experiment start.");
 
   screenGenerationFrequency = 1000;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1328 (2D)";
+  QString expNum = "1335-2 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screenGenerationFrequency)
-      + ", v=tor na x_1, m0=4k, mMin=400, sz129";
-  QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+      + ", v=tor na x_1, m0=4k, mMin=400, sz001";
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
@@ -1327,7 +1332,7 @@ void MainWindow::on_pushButton_clicked() {
 
     DESDAAlgorithm.performStep();
 
-    qDebug() << "Estimator preparation.";
+    log("Estimator preparation.");
     DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
 
     // Drawing
@@ -1373,25 +1378,25 @@ void MainWindow::on_pushButton_clicked() {
 
       densityFunction->setMeans(*means.back().get());
 
-      qDebug() << "Texts updates.";
+      log("Texts updates.");
 
       plotUi.updateTexts();
 
-      qDebug() << "Replotting.";
+      log("Replotting.");
 
       contourPlot->replot();
 
-      qDebug() << "Restoring weights.";
+      log("Restoring weights.");
 
       endTime = time(NULL);
 
-      qDebug() << "Processing.";
+      log("Processing.");
 
       qApp->processEvents();
 
       QString imageName = dirPath + QString::number(stepNumber) + ".png";
-      qDebug() << "Image name: " << imageName;
-      qDebug() << "Saved: " << ui->widget_contour_plot_holder->grab().save(imageName);
+      log("Image name: " + imageName);
+      log("Saved: " + QString(ui->widget_contour_plot_holder->grab().save(imageName)));
     }
 
     DESDAAlgorithm.restoreClustersCWeights();
@@ -1402,10 +1407,10 @@ void MainWindow::on_pushButton_clicked() {
 
     endTime = time(NULL);
 
-    qDebug() << "Step time: " << (endTime - startTime) << " s";
+    log("Step time: " + QString::number(endTime - startTime) + " s");
   }
 
-  qDebug() << "Done!";
+  log("Done!");
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event) {

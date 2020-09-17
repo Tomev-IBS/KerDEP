@@ -385,7 +385,7 @@ void DESDA::countDerivativeValuesOnClusters() {
 }
 
 void DESDA::updateM() {
-  if(_sgmKPSS /*sgmKPSS*/ < 0) return;
+  if(_sgmKPSS < 0) return;
 
   //_m = round(1.1 * _maxM - (1.1 * _maxM - 0.9 * _minM) * _sgmKPSS);
   _m = round(1.1 * _maxM * (1.0 - _sgmKPSS));
