@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <float.h>
+#include <cfloat>
 #include <QDebug>
 #include <algorithm>
 #include <cmath>
@@ -21,6 +21,15 @@
 
 #include "UI/QwtContourPlotUI.h"
 
+const QPen MainWindow::model_plot_pen_ = QPen(Qt::red);
+const QPen MainWindow::windowed_plot_pen_ = QPen(Qt::black);
+const QPen MainWindow::kde_plot_pen_ = QPen(Qt::blue);
+const QPen MainWindow::weighted_plot_pen_ = QPen(Qt::cyan);
+const QPen MainWindow::derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
+const QPen MainWindow::standardized_derivative_plot_pen_ = QPen(QColor(255, 220, 0)); // Yellow
+const QPen MainWindow::desda_kde_plot_pen_ = QPen(Qt::magenta);
+const QPen MainWindow::desda_rare_elements_kde_plot_pen = QPen(Qt::green);
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow) {
@@ -30,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   // Adding contour plot
   contourPlot = new Plot(ui->widget_contour_plot);
-  QGridLayout *l = new QGridLayout(ui->widget_contour_plot);
+  auto l = new QGridLayout(ui->widget_contour_plot);
   l->setAlignment(ui->widget_contour_plot, Qt::AlignCenter);
   l->addWidget(contourPlot, 0, 0, 1, 1, Qt::AlignTop | Qt::AlignLeft);
   QSizePolicy p(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -203,35 +212,35 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate plot of model function
   if(ui->checkBox_showEstimatedPlot->isChecked()) {
-    QVector<qreal> modelDistributionY = getTargetFunctionValuesOnDomain(&_drawableDomain);
-    addPlot(&modelDistributionY, _MODEL_PLOT_PEN);
+    QVector<qreal> modelDistributionY = getTargetFunctionValuesOnDomain(&drawable_domain_);
+    addPlot(&modelDistributionY, model_plot_pen_);
   }
 
   // Generate less elements KDE plot (navy blue)
   if(ui->checkBox_showEstimationPlot->isChecked()) {
     _lessElementsEstimatorY =
-        DESDAAlgorithm->getKDEValues(&_drawableDomain);
-    addPlot(&_lessElementsEstimatorY, _KDE_PLOT_PEN);
+        DESDAAlgorithm->getKDEValues(&drawable_domain_);
+    addPlot(&_lessElementsEstimatorY, kde_plot_pen_);
   }
 
   // Generate weighted estimator plot (light blue)
   if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
     _weightedEstimatorY =
-        DESDAAlgorithm->getWeightedKDEValues(&_drawableDomain);
-    addPlot(&_weightedEstimatorY, _WEIGHTED_PLOT_PEN);
+        DESDAAlgorithm->getWeightedKDEValues(&drawable_domain_);
+    addPlot(&_weightedEstimatorY, weighted_plot_pen_);
   }
 
   // Generate full estimator plot (BLACK)
   if(ui->checbox_showFullEstimator->isChecked()) {
     _windowedEstimatorY =
-        DESDAAlgorithm->getWindowKDEValues(&_drawableDomain);
-    addPlot(&_windowedEstimatorY, _WINDOWED_PLOT_PEN);
+        DESDAAlgorithm->getWindowKDEValues(&drawable_domain_);
+    addPlot(&_windowedEstimatorY, windowed_plot_pen_);
   }
 
   // Generate plot for kernel prognosis derivative
   if(ui->checkBox_kernelPrognosedPlot->isChecked())
-    addPlot(&_kernelPrognosisDerivativeValues, _DERIVATIVE_PLOT_PEN);
-  //addPlot(&_kernelPrognosisDerivativeValues, _DERIVATIVE_PLOT_PEN);
+    addPlot(&_kernelPrognosisDerivativeValues, derivative_plot_pen_);
+  //addPlot(&_kernelPrognosisDerivativeValues, derivative_plot_pen_);
 
   // Generate plot for standarized prognosis derivative, assuming that
   // normal derivative was generated first
@@ -242,13 +251,13 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm) {
           0.1 * val / DESDAAlgorithm->_maxAbsDerivativeValueInCurrentStep
                                       );
     }
-    addPlot(&standarizedDerivativeY, _STANDARIZED_DERIVATIVE_PLOT_PEN);
+    addPlot(&standarizedDerivativeY, standardized_derivative_plot_pen_);
   }
 
   if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
     _sigmoidallyEnhancedPlotY =
-        DESDAAlgorithm->getEnhancedKDEValues(&_drawableDomain);
-    addPlot(&_sigmoidallyEnhancedPlotY, _DESDA_KDE_PLOT_PEN);
+        DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain_);
+    addPlot(&_sigmoidallyEnhancedPlotY, desda_kde_plot_pen_);
   }
 
   if(ui->checkBox_showUnusualClusters->isChecked()) {
@@ -260,18 +269,18 @@ void MainWindow::drawPlots(DESDA *DESDAAlgorithm) {
 
   if(ui->checkBox_REESEKDE->isChecked()) {
     _rareElementsEnhancedPlotY =
-        DESDAAlgorithm->getRareElementsEnhancedKDEValues(&_drawableDomain);
-    addPlot(&_rareElementsEnhancedPlotY, _DESDA_RARE_ELEMENTS_KDE_PLOT_PEN);
+        DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain_);
+    addPlot(&_rareElementsEnhancedPlotY, desda_rare_elements_kde_plot_pen);
   }
   // Draw plots
   ui->widget_plot->replot();
 
-  oldKerernelY = KDEEstimationY;
+  oldKernelY = KDEEstimationY;
 }
 
 void MainWindow::addPlot(const QVector<qreal> *Y, const QPen &pen) {
   ui->widget_plot->addGraph();
-  ui->widget_plot->graph(ui->widget_plot->graphCount() - 1)->setData(_drawableDomain, *Y);
+  ui->widget_plot->graph(ui->widget_plot->graphCount() - 1)->setData(drawable_domain_, *Y);
   ui->widget_plot->graph(ui->widget_plot->graphCount() - 1)->setPen(pen);
 }
 
@@ -384,7 +393,7 @@ void MainWindow::fillStandardDeviations(vector<std::shared_ptr<vector<double>>> 
           (
               (static_cast<QLineEdit *>(
                   (static_cast<QTableWidget *>(ui->tableWidget_targetFunctions
-                                                 ->cellWidget(functionIndex, STDEV_COLUMN_INDEX)))
+                                                 ->cellWidget(functionIndex, kStandardDeviationColumnIndex)))
                       ->cellWidget(dimensionIndex, 0)
               ))
                   ->text().toDouble()
@@ -405,7 +414,7 @@ void MainWindow::fillMeans(vector<std::shared_ptr<vector<double>>> *means) {
           (
               (static_cast<QLineEdit *>(
                   (static_cast<QTableWidget *>(ui->tableWidget_targetFunctions
-                                                 ->cellWidget(functionIndex, MEAN_COLUMN_INDEX)))
+                                                 ->cellWidget(functionIndex, kMeanColumnIndex)))
                       ->cellWidget(dimensionIndex, 0)
               ))
                   ->text().toDouble()
@@ -472,7 +481,7 @@ distribution *MainWindow::generateTargetDistribution(
     contributions.push_back
                      (
                          (static_cast<QLineEdit *>(ui->tableWidget_targetFunctions
-                                                     ->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+                                                     ->cellWidget(functionIndex, kContributionColumnIndex)))
                              ->text().toDouble()
                      );
 
@@ -494,9 +503,9 @@ reservoirSamplingAlgorithm *MainWindow::generateReservoirSamplingAlgorithm(dataR
       samplingAlgorithmID = ui->comboBox_samplingAlgorithm->currentIndex();
 
   switch(samplingAlgorithmID) {
-    case BIASED_RESERVOIR_SAMPLING_ALGORITHM:
+    case ReservoirSamplingAlgorithms::kBiasedReservoirSamplingAlgorithm:
       return new biasedReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
-    case BASIC_RESERVOIR_SAMPLING_ALGORITHM:
+    case ReservoirSamplingAlgorithms::kBasicReservoirSamplingAlgorithm:
     default:
       return new basicReservoirSamplingAlgorithm(reader, parser, sampleSize, stepsNumber);
   }
@@ -510,13 +519,13 @@ kernelDensityEstimator *MainWindow::generateKernelDensityEstimator(
 
   for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber) {
     kernelsIDs.push_back(
-        (static_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))
+        (static_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, kKernelColumnIndex)))
             ->currentIndex());
     smoothingParameters.push_back((static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
-                                                                                                         SMOOTHING_PARAMETER_COLUMN_INDEX)))
+                                                                                                         kSmoothingParameterColumnIndex)))
                                       ->text().toDouble());
     carriersRestrictions.push_back((static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
-                                                                                                          CARRIER_RESTRICTION_COLUMN_INDEX)))
+                                                                                                          kCarrierRestrictionColumnIndex)))
                                        ->text().toStdString());
   }
 
@@ -540,7 +549,7 @@ function *MainWindow::generateTargetFunction(
   // Check if contributions are set correctly. If they are, then last
   // contribution is >= 0;
   if(static_cast<QLineEdit *>(ui->tableWidget_targetFunctions
-                                ->cellWidget(targetFunctionElementsNumber - 1, CONTRIBUTION_COLUMN_INDEX)
+                                ->cellWidget(targetFunctionElementsNumber - 1, kContributionColumnIndex)
      )->text().toDouble() <= 0
       ) {
     // If not then uniform distributions and log error
@@ -553,7 +562,7 @@ function *MainWindow::generateTargetFunction(
     contributions.push_back
                      (
                          (static_cast<QLineEdit *>(ui->tableWidget_targetFunctions
-                                                     ->cellWidget(functionIndex, CONTRIBUTION_COLUMN_INDEX)))
+                                                     ->cellWidget(functionIndex, kContributionColumnIndex)))
                              ->text().toDouble()
                      );
 
@@ -614,23 +623,23 @@ void MainWindow::addKernelToTable(int rowNumber,
                                   QDoubleValidator *smoothingParameterValidator) {
   // Add combobox with kernels
 
-  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, KERNEL_COLUMN_INDEX, new QComboBox());
+  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, kKernelColumnIndex, new QComboBox());
 
-  (static_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, KERNEL_COLUMN_INDEX)))
+  (static_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, kKernelColumnIndex)))
       ->insertItems(0, kernelTypes);
 
   // Add input box with validator for smoothing parameters
-  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX, new QLineEdit());
+  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, kSmoothingParameterColumnIndex, new QLineEdit());
 
-  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
+  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, kSmoothingParameterColumnIndex)))
       ->setText("1.0");
-  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, SMOOTHING_PARAMETER_COLUMN_INDEX)))
+  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, kSmoothingParameterColumnIndex)))
       ->setValidator(smoothingParameterValidator);
 
   // Add input box for carrier restriction value
-  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX, new QLineEdit());
+  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, kCarrierRestrictionColumnIndex, new QLineEdit());
 
-  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, CARRIER_RESTRICTION_COLUMN_INDEX)))
+  (static_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, kCarrierRestrictionColumnIndex)))
       ->setText("None.");
 }
 
@@ -665,19 +674,19 @@ void MainWindow::refreshTargetFunctionTable() {
 
   for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex) {
     // TODO TR: Ensure that this doesn't result in memory leaks
-    targetFunctionTablePointer->setCellWidget(rowIndex, MEAN_COLUMN_INDEX, new QTableWidget());
+    targetFunctionTablePointer->setCellWidget(rowIndex, kMeanColumnIndex, new QTableWidget());
 
     meansTablePointer =
-        static_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, MEAN_COLUMN_INDEX));
+        static_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, kMeanColumnIndex));
     meansTablePointer->setRowCount(dimensionsNumber);
     meansTablePointer->setColumnCount(1);
     meansTablePointer->horizontalHeader()->hide();
 
     // TODO TR: Ensure that this doesn't result in memory leaks
-    targetFunctionTablePointer->setCellWidget(rowIndex, STDEV_COLUMN_INDEX, new QTableWidget());
+    targetFunctionTablePointer->setCellWidget(rowIndex, kStandardDeviationColumnIndex, new QTableWidget());
 
     stDevsTablePointer =
-        static_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, STDEV_COLUMN_INDEX));
+        static_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, kStandardDeviationColumnIndex));
     stDevsTablePointer->setRowCount(dimensionsNumber);
     stDevsTablePointer->setColumnCount(1);
     stDevsTablePointer->horizontalHeader()->hide();
@@ -693,18 +702,18 @@ void MainWindow::refreshTargetFunctionTable() {
     }
 
     // TODO TR: Ensure that this doesn't result in memory leaks
-    targetFunctionTablePointer->setCellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX, new QLineEdit());
-    (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))
+    targetFunctionTablePointer->setCellWidget(rowIndex, kContributionColumnIndex, new QLineEdit());
+    (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, kContributionColumnIndex)))
         ->setMaxLength(6);
-    (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)))
+    (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, kContributionColumnIndex)))
         ->setValidator(contributionValidator);
     QObject::connect(
-        (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))),
+        (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, kContributionColumnIndex))),
         SIGNAL(textEdited(QString)), this, SLOT(updateLastContribution()));
   }
 
   // Disable last contribution cell, as it's filled automatically
-  (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(numberOfRows - 1, CONTRIBUTION_COLUMN_INDEX)))
+  (static_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(numberOfRows - 1, kContributionColumnIndex)))
       ->setEnabled(false);
 
   uniformContributions();
@@ -717,13 +726,13 @@ void MainWindow::uniformContributions() {
   for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex) {
     static_cast<QLineEdit *>(
         ui->tableWidget_targetFunctions
-          ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX)
+          ->cellWidget(rowIndex, kContributionColumnIndex)
     )->setText(QString::number(100.0 / numberOfRows));
   }
 
   static_cast<QLineEdit *>(
       ui->tableWidget_targetFunctions
-        ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX)
+        ->cellWidget(lastRowIndex, kContributionColumnIndex)
   )->setText(QString::number(countLastContribution()));
 }
 
@@ -734,7 +743,7 @@ qreal MainWindow::countLastContribution() {
   for(int rowIndex = 0; rowIndex < lastRowIndex; ++rowIndex)
     result -= (static_cast<QLineEdit *>
     (ui->tableWidget_targetFunctions
-       ->cellWidget(rowIndex, CONTRIBUTION_COLUMN_INDEX))
+       ->cellWidget(rowIndex, kContributionColumnIndex))
     )->text().toDouble();
 
   return result;
@@ -746,7 +755,7 @@ void MainWindow::updateLastContribution() {
 
   (static_cast<QLineEdit *>(ui
       ->tableWidget_targetFunctions
-      ->cellWidget(lastRowIndex, CONTRIBUTION_COLUMN_INDEX))
+      ->cellWidget(lastRowIndex, kContributionColumnIndex))
   )->setText(QString::number(lastContributionValue));
 }
 
@@ -768,16 +777,6 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
   refreshTargetFunctionTable();
 }
 
-double MainWindow::numericIntegral(const QVector<qreal> *Y) {
-  double integral = 0.0,
-      domainDensity = ui->lineEdit_domainDensity->text().toDouble();
-
-  for(auto y : *Y)
-    integral += y * domainDensity;
-
-  return integral;
-}
-
 void MainWindow::on_pushButton_start_clicked() {
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
@@ -791,7 +790,7 @@ void MainWindow::on_pushButton_start_clicked() {
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
-  stepNumber = 0;
+  step_number_ = 0;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -806,7 +805,7 @@ void MainWindow::on_pushButton_start_clicked() {
   estimator->_shouldConsiderWeights = false;
 
   kernelPrognoser.reset(generateKernelDensityEstimator(dimensionsNumber));
-  _enchancedKDE.reset(generateKernelDensityEstimator(dimensionsNumber));
+  enhanced_KDE_.reset(generateKernelDensityEstimator(dimensionsNumber));
 
   std::shared_ptr<distribution>
       targetDistribution(generateTargetDistribution(&means, &stDevs));
@@ -828,9 +827,6 @@ void MainWindow::on_pushButton_start_clicked() {
   reader->gatherAttributesData(&attributesData);
   parser->setAttributesOrder(reader->getAttributesOrder());
 
-  positionalSecondGradeEstimatorCountingMethod =
-      ui->comboBox_rareElementsMethod->currentIndex();
-
   reservoirSamplingAlgorithm *algorithm =
       generateReservoirSamplingAlgorithm(reader.get(), parser.get());
 
@@ -847,8 +843,6 @@ void MainWindow::on_pushButton_start_clicked() {
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
   gt.initialize(medoidsNumber, sampleSize);
 
-  _longestStepExecutionInSecs = 0;
-
   double newWeightB = 0.5;
 
   clusters = &storedMedoids;
@@ -861,7 +855,7 @@ void MainWindow::on_pushButton_start_clicked() {
   DESDA DESDAAlgorithm(
       estimator,
       kernelPrognoser,
-      _enchancedKDE,
+      enhanced_KDE_,
       ui->lineEdit_weightModifier->text().toDouble(),
       algorithm,
       clusters,
@@ -901,7 +895,7 @@ void MainWindow::on_pushButton_start_clicked() {
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &stepNumber,
+                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
@@ -1039,8 +1033,8 @@ void MainWindow::on_pushButton_start_clicked() {
   plotLabel modNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
   verticalOffset += verticalStep;
 
-  fillDomain(&_domain, nullptr);
-  for(auto pt : _domain) _drawableDomain.push_back(pt->at(0));
+  fillDomain(&domain_, nullptr);
+  for(auto pt : domain_) drawable_domain_.push_back(pt->at(0));
 
   ui->widget_plot->replot();
   qApp->processEvents();
@@ -1054,48 +1048,48 @@ void MainWindow::on_pushButton_start_clicked() {
   }
   */
 
-  for(stepNumber = 1; stepNumber < stepsNumber; ++stepNumber) {
+  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
     DESDAAlgorithm.performStep();
 
     targetFunction.reset(generateTargetFunction(&means, &stDevs));
 
-    if(stepNumber % screenGenerationFrequency == 0 || stepNumber < 10
-       || additionalScreensSteps.contains(stepNumber)) {
-      log("Drawing in step number " +QString::number(stepNumber) + ".");
+    if(step_number_ % screenGenerationFrequency == 0 || step_number_ < 10
+       || additionalScreensSteps.contains(step_number_)) {
+      log("Drawing in step number " + QString::number(step_number_) + ".");
 
       _kernelPrognosisDerivativeValues =
-          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&_drawableDomain);
+          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&drawable_domain_);
 
       // Error calculations
-      if(stepNumber >= 100) {
+      if(step_number_ >= 100) {
         // TODO: Prepare separate object for errors calculation.
 
         log("Getting windowed domain.");
-        _windowedErrorDomain = DESDAAlgorithm.getWindowedErrorDomain();
+        windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
         log("Getting non-windowed domain.");
-        _errorDomain = DESDAAlgorithm.getErrorDomain();
+        error_domain_ = DESDAAlgorithm.getErrorDomain();
 
         log("Getting model plot on windowed.");
-        _windowedModelPlotY = getTargetFunctionValuesOnDomain(&_windowedErrorDomain);
+        _windowedModelPlotY = getTargetFunctionValuesOnDomain(&windowed_error_domain_);
         log("Getting KDE plot on windowed.");
-        _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&_windowedErrorDomain);
+        _windowedEstimatorErrorY = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain_);
         log("Getting model plot.");
-        _modelPlotErrorY = getTargetFunctionValuesOnDomain(&_errorDomain);
+        _modelPlotErrorY = getTargetFunctionValuesOnDomain(&error_domain_);
         log("Getting KDE plot on lesser elements.");
-        _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&_errorDomain);
+        _lessElementsEstimatorErrorY = DESDAAlgorithm.getKDEValues(&error_domain_);
         log("Getting weighted KDE plot.");
-        _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&_errorDomain);
+        _weightedEstimatorErrorY = DESDAAlgorithm.getWeightedKDEValues(&error_domain_);
         log("Getting sgm KDE plot.");
-        _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&_errorDomain);
+        _sigmoidallyEnhancedErrorPlotY = DESDAAlgorithm.getEnhancedKDEValues(&error_domain_);
         log("Getting rare KDE plot.");
-        _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&_errorDomain);
+        _rareElementsEnhancedErrorPlotY = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
 
         double _errorDomainLength =
-            _errorDomain[_errorDomain.size() - 1] - _errorDomain[0];
+            error_domain_[error_domain_.size() - 1] - error_domain_[0];
         double _windowedErrorDomainLength =
-            _windowedErrorDomain[_windowedErrorDomain.size() - 1] - _windowedErrorDomain[0];
+            windowed_error_domain_[windowed_error_domain_.size() - 1] - windowed_error_domain_[0];
 
         log("Calculating L1.");
         _L1_w += calculateL1Error(_windowedModelPlotY, _windowedEstimatorErrorY, _windowedErrorDomainLength);
@@ -1119,16 +1113,16 @@ void MainWindow::on_pushButton_start_clicked() {
         _sup_n += calculateSupError(_modelPlotErrorY, _rareElementsEnhancedErrorPlotY);
 
         log("Calculating mod.");
-        _mod_w += fabs(findExtrema(_windowedModelPlotY, _windowedErrorDomain)
-                       - findExtrema(_windowedEstimatorErrorY, _windowedErrorDomain));
+        _mod_w += fabs(findExtrema(_windowedModelPlotY, windowed_error_domain_)
+                       - findExtrema(_windowedEstimatorErrorY, windowed_error_domain_));
         _mod_m +=
-            fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_lessElementsEstimatorErrorY, _errorDomain));
+            fabs(findExtrema(_modelPlotErrorY, error_domain_) - findExtrema(_lessElementsEstimatorErrorY, error_domain_));
         _mod_d +=
-            fabs(findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_weightedEstimatorErrorY, _errorDomain));
+            fabs(findExtrema(_modelPlotErrorY, error_domain_) - findExtrema(_weightedEstimatorErrorY, error_domain_));
         _mod_p += fabs(
-            findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_sigmoidallyEnhancedErrorPlotY, _errorDomain));
+            findExtrema(_modelPlotErrorY, error_domain_) - findExtrema(_sigmoidallyEnhancedErrorPlotY, error_domain_));
         _mod_n += fabs(
-            findExtrema(_modelPlotErrorY, _errorDomain) - findExtrema(_rareElementsEnhancedErrorPlotY, _errorDomain));
+            findExtrema(_modelPlotErrorY, error_domain_) - findExtrema(_rareElementsEnhancedErrorPlotY, error_domain_));
         ++numberOfErrorCalculations;
       }
 
@@ -1199,7 +1193,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      QString imageName = dirPath + QString::number(stepNumber) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
@@ -1294,12 +1288,12 @@ void MainWindow::on_pushButton_clicked() {
   groupingThread gt(&storedMedoids, parser);
 
   kernelPrognoser.reset(generateKernelDensityEstimator(2));
-  _enchancedKDE.reset(generateKernelDensityEstimator(2));
+  enhanced_KDE_.reset(generateKernelDensityEstimator(2));
 
   DESDA DESDAAlgorithm(
       estimator,
       kernelPrognoser,
-      _enchancedKDE,
+      enhanced_KDE_,
       ui->lineEdit_weightModifier->text().toDouble(),
       samplingAlgorithm,
       clusters,
@@ -1309,7 +1303,7 @@ void MainWindow::on_pushButton_clicked() {
                       );
 
   // Start the test
-  stepNumber = 0;
+  step_number_ = 0;
 
   time_t startTime, endTime;
 
@@ -1319,14 +1313,14 @@ void MainWindow::on_pushButton_clicked() {
   _mod_n = 0;
   int errorCalculationsNumber = 0;
   double summaricL1 = 0, summaricL2 = 0, summaricSup = 0, summaricMod = 0;
-  QwtContourPlotUI plotUi(&stepNumber, screenGenerationFrequency, seed,
+  QwtContourPlotUI plotUi(&step_number_, screenGenerationFrequency, seed,
                           &DESDAAlgorithm, &_L1_n, &_L2_n, &_sup_n, &_mod_n);
   plotUi.attach(contourPlot);
   plotUi.updateTexts();
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   QVector<int> initialDrawingSteps = {};
 
-  for(stepNumber = 1; stepNumber < 13001; ++stepNumber) {
+  for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
 
     startTime = time(NULL);
 
@@ -1336,10 +1330,10 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
 
     // Drawing
-    if(stepNumber % screenGenerationFrequency == 0 ||
-       initialDrawingSteps.contains(stepNumber)) {
+    if(step_number_ % screenGenerationFrequency == 0 ||
+       initialDrawingSteps.contains(step_number_)) {
       // Error calculation
-      if(stepNumber >= m0) {
+      if(step_number_ >= m0) {
         ++errorCalculationsNumber;
         auto errorDomain = generate2DPlotErrorDomain(&DESDAAlgorithm);
         auto domainArea = calculate2DDomainArea(errorDomain);
@@ -1394,14 +1388,14 @@ void MainWindow::on_pushButton_clicked() {
 
       qApp->processEvents();
 
-      QString imageName = dirPath + QString::number(stepNumber) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image name: " + imageName);
       log("Saved: " + QString(ui->widget_contour_plot_holder->grab().save(imageName)));
     }
 
     DESDAAlgorithm.restoreClustersCWeights();
 
-    if(stepNumber == 10) {
+    if(step_number_ == 10) {
       initialDrawingSteps.clear();  // To reduce comparisons for drawing.
     }
 
