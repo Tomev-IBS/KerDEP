@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <QMainWindow>
 #include <QDoubleValidator>
@@ -22,24 +22,19 @@
 
 #include "UI/plot.h"
 
-enum class PositionalSecondGradeEstimatorCountingMethods {
-  kStandard = 0,
-  kWeighted = 1
-};
-
-enum class KernelSettingsColumns {
+enum class KernelSettingsColumns : int {
   kKernelColumnIndex = 0,
   kSmoothingParameterColumnIndex = 1,
   kCarrierRestrictionColumnIndex = 2
 };
 
-enum class TargetFunctionSettingsColumns {
+enum class TargetFunctionSettingsColumns : int {
   kMeanColumnIndex = 0,
   kStandardDeviationColumnIndex = 1,
   kContributionColumnIndex = 2
 };
 
-enum class ReservoirSamplingAlgorithms {
+enum class ReservoirSamplingAlgorithms : int {
   kBasicReservoirSamplingAlgorithm = 0,
   kBiasedReservoirSamplingAlgorithm = 1
 };
@@ -64,138 +59,135 @@ class MainWindow : public QMainWindow {
 
   private:
     // Pens for 1d plot
-    const static QPen model_plot_pen_;
-    const static QPen windowed_plot_pen_;
-    const static QPen kde_plot_pen_;
-    const static QPen weighted_plot_pen_;
-    const static QPen derivative_plot_pen_;
-    const static QPen standardized_derivative_plot_pen_;
-    const static QPen desda_kde_plot_pen_;
-    const static QPen desda_rare_elements_kde_plot_pen;
+    const QPen model_plot_pen_ = QPen(Qt::red);
+    const QPen windowed_plot_pen_ = QPen(Qt::black);
+    const QPen kde_plot_pen_ = QPen(Qt::blue);
+    const QPen weighted_plot_pen_ = QPen(Qt::cyan);
+    const QPen derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
+    const QPen standardized_derivative_plot_pen_ = QPen(QColor(255, 220, 0)); // Yellow
+    const QPen desda_kde_plot_pen_ = QPen(Qt::magenta);
+    const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::green);
+
     // Contour plots
-    Plot *contourPlot = nullptr;
-    std::vector<QCPAbstractItem *> _linesOnPlot;
-    void setupValidators();
-    void setupPlot();
-    void setupKernelsTable();
-    long long start;
-    int screenGenerationFrequency = 1;
+    Plot *contour_plot_ = nullptr;
+    std::vector<QCPAbstractItem *> lines_on_plot_;
+
+    long long start = 0;
+    int screen_generation_frequency_ = 1;
     // Default settings
-    const qreal MAX_X = 999.0;
-    const qreal MIN_X = -999.0;
-    const qreal MAX_Y = 99.0;
-    const qreal MIN_Y = -99.0;
-    const qreal MIN_SMOOTHING_P = 0.0;
-    const qreal MAX_SMOOTHING_P = 2.0;
-    const int DECIMAL_NUMBERS = 3;
-    const qreal DEFAULT_MIN_X = -5;
-    const qreal DEFAULT_MAX_X = 15;
-    const qreal DEFAULT_MIN_Y = -0.3;
-    const qreal DEFAULT_MAX_Y = 0.5;
-    std::vector<std::shared_ptr<cluster>> storedMedoids;
+    const qreal kMaxX = 999.0;
+    const qreal kMinX = -999.0;
+    const qreal kMaxY = 99.0;
+    const qreal kMinY = -99.0;
+    const qreal kMinSmoothingParameter = 0.0;
+    const qreal kMaxSmoothingParameter = 2.0;
+    const int kDecimalNumbers = 3;
+    const qreal kDefaultMinX = -5;
+    const qreal kDefaultMaxX = 15;
+    const qreal kDefaultMinY = -0.3;
+    const qreal kDefaultMaxY = 0.5;
+    std::vector<std::shared_ptr<cluster>> stored_medoids_;
     Ui::MainWindow *ui;
-    vector<std::shared_ptr<vector<double>>> samples;
-    std::vector<std::shared_ptr<sample>> objects;
-    std::vector<std::shared_ptr<cluster>> *clusters;
-    std::unordered_map<std::string, attributeData *> attributesData;
+    vector<std::shared_ptr<vector<double>>> samples_;
+    std::vector<std::shared_ptr<sample>> objects_;
+    std::vector<std::shared_ptr<cluster>> *clusters_ = nullptr;
+    std::unordered_map<std::string, attributeData *> attributes_data_;
     // Tests
-    void testNewFunctionalities();
-    QVector<qreal> KDEEstimationY;
+    static void testNewFunctionalities();
+    void SetupValidators();
+    void SetupPlot();
+    void SetupKernelsTable();
     // Prediction
-    QVector<double> _kernelPrognosisDerivativeValues;
+    QVector<double> kernel_prognosis_derivative_values_;
     // Enhancement
-    QVector<double> _sigmoidallyEnhancedPlotY;
-    QVector<double> _rareElementsEnhancedPlotY;
-    QVector<double> _lessElementsEstimatorY;
-    QVector<double> _weightedEstimatorY;
-    QVector<double> _windowedEstimatorY;
-    QVector<double> _windowedModelPlotY;
-    QVector<double> _windowedEstimatorErrorY;
-    QVector<double> _modelPlotErrorY;
-    QVector<double> _lessElementsEstimatorErrorY;
-    QVector<double> _weightedEstimatorErrorY;
-    QVector<double> _sigmoidallyEnhancedErrorPlotY;
-    QVector<double> _rareElementsEnhancedErrorPlotY;
-    QVector<double> getTargetFunctionValuesOnDomain(QVector<double> *domain);
+    QVector<double> sigmoidally_enhanced_plot_y_;
+    QVector<double> rare_elements_enhanced_plot_y_;
+    QVector<double> less_elements_estimator_y_;
+    QVector<double> weighted_estimator_y_;
+    QVector<double> windowed_estimator_y_;
+    QVector<double> windowed_model_plot_y_;
+    QVector<double> windowed_estimator_error_y_;
+    QVector<double> model_plot_error_y_;
+    QVector<double> less_elements_estimator_error_y_;
+    QVector<double> weighted_estimator_error_y_;
+    QVector<double> sigmoidally_enhanced_error_plot_y_;
+    QVector<double> rare_elements_enhanced_error_plot_Y;
+    QVector<double> GetTargetFunctionValuesOnDomain(QVector<double> *domain);
     // Errors
-    double _L1_w = 0, _L1_m = 0, _L1_d = 0, _L1_p = 0, _L1_n = 0,
-        _L2_w = 0, _L2_m = 0, _L2_d = 0, _L2_p = 0, _L2_n = 0,
-        _sup_w = 0, _sup_m = 0, _sup_d = 0, _sup_p = 0, _sup_n = 0,
-        _mod_w = 0, _mod_m = 0, _mod_d = 0, _mod_p = 0, _mod_n = 0;
-    double calculateL1Error(const QVector<double> &model,
-                            const QVector<double> estimated,
+    double l1_w_ = 0, l1_m_ = 0, l1_d_ = 0, l1_p_ = 0, l1_n_ = 0,
+           l2_w_ = 0, l2_m_ = 0, l2_d_ = 0, l2_p_ = 0, l2_n_ = 0,
+           sup_w_ = 0, sup_m_ = 0, sup_d_ = 0, sup_p_ = 0, sup_n_ = 0,
+           mod_w_ = 0, mod_m_ = 0, mod_d_ = 0, mod_p_ = 0, mod_n_ = 0;
+    static double CalculateL1Error(const QVector<double> &model,
+                            const QVector<double> &estimated,
                             const double &domainLength);
-    double calculateL2Error(const QVector<double> &model,
-                            const QVector<double> estimated,
+    static double CalculateL2Error(const QVector<double> &model,
+                            const QVector<double> &estimated,
                             const double &domainLength);
-    double calculateSupError(const QVector<double> &model,
-                             const QVector<double> estimated);
-    double findExtrema(const QVector<double> &values,
-                       const QVector<double> domain);
-    point find2DExtrema(const QVector<double> &values,
+    static double CalculateSupError(const QVector<double> &model,
+                             const QVector<double> &estimated);
+    static double FindExtrema(const QVector<double> &values,
+                       const QVector<double> &domain);
+    static point Find2DExtrema(const QVector<double> &values,
                         const QVector<point> &points);
-    QVector<double> maxAs = {};
     QVector<std::pair<double, double>>
-        _atypicalElementsValuesAndDerivatives = {};
-    double _quantileEstimatorValue = 0;
-    double positionalSecondGradeEstimator = 0.0;
-    std::shared_ptr<dataParser> parser;
-    std::shared_ptr<dataReader> reader;
-    QVector<qreal> oldKernelY;
-    std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
-    std::shared_ptr<kernelDensityEstimator> enhanced_KDE_;
-    vector<std::shared_ptr<vector<double>>> means, stDevs;
-    QStringList kernelTypes;
-    std::shared_ptr<function> targetFunction;
-    void drawPlots(DESDA *DESDAAlgorithm);
-    void clearPlot();
-    void addPlot(const QVector<qreal> *Y, const QPen &pen);
-    void resizePlot();
-    unsigned long long markUncommonClusters();
-    void fillStandardDeviations(
-        vector<std::shared_ptr<vector<double> > > *stDevs);
-    void fillMeans(vector<std::shared_ptr<vector<double> > > *means);
+        atypical_elements_values_and_derivatives_ = {};
+    double quantile_estimator_value_ = 0;
+    std::shared_ptr<dataParser> parser_;
+    std::shared_ptr<dataReader> reader_;
+    std::shared_ptr<kernelDensityEstimator> derivative_estimator_;
+    std::shared_ptr<kernelDensityEstimator> enhanced_kde_;
+    vector<std::shared_ptr<vector<double>>> means_, standard_deviations_;
+    QStringList kernel_types_;
+    std::shared_ptr<function> target_function_;
+    void DrawPlots(DESDA *DESDAAlgorithm);
+    void ClearPlot();
+    void AddPlot(const QVector<qreal> *Y, const QPen &pen);
+    void ResizePlot();
+    unsigned long long MarkUncommonClusters();
+    void FillStandardDeviations(
+        vector<std::shared_ptr<vector<double>>> *stDevs);
+    void FillMeans(vector<std::shared_ptr<vector<double>>> *means);
 
   private slots:
 
-    void refreshKernelsTable();
-    void addKernelToTable(int rowNumber,
+    void RefreshKernelsTable();
+    void AddKernelToTable(int rowNumber,
                           QDoubleValidator *smoothingParameterValidator);
-    void refreshTargetFunctionTable();
-    void uniformContributions();
-    qreal countLastContribution();
-    void updateLastContribution();
-    void fillDomain(QVector<std::shared_ptr<point> > *domain,
+    void RefreshTargetFunctionTable();
+    void UniformContributions();
+    qreal CountLastContribution();
+    void UpdateLastContribution();
+    void FillDomain(QVector<std::shared_ptr<point> > *domain,
                     std::shared_ptr<point> *prototypePoint);
-    distribution *generateTargetDistribution(
+    distribution *GenerateTargetDistribution(
         vector<std::shared_ptr<vector<double>>> *means,
         vector<std::shared_ptr<vector<double>>> *stDevs);
-    reservoirSamplingAlgorithm *generateReservoirSamplingAlgorithm(
+    reservoirSamplingAlgorithm *GenerateReservoirSamplingAlgorithm(
         dataReader *reader,
         dataParser *parser);
-    kernelDensityEstimator *generateKernelDensityEstimator(
+    kernelDensityEstimator *GenerateKernelDensityEstimator(
         int dimensionsNumber);
-    function *generateTargetFunction(
+    function *GenerateTargetFunction(
         vector<std::shared_ptr<vector<double>>> *means,
         vector<std::shared_ptr<vector<double>>> *stDevs);
+    static int CanAnimationBePerformed(int dimensionsNumber);
+    static QString FormatNumberForDisplay(double number);
     void on_pushButton_start_clicked();
-    int canAnimationBePerformed(int dimensionsNumber);
-    QString formatNumberForDisplay(double number);
-    void delay(int ms);
     void on_spinBox_dimensionsNumber_editingFinished();
     void on_pushButton_addTargetFunction_clicked();
     void on_pushButton_removeTargetFunction_clicked();
     void on_pushButton_clicked();
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
     // 2D Plot
-    QVector<std::vector<double>> generate2DPlotErrorDomain(
+    static QVector<std::vector<double>> Generate2DPlotErrorDomain(
         DESDA *DESDAAlgorithm);
-    double calculate2DDomainArea(const QVector<std::vector<double>> &domain);
-    QVector<double> getFunctionsValueOnDomain(function *func,
-                                              QVector<point> domain);
+    static double Calculate2DDomainArea(const QVector<std::vector<double>> &domain);
+    static QVector<double> GetFunctionsValueOnDomain(function *func,
+                                              const QVector<point> &domain);
 
 };
 
 
 
-#endif // MAINWINDOW_H
+#endif // MAIN_WINDOW_H
