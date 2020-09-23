@@ -1233,12 +1233,12 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 1000;
+  screen_generation_frequency_ = 1;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1335-2 (2D)";
+  QString expNum = "1339 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
@@ -1352,20 +1352,29 @@ void MainWindow::on_pushButton_clicked() {
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   QVector<int> initialDrawingSteps = {};
 
+  log("Experiment started.");
   for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
 
+    log("New step.");
     startTime = time(nullptr);
 
+    log("Performing new step.");
     DESDAAlgorithm.performStep();
-
-    log("Estimator preparation.");
-    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    log("Step performed.");
 
     // Drawing
     if(step_number_ % screen_generation_frequency_ == 0 ||
        initialDrawingSteps.contains(step_number_)) {
+
+      log("Drawing started.");
+
+      log("Estimator preparation.");
+      DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+      log("Estimator preparation finished.");
       // Error calculation
+
       if(step_number_ >= m0) {
+        log("Error calculation started.");
         ++errorCalculationsNumber;
         auto errorDomain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
         auto domainArea = Calculate2DDomainArea(errorDomain);
@@ -1400,19 +1409,19 @@ void MainWindow::on_pushButton_clicked() {
 
         // Mod is distance between two extreme points.
         mod_n_ = sum_mod / errorCalculationsNumber;
+        log("Error calculation finished.");
       }
 
       densityFunction->setMeans(*means_.back().get());
 
       log("Texts updates.");
-
       plotUi.updateTexts();
 
       log("Replotting.");
-
       contour_plot_->replot();
 
       log("Restoring weights.");
+      DESDAAlgorithm.restoreClustersCWeights();
 
       endTime = time(nullptr);
 
@@ -1423,9 +1432,8 @@ void MainWindow::on_pushButton_clicked() {
       QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image name: " + imageName);
       log("Saved: " + QString(ui->widget_contour_plot_holder->grab().save(imageName)));
+      log("Drawing finished.");
     }
-
-    DESDAAlgorithm.restoreClustersCWeights();
 
     if(step_number_ == 10) {
       initialDrawingSteps.clear();  // To reduce comparisons for drawing.
