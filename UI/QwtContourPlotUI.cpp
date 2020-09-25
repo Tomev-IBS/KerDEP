@@ -64,6 +64,8 @@ void QwtContourPlotUI::updateLeftColumnText()
     * r ->  r value for rare elements calculation
     * q -> q value for rare elements calculation
     * rare -> rare elements number
+    * hx -> smoothing parameter for first dimension
+    * hy -> smoothing parameter for second dimension
     */
 
   QString leftColumnText = "";
@@ -84,6 +86,12 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "r    = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
   leftColumnText += "q    = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
   leftColumnText += "rare =  " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
+
+  if(_DESDAAlgorithm->_smoothingParametersVector.size() == 2) {
+    leftColumnText += "\n";
+    leftColumnText += "hx = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[0]) + "\n";
+    leftColumnText += "hy = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
+  }
 
   _leftColumnText.setText(leftColumnText);
   _leftColumnLabel.setText(_leftColumnText);
