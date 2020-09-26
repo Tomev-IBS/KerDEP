@@ -1238,11 +1238,11 @@ void MainWindow::on_pushButton_clicked() {
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1343 (2D)";
+  QString expNum = "1344 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ",widoczne h, v=tor na x_1, m0=4k, mMin=400, sz001";
+      + ",większa dziedzina błedów, v=tor na x_1, m0=4k, mMin=400, sz002";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
