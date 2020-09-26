@@ -1373,7 +1373,7 @@ void MainWindow::on_pushButton_clicked() {
       log("Estimator preparation finished.");
       // Error calculation
 
-      if(step_number_ >= m0) {
+      if(step_number_ >= 0) {
         log("Error calculation started.");
         ++errorCalculationsNumber;
         auto errorDomain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
