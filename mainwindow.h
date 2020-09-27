@@ -180,6 +180,8 @@ class MainWindow : public QMainWindow {
     void resizeEvent(QResizeEvent *event) override;
     // 2D Plot
     static std::vector<std::vector<double>> Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static std::vector<std::vector<double>> Generate1DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static std::vector<std::vector<double>> Generate1DWindowedPlotErrorDomain(DESDA *DESDAAlgorithm);
     static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
     static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
 

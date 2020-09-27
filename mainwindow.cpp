@@ -1031,6 +1031,9 @@ void MainWindow::on_pushButton_start_clicked() {
   }
   */
 
+  double error_domain_length = 0;
+  double windowed_error_domain_length = 0;
+
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
@@ -1046,7 +1049,7 @@ void MainWindow::on_pushButton_start_clicked() {
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&drawable_domain_);
 
       // Error calculations
-      if(step_number_ >= 100) {
+      if(step_number_ >= 1) {
 
         log("Getting windowed domain.");
         windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
@@ -1069,40 +1072,40 @@ void MainWindow::on_pushButton_start_clicked() {
         log("Getting rare KDE plot.");
         rare_elements_enhanced_error_plot_Y = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
 
-        double _errorDomainLength =
+        error_domain_length =
             error_domain_[error_domain_.size() - 1] - error_domain_[0];
-        double _windowedErrorDomainLength =
+        windowed_error_domain_length =
             windowed_error_domain_[windowed_error_domain_.size() - 1] - windowed_error_domain_[0];
 
         log("Calculating L1.");
         l1_w_ += CalculateL1Error(windowed_model_plot_y_, windowed_estimator_error_y_,
-                                  _windowedErrorDomainLength);
+                                  windowed_error_domain_length);
         l1_m_ +=
             CalculateL1Error(model_plot_error_y_, less_elements_estimator_error_y_,
-                             _errorDomainLength);
+                             error_domain_length);
         l1_d_ += CalculateL1Error(model_plot_error_y_, weighted_estimator_error_y_,
-                                  _errorDomainLength);
+                                  error_domain_length);
         l1_p_ +=
             CalculateL1Error(model_plot_error_y_, sigmoidally_enhanced_error_plot_y_,
-                             _errorDomainLength);
+                             error_domain_length);
         l1_n_ +=
             CalculateL1Error(model_plot_error_y_, rare_elements_enhanced_error_plot_Y,
-                             _errorDomainLength);
+                             error_domain_length);
 
         log("Calculating L2.");
         l2_w_ += CalculateL2Error(windowed_model_plot_y_, windowed_estimator_error_y_,
-                                  _windowedErrorDomainLength);
+                                  windowed_error_domain_length);
         l2_m_ +=
             CalculateL2Error(model_plot_error_y_, less_elements_estimator_error_y_,
-                             _errorDomainLength);
+                             error_domain_length);
         l2_d_ += CalculateL2Error(model_plot_error_y_, weighted_estimator_error_y_,
-                                  _errorDomainLength);
+                                  error_domain_length);
         l2_p_ +=
             CalculateL2Error(model_plot_error_y_, sigmoidally_enhanced_error_plot_y_,
-                             _errorDomainLength);
+                             error_domain_length);
         l2_n_ +=
             CalculateL2Error(model_plot_error_y_, rare_elements_enhanced_error_plot_Y,
-                             _errorDomainLength);
+                             error_domain_length);
 
         log("Calculating sup.");
         sup_w_ +=
@@ -1481,3 +1484,28 @@ std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(DESDA *DE
 
   return domainValues;
 }
+
+std::vector<std::vector<double>> MainWindow::Generate1DPlotErrorDomain(
+    DESDA *DESDAAlgorithm) {
+  std::vector<point> domainValues = {};
+  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
+
+  for(auto x : xDomainValues) {
+    domainValues.push_back({x});
+  }
+
+  return domainValues;
+}
+
+std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
+    DESDA *DESDAAlgorithm) {
+  std::vector<point> domainValues = {};
+  auto xDomainValues = DESDAAlgorithm->getWindowedErrorDomain();
+
+  for(auto x : xDomainValues) {
+    domainValues.push_back({x});
+  }
+
+  return domainValues;
+}
+
