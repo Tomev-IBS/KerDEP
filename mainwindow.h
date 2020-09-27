@@ -128,8 +128,7 @@ class MainWindow : public QMainWindow {
                              const QVector<double> &estimated);
     static double FindExtrema(const QVector<double> &values,
                        const QVector<double> &domain);
-    static point Find2DExtrema(const QVector<double> &values,
-                        const QVector<point> &points);
+    static point Find2DExtrema(const QVector<double> &values, const std::vector<std::vector<double>> &domain);
     QVector<std::pair<double, double>>
         atypical_elements_values_and_derivatives_ = {};
     double quantile_estimator_value_ = 0;
@@ -180,11 +179,9 @@ class MainWindow : public QMainWindow {
     void on_pushButton_clicked();
     void resizeEvent(QResizeEvent *event) override;
     // 2D Plot
-    static QVector<std::vector<double>> Generate2DPlotErrorDomain(
-        DESDA *DESDAAlgorithm);
-    static double Calculate2DDomainArea(const QVector<std::vector<double>> &domain);
-    static QVector<double> GetFunctionsValueOnDomain(function *func,
-                                              const QVector<point> &domain);
+    static std::vector<std::vector<double>> Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
+    static QVector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
 
 };
 

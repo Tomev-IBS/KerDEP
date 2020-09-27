@@ -131,6 +131,8 @@ add_executable(KerDEP
                 StationarityTests/i_stationaritytest.h
                 UI/plotLabel.h
                 mainwindow.ui
+                Benchmarking/errorsCalculator.cpp
+                Benchmarking/errorsCalculator.h
 )
 
 include_directories(${QWT_INCLUDE_DIR})

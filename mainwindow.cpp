@@ -84,10 +84,9 @@ double MainWindow::CalculateL1Error(const QVector<double> &model,
 
   double avg = 0;
 
-  for(auto val : errorHolder)
-    avg += val;
+  for(auto val : errorHolder) { avg += val; }
 
-  if(errorHolder.empty()) avg /= errorHolder.size();
+  if(!errorHolder.empty()) {avg /= errorHolder.size();}
 
   return avg * domainLength;
 }
@@ -141,7 +140,7 @@ double MainWindow::FindExtrema(const QVector<double> &values,
 }
 
 point MainWindow::Find2DExtrema(const QVector<double> &values,
-                                const QVector<point> &points) {
+                                const std::vector<std::vector<double>> &points) {
   int maxPointIndex = 0;
 
   for(int i = 1; i < values.size(); ++i) {
@@ -1456,16 +1455,17 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
   contour_plot_->resize(2 * newSize, newSize);
 }
 
-double MainWindow::Calculate2DDomainArea(const QVector<std::vector<double> > &domain) {
+double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> &domain) {
   // Given how 2D domain is calculated, it's easy to see, that only first and
   // last point of the domain are of interest (last holding max values, and
   // first holding minima).
   auto xLen = domain[domain.size() - 1][0] - domain[0][0];
   auto yLen = domain[domain.size() - 1][1] - domain[0][1];
+
   return xLen * yLen;
 }
 
-QVector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const QVector<point> &domain) {
+QVector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain) {
   QVector<double> values = {};
 
   for(auto pt : domain) {
@@ -1475,8 +1475,8 @@ QVector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const QVec
   return values;
 }
 
-QVector<point> MainWindow::Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
-  QVector<point> domainValues = {};
+std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
+  std::vector<point> domainValues = {};
   auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
   auto yDomainValues = DESDAAlgorithm->getErrorDomain(1);
 
