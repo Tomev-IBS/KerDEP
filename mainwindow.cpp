@@ -1272,8 +1272,8 @@ void MainWindow::on_pushButton_clicked() {
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
-  //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
-  QVector<int> initialDrawingSteps = {};
+  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+  //QVector<int> initialDrawingSteps = {};
 
   std::vector<double> model_function_values = {};
   std::vector<double> estimator_values = {};
