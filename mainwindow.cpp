@@ -1156,16 +1156,16 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 100;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1344 (2D)";
+  QString expNum = "1345 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ",większa dziedzina błedów, v=tor na x_1, m0=4k, mMin=400, sz002";
+      + ",poprawione błędy, 1m0, v=tor na x_1, m0=4k, mMin=400, sz129";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
