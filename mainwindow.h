@@ -99,36 +99,11 @@ class MainWindow : public QMainWindow {
     void SetupKernelsTable();
     // Prediction
     QVector<double> kernel_prognosis_derivative_values_;
-    // Enhancement
-    QVector<double> sigmoidally_enhanced_plot_y_;
-    QVector<double> rare_elements_enhanced_plot_y_;
-    QVector<double> less_elements_estimator_y_;
-    QVector<double> weighted_estimator_y_;
-    QVector<double> windowed_estimator_y_;
-    QVector<double> windowed_model_plot_y_;
-    QVector<double> windowed_estimator_error_y_;
-    QVector<double> model_plot_error_y_;
-    QVector<double> less_elements_estimator_error_y_;
-    QVector<double> weighted_estimator_error_y_;
-    QVector<double> sigmoidally_enhanced_error_plot_y_;
-    QVector<double> rare_elements_enhanced_error_plot_Y;
-    QVector<double> GetTargetFunctionValuesOnDomain(QVector<double> *domain);
     // Errors
     double l1_w_ = 0, l1_m_ = 0, l1_d_ = 0, l1_p_ = 0, l1_n_ = 0,
            l2_w_ = 0, l2_m_ = 0, l2_d_ = 0, l2_p_ = 0, l2_n_ = 0,
            sup_w_ = 0, sup_m_ = 0, sup_d_ = 0, sup_p_ = 0, sup_n_ = 0,
            mod_w_ = 0, mod_m_ = 0, mod_d_ = 0, mod_p_ = 0, mod_n_ = 0;
-    static double CalculateL1Error(const QVector<double> &model,
-                            const QVector<double> &estimated,
-                            const double &domainLength);
-    static double CalculateL2Error(const QVector<double> &model,
-                            const QVector<double> &estimated,
-                            const double &domainLength);
-    static double CalculateSupError(const QVector<double> &model,
-                             const QVector<double> &estimated);
-    static double FindExtrema(const QVector<double> &values,
-                       const QVector<double> &domain);
-    static point Find2DExtrema(const QVector<double> &values, const std::vector<std::vector<double>> &domain);
     QVector<std::pair<double, double>>
         atypical_elements_values_and_derivatives_ = {};
     double quantile_estimator_value_ = 0;

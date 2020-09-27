@@ -65,94 +65,6 @@ void MainWindow::testNewFunctionalities() {
   log("Finish test.");
 }
 
-QVector<double> MainWindow::GetTargetFunctionValuesOnDomain(
-    QVector<double> *domain) {
-  QVector<double> values = {};
-  for(auto val : *domain) {
-    std::vector<double> x = {val};
-    values.push_back(target_function_->getValue(&x));
-  }
-  return values;
-}
-
-double MainWindow::CalculateL1Error(const QVector<double> &model,
-                                    const QVector<double> &estimated,
-                                    const double &domainLength) {
-  QVector<qreal> errorHolder = {};
-
-  for(int i = 0; i < model.size(); ++i)
-    errorHolder.push_back(fabs(model[i] - estimated[i]));
-
-  double avg = 0;
-
-  for(auto val : errorHolder) { avg += val; }
-
-  if(!errorHolder.empty()) {avg /= errorHolder.size();}
-
-  return avg * domainLength;
-}
-
-double MainWindow::CalculateL2Error(const QVector<double> &model,
-                                    const QVector<double> &estimated,
-                                    const double &domainLength) {
-  QVector<qreal> errorHolder = {};
-
-  for(int i = 0; i < model.size(); ++i)
-    errorHolder.push_back(pow(model[i] - estimated[i], 2));
-
-  double avg = 0;
-
-  for(auto val : errorHolder) { avg += val; }
-
-  if(!errorHolder.empty()) { avg /= errorHolder.size(); }
-
-  avg = pow(avg, 0.5);
-
-  return avg * domainLength;
-}
-
-double MainWindow::CalculateSupError(const QVector<double> &model,
-                                     const QVector<double> &estimated) {
-  double sup = fabs(model[0] - estimated[0]);
-
-  for(int i = 0; i < model.size(); ++i) {
-    double val = fabs(model[i] - estimated[i]);
-    sup = val > sup ? val : sup;
-  }
-
-  return sup;
-}
-
-double MainWindow::FindExtrema(const QVector<double> &values,
-                               const QVector<double> &domain) {
-  double extrema = domain[0];
-  double maxVal = values[0];
-
-  for(int i = 0; i < values.size(); ++i) {
-    double val = values[i];
-
-    if(val > maxVal) {
-      maxVal = val;
-      extrema = domain[i];
-    }
-  }
-
-  return extrema;
-}
-
-point MainWindow::Find2DExtrema(const QVector<double> &values,
-                                const std::vector<std::vector<double>> &points) {
-  int maxPointIndex = 0;
-
-  for(int i = 1; i < values.size(); ++i) {
-    if(values[i] > values[maxPointIndex]) {
-      maxPointIndex = i;
-    }
-  }
-
-  return points[maxPointIndex];
-}
-
 void MainWindow::SetupValidators() {
   QLocale locale = QLocale::English;
   locale.setNumberOptions(QLocale::c().numberOptions());
@@ -199,32 +111,39 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   ClearPlot();
   ResizePlot();
 
+  std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
+  for(auto value : drawable_domain_){
+    drawable_domain.push_back({value});
+  }
+
   // Generate plot of model function
   if(ui->checkBox_showEstimatedPlot->isChecked()) {
     QVector<qreal> modelDistributionY =
-        GetTargetFunctionValuesOnDomain(&drawable_domain_);
+      QVector<qreal>::fromStdVector(
+  GetFunctionsValueOnDomain(target_function_.get(), drawable_domain)
+      );
     AddPlot(&modelDistributionY, model_plot_pen_);
   }
 
   // Generate less elements KDE plot (navy blue)
   if(ui->checkBox_showEstimationPlot->isChecked()) {
-    less_elements_estimator_y_ =
-        DESDAAlgorithm->getKDEValues(&drawable_domain_);
-    AddPlot(&less_elements_estimator_y_, kde_plot_pen_);
+    auto less_elements_estimator_y = QVector<double>::fromStdVector(
+        DESDAAlgorithm->getKDEValues(&drawable_domain));
+    AddPlot(&less_elements_estimator_y, kde_plot_pen_);
   }
 
   // Generate weighted estimator plot (light blue)
   if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
-    weighted_estimator_y_ =
-        DESDAAlgorithm->getWeightedKDEValues(&drawable_domain_);
-    AddPlot(&weighted_estimator_y_, weighted_plot_pen_);
+    auto weighted_estimator_y = QVector<double>::fromStdVector(
+        DESDAAlgorithm->getWeightedKDEValues(&drawable_domain));
+    AddPlot(&weighted_estimator_y, weighted_plot_pen_);
   }
 
   // Generate full estimator plot (BLACK)
   if(ui->checbox_showFullEstimator->isChecked()) {
-    windowed_estimator_y_ =
-        DESDAAlgorithm->getWindowKDEValues(&drawable_domain_);
-    AddPlot(&windowed_estimator_y_, windowed_plot_pen_);
+    auto windowed_estimator_y = QVector<double>::fromStdVector(
+        DESDAAlgorithm->getWindowKDEValues(&drawable_domain));
+    AddPlot(&windowed_estimator_y, windowed_plot_pen_);
   }
 
   // Generate plot for kernel prognosis derivative
@@ -244,9 +163,9 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
-    sigmoidally_enhanced_plot_y_ =
-        DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain_);
-    AddPlot(&sigmoidally_enhanced_plot_y_, desda_kde_plot_pen_);
+    auto sigmoidally_enhanced_plot_y = QVector<double>::fromStdVector(
+        DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain));
+    AddPlot(&sigmoidally_enhanced_plot_y, desda_kde_plot_pen_);
   }
 
   if(ui->checkBox_showUnusualClusters->isChecked()) {
@@ -257,9 +176,9 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_REESEKDE->isChecked()) {
-    rare_elements_enhanced_plot_y_ =
-        DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain_);
-    AddPlot(&rare_elements_enhanced_plot_y_, desda_rare_elements_kde_plot_pen_);
+    auto rare_elements_enhanced_plot_y = QVector<double>::fromStdVector(
+        DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain));
+    AddPlot(&rare_elements_enhanced_plot_y, desda_rare_elements_kde_plot_pen_);
   }
   // Draw plots
   ui->widget_plot->replot();
@@ -1033,6 +952,33 @@ void MainWindow::on_pushButton_start_clicked() {
 
   double error_domain_length = 0;
   double windowed_error_domain_length = 0;
+  std::vector<std::vector<double>> error_domain = {};
+  std::vector<std::vector<double>> windowed_error_domain = {};
+
+  std::vector<double> windowed_model_values = {};
+  std::vector<double> windowed_kde_values = {};
+
+  std::vector<double> model_values = {};
+  std::vector<double> less_elements_kde_values = {};
+  std::vector<double> weighted_kde_values = {};
+  std::vector<double> enhanced_kde_values = {};
+  std::vector<double> rare_elements_kde_values = {};
+
+  ErrorsCalculator windowed_errors_calculator(
+    &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
+  );
+  ErrorsCalculator less_elements_kde_errors_calculator(
+    &model_values, &less_elements_kde_values, &error_domain, &error_domain_length
+  );
+  ErrorsCalculator weighted_kde_errors_calculator(
+    &model_values, &weighted_kde_values, &error_domain, &error_domain_length
+  );
+  ErrorsCalculator enhanced_kde_errors_calculator(
+    &model_values, &enhanced_kde_values, &error_domain, &error_domain_length
+  );
+  ErrorsCalculator rare_elements_kde_errors_calculator(
+    &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
+  );
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
@@ -1052,88 +998,62 @@ void MainWindow::on_pushButton_start_clicked() {
       if(step_number_ >= 1) {
 
         log("Getting windowed domain.");
-        windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
+        //windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
+        windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
         log("Getting non-windowed domain.");
-        error_domain_ = DESDAAlgorithm.getErrorDomain();
+        //error_domain_ = DESDAAlgorithm.getErrorDomain();
+        error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
 
         log("Getting model plot on windowed.");
-        windowed_model_plot_y_ =
-            GetTargetFunctionValuesOnDomain(&windowed_error_domain_);
+        windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
         log("Getting KDE plot on windowed.");
-        windowed_estimator_error_y_ = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain_);
+        windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
+
         log("Getting model plot.");
-        model_plot_error_y_ = GetTargetFunctionValuesOnDomain(&error_domain_);
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
         log("Getting KDE plot on lesser elements.");
-        less_elements_estimator_error_y_ = DESDAAlgorithm.getKDEValues(&error_domain_);
+        //less_elements_estimator_error_y_ = DESDAAlgorithm.getKDEValues(&error_domain_);
+        less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
         log("Getting weighted KDE plot.");
-        weighted_estimator_error_y_ = DESDAAlgorithm.getWeightedKDEValues(&error_domain_);
+        //weighted_estimator_error_y_ = DESDAAlgorithm.getWeightedKDEValues(&error_domain_);
+        weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
         log("Getting sgm KDE plot.");
-        sigmoidally_enhanced_error_plot_y_ = DESDAAlgorithm.getEnhancedKDEValues(&error_domain_);
+        //sigmoidally_enhanced_error_plot_y_ = DESDAAlgorithm.getEnhancedKDEValues(&error_domain_);
+        enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
         log("Getting rare KDE plot.");
-        rare_elements_enhanced_error_plot_Y = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
+        //rare_elements_enhanced_error_plot_Y = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
+        rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
 
         error_domain_length =
-            error_domain_[error_domain_.size() - 1] - error_domain_[0];
+            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
         windowed_error_domain_length =
-            windowed_error_domain_[windowed_error_domain_.size() - 1] - windowed_error_domain_[0];
+            windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
 
-        log("Calculating L1.");
-        l1_w_ += CalculateL1Error(windowed_model_plot_y_, windowed_estimator_error_y_,
-                                  windowed_error_domain_length);
-        l1_m_ +=
-            CalculateL1Error(model_plot_error_y_, less_elements_estimator_error_y_,
-                             error_domain_length);
-        l1_d_ += CalculateL1Error(model_plot_error_y_, weighted_estimator_error_y_,
-                                  error_domain_length);
-        l1_p_ +=
-            CalculateL1Error(model_plot_error_y_, sigmoidally_enhanced_error_plot_y_,
-                             error_domain_length);
-        l1_n_ +=
-            CalculateL1Error(model_plot_error_y_, rare_elements_enhanced_error_plot_Y,
-                             error_domain_length);
+        l1_w_ += windowed_errors_calculator.CalculateL1Error();
+        l2_w_ += windowed_errors_calculator.CalculateL2Error();
+        sup_w_ += windowed_errors_calculator.CalculateSupError();
+        mod_w_ += windowed_errors_calculator.CalculateModError();
 
-        log("Calculating L2.");
-        l2_w_ += CalculateL2Error(windowed_model_plot_y_, windowed_estimator_error_y_,
-                                  windowed_error_domain_length);
-        l2_m_ +=
-            CalculateL2Error(model_plot_error_y_, less_elements_estimator_error_y_,
-                             error_domain_length);
-        l2_d_ += CalculateL2Error(model_plot_error_y_, weighted_estimator_error_y_,
-                                  error_domain_length);
-        l2_p_ +=
-            CalculateL2Error(model_plot_error_y_, sigmoidally_enhanced_error_plot_y_,
-                             error_domain_length);
-        l2_n_ +=
-            CalculateL2Error(model_plot_error_y_, rare_elements_enhanced_error_plot_Y,
-                             error_domain_length);
+        l1_m_ += less_elements_kde_errors_calculator.CalculateL1Error();
+        l2_m_ += less_elements_kde_errors_calculator.CalculateL2Error();
+        sup_m_ += less_elements_kde_errors_calculator.CalculateSupError();
+        mod_m_ += less_elements_kde_errors_calculator.CalculateModError();
 
-        log("Calculating sup.");
-        sup_w_ +=
-            CalculateSupError(windowed_model_plot_y_, windowed_estimator_error_y_);
-        sup_m_ +=
-            CalculateSupError(model_plot_error_y_, less_elements_estimator_error_y_);
-        sup_d_ += CalculateSupError(model_plot_error_y_, weighted_estimator_error_y_);
-        sup_p_ +=
-            CalculateSupError(model_plot_error_y_, sigmoidally_enhanced_error_plot_y_);
-        sup_n_ +=
-            CalculateSupError(model_plot_error_y_, rare_elements_enhanced_error_plot_Y);
+        l1_d_ += weighted_kde_errors_calculator.CalculateL1Error();
+        l2_d_ += weighted_kde_errors_calculator.CalculateL2Error();
+        sup_d_ += weighted_kde_errors_calculator.CalculateSupError();
+        mod_d_ += weighted_kde_errors_calculator.CalculateModError();
 
-        log("Calculating mod.");
-        mod_w_ += fabs(FindExtrema(windowed_model_plot_y_, windowed_error_domain_)
-                       - FindExtrema(windowed_estimator_error_y_,
-                                     windowed_error_domain_));
-        mod_m_ +=
-            fabs(FindExtrema(model_plot_error_y_, error_domain_) - FindExtrema(
-                less_elements_estimator_error_y_, error_domain_));
-        mod_d_ +=
-            fabs(FindExtrema(model_plot_error_y_, error_domain_) - FindExtrema(
-                weighted_estimator_error_y_, error_domain_));
-        mod_p_ += fabs(
-            FindExtrema(model_plot_error_y_, error_domain_) - FindExtrema(
-                sigmoidally_enhanced_error_plot_y_, error_domain_));
-        mod_n_ += fabs(
-            FindExtrema(model_plot_error_y_, error_domain_) - FindExtrema(
-                rare_elements_enhanced_error_plot_Y, error_domain_));
+        l1_p_ += enhanced_kde_errors_calculator.CalculateL1Error();
+        l2_p_ += enhanced_kde_errors_calculator.CalculateL2Error();
+        sup_p_ += enhanced_kde_errors_calculator.CalculateSupError();
+        mod_p_ += enhanced_kde_errors_calculator.CalculateModError();
+
+        l1_n_ += rare_elements_kde_errors_calculator.CalculateL1Error();
+        l2_n_ += rare_elements_kde_errors_calculator.CalculateL2Error();
+        sup_n_ += rare_elements_kde_errors_calculator.CalculateSupError();
+        mod_n_ += rare_elements_kde_errors_calculator.CalculateModError();
+
         ++numberOfErrorCalculations;
       }
 

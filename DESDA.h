@@ -27,12 +27,13 @@ class DESDA
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension=0);
-    QVector<double> getEnhancedKDEValues(const QVector<qreal> *X, int dimension=0);
+    std::vector<double> getEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension=0);
+    std::vector<double> getWeightedKDEValues(const vector<vector<double>> *X, int dimension= 0);
     std::vector<double> getClustersWeights(const std::vector<std::shared_ptr<cluster>> &clusters);
     void sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster>> *clusters);
-    QVector<double> getWindowKDEValues(const QVector<qreal> *X, int dimension=0);
-    QVector<double> getKDEValues(const QVector<qreal> *X, int dimension=0);
-    QVector<double> getWeightedKDEValues(const QVector<qreal> *X, int dimension=0);
+    vector<double> getWindowKDEValues(const vector<vector<double>> *X, int dimension=0);
+    std::vector<double> getKDEValues(const std::vector<std::vector<double>> *X, int dimension=0);
+
     double getAverageOfFirstMSampleValues(int M);
     double getStdDevOfFirstMSampleValues(int M);
     cluster getEmECluster();
@@ -73,7 +74,7 @@ class DESDA
     double _r = 0.05;
     double _quantileEstimator = 0;
     int _rareElementsNumber = 0;
-    QVector<double> getRareElementsEnhancedKDEValues(const QVector<qreal> *X, int dimension=0);
+    std::vector<double> getRareElementsEnhancedKDEValues(const std::vector<vector<double>> *X, int dimension=0);
     std::vector<std::shared_ptr<cluster>> getAtypicalElements();
     QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();
 
