@@ -7,6 +7,7 @@
 #include <cmath>
 #include <chrono>
 #include <QDateTime>
+#include <Benchmarking/errorsCalculator.h>
 
 #include "UI/plotLabel.h"
 #include "UI/plotLabelIntDataPreparator.h"
@@ -1351,6 +1352,15 @@ void MainWindow::on_pushButton_clicked() {
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   QVector<int> initialDrawingSteps = {};
 
+  std::vector<double> model_function_values = {};
+  std::vector<double> estimator_values = {};
+  double domain_area = 0;
+  std::vector<std::vector<double>> error_domain = {};
+
+  ErrorsCalculator errors_calculator(
+    &model_function_values, &estimator_values, &error_domain, &domain_area
+  );
+
   log("Experiment started.");
   for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
 
@@ -1375,38 +1385,21 @@ void MainWindow::on_pushButton_clicked() {
       if(step_number_ >= 0) {
         log("Error calculation started.");
         ++errorCalculationsNumber;
-        auto errorDomain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
-        auto domainArea = Calculate2DDomainArea(errorDomain);
-        auto modelValues =
-            GetFunctionsValueOnDomain(densityFunction, errorDomain);
-        auto estimatorValues =
-            GetFunctionsValueOnDomain(estimator.get(), errorDomain);
+        error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
+        domain_area = Calculate2DDomainArea(error_domain);
+        model_function_values =
+            GetFunctionsValueOnDomain(densityFunction, error_domain);
+        estimator_values =
+            GetFunctionsValueOnDomain(estimator.get(), error_domain);
 
-        /*
-        QVector<double> zeros = {};
-
-        while(zeros.size() < estimatorValues.size()) {
-          zeros.append(0);
-        }
-        */
-
-        sum_l1 +=
-            CalculateL1Error(modelValues, estimatorValues, domainArea);
-        sum_l2 +=
-            CalculateL2Error(modelValues, estimatorValues, domainArea);
-        sum_sup += CalculateSupError(modelValues, estimatorValues);
+        sum_l1 += errors_calculator.CalculateL1Error();
+        sum_l2 += errors_calculator.CalculateL2Error();
+        sum_sup += errors_calculator.CalculateSupError();
+        sum_mod = errors_calculator.CalculateModError();
 
         l1_n_ = sum_l1 / errorCalculationsNumber;
         l2_n_ = sum_l2 / errorCalculationsNumber;
         sup_n_ = sum_sup / errorCalculationsNumber;
-
-        auto modelExtrema = Find2DExtrema(modelValues, errorDomain);
-        auto estimatorExtrema = Find2DExtrema(estimatorValues, errorDomain);
-
-        sum_mod += sqrt(pow(modelExtrema[0] - estimatorExtrema[0], 2) +
-                        pow(modelExtrema[1] - estimatorExtrema[1], 2));
-
-        // Mod is distance between two extreme points.
         mod_n_ = sum_mod / errorCalculationsNumber;
         log("Error calculation finished.");
       }
@@ -1465,8 +1458,8 @@ double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> 
   return xLen * yLen;
 }
 
-QVector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain) {
-  QVector<double> values = {};
+std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain) {
+  std::vector<double> values = {};
 
   for(auto pt : domain) {
     values.push_back(func->getValue(&pt));

@@ -181,7 +181,7 @@ class MainWindow : public QMainWindow {
     // 2D Plot
     static std::vector<std::vector<double>> Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
     static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
-    static QVector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
+    static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
 
 };
 
