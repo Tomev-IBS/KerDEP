@@ -16,6 +16,7 @@ CONFIG      +=  qwt
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES     +=  main.cpp\
+                Benchmarking/errorsCalculator.cpp \
                 DESDAReservoir.cpp \
                 UI/QwtContourPlotUI.cpp \
                 UI/plot.cpp \
@@ -60,6 +61,7 @@ SOURCES     +=  main.cpp\
                 UI/plotLabel.cpp
 
 HEADERS     +=  mainwindow.h \
+                Benchmarking/errorsCalculator.h \
                 DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
