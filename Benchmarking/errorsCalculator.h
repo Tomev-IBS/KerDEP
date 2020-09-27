@@ -12,7 +12,10 @@ class ErrorsCalculator {
      * probability density functions.
      */
   public:
-    ErrorsCalculator();
+    ErrorsCalculator(std::vector<double> *model_function_values,
+                     std::vector<double> *estimator_values,
+                     std::vector<std::vector<double>> *error_domain,
+                     double *domain_quantity);
     double CalculateL1Error();
     double CalculateL2Error();
     double CalculateSupError();
@@ -20,11 +23,11 @@ class ErrorsCalculator {
   private:
     std::vector<double> *model_function_values_;
     std::vector<double> *estimator_values_;
-    std::vector<std::vector<double>> error_domain_;
+    std::vector<std::vector<double>> *error_domain_;
     double *domain_quantity_; // For one dimension it should be length, in two it should be area, and so...
 
     double FindMaxValueIndex(const std::vector<double> &values);
-    double CalculateEuclideanDistance(const std::vector<double> &point_1, const std::vector<double> &point2);
+    double CalculateEuclideanDistance(const std::vector<double> &point_1, const std::vector<double> &point_2);
 };
 
 #endif //KERDEP_ERRORSCALCULATOR_H
