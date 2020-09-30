@@ -1161,11 +1161,11 @@ void MainWindow::on_pushButton_clicked() {
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1356 (2D)";
+  QString expNum = "1360 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", euclidean KPSS, v=tor dla 2D, m0=4k, mMin=400, sz423";
+      + ", euclidean KPSS, v=tor dla 2D, m0=4k, mMin=400, sz476";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
@@ -1266,10 +1266,16 @@ void MainWindow::on_pushButton_clicked() {
   l2_n_ = 0;
   sup_n_ = 0;
   mod_n_ = 0;
+  double actual_l1 = 0;
+  double actual_l2 = 0;
+  double actual_sup = 0;
+  double actual_mod = 0;
+
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
-                          &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_);
+                          &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
+                          &actual_l1, &actual_l2, &actual_sup, &actual_mod);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
@@ -1315,10 +1321,14 @@ void MainWindow::on_pushButton_clicked() {
         estimator_values =
             GetFunctionsValueOnDomain(estimator.get(), error_domain);
 
-        sum_l1 += errors_calculator.CalculateL1Error();
-        sum_l2 += errors_calculator.CalculateL2Error();
-        sum_sup += errors_calculator.CalculateSupError();
-        sum_mod = errors_calculator.CalculateModError();
+        actual_l1 = errors_calculator.CalculateL1Error();
+        actual_l2 = errors_calculator.CalculateL2Error();
+        actual_sup = errors_calculator.CalculateSupError();
+        actual_mod = errors_calculator.CalculateModError();
+        sum_l1 += actual_l1;
+        sum_l2 += actual_l2;
+        sum_sup += actual_sup;
+        sum_mod = actual_mod;
 
         l1_n_ = sum_l1 / errorCalculationsNumber;
         l2_n_ = sum_l2 / errorCalculationsNumber;
