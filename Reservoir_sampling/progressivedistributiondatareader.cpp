@@ -9,7 +9,7 @@
 
 progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize,
                                                                      int delay, distribution *alternativeSource) :
-    sourceDistribution(source), progressionSize(progressionSize), _delay(delay) {
+    sourceDistribution(source), x_progression_size(progressionSize), _delay(delay) {
   _alternativeDistribution.reset(alternativeSource);
 }
 
@@ -67,39 +67,59 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   // Stops at 0.2 + 30 + 3 + 1 = 34.2 without offset. Set maxX = 40.
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
-      progressionSize = 0.0001;
+      x_progression_size = 0.0001;
       break;
     //case 200: // Added for faster q test
-      //progressionSize = 0.1;
+      //x_progression_size = 0.1;
     //case 2000:
     case 5000:
-      progressionSize = 0.01;
+      x_progression_size = 0.01;
       break;
     //case 5000:
     case 8000:
-      progressionSize = 0.001;
+      x_progression_size = 0.001;
       break;
     //case 8000:
     case 11000:
-      progressionSize = 1;
+      x_progression_size = 1;
       break;
     //case 8001:
     case 11001:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
   }
+
+  switch(_currentIteration - 1) { // For exps with seed, remove later
+    case 0:
+      y_progression_size = 0;
+      break;
+    case 7000:
+      y_progression_size = 0.01;
+      break;
+    case 9000:
+      y_progression_size = 0;
+      break;
+    case 11000:
+      y_progression_size = 1;
+      break;
+    case 11001:
+      y_progression_size = 0;
+      break;
+  }
+
+  // SECOND DIMENSION
   /**/
 
   /*
   switch(_currentIteration - 1){ // For exps with seed, remove later
     case 0:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
     case 2000:
-      progressionSize = 0.005;
+      x_progression_size = 0.005;
       break;
     case 6000:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
   }
   /**/
@@ -107,31 +127,33 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   /*
   switch(_currentIteration - 1){ // For exps with seed, remove later
     case 0:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
     case 2000:
-      progressionSize = 1;
+      x_progression_size = 1;
       break;
     case 2001:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
     case 4000:
-      progressionSize = -1;
+      x_progression_size = -1;
       break;
     case 4001:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
     case 6000:
-      progressionSize = 1;
+      x_progression_size = 1;
       break;
     case 6001:
-      progressionSize = 0;
+      x_progression_size = 0;
       break;
   }
   /**/
 
-  sourceDistribution->increaseMeans(progressionSize, 0);
-  _alternativeDistribution->increaseMeans(progressionSize, 0);
+  sourceDistribution->increaseMeans(x_progression_size, 0);
+  _alternativeDistribution->increaseMeans(x_progression_size, 0);
+  sourceDistribution->increaseMeans(y_progression_size, 1);
+  _alternativeDistribution->increaseMeans(y_progression_size, 1);
 
   ++_currentIteration;
 }

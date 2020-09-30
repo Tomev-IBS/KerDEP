@@ -50,8 +50,8 @@ void Plot::setAxesLimit(const double &limit)
   setAxisScale(Qt::XAxis, -limit, limit);
   setAxisScale(Qt::ZAxis, -2*limit, 2*limit);
   */
-  setAxisScale(Qt::XAxis, -10, 10);
-  setAxisScale(Qt::ZAxis, -3, 37);
+  setAxisScale(Qt::XAxis, -3, 24);
+  setAxisScale(Qt::ZAxis, -3, 51);
 }
 
 void Plot::showContour( bool on )

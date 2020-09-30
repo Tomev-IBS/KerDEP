@@ -24,7 +24,8 @@ class progressiveDistributionDataReader : public dataReader
 
     protected:
         distribution *sourceDistribution;
-        qreal progressionSize = 0.0;
+        qreal x_progression_size = 0.0;
+        qreal y_progression_size = 0.0;
         int _delay = 0;
         int _currentIteration = 1; // PK always starts from 1.
 

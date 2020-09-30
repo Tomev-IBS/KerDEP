@@ -1161,15 +1161,15 @@ void MainWindow::on_pushButton_clicked() {
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1348 (2D)";
+  QString expNum = "1352 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ",poprawione błędy, 1m0, v=tor na x_1, m0=4k, mMin=400, sz001";
+      + ", max KPSS, v=tor dla 2D, m0=4k, mMin=400, sz196";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
