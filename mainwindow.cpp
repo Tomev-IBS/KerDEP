@@ -1161,11 +1161,11 @@ void MainWindow::on_pushButton_clicked() {
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1352 (2D)";
+  QString expNum = "1356 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", max KPSS, v=tor dla 2D, m0=4k, mMin=400, sz196";
+      + ", euclidean KPSS, v=tor dla 2D, m0=4k, mMin=400, sz423";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
@@ -1272,8 +1272,8 @@ void MainWindow::on_pushButton_clicked() {
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
-  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
-  //QVector<int> initialDrawingSteps = {};
+  //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+  QVector<int> initialDrawingSteps = {};
 
   std::vector<double> model_function_values = {};
   std::vector<double> estimator_values = {};
