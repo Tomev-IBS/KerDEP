@@ -11,7 +11,8 @@ class QwtContourPlotUI
   public:
     QwtContourPlotUI(int *currentStep, const int& imagesPeriod, const int& seed,
                      DESDA *DESDAAlgorithm, double* L1Error, double* L2Error,
-                     double* supError, double* modError);
+                     double* supError, double* modError, double* actual_l1_error, double* actual_l2_error,
+                     double* actual_sup_error, double* actual_mod_error);
     void updateTexts();
     void attach(QwtPlot* plot);
   private:
@@ -25,6 +26,10 @@ class QwtContourPlotUI
     double *_L2Error;
     double *_supError;
     double *_modError;
+    double *actual_l1_;
+    double *actual_l2_;
+    double *actual_sup_;
+    double *actual_mod_;
     QString _imagesPeriodString;
     QString _seedString;
     QString _mKPSSString;

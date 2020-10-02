@@ -3,9 +3,11 @@
 QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
                                    const int& seed, DESDA *DESDAAlgorithm,
                                    double* L1Error, double* L2Error,
-                                   double* supError, double* modError)
+                                   double* supError, double* modError, double* actual_l1_error, double* actual_l2_error,
+                                   double* actual_sup_error, double* actual_mod_error)
  : _currentStep(currentStep), _L1Error(L1Error), _L2Error(L2Error),
-   _supError(supError), _modError(modError), _DESDAAlgorithm(DESDAAlgorithm)
+   _supError(supError), _modError(modError), _DESDAAlgorithm(DESDAAlgorithm), actual_l1_(actual_l1_error),
+   actual_l2_(actual_l2_error), actual_mod_(actual_mod_error), actual_sup_(actual_sup_error)
 {
   // Set up the QwtTexts.
   QFont uiFont("Courier New");
@@ -89,8 +91,8 @@ void QwtContourPlotUI::updateLeftColumnText()
 
   if(_DESDAAlgorithm->_smoothingParametersVector.size() == 2) {
     leftColumnText += "\n";
-    leftColumnText += "hx = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[0]) + "\n";
-    leftColumnText += "hy = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
+    leftColumnText += "h1 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[0]) + "\n";
+    leftColumnText += "h2 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
   }
 
   _leftColumnText.setText(leftColumnText);
@@ -114,13 +116,17 @@ void QwtContourPlotUI::updateRightColumnText()
 
   QString rightColumnText = "";
 
-  rightColumnText += "L1  = " + formatNumberForDisplay(*_L1Error) + "\n";
+  rightColumnText += "L1   = " + formatNumberForDisplay(*_L1Error) + "\n";
+  rightColumnText += "L1a  = " + formatNumberForDisplay(*actual_l1_) + "\n";
   rightColumnText += "\n";
-  rightColumnText += "L2  = " + formatNumberForDisplay(*_L2Error) + "\n";
+  rightColumnText += "L2   = " + formatNumberForDisplay(*_L2Error) + "\n";
+  rightColumnText += "L2a  = " + formatNumberForDisplay(*actual_l2_) + "\n";
   rightColumnText += "\n";
-  rightColumnText += "sup = " + formatNumberForDisplay(*_supError) + "\n";
+  rightColumnText += "sup  = " + formatNumberForDisplay(*_supError) + "\n";
+  rightColumnText += "supa = " + formatNumberForDisplay(*actual_sup_) + "\n";
   rightColumnText += "\n";
-  rightColumnText += "mod = " + formatNumberForDisplay(*_modError) + "\n";
+  rightColumnText += "mod  = " + formatNumberForDisplay(*_modError) + "\n";
+  rightColumnText += "moda  = " + formatNumberForDisplay(*actual_mod_) + "\n";
 
   _rightColumnText.setText(rightColumnText);
   _rightColumnLabel.setText(_rightColumnText);
