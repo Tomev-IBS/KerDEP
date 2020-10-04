@@ -804,7 +804,7 @@ double DESDA::getStationarityTestValue() {
     stationarityTestsValues.push_back(test->getTestsValue());
   }
   // Max
-  //return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
+  return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
   // Euclidean
   double sum = 0;
   for(auto test_value : stationarityTestsValues){

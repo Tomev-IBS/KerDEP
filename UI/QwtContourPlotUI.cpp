@@ -126,7 +126,7 @@ void QwtContourPlotUI::updateRightColumnText()
   rightColumnText += "supa = " + formatNumberForDisplay(*actual_sup_) + "\n";
   rightColumnText += "\n";
   rightColumnText += "mod  = " + formatNumberForDisplay(*_modError) + "\n";
-  rightColumnText += "moda  = " + formatNumberForDisplay(*actual_mod_) + "\n";
+  rightColumnText += "moda = " + formatNumberForDisplay(*actual_mod_) + "\n";
 
   _rightColumnText.setText(rightColumnText);
   _rightColumnLabel.setText(_rightColumnText);
