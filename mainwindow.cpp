@@ -1165,11 +1165,11 @@ void MainWindow::on_pushButton_clicked() {
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", max KPSS, v=tor dla 2D, m*=1k, m0=4k, mMin=400, sz003";
+      + ", max KPSS, v=tor dla 2D, me=1k, m0=4k, mMin=400, sz003";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
