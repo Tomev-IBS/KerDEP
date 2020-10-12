@@ -133,9 +133,10 @@ add_executable(KerDEP
                 mainwindow.ui
                 Benchmarking/errorsCalculator.cpp
                 Benchmarking/errorsCalculator.h
-)
+        ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.cpp ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.h ClusterKernelWrappers/varianceBasedClusterKernel.cpp ClusterKernelWrappers/varianceBasedClusterKernel.h)
 
 include_directories(${QWT_INCLUDE_DIR})
+include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
 
 target_link_libraries(KerDEP PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets

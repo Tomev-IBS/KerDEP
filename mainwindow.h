@@ -148,6 +148,8 @@ class MainWindow : public QMainWindow {
     static int CanAnimationBePerformed(int dimensionsNumber);
     static QString FormatNumberForDisplay(double number);
     void on_pushButton_start_clicked();
+    void Run1DExperimentWithDESDA();
+    void Run1DExperimentWithClusterKernels();
     void on_spinBox_dimensionsNumber_editingFinished();
     void on_pushButton_addTargetFunction_clicked();
     void on_pushButton_removeTargetFunction_clicked();

@@ -678,6 +678,296 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
+  Run1DExperimentWithDESDA();
+}
+
+void MainWindow::on_pushButton_clicked() {
+  log("2D Experiment start.");
+
+  screen_generation_frequency_ = 1;
+  int seed = ui->lineEdit_seed->text().toInt();
+  int m0 = ui->lineEdit_sampleSize->text().toInt();
+
+  // Prepare image location.
+  QString expNum = "1369 (2D)";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc =
+      "iw=" + QString::number(screen_generation_frequency_)
+      + ", euclidean KPSS, v=tor dla 2D, me=1k, m0=4k, mMin=400, sz261";
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  // Contour levels calculation.
+  QList<double> contourLevels;
+  double level = 0.05;
+  while(level < 0.21){
+    contourLevels += level;
+    level += 0.05;
+  }
+
+  // Add clusters_ to the estimator
+  means_ = {std::make_shared<std::vector<double >>()};
+  means_.back()->push_back(0);
+  means_.back()->push_back(0);
+
+  standard_deviations_ = {std::make_shared<std::vector<double >>()};
+  standard_deviations_.back()->push_back(1);
+  standard_deviations_.back()->push_back(1);
+
+  auto densityFunction =
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+
+  // Create estimator object
+  std::shared_ptr<kernelDensityEstimator>
+      estimator(GenerateKernelDensityEstimator(2));
+
+  estimator->_shouldConsiderWeights = true;
+
+  std::vector<double> pt = {0, 0};
+
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), -10.0), QPen(QColor(0, 255, 0)));
+
+  // After adding plots set contours and stuff.
+  contour_plot_->setContours(contourLevels);
+  contour_plot_->showContour(true);
+  contour_plot_->setAlpha(0);
+
+  // Set limit on axes.
+  contour_plot_->setAxesLimit(5);
+
+  std::shared_ptr < distribution >
+  targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+
+  std::vector<double> meansForDistribution = {0.0, 0.0};
+  std::vector<double> stDevsForDistribution = {1.0, 1.0};
+
+  parser_.reset(new distributionDataParser(&attributes_data_));
+
+  reader_.reset(
+      new progressiveDistributionDataReader(targetDistribution.get(), 0,
+                                            0,  /* Delay */
+                                            new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
+                                                                   55))
+               );
+
+  reader_->gatherAttributesData(&attributes_data_);
+  parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  reservoirSamplingAlgorithm *samplingAlgorithm =
+      GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
+
+  objects_.clear();
+  clusters_ = &stored_medoids_;
+  clusters_->clear();
+
+  int pluginRank = 3;
+  double newWeightB = 0.5;
+  groupingThread gt(&stored_medoids_, parser_);
+
+  derivative_estimator_.reset(GenerateKernelDensityEstimator(2));
+  enhanced_kde_.reset(GenerateKernelDensityEstimator(2));
+
+  DESDA DESDAAlgorithm(
+      estimator,
+      derivative_estimator_,
+      enhanced_kde_,
+      ui->lineEdit_weightModifier->text().toDouble(),
+      samplingAlgorithm,
+      clusters_,
+      &stored_medoids_,
+      ui->lineEdit_rarity->text().toDouble(),
+      &gt, newWeightB, pluginRank
+                      );
+
+  // Start the test
+  step_number_ = 0;
+
+  time_t startTime, endTime;
+
+  l1_n_ = 0;
+  l2_n_ = 0;
+  sup_n_ = 0;
+  mod_n_ = 0;
+  double actual_l1 = 0;
+  double actual_l2 = 0;
+  double actual_sup = 0;
+  double actual_mod = 0;
+
+  int errorCalculationsNumber = 0;
+  double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
+  QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
+                          &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
+                          &actual_l1, &actual_l2, &actual_sup, &actual_mod);
+  plotUi.attach(contour_plot_);
+  plotUi.updateTexts();
+  //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+  QVector<int> initialDrawingSteps = {};
+
+  std::vector<double> model_function_values = {};
+  std::vector<double> estimator_values = {};
+  double domain_area = 0;
+  std::vector<std::vector<double>> error_domain = {};
+
+  ErrorsCalculator errors_calculator(
+    &model_function_values, &estimator_values, &error_domain, &domain_area
+  );
+
+  log("Experiment started.");
+  for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
+
+    log("New step.");
+    startTime = time(nullptr);
+
+    log("Performing new step.");
+    DESDAAlgorithm.performStep();
+    log("Step performed.");
+
+    // Drawing
+    if(step_number_ % screen_generation_frequency_ == 0 ||
+       initialDrawingSteps.contains(step_number_)) {
+
+      log("Drawing started.");
+
+      log("Estimator preparation.");
+      DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+      log("Estimator preparation finished.");
+      // Error calculation
+
+      if(step_number_ >= 0) {
+        log("Error calculation started.");
+        ++errorCalculationsNumber;
+        error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
+        domain_area = Calculate2DDomainArea(error_domain);
+        model_function_values =
+            GetFunctionsValueOnDomain(densityFunction, error_domain);
+        estimator_values =
+            GetFunctionsValueOnDomain(estimator.get(), error_domain);
+
+        actual_l1 = errors_calculator.CalculateL1Error();
+        actual_l2 = errors_calculator.CalculateL2Error();
+        actual_sup = errors_calculator.CalculateSupError();
+        actual_mod = errors_calculator.CalculateModError();
+        sum_l1 += actual_l1;
+        sum_l2 += actual_l2;
+        sum_sup += actual_sup;
+        sum_mod = actual_mod;
+
+        l1_n_ = sum_l1 / errorCalculationsNumber;
+        l2_n_ = sum_l2 / errorCalculationsNumber;
+        sup_n_ = sum_sup / errorCalculationsNumber;
+        mod_n_ = sum_mod / errorCalculationsNumber;
+        log("Error calculation finished.");
+      }
+
+      densityFunction->setMeans(*means_.back().get());
+
+      log("Texts updates.");
+      plotUi.updateTexts();
+
+      log("Replotting.");
+      contour_plot_->replot();
+
+      log("Restoring weights.");
+      DESDAAlgorithm.restoreClustersCWeights();
+
+      endTime = time(nullptr);
+
+      log("Processing.");
+
+      QCoreApplication::processEvents();
+
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
+      log("Image name: " + imageName);
+      log("Saved: " + QString(ui->widget_contour_plot_holder->grab().save(imageName)));
+      log("Drawing finished.");
+    }
+
+    if(step_number_ == 10) {
+      initialDrawingSteps.clear();  // To reduce comparisons for drawing.
+    }
+
+    endTime = time(nullptr);
+
+    log("Step time: " + QString::number(endTime - startTime) + " s");
+  }
+
+  log("Done!");
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event) {
+  int offset = 10; // Offset in px, so that scale is in
+  QMainWindow::resizeEvent(event);
+  int newSize = std::min(ui->widget_contour_plot->height(),
+                         ui->widget_contour_plot->width()) - offset;
+  //ui->widget->resize(newSize, newSize);
+  contour_plot_->resize(2 * newSize, newSize);
+}
+
+double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> &domain) {
+  // Given how 2D domain is calculated, it's easy to see, that only first and
+  // last point of the domain are of interest (last holding max values, and
+  // first holding minima).
+  auto xLen = domain[domain.size() - 1][0] - domain[0][0];
+  auto yLen = domain[domain.size() - 1][1] - domain[0][1];
+
+  return xLen * yLen;
+}
+
+std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain) {
+  std::vector<double> values = {};
+
+  for(auto pt : domain) {
+    values.push_back(func->getValue(&pt));
+  }
+
+  return values;
+}
+
+std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
+  std::vector<point> domainValues = {};
+  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
+  auto yDomainValues = DESDAAlgorithm->getErrorDomain(1);
+
+  for(auto x : xDomainValues) {
+    for(auto y : yDomainValues) {
+      domainValues.push_back({x, y});
+    }
+  }
+
+  return domainValues;
+}
+
+std::vector<std::vector<double>> MainWindow::Generate1DPlotErrorDomain(
+    DESDA *DESDAAlgorithm) {
+  std::vector<point> domainValues = {};
+  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
+
+  for(auto x : xDomainValues) {
+    domainValues.push_back({x});
+  }
+
+  return domainValues;
+}
+
+std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
+    DESDA *DESDAAlgorithm) {
+  std::vector<point> domainValues = {};
+  auto xDomainValues = DESDAAlgorithm->getWindowedErrorDomain();
+
+  for(auto x : xDomainValues) {
+    domainValues.push_back({x});
+  }
+
+  return domainValues;
+}
+
+void MainWindow::Run1DExperimentWithDESDA() {
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
   if(!CanAnimationBePerformed(dimensionsNumber)) return;
@@ -965,20 +1255,20 @@ void MainWindow::on_pushButton_start_clicked() {
   std::vector<double> rare_elements_kde_values = {};
 
   ErrorsCalculator windowed_errors_calculator(
-    &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
-  );
+      &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
+                                             );
   ErrorsCalculator less_elements_kde_errors_calculator(
-    &model_values, &less_elements_kde_values, &error_domain, &error_domain_length
-  );
+      &model_values, &less_elements_kde_values, &error_domain, &error_domain_length
+                                                      );
   ErrorsCalculator weighted_kde_errors_calculator(
-    &model_values, &weighted_kde_values, &error_domain, &error_domain_length
-  );
+      &model_values, &weighted_kde_values, &error_domain, &error_domain_length
+                                                 );
   ErrorsCalculator enhanced_kde_errors_calculator(
-    &model_values, &enhanced_kde_values, &error_domain, &error_domain_length
-  );
+      &model_values, &enhanced_kde_values, &error_domain, &error_domain_length
+                                                 );
   ErrorsCalculator rare_elements_kde_errors_calculator(
-    &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
-  );
+      &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
+                                                      );
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
@@ -1153,289 +1443,387 @@ void MainWindow::on_pushButton_start_clicked() {
   log("Animation finished.");
 }
 
-void MainWindow::on_pushButton_clicked() {
-  log("2D Experiment start.");
+void MainWindow::Run1DExperimentWithClusterKernels() {
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
-  screen_generation_frequency_ = 1;
-  int seed = ui->lineEdit_seed->text().toInt();
-  int m0 = ui->lineEdit_sampleSize->text().toInt();
+  if(!CanAnimationBePerformed(dimensionsNumber)) return;
 
-  // Prepare image location.
-  QString expNum = "1369 (2D)";
-  this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc =
-      "iw=" + QString::number(screen_generation_frequency_)
-      + ", euclidean KPSS, v=tor dla 2D, me=1k, m0=4k, mMin=400, sz261";
-  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                    + expDesc + ")\\";
-  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+  QString seedString = ui->lineEdit_seed->text();
 
-  // Contour levels calculation.
-  QList<double> contourLevels;
-  double level = 0.05;
-  while(level < 0.21){
-    contourLevels += level;
-    level += 0.05;
-  }
+  // Log that application started generating KDE
+  // Standard seed was 5625.
+  log("KDE animation with Cluster Kernels started.");
+  log("Seed: " + seedString);
+  log("Sample size: " + ui->lineEdit_sampleSize->text());
 
-  // Add clusters_ to the estimator
-  means_ = {std::make_shared<std::vector<double >>()};
-  means_.back()->push_back(0);
-  means_.back()->push_back(0);
+  step_number_ = 0;
 
-  standard_deviations_ = {std::make_shared<std::vector<double >>()};
-  standard_deviations_.back()->push_back(1);
-  standard_deviations_.back()->push_back(1);
+  srand(static_cast<unsigned int>(seedString.toInt()));
 
-  auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  // Creating target function.
+  FillMeans(&means_);
+  FillStandardDeviations(&standard_deviations_);
+  target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-  // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
-      estimator(GenerateKernelDensityEstimator(2));
+      estimator(GenerateKernelDensityEstimator(dimensionsNumber));
 
-  estimator->_shouldConsiderWeights = true;
+  estimator->_shouldConsiderWeights = false;
 
-  std::vector<double> pt = {0, 0};
+  derivative_estimator_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
+  enhanced_kde_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
 
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), -10.0), QPen(QColor(0, 255, 0)));
-
-  // After adding plots set contours and stuff.
-  contour_plot_->setContours(contourLevels);
-  contour_plot_->showContour(true);
-  contour_plot_->setAlpha(0);
-
-  // Set limit on axes.
-  contour_plot_->setAxesLimit(5);
-
-  std::shared_ptr < distribution >
-  targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
-
-  std::vector<double> meansForDistribution = {0.0, 0.0};
-  std::vector<double> stDevsForDistribution = {1.0, 1.0};
+  std::shared_ptr<distribution>
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
+  qreal progressionSize =
+      ui->lineEdit_distributionProgression->text().toDouble();
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   reader_.reset(
-      new progressiveDistributionDataReader(targetDistribution.get(), 0,
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            progressionSize,
                                             0,  /* Delay */
-                                            new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
-                                                                   55))
+                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
+                                                                   &alternativeDistributionStDevs, 55))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
 
-  reservoirSamplingAlgorithm *samplingAlgorithm =
-      GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
-
   objects_.clear();
-  clusters_ = &stored_medoids_;
-  clusters_->clear();
 
-  int pluginRank = 3;
-  double newWeightB = 0.5;
-  groupingThread gt(&stored_medoids_, parser_);
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-  derivative_estimator_.reset(GenerateKernelDensityEstimator(2));
-  enhanced_kde_.reset(GenerateKernelDensityEstimator(2));
+  log("Attributes data set.");
 
-  DESDA DESDAAlgorithm(
-      estimator,
-      derivative_estimator_,
-      enhanced_kde_,
-      ui->lineEdit_weightModifier->text().toDouble(),
-      samplingAlgorithm,
-      clusters_,
-      &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(),
-      &gt, newWeightB, pluginRank
-                      );
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  // Start the test
-  step_number_ = 0;
+  QString expNum = "1281";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc = "Experiment description";
+  screen_generation_frequency_ = 10;
 
-  time_t startTime, endTime;
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "D:\\Test\\"; // Home
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
 
-  l1_n_ = 0;
-  l2_n_ = 0;
-  sup_n_ = 0;
-  mod_n_ = 0;
-  double actual_l1 = 0;
-  double actual_l2 = 0;
-  double actual_sup = 0;
-  double actual_mod = 0;
+  ClearPlot();
+  ResizePlot();
 
-  int errorCalculationsNumber = 0;
-  double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
-  QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
-                          &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
-                          &actual_l1, &actual_l2, &actual_sup, &actual_mod);
-  plotUi.attach(contour_plot_);
-  plotUi.updateTexts();
-  //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
-  QVector<int> initialDrawingSteps = {};
+  // Initial screen should only contain exp number (as requested).
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
+  expNumLabel.setFont(QFont("Courier New", 250));
 
-  std::vector<double> model_function_values = {};
-  std::vector<double> estimator_values = {};
-  double domain_area = 0;
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  expNumLabel.setText("");
+
+  QVector<std::shared_ptr<plotLabel>> plotLabels = {};
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+
+  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "iw    = "
+                                                                                     + QString::number(
+                                                                                         screen_generation_frequency_)));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
+                                                   "m0    = " + ui->lineEdit_sampleSize->text()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "m     = ", &(DESDAAlgorithm._m),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+
+  //====================  SECOND COLUMN =================//
+
+  horizontalOffset = 0.20;
+  verticalOffset = 0.01 + 9 * verticalStep;
+
+  //==================== ERRORS SUM =================//
+
+  horizontalOffset = 0.87;
+  verticalOffset = 0.01;
+
+  plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L1MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L1DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L1PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L1NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel L2WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L2MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L2DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L2PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel L2NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel supWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel supMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel supDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel supPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel supNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_w = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = 0");
+  verticalOffset += verticalStep;
+
+  plotLabel modNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
+  verticalOffset += verticalStep;
+
+  FillDomain(&domain_, nullptr);
+  for(const auto& pt : domain_) drawable_domain_.push_back(pt->at(0));
+
+  ui->widget_plot->replot();
+  QCoreApplication::processEvents();
+
+  int numberOfErrorCalculations = 1;
+  QVector<int> additionalScreensSteps = {};
+
+  /*
+  for(int i = 990; i < 1011; ++i){
+      additionalScreensSteps.append(i);
+  }
+  */
+
+  double error_domain_length = 0;
+  double windowed_error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
+  std::vector<std::vector<double>> windowed_error_domain = {};
 
-  ErrorsCalculator errors_calculator(
-    &model_function_values, &estimator_values, &error_domain, &domain_area
-  );
+  std::vector<double> windowed_model_values = {};
+  std::vector<double> windowed_kde_values = {};
 
-  log("Experiment started.");
-  for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
+  std::vector<double> model_values = {};
+  std::vector<double> less_elements_kde_values = {};
+  std::vector<double> weighted_kde_values = {};
+  std::vector<double> enhanced_kde_values = {};
+  std::vector<double> rare_elements_kde_values = {};
 
-    log("New step.");
-    startTime = time(nullptr);
+  ErrorsCalculator windowed_errors_calculator(
+      &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
+                                             );
+  ErrorsCalculator less_elements_kde_errors_calculator(
+      &model_values, &less_elements_kde_values, &error_domain, &error_domain_length
+                                                      );
+  ErrorsCalculator weighted_kde_errors_calculator(
+      &model_values, &weighted_kde_values, &error_domain, &error_domain_length
+                                                 );
+  ErrorsCalculator enhanced_kde_errors_calculator(
+      &model_values, &enhanced_kde_values, &error_domain, &error_domain_length
+                                                 );
+  ErrorsCalculator rare_elements_kde_errors_calculator(
+      &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
+                                                      );
 
-    log("Performing new step.");
+  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+    clock_t executionStartTime = clock();
+
     DESDAAlgorithm.performStep();
-    log("Step performed.");
 
-    // Drawing
-    if(step_number_ % screen_generation_frequency_ == 0 ||
-       initialDrawingSteps.contains(step_number_)) {
+    target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-      log("Drawing started.");
+    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
+       || additionalScreensSteps.contains(step_number_)) {
+      log("Drawing in step number " + QString::number(step_number_) + ".");
 
-      log("Estimator preparation.");
-      DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
-      log("Estimator preparation finished.");
-      // Error calculation
+      // Error calculations
+      if(step_number_ >= 1) {
 
-      if(step_number_ >= 0) {
-        log("Error calculation started.");
-        ++errorCalculationsNumber;
-        error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
-        domain_area = Calculate2DDomainArea(error_domain);
-        model_function_values =
-            GetFunctionsValueOnDomain(densityFunction, error_domain);
-        estimator_values =
-            GetFunctionsValueOnDomain(estimator.get(), error_domain);
+        log("Getting windowed domain.");
+        //windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
+        windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
+        log("Getting non-windowed domain.");
+        //error_domain_ = DESDAAlgorithm.getErrorDomain();
+        error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
 
-        actual_l1 = errors_calculator.CalculateL1Error();
-        actual_l2 = errors_calculator.CalculateL2Error();
-        actual_sup = errors_calculator.CalculateSupError();
-        actual_mod = errors_calculator.CalculateModError();
-        sum_l1 += actual_l1;
-        sum_l2 += actual_l2;
-        sum_sup += actual_sup;
-        sum_mod = actual_mod;
+        log("Getting model plot on windowed.");
+        windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
+        log("Getting KDE plot on windowed.");
+        windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
 
-        l1_n_ = sum_l1 / errorCalculationsNumber;
-        l2_n_ = sum_l2 / errorCalculationsNumber;
-        sup_n_ = sum_sup / errorCalculationsNumber;
-        mod_n_ = sum_mod / errorCalculationsNumber;
-        log("Error calculation finished.");
+        log("Getting model plot.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+        log("Getting KDE plot on lesser elements.");
+        //less_elements_estimator_error_y_ = DESDAAlgorithm.getKDEValues(&error_domain_);
+        less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
+        log("Getting weighted KDE plot.");
+        //weighted_estimator_error_y_ = DESDAAlgorithm.getWeightedKDEValues(&error_domain_);
+        weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
+        log("Getting sgm KDE plot.");
+        //sigmoidally_enhanced_error_plot_y_ = DESDAAlgorithm.getEnhancedKDEValues(&error_domain_);
+        enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
+        log("Getting rare KDE plot.");
+        //rare_elements_enhanced_error_plot_Y = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
+        rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
+
+        error_domain_length =
+            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+        windowed_error_domain_length =
+            windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
+
+        l1_w_ += windowed_errors_calculator.CalculateL1Error();
+        l2_w_ += windowed_errors_calculator.CalculateL2Error();
+        sup_w_ += windowed_errors_calculator.CalculateSupError();
+        mod_w_ += windowed_errors_calculator.CalculateModError();
+
+        l1_m_ += less_elements_kde_errors_calculator.CalculateL1Error();
+        l2_m_ += less_elements_kde_errors_calculator.CalculateL2Error();
+        sup_m_ += less_elements_kde_errors_calculator.CalculateSupError();
+        mod_m_ += less_elements_kde_errors_calculator.CalculateModError();
+
+        l1_d_ += weighted_kde_errors_calculator.CalculateL1Error();
+        l2_d_ += weighted_kde_errors_calculator.CalculateL2Error();
+        sup_d_ += weighted_kde_errors_calculator.CalculateSupError();
+        mod_d_ += weighted_kde_errors_calculator.CalculateModError();
+
+        l1_p_ += enhanced_kde_errors_calculator.CalculateL1Error();
+        l2_p_ += enhanced_kde_errors_calculator.CalculateL2Error();
+        sup_p_ += enhanced_kde_errors_calculator.CalculateSupError();
+        mod_p_ += enhanced_kde_errors_calculator.CalculateModError();
+
+        l1_n_ += rare_elements_kde_errors_calculator.CalculateL1Error();
+        l2_n_ += rare_elements_kde_errors_calculator.CalculateL2Error();
+        sup_n_ += rare_elements_kde_errors_calculator.CalculateSupError();
+        mod_n_ += rare_elements_kde_errors_calculator.CalculateModError();
+
+        ++numberOfErrorCalculations;
       }
 
-      densityFunction->setMeans(*means_.back().get());
+      // ============ SUMS =========== //
 
-      log("Texts updates.");
-      plotUi.updateTexts();
+      L1WTextLabel
+          .setText("L1_w  =" + FormatNumberForDisplay(
+              l1_w_ / numberOfErrorCalculations));
+      L1MTextLabel
+          .setText("L1_m  =" + FormatNumberForDisplay(
+              l1_m_ / numberOfErrorCalculations));
+      L1DTextLabel
+          .setText("L1_d  =" + FormatNumberForDisplay(
+              l1_d_ / numberOfErrorCalculations));
+      L1PTextLabel
+          .setText("L1_p  =" + FormatNumberForDisplay(
+              l1_p_ / numberOfErrorCalculations));
+      L1NTextLabel
+          .setText("L1_n  =" + FormatNumberForDisplay(
+              l1_n_ / numberOfErrorCalculations));
+      L2WTextLabel
+          .setText("L2_w  =" + FormatNumberForDisplay(
+              l2_w_ / numberOfErrorCalculations));
+      L2MTextLabel
+          .setText("L2_m  =" + FormatNumberForDisplay(
+              l2_m_ / numberOfErrorCalculations));
+      L2DTextLabel
+          .setText("L2_d  =" + FormatNumberForDisplay(
+              l2_d_ / numberOfErrorCalculations));
+      L2PTextLabel
+          .setText("L2_p  =" + FormatNumberForDisplay(
+              l2_p_ / numberOfErrorCalculations));
+      L2NTextLabel
+          .setText("L2_n  =" + FormatNumberForDisplay(
+              l2_n_ / numberOfErrorCalculations));
+      supWTextLabel
+          .setText("sup_w =" + FormatNumberForDisplay(
+              sup_w_ / numberOfErrorCalculations));
+      supMTextLabel
+          .setText("sup_m =" + FormatNumberForDisplay(
+              sup_m_ / numberOfErrorCalculations));
+      supDTextLabel
+          .setText("sup_d =" + FormatNumberForDisplay(
+              sup_d_ / numberOfErrorCalculations));
+      supPTextLabel
+          .setText("sup_p =" + FormatNumberForDisplay(
+              sup_p_ / numberOfErrorCalculations));
+      supNTextLabel
+          .setText("sup_n =" + FormatNumberForDisplay(
+              sup_n_ / numberOfErrorCalculations));
+      modWTextLabel
+          .setText("mod_w =" + FormatNumberForDisplay(
+              mod_w_ / numberOfErrorCalculations));
+      modMTextLabel
+          .setText("mod_m =" + FormatNumberForDisplay(
+              mod_m_ / numberOfErrorCalculations));
+      modDTextLabel
+          .setText("mod_d =" + FormatNumberForDisplay(
+              mod_d_ / numberOfErrorCalculations));
+      modPTextLabel
+          .setText("mod_p =" + FormatNumberForDisplay(
+              mod_p_ / numberOfErrorCalculations));
+      modNTextLabel
+          .setText("mod_n =" + FormatNumberForDisplay(
+              mod_n_ / numberOfErrorCalculations));
 
-      log("Replotting.");
-      contour_plot_->replot();
 
-      log("Restoring weights.");
-      DESDAAlgorithm.restoreClustersCWeights();
+      DrawPlots(&DESDAAlgorithm);
 
-      endTime = time(nullptr);
+      for(const auto &label : plotLabels) label->updateText();
 
-      log("Processing.");
-
+      ui->widget_plot->replot();
       QCoreApplication::processEvents();
 
-      QString imageName = dirPath + QString::number(step_number_) + ".png";
-      log("Image name: " + imageName);
-      log("Saved: " + QString(ui->widget_contour_plot_holder->grab().save(imageName)));
-      log("Drawing finished.");
-    }
+      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-    if(step_number_ == 10) {
-      initialDrawingSteps.clear();  // To reduce comparisons for drawing.
-    }
-
-    endTime = time(nullptr);
-
-    log("Step time: " + QString::number(endTime - startTime) + " s");
-  }
-
-  log("Done!");
-}
-
-void MainWindow::resizeEvent(QResizeEvent *event) {
-  int offset = 10; // Offset in px, so that scale is in
-  QMainWindow::resizeEvent(event);
-  int newSize = std::min(ui->widget_contour_plot->height(),
-                         ui->widget_contour_plot->width()) - offset;
-  //ui->widget->resize(newSize, newSize);
-  contour_plot_->resize(2 * newSize, newSize);
-}
-
-double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> &domain) {
-  // Given how 2D domain is calculated, it's easy to see, that only first and
-  // last point of the domain are of interest (last holding max values, and
-  // first holding minima).
-  auto xLen = domain[domain.size() - 1][0] - domain[0][0];
-  auto yLen = domain[domain.size() - 1][1] - domain[0][1];
-
-  return xLen * yLen;
-}
-
-std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain) {
-  std::vector<double> values = {};
-
-  for(auto pt : domain) {
-    values.push_back(func->getValue(&pt));
-  }
-
-  return values;
-}
-
-std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
-  std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
-  auto yDomainValues = DESDAAlgorithm->getErrorDomain(1);
-
-  for(auto x : xDomainValues) {
-    for(auto y : yDomainValues) {
-      domainValues.push_back({x, y});
+      imageName = dirPath + QString::number(step_number_) + ".png";
+      log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
 
-  return domainValues;
-}
-
-std::vector<std::vector<double>> MainWindow::Generate1DPlotErrorDomain(
-    DESDA *DESDAAlgorithm) {
-  std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
-
-  for(auto x : xDomainValues) {
-    domainValues.push_back({x});
-  }
-
-  return domainValues;
-}
-
-std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
-    DESDA *DESDAAlgorithm) {
-  std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getWindowedErrorDomain();
-
-  for(auto x : xDomainValues) {
-    domainValues.push_back({x});
-  }
-
-  return domainValues;
+  log("Animation finished.");
 }
 
