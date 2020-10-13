@@ -1635,7 +1635,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
     Point stream_value = {};
     log("Getting value from reader!");
     reader_->getNextRawDatum(&stream_value);
-    qDebug() << stream_value;
     log("Datum got.");
     UnivariateStreamElement element(stream_value);
     log("Stream element created.");
