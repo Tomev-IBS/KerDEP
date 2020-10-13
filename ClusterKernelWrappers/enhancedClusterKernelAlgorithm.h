@@ -13,8 +13,8 @@ class EnhancedClusterKernelAlgorithm : public ClusterKernelsAlgorithm{
                                    ClusterKernel*(*cluster_kernel_factory_method)(ClusterKernelStreamElement *stream_element));
     std::vector<Point> GetErrorDomain(const int &dimension=0);
     Point GetKDEValuesOnDomain(std::vector<Point> domain);
-    unsigned int FindMinimalValueOnDimension(const int &dimension);
-    unsigned int FindMaximalValueOnDimension(const int &dimension);
+    double FindMinimalValueOnDimension(const int &dimension);
+    double FindMaximalValueOnDimension(const int &dimension);
 };
 
 #endif //KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H

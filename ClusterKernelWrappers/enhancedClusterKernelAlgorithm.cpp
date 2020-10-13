@@ -22,7 +22,7 @@ std::vector<Point> EnhancedClusterKernelAlgorithm::GetErrorDomain(const int &dim
   return domain;
 }
 
-unsigned int EnhancedClusterKernelAlgorithm::FindMinimalValueOnDimension(const int &dimension) {
+double EnhancedClusterKernelAlgorithm::FindMinimalValueOnDimension(const int &dimension) {
   if(cluster_kernels_.size() == 0){
     return 0;
   }
@@ -38,7 +38,7 @@ unsigned int EnhancedClusterKernelAlgorithm::FindMinimalValueOnDimension(const i
   return minimal_value_on_dimension;
 }
 
-unsigned int EnhancedClusterKernelAlgorithm::FindMaximalValueOnDimension(const int &dimension) {
+double EnhancedClusterKernelAlgorithm::FindMaximalValueOnDimension(const int &dimension) {
   if(cluster_kernels_.size() == 0){
     return 0;
   }
@@ -59,7 +59,8 @@ Point EnhancedClusterKernelAlgorithm::GetKDEValuesOnDomain(std::vector<Point> do
 
   for(Point pt : domain){
     // Note that KDE returned values should be one dimensional
-    kde_values_on_domain.push_back(GetValue(pt)[0]);
+    double value_on_point = GetValue(pt)[0];
+    kde_values_on_domain.push_back(value_on_point);
   }
 
   return kde_values_on_domain;

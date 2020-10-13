@@ -26,7 +26,8 @@
 #include "UI/QwtContourPlotUI.h"
 
 ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element){
-  return new VarianceBasedClusterKernel(stream_element);
+  auto newClusterKernel = new VarianceBasedClusterKernel(stream_element);
+  return newClusterKernel;
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -1624,17 +1625,24 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
     &model_values, &kde_values, &error_domain, &error_domain_length
   );
 
+  log("Crating CK Algorithm!");
   auto CKAlgorithm = EnhancedClusterKernelAlgorithm(number_of_cluster_kernels,
                                                     CreateNewVarianceBasedClusterKernel);
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
-    Point stream_value;
+    Point stream_value = {};
+    log("Getting value from reader!");
     reader_->getNextRawDatum(&stream_value);
+    qDebug() << stream_value;
+    log("Datum got.");
     UnivariateStreamElement element(stream_value);
+    log("Stream element created.");
 
+    log("Performing step.");
     CKAlgorithm.PerformStep(&element);
+    log("Step performed.");
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
@@ -1656,16 +1664,19 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
         log("Getting model plot.");
         model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
 
+        log("Calculating domain length.");
 
         error_domain_length =
             error_domain[error_domain.size() - 1][0] - error_domain[0][0];
 
+        log("Calculating errors.");
         l1_w_ += errors_calculator.CalculateL1Error();
         l2_w_ += errors_calculator.CalculateL2Error();
         sup_w_ += errors_calculator.CalculateSupError();
         mod_w_ += errors_calculator.CalculateModError();
 
         ++numberOfErrorCalculations;
+        log("Errors calculated.");
       }
 
       // ============ SUMS =========== //

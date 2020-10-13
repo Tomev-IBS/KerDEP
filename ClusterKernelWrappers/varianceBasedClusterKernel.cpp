@@ -49,7 +49,7 @@ VarianceBasedClusterKernel::VarianceBasedClusterKernel(ClusterKernelStreamElemen
 }
 
 Point VarianceBasedClusterKernel::GetMean() {
-  return VectorScalarMultiplication(elements_sum_, 1.0 / cardinality_);
+  return VectorScalarMultiplication(elements_sum_, 1.0 / double(cardinality_));
 }
 
 void VarianceBasedClusterKernel::Update(ClusterKernelStreamElement *stream_element) {
