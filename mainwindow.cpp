@@ -20,7 +20,14 @@
 #include "Reservoir_sampling/distributiondataparser.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
 
+#include "ClusterKernelWrappers/varianceBasedClusterKernel.h"
+#include "ClusterKernelWrappers/univariateStreamElement.h"
+
 #include "UI/QwtContourPlotUI.h"
+
+ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element){
+  return new VarianceBasedClusterKernel(stream_element);
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -92,9 +99,6 @@ void MainWindow::SetupValidators() {
 }
 
 void MainWindow::SetupPlot() {
-  //ui->widget_plot->xAxis->setLabel("x");
-  //ui->widget_plot->yAxis->setLabel("f(x)");
-
   ui->widget_plot->xAxis->setRange(kDefaultMinX, kDefaultMaxX);
   ui->widget_plot->yAxis->setRange(kDefaultMinY, kDefaultMaxY);
 }
@@ -182,6 +186,32 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
   // Draw plots
   ui->widget_plot->replot();
+}
+
+void MainWindow::DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm) {
+  ClearPlot();
+  ResizePlot();
+
+  std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
+  for(auto value : drawable_domain_){
+    drawable_domain.push_back({value});
+  }
+
+  // Generate plot of model function
+  if(ui->checkBox_showEstimatedPlot->isChecked()) {
+    QVector<qreal> modelDistributionY =
+        QVector<qreal>::fromStdVector(
+            GetFunctionsValueOnDomain(target_function_.get(), drawable_domain)
+                                     );
+    AddPlot(&modelDistributionY, model_plot_pen_);
+  }
+
+  // Generate less elements KDE plot (navy blue)
+  if(ui->checkBox_showEstimationPlot->isChecked()) {
+    auto less_elements_estimator_y = QVector<double>::fromStdVector(
+        CKAlgorithm->GetKDEValuesOnDomain(drawable_domain));
+    AddPlot(&less_elements_estimator_y, kde_plot_pen_);
+  }
 }
 
 void MainWindow::AddPlot(const QVector<qreal> *Y, const QPen &pen) {
@@ -678,7 +708,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
-  Run1DExperimentWithDESDA();
+  //Run1DExperimentWithDESDA();
+  Run1DExperimentWithClusterKernels();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -1465,14 +1496,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   FillStandardDeviations(&standard_deviations_);
   target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-  std::shared_ptr<kernelDensityEstimator>
-      estimator(GenerateKernelDensityEstimator(dimensionsNumber));
-
-  estimator->_shouldConsiderWeights = false;
-
-  derivative_estimator_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
-  enhanced_kde_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
-
   std::shared_ptr<distribution>
       targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   vector<double> alternativeDistributionMean = {0.0};
@@ -1493,15 +1516,13 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
 
-  objects_.clear();
-
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "1281";
+  QString expNum = "CKKDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "Experiment description";
   screen_generation_frequency_ = 10;
@@ -1550,8 +1571,10 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                                    "m0    = " + ui->lineEdit_sampleSize->text()));
   verticalOffset += verticalStep;
 
+  int number_of_cluster_kernels = 100;
+
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "m     = ", &(DESDAAlgorithm._m),
+                                                   horizontalOffset, verticalOffset, "m     = ", &(number_of_cluster_kernels),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
 
   //====================  SECOND COLUMN =================//
@@ -1567,64 +1590,13 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel L1MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L1DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L1PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L1NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
   plotLabel L2WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L2MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L2DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L2PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L2NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = 0");
-  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
   plotLabel supWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
   verticalOffset += verticalStep;
 
-  plotLabel supMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
   plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_w = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
   verticalOffset += verticalStep;
 
   FillDomain(&domain_, nullptr);
@@ -1643,39 +1615,26 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   */
 
   double error_domain_length = 0;
-  double windowed_error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
-  std::vector<std::vector<double>> windowed_error_domain = {};
-
-  std::vector<double> windowed_model_values = {};
-  std::vector<double> windowed_kde_values = {};
 
   std::vector<double> model_values = {};
-  std::vector<double> less_elements_kde_values = {};
-  std::vector<double> weighted_kde_values = {};
-  std::vector<double> enhanced_kde_values = {};
-  std::vector<double> rare_elements_kde_values = {};
+  std::vector<double> kde_values = {};
 
-  ErrorsCalculator windowed_errors_calculator(
-      &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
-                                             );
-  ErrorsCalculator less_elements_kde_errors_calculator(
-      &model_values, &less_elements_kde_values, &error_domain, &error_domain_length
-                                                      );
-  ErrorsCalculator weighted_kde_errors_calculator(
-      &model_values, &weighted_kde_values, &error_domain, &error_domain_length
-                                                 );
-  ErrorsCalculator enhanced_kde_errors_calculator(
-      &model_values, &enhanced_kde_values, &error_domain, &error_domain_length
-                                                 );
-  ErrorsCalculator rare_elements_kde_errors_calculator(
-      &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
-                                                      );
+  ErrorsCalculator errors_calculator(
+    &model_values, &kde_values, &error_domain, &error_domain_length
+  );
+
+  auto CKAlgorithm = EnhancedClusterKernelAlgorithm(number_of_cluster_kernels,
+                                                    CreateNewVarianceBasedClusterKernel);
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
-    DESDAAlgorithm.performStep();
+    Point stream_value;
+    reader_->getNextRawDatum(&stream_value);
+    UnivariateStreamElement element(stream_value);
+
+    CKAlgorithm.PerformStep(&element);
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
@@ -1686,62 +1645,25 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       // Error calculations
       if(step_number_ >= 1) {
 
-        log("Getting windowed domain.");
-        //windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
-        windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
-        log("Getting non-windowed domain.");
-        //error_domain_ = DESDAAlgorithm.getErrorDomain();
-        error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
+        log("Getting error domain.");
+        error_domain = CKAlgorithm.GetErrorDomain();
 
         log("Getting model plot on windowed.");
-        windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
         log("Getting KDE plot on windowed.");
-        windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
+        kde_values = CKAlgorithm.GetKDEValuesOnDomain(error_domain);
 
         log("Getting model plot.");
         model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on lesser elements.");
-        //less_elements_estimator_error_y_ = DESDAAlgorithm.getKDEValues(&error_domain_);
-        less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
-        log("Getting weighted KDE plot.");
-        //weighted_estimator_error_y_ = DESDAAlgorithm.getWeightedKDEValues(&error_domain_);
-        weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
-        log("Getting sgm KDE plot.");
-        //sigmoidally_enhanced_error_plot_y_ = DESDAAlgorithm.getEnhancedKDEValues(&error_domain_);
-        enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
-        log("Getting rare KDE plot.");
-        //rare_elements_enhanced_error_plot_Y = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
-        rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
+
 
         error_domain_length =
             error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-        windowed_error_domain_length =
-            windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
 
-        l1_w_ += windowed_errors_calculator.CalculateL1Error();
-        l2_w_ += windowed_errors_calculator.CalculateL2Error();
-        sup_w_ += windowed_errors_calculator.CalculateSupError();
-        mod_w_ += windowed_errors_calculator.CalculateModError();
-
-        l1_m_ += less_elements_kde_errors_calculator.CalculateL1Error();
-        l2_m_ += less_elements_kde_errors_calculator.CalculateL2Error();
-        sup_m_ += less_elements_kde_errors_calculator.CalculateSupError();
-        mod_m_ += less_elements_kde_errors_calculator.CalculateModError();
-
-        l1_d_ += weighted_kde_errors_calculator.CalculateL1Error();
-        l2_d_ += weighted_kde_errors_calculator.CalculateL2Error();
-        sup_d_ += weighted_kde_errors_calculator.CalculateSupError();
-        mod_d_ += weighted_kde_errors_calculator.CalculateModError();
-
-        l1_p_ += enhanced_kde_errors_calculator.CalculateL1Error();
-        l2_p_ += enhanced_kde_errors_calculator.CalculateL2Error();
-        sup_p_ += enhanced_kde_errors_calculator.CalculateSupError();
-        mod_p_ += enhanced_kde_errors_calculator.CalculateModError();
-
-        l1_n_ += rare_elements_kde_errors_calculator.CalculateL1Error();
-        l2_n_ += rare_elements_kde_errors_calculator.CalculateL2Error();
-        sup_n_ += rare_elements_kde_errors_calculator.CalculateSupError();
-        mod_n_ += rare_elements_kde_errors_calculator.CalculateModError();
+        l1_w_ += errors_calculator.CalculateL1Error();
+        l2_w_ += errors_calculator.CalculateL2Error();
+        sup_w_ += errors_calculator.CalculateSupError();
+        mod_w_ += errors_calculator.CalculateModError();
 
         ++numberOfErrorCalculations;
       }
@@ -1751,66 +1673,17 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       L1WTextLabel
           .setText("L1_w  =" + FormatNumberForDisplay(
               l1_w_ / numberOfErrorCalculations));
-      L1MTextLabel
-          .setText("L1_m  =" + FormatNumberForDisplay(
-              l1_m_ / numberOfErrorCalculations));
-      L1DTextLabel
-          .setText("L1_d  =" + FormatNumberForDisplay(
-              l1_d_ / numberOfErrorCalculations));
-      L1PTextLabel
-          .setText("L1_p  =" + FormatNumberForDisplay(
-              l1_p_ / numberOfErrorCalculations));
-      L1NTextLabel
-          .setText("L1_n  =" + FormatNumberForDisplay(
-              l1_n_ / numberOfErrorCalculations));
       L2WTextLabel
           .setText("L2_w  =" + FormatNumberForDisplay(
               l2_w_ / numberOfErrorCalculations));
-      L2MTextLabel
-          .setText("L2_m  =" + FormatNumberForDisplay(
-              l2_m_ / numberOfErrorCalculations));
-      L2DTextLabel
-          .setText("L2_d  =" + FormatNumberForDisplay(
-              l2_d_ / numberOfErrorCalculations));
-      L2PTextLabel
-          .setText("L2_p  =" + FormatNumberForDisplay(
-              l2_p_ / numberOfErrorCalculations));
-      L2NTextLabel
-          .setText("L2_n  =" + FormatNumberForDisplay(
-              l2_n_ / numberOfErrorCalculations));
       supWTextLabel
           .setText("sup_w =" + FormatNumberForDisplay(
               sup_w_ / numberOfErrorCalculations));
-      supMTextLabel
-          .setText("sup_m =" + FormatNumberForDisplay(
-              sup_m_ / numberOfErrorCalculations));
-      supDTextLabel
-          .setText("sup_d =" + FormatNumberForDisplay(
-              sup_d_ / numberOfErrorCalculations));
-      supPTextLabel
-          .setText("sup_p =" + FormatNumberForDisplay(
-              sup_p_ / numberOfErrorCalculations));
-      supNTextLabel
-          .setText("sup_n =" + FormatNumberForDisplay(
-              sup_n_ / numberOfErrorCalculations));
       modWTextLabel
           .setText("mod_w =" + FormatNumberForDisplay(
               mod_w_ / numberOfErrorCalculations));
-      modMTextLabel
-          .setText("mod_m =" + FormatNumberForDisplay(
-              mod_m_ / numberOfErrorCalculations));
-      modDTextLabel
-          .setText("mod_d =" + FormatNumberForDisplay(
-              mod_d_ / numberOfErrorCalculations));
-      modPTextLabel
-          .setText("mod_p =" + FormatNumberForDisplay(
-              mod_p_ / numberOfErrorCalculations));
-      modNTextLabel
-          .setText("mod_n =" + FormatNumberForDisplay(
-              mod_n_ / numberOfErrorCalculations));
 
-
-      DrawPlots(&DESDAAlgorithm);
+      DrawPlots(&CKAlgorithm);
 
       for(const auto &label : plotLabels) label->updateText();
 
@@ -1826,4 +1699,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   log("Animation finished.");
 }
+
+
 

@@ -1,38 +1,42 @@
 #include "varianceBasedClusterKernel.h"
 
-Point ElementwiseVectorsMultiplication(const Point &first_vector, const Point &second_vector){
-  if(first_vector.size() != second_vector.size()){
-    return {};
-  }
-  Point multiplied_vector = {};
-  for(auto i = 0; i < first_vector.size(); ++i){
-    multiplied_vector.push_back(first_vector[i] * second_vector[i]);
-  }
-  return multiplied_vector;
-}
-
-Point SumVectors(const Point &first_vector, const Point &second_vector){
-  if(first_vector.size() != second_vector.size()){
-    return {};
-  }
-  Point sum = {};
-
-  for(auto i = 0; i < first_vector.size(); ++i){
-    sum.push_back(first_vector[i] + second_vector[i]);
+namespace VarianceBasedClusterKernelUtilities{
+  Point ElementwiseVectorsMultiplication(const Point &first_vector, const Point &second_vector){
+    if(first_vector.size() != second_vector.size()){
+      return {};
+    }
+    Point multiplied_vector = {};
+    for(auto i = 0; i < first_vector.size(); ++i){
+      multiplied_vector.push_back(first_vector[i] * second_vector[i]);
+    }
+    return multiplied_vector;
   }
 
-  return sum;
-}
+  Point SumVectors(const Point &first_vector, const Point &second_vector){
+    if(first_vector.size() != second_vector.size()){
+      return {};
+    }
+    Point sum = {};
 
-Point VectorScalarMultiplication(const Point &vector, const double &scalar){
-  Point multiplied_vector = {};
+    for(auto i = 0; i < first_vector.size(); ++i){
+      sum.push_back(first_vector[i] + second_vector[i]);
+    }
 
-  for(auto value : vector){
-    multiplied_vector.push_back(value * scalar);
+    return sum;
   }
 
-  return multiplied_vector;
-}
+  Point VectorScalarMultiplication(const Point &vector, const double &scalar){
+    Point multiplied_vector = {};
+
+    for(auto value : vector){
+      multiplied_vector.push_back(value * scalar);
+    }
+
+    return multiplied_vector;
+  }
+};
+
+using namespace VarianceBasedClusterKernelUtilities;
 
 VarianceBasedClusterKernel::VarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element, RealValuedFunction *kernel) {
   if(!kernel){
@@ -45,7 +49,7 @@ VarianceBasedClusterKernel::VarianceBasedClusterKernel(ClusterKernelStreamElemen
 }
 
 Point VarianceBasedClusterKernel::GetMean() {
-  VectorScalarMultiplication(elements_sum_, 1.0 / cardinality_);
+  return VectorScalarMultiplication(elements_sum_, 1.0 / cardinality_);
 }
 
 void VarianceBasedClusterKernel::Update(ClusterKernelStreamElement *stream_element) {

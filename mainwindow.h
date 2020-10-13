@@ -17,6 +17,7 @@
 #include "KDE/smoothingParameterCounter.h"
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
+#include "ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h"
 
 #include "DESDA.h"
 
@@ -93,7 +94,7 @@ class MainWindow : public QMainWindow {
     std::vector<std::shared_ptr<cluster>> *clusters_ = nullptr;
     std::unordered_map<std::string, attributeData *> attributes_data_;
     // Tests
-    static void testNewFunctionalities();
+    /*static*/ void testNewFunctionalities();
     void SetupValidators();
     void SetupPlot();
     void SetupKernelsTable();
@@ -115,6 +116,7 @@ class MainWindow : public QMainWindow {
     QStringList kernel_types_;
     std::shared_ptr<function> target_function_;
     void DrawPlots(DESDA *DESDAAlgorithm);
+    void DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm);
     void ClearPlot();
     void AddPlot(const QVector<qreal> *Y, const QPen &pen);
     void ResizePlot();
