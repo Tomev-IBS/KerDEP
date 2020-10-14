@@ -1,9 +1,9 @@
 #ifndef KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H
 #define KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H
 
-#include "ClusterKernelsAlgorithm.h"
+#include "UnivariateListBasedClusterKernelAlgorithm.h"
 
-class EnhancedClusterKernelAlgorithm : public ClusterKernelsAlgorithm{
+class EnhancedClusterKernelAlgorithm : public UnivariateListBasedClusterKernelAlgorithm {
   /*
    * This class provides the same functionality as the original Cluster Kernel algorithm with the only
    * difference being that it has some utilities.
@@ -11,6 +11,7 @@ class EnhancedClusterKernelAlgorithm : public ClusterKernelsAlgorithm{
   public:
     EnhancedClusterKernelAlgorithm(const int &m,
                                    ClusterKernel*(*cluster_kernel_factory_method)(ClusterKernelStreamElement *stream_element));
+    void PerformStep(ClusterKernelStreamElement *stream_element) override;
     std::vector<Point> GetErrorDomain(const int &dimension=0);
     Point GetKDEValuesOnDomain(std::vector<Point> domain);
     double FindMinimalValueOnDimension(const int &dimension);

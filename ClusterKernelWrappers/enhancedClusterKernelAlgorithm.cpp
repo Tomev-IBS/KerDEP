@@ -2,7 +2,7 @@
 
 EnhancedClusterKernelAlgorithm::EnhancedClusterKernelAlgorithm(const int &m,
                                                                ClusterKernel *(*clusterKernelFactoryMethod)(ClusterKernelStreamElement *stream_element))
- : ClusterKernelsAlgorithm(m, clusterKernelFactoryMethod)
+ : UnivariateListBasedClusterKernelAlgorithm(m, clusterKernelFactoryMethod)
 {}
 
 std::vector<Point> EnhancedClusterKernelAlgorithm::GetErrorDomain(const int &dimension) {
@@ -23,7 +23,7 @@ std::vector<Point> EnhancedClusterKernelAlgorithm::GetErrorDomain(const int &dim
 }
 
 double EnhancedClusterKernelAlgorithm::FindMinimalValueOnDimension(const int &dimension) {
-  if(cluster_kernels_.size() == 0){
+  if(cluster_kernels_.empty()){
     return 0;
   }
 
@@ -39,7 +39,7 @@ double EnhancedClusterKernelAlgorithm::FindMinimalValueOnDimension(const int &di
 }
 
 double EnhancedClusterKernelAlgorithm::FindMaximalValueOnDimension(const int &dimension) {
-  if(cluster_kernels_.size() == 0){
+  if(cluster_kernels_.empty()){
     return 0;
   }
 
@@ -57,12 +57,16 @@ double EnhancedClusterKernelAlgorithm::FindMaximalValueOnDimension(const int &di
 Point EnhancedClusterKernelAlgorithm::GetKDEValuesOnDomain(std::vector<Point> domain) {
   Point kde_values_on_domain = {};
 
-  for(Point pt : domain){
+  for(const Point& pt : domain){
     // Note that KDE returned values should be one dimensional
     double value_on_point = GetValue(pt)[0];
     kde_values_on_domain.push_back(value_on_point);
   }
 
   return kde_values_on_domain;
+}
+
+void EnhancedClusterKernelAlgorithm::PerformStep(ClusterKernelStreamElement *stream_element) {
+  ClusterKernelsAlgorithm::PerformStep(stream_element);
 }
 

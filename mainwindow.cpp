@@ -1488,6 +1488,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
+  int number_of_cluster_kernels = 1000;
   step_number_ = 0;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
@@ -1523,9 +1524,9 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "CKKDE_TEST_2";
+  QString expNum = "CKKDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "Cluster Kernels, m = 1000";
+  QString expDesc = "Cluster Kernels, m = " + QString::number(number_of_cluster_kernels) + ", list-based algorithm";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1572,8 +1573,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
                                                    "m0    = " + ui->lineEdit_sampleSize->text()));
   verticalOffset += verticalStep;
-
-  int number_of_cluster_kernels = 1000;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "m     = ", &(number_of_cluster_kernels),

@@ -13,12 +13,14 @@ class VarianceBasedClusterKernel : public ClusterKernel {
     ClusterKernel* Merge(ClusterKernel *other_cluster_kernel) override;
     Point GetValue(const Point &pt) override;
     double GetWeight() override;
+    void RescaleWeight(const double &modifier) override;
     unsigned int GetCardinality() override;
     Point GetElementsSum();
     Point GetElementsSquaredSum();
     void SetBandwidth(const Point &bandwidth) override;
-  private:
+  protected:
     unsigned int cardinality_ = 0;
+    double weight_ = 1.0;
     Point elements_sum_ = {};
     Point elements_squared_sum_ = {};
     RealValuedFunctionPtr kernel_;

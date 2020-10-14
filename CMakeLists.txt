@@ -134,7 +134,8 @@ add_executable(KerDEP
                 Benchmarking/errorsCalculator.cpp
                 Benchmarking/errorsCalculator.h
         ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.cpp ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.h ClusterKernelWrappers/varianceBasedClusterKernel.cpp ClusterKernelWrappers/varianceBasedClusterKernel.h ClusterKernelWrappers/enhancedClusterKernelAlgorithm.cpp ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h ClusterKernelWrappers/univariateStreamElement.cpp ClusterKernelWrappers/univariateStreamElement.h
-        ClusterKernelsKDE/src/ClusterKernelsAlgorithm.cpp)
+        ClusterKernelsKDE/src/ClusterKernelsAlgorithm.cpp
+        ClusterKernelsKDE/src/UnivariateListBasedClusterKernelAlgorithm.cpp ClusterKernelsKDE/src/WeightedUnivariateListBasedClusterKernelAlgorithm.cpp ClusterKernelsKDE/include/ClusterKernelsKDE/WeightedUnivariateListBasedClusterKernelAlgorithm.h)
 
 include_directories(${QWT_INCLUDE_DIR})
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)

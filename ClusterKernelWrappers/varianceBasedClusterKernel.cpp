@@ -63,11 +63,16 @@ void VarianceBasedClusterKernel::Update(ClusterKernelStreamElement *stream_eleme
 
 ClusterKernel *VarianceBasedClusterKernel::Merge(ClusterKernel *other_cluster_kernel) {
   auto other_variance_based_cluster_kernel = dynamic_cast<VarianceBasedClusterKernel*>(other_cluster_kernel);
-  return new VarianceBasedClusterKernel(
-    cardinality_ + other_variance_based_cluster_kernel->GetCardinality(),
-    SumVectors(elements_sum_, other_variance_based_cluster_kernel->GetElementsSum()),
-    SumVectors(elements_squared_sum_, other_variance_based_cluster_kernel->GetElementsSquaredSum())
+  auto merged_cluster = new VarianceBasedClusterKernel(
+      cardinality_ + other_variance_based_cluster_kernel->GetCardinality(),
+      SumVectors(elements_sum_, other_variance_based_cluster_kernel->GetElementsSum()),
+      SumVectors(elements_squared_sum_, other_variance_based_cluster_kernel->GetElementsSquaredSum())
   );
+  auto merged_cluster_weight = weight_ * cardinality_;
+  merged_cluster_weight += other_cluster_kernel->GetWeight() * other_cluster_kernel->GetCardinality();
+  merged_cluster_weight /= merged_cluster->GetCardinality();
+  merged_cluster->RescaleWeight(merged_cluster_weight); // Weight is initialized with 1.
+  return merged_cluster;
 }
 
 Point VarianceBasedClusterKernel::GetValue(const Point &pt) {
@@ -92,7 +97,7 @@ Point VarianceBasedClusterKernel::GetValue(const Point &pt) {
 }
 
 double VarianceBasedClusterKernel::GetWeight() {
-  return GetCardinality(); // This is an unweighted version.
+  return weight_;
 }
 
 unsigned int VarianceBasedClusterKernel::GetCardinality() {
@@ -120,4 +125,8 @@ Point VarianceBasedClusterKernel::GetElementsSquaredSum() {
 
 void VarianceBasedClusterKernel::SetBandwidth(const Point &bandwidth) {
   bandwidth_ = bandwidth;
+}
+
+void VarianceBasedClusterKernel::RescaleWeight(const double &modifier) {
+  weight_ *= modifier;
 }
