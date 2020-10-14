@@ -1523,13 +1523,14 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "CKKDE_TEST_1";
+  QString expNum = "CKKDE_TEST_2";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "Experiment description";
+  QString expDesc = "Cluster Kernels, m = 1000";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1572,7 +1573,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                                    "m0    = " + ui->lineEdit_sampleSize->text()));
   verticalOffset += verticalStep;
 
-  int number_of_cluster_kernels = 100;
+  int number_of_cluster_kernels = 1000;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "m     = ", &(number_of_cluster_kernels),
@@ -1633,13 +1634,10 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
     clock_t executionStartTime = clock();
 
     Point stream_value = {};
-    log("Getting value from reader!");
     reader_->getNextRawDatum(&stream_value);
-    log("Datum got.");
     UnivariateStreamElement element(stream_value);
-    log("Stream element created.");
 
-    log("Performing step.");
+    log("Performing step: " + QString::number(step_number_));
     CKAlgorithm.PerformStep(&element);
     log("Step performed.");
 
