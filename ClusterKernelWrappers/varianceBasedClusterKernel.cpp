@@ -1,4 +1,7 @@
+#include <cmath>
+
 #include "varianceBasedClusterKernel.h"
+
 
 namespace VarianceBasedClusterKernelUtilities{
   Point ElementwiseVectorsMultiplication(const Point &first_vector, const Point &second_vector){
@@ -80,6 +83,33 @@ Point VarianceBasedClusterKernel::GetValue(const Point &pt) {
     return {};
   }
 
+  // There are many resampling methods. Version below is called mean-var-resampling with uniformly distributed values.
+  // It's for univariate data only!
+  auto mean = GetMean()[0];
+  // I need standard deviation.
+  auto standard_deviation = 0;
+  if(cardinality_ > 1) {
+    standard_deviation = sqrt((elements_squared_sum_[0] - pow(elements_sum_[0], 2) / cardinality_) / (cardinality_ - 1));
+  }
+  // Then I can calculate the domain (or perform the resampling).
+  double min_domain_value = mean - 2 * standard_deviation;
+  double max_domain_value = mean + 2 * standard_deviation;
+  std::vector<Point> domain = {};
+  double step_size = (max_domain_value - min_domain_value) / cardinality_;
+  double current_point_value = min_domain_value;
+  while(domain.size() < cardinality_){
+    domain.push_back({(pt[0] - current_point_value) / bandwidth_[0]});
+    current_point_value += step_size;
+  }
+  // Now calculate KDE value from this cluster kernel.
+  double kde_value = 0;
+  for(const auto& point : domain){
+    kde_value += kernel_->GetValue(point)[0];
+  }
+  kde_value /= bandwidth_[0];
+  return {kde_value};
+
+  /*
   // There are many versions of resampling. Here, I'll use the simplest one-value-resampling approach.
   auto point_for_kenrel = SumVectors(pt, VectorScalarMultiplication(GetMean(), -1));
   for(auto i = 0; i < point_for_kenrel.size(); ++i){
@@ -94,6 +124,7 @@ Point VarianceBasedClusterKernel::GetValue(const Point &pt) {
 
   // Multiplying times cardinality instead of sum calculation.
   return {cardinality_ * kernel_returned_value};
+ */
 }
 
 double VarianceBasedClusterKernel::GetWeight() {
