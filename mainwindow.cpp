@@ -1569,11 +1569,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
-                                                   "m0    = " + ui->lineEdit_sampleSize->text()));
-  verticalOffset += verticalStep;
-
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "m     = ", &(number_of_cluster_kernels),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
