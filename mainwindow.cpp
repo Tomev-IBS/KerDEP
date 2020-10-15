@@ -4,7 +4,6 @@
 #include <cfloat>
 #include <QDebug>
 #include <algorithm>
-#include <cmath>
 #include <chrono>
 #include <QDateTime>
 #include <Benchmarking/errorsCalculator.h>
@@ -1524,9 +1523,9 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "CKKDE_TEST_3";
+  QString expNum = "CKKDE_TEST_4";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "Cluster Kernels, m = " + QString::number(number_of_cluster_kernels) + ", list-based algorithm";
+  QString expDesc = "Cluster Kernels, m = " + QString::number(number_of_cluster_kernels) + ", weighted list-based algorithm, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs

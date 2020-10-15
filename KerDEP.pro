@@ -15,8 +15,19 @@ CONFIG      +=  qwt
 
 QMAKE_CXXFLAGS += -std=c++11
 
+INCLUDEPATH += $$PWD/ClusterKernelWrappers/
+INCLUDEPATH += $$PWD/ClusterKernelsKDE/include/ClusterKernelsKDE/
+INCLUDEPATH += $$PWD/ClusterKernelsKDE/src/
+
 SOURCES     +=  main.cpp\
                 Benchmarking/errorsCalculator.cpp \
+                ClusterKernelWrappers/enhancedClusterKernelAlgorithm.cpp \
+                ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.cpp \
+                ClusterKernelWrappers/univariateStreamElement.cpp \
+                ClusterKernelWrappers/varianceBasedClusterKernel.cpp \
+                ClusterKernelsKDE/src/ClusterKernelsAlgorithm.cpp \
+                ClusterKernelsKDE/src/UnivariateListBasedClusterKernelAlgorithm.cpp \
+                ClusterKernelsKDE/src/WeightedUnivariateListBasedClusterKernelAlgorithm.cpp \
                 DESDAReservoir.cpp \
                 UI/QwtContourPlotUI.cpp \
                 UI/plot.cpp \
@@ -62,6 +73,16 @@ SOURCES     +=  main.cpp\
 
 HEADERS     +=  mainwindow.h \
                 Benchmarking/errorsCalculator.h \
+                ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h \
+                ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.h \
+                ClusterKernelWrappers/univariateStreamElement.h \
+                ClusterKernelWrappers/varianceBasedClusterKernel.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernel.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernelStreamElement.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernelsAlgorithm.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/RealValuedFunction.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/UnivariateListBasedClusterKernelAlgorithm.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/WeightedUnivariateListBasedClusterKernelAlgorithm.h \
                 DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
@@ -128,4 +149,6 @@ HEADERS     +=  mainwindow.h \
 
 FORMS       +=  mainwindow.ui
 
-DISTFILES   +=  .gitignore
+DISTFILES   +=  .gitignore \
+  ClusterKernelsKDE/.gitignore \
+  ClusterKernelsKDE/CMakeLists.txt

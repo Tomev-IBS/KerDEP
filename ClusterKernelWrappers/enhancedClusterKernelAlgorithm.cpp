@@ -2,7 +2,7 @@
 
 EnhancedClusterKernelAlgorithm::EnhancedClusterKernelAlgorithm(const int &m,
                                                                ClusterKernel *(*clusterKernelFactoryMethod)(ClusterKernelStreamElement *stream_element))
- : UnivariateListBasedClusterKernelAlgorithm(m, clusterKernelFactoryMethod)
+ : WeightedUnivariateListBasedClusterKernelAlgorithm(m, clusterKernelFactoryMethod)
 {}
 
 std::vector<Point> EnhancedClusterKernelAlgorithm::GetErrorDomain(const int &dimension) {
@@ -65,8 +65,3 @@ Point EnhancedClusterKernelAlgorithm::GetKDEValuesOnDomain(std::vector<Point> do
 
   return kde_values_on_domain;
 }
-
-void EnhancedClusterKernelAlgorithm::PerformStep(ClusterKernelStreamElement *stream_element) {
-  ClusterKernelsAlgorithm::PerformStep(stream_element);
-}
-
