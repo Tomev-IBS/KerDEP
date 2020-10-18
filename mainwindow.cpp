@@ -1487,7 +1487,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
-  int number_of_cluster_kernels = 1000;
+  int number_of_cluster_kernels = 100;
   step_number_ = 0;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
@@ -1523,7 +1523,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "CKKDE_TEST_9";
+  QString expNum = "CKKDE_TEST_10";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "Cluster Kernels, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, alpha=0.01";
   screen_generation_frequency_ = 10;
