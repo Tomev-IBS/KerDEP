@@ -1583,16 +1583,28 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   horizontalOffset = 0.87;
   verticalOffset = 0.01;
 
-  plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
+  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel L2WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel supWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
+  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
+  verticalOffset += verticalStep;
+  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_w = 0");
+  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
+  verticalOffset += verticalStep;
+  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
+  verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
   FillDomain(&domain_, nullptr);
@@ -1637,6 +1649,11 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
+    double l1_sum = 0;
+    double l2_sum = 0;
+    double sup_sum = 0;
+    double mod_sum = 0;
+
     if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
        || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
@@ -1661,10 +1678,14 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
             error_domain[error_domain.size() - 1][0] - error_domain[0][0];
 
         log("Calculating errors.");
-        l1_w_ += errors_calculator.CalculateL1Error();
-        l2_w_ += errors_calculator.CalculateL2Error();
-        sup_w_ += errors_calculator.CalculateSupError();
-        mod_w_ += errors_calculator.CalculateModError();
+        l1_w_ = errors_calculator.CalculateL1Error();
+        l2_w_ = errors_calculator.CalculateL2Error();
+        sup_w_ = errors_calculator.CalculateSupError();
+        mod_w_ = errors_calculator.CalculateModError();
+        l1_sum += l1_w_;
+        l2_sum += l2_w_;
+        sup_sum += sup_w_;
+        mod_sum += mod_w_;
 
         ++numberOfErrorCalculations;
         log("Errors calculated.");
@@ -1672,18 +1693,27 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
       // ============ SUMS =========== //
 
-      L1WTextLabel
-          .setText("L1_w  =" + FormatNumberForDisplay(
-              l1_w_ / numberOfErrorCalculations));
-      L2WTextLabel
-          .setText("L2_w  =" + FormatNumberForDisplay(
-              l2_w_ / numberOfErrorCalculations));
-      supWTextLabel
-          .setText("sup_w =" + FormatNumberForDisplay(
-              sup_w_ / numberOfErrorCalculations));
-      modWTextLabel
-          .setText("mod_w =" + FormatNumberForDisplay(
-              mod_w_ / numberOfErrorCalculations));
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
+      L2TextLabel
+          .setText("L2   =" + FormatNumberForDisplay(
+              l2_sum / numberOfErrorCalculations));
+      supTextLabel
+          .setText("sup  =" + FormatNumberForDisplay(
+              sup_sum / numberOfErrorCalculations));
+      modTextLabel
+          .setText("mod  =" + FormatNumberForDisplay(
+              mod_sum / numberOfErrorCalculations));
+
+      L1aTextLabel
+          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
+      L2aTextLabel
+          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
+      supaTextLabel
+          .setText("supa =" + FormatNumberForDisplay(sup_w_));
+      modaTextLabel
+          .setText("moda =" + FormatNumberForDisplay(mod_w_));
 
       DrawPlots(&CKAlgorithm);
 
