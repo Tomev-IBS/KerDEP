@@ -161,3 +161,7 @@ void VarianceBasedClusterKernel::SetBandwidth(const Point &bandwidth) {
 void VarianceBasedClusterKernel::RescaleWeight(const double &modifier) {
   weight_ *= modifier;
 }
+
+Point VarianceBasedClusterKernel::GetKernelValue(const Point &pt) {
+  return kernel_->GetValue(pt);
+}

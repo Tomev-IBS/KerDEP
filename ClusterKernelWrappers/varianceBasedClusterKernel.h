@@ -18,6 +18,7 @@ class VarianceBasedClusterKernel : public ClusterKernel {
     Point GetElementsSum();
     Point GetElementsSquaredSum();
     void SetBandwidth(const Point &bandwidth) override;
+    Point GetKernelValue(const Point &pt) override;
   protected:
     unsigned int cardinality_ = 0;
     double weight_ = 1.0;
