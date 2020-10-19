@@ -1523,15 +1523,15 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "1381 (CK)";
+  QString expNum = "1382 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1613,7 +1613,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
 
-  int numberOfErrorCalculations = 1;
+  int numberOfErrorCalculations = 0;
   QVector<int> additionalScreensSteps = {};
 
   /*
@@ -1636,6 +1636,11 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   auto CKAlgorithm = EnhancedClusterKernelAlgorithm(number_of_cluster_kernels,
                                                     CreateNewVarianceBasedClusterKernel);
 
+  double l1_sum = 0;
+  double l2_sum = 0;
+  double sup_sum = 0;
+  double mod_sum = 0;
+
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
@@ -1648,11 +1653,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
     log("Step performed.");
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
-
-    double l1_sum = 0;
-    double l2_sum = 0;
-    double sup_sum = 0;
-    double mod_sum = 0;
 
     if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
        || additionalScreensSteps.contains(step_number_)) {
