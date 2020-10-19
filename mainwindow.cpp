@@ -7,6 +7,7 @@
 #include <chrono>
 #include <QDateTime>
 #include <Benchmarking/errorsCalculator.h>
+#include <UI/plotLabelDoubleDataPreparator.h>
 
 #include "UI/plotLabel.h"
 #include "UI/plotLabelIntDataPreparator.h"
@@ -1489,6 +1490,8 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int number_of_cluster_kernels = 100;
   step_number_ = 0;
+  double h = 1;
+  double sigma = 0;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1523,15 +1526,15 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "1382 (CK)";
+  QString expNum = "1384 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, alpha=0.01";
+  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1573,12 +1576,25 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                                    horizontalOffset, verticalOffset, "m     = ", &(number_of_cluster_kernels),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
 
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "h     = ", &(h),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+  verticalOffset += verticalStep;
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "sigma = ", &(sigma),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+
+
   //====================  SECOND COLUMN =================//
 
   horizontalOffset = 0.20;
   verticalOffset = 0.01 + 9 * verticalStep;
 
-  //==================== ERRORS SUM =================//
+  //====================== ERRORS SUM ===================//
 
   horizontalOffset = 0.87;
   verticalOffset = 0.01;
@@ -1716,6 +1732,9 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
           .setText("moda =" + FormatNumberForDisplay(mod_w_));
 
       DrawPlots(&CKAlgorithm);
+
+      h = CKAlgorithm.GetBandwidth();
+      sigma = CKAlgorithm.GetStandardDeviation();
 
       for(const auto &label : plotLabels) label->updateText();
 

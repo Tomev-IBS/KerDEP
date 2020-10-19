@@ -1,5 +1,7 @@
 #include "enhancedClusterKernelAlgorithm.h"
 
+#include <cmath>
+
 EnhancedClusterKernelAlgorithm::EnhancedClusterKernelAlgorithm(const int &m,
                                                                ClusterKernel *(*clusterKernelFactoryMethod)(ClusterKernelStreamElement *stream_element))
  : WeightedUnivariateListBasedClusterKernelAlgorithm(m, clusterKernelFactoryMethod)
@@ -32,4 +34,12 @@ Point EnhancedClusterKernelAlgorithm::GetKDEValuesOnDomain(std::vector<Point> do
   }
 
   return kde_values_on_domain;
+}
+
+double EnhancedClusterKernelAlgorithm::GetStandardDeviation() {
+  return sqrt(variation_estimator_[0]);
+}
+
+double EnhancedClusterKernelAlgorithm::GetBandwidth() {
+  return bandwidth_[0];
 }

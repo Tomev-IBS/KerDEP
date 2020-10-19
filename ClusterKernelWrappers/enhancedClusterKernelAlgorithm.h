@@ -13,6 +13,8 @@ class EnhancedClusterKernelAlgorithm : public WeightedUnivariateListBasedCluster
                                    ClusterKernel*(*cluster_kernel_factory_method)(ClusterKernelStreamElement *stream_element));
     std::vector<Point> GetErrorDomain(const int &dimension=0);
     Point GetKDEValuesOnDomain(std::vector<Point> domain);
+    double GetStandardDeviation();
+    double GetBandwidth();
 };
 
 #endif //KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H
