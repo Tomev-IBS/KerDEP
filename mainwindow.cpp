@@ -1526,9 +1526,9 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  QString expNum = "1384 (CK)";
+  QString expNum = "1386 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, alpha=0.01";
+  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, weighted stDev, updated h coefficient, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
