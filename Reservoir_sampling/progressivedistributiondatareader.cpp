@@ -150,11 +150,12 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   }
   /**/
 
-  sourceDistribution->increaseMeans(0, 0);
-  //sourceDistribution->increaseMeans(x_progression_size, 0);
-  //_alternativeDistribution->increaseMeans(x_progression_size, 0);
-  //sourceDistribution->increaseMeans(y_progression_size, 1);
-  //_alternativeDistribution->increaseMeans(y_progression_size, 1);
+  /*
+  sourceDistribution->increaseMeans(x_progression_size, 0);
+  _alternativeDistribution->increaseMeans(x_progression_size, 0);
+  sourceDistribution->increaseMeans(y_progression_size, 1);
+  _alternativeDistribution->increaseMeans(y_progression_size, 1);
+   */
 
   ++_currentIteration;
 }

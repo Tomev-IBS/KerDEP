@@ -716,16 +716,16 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 100;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1369 (2D)";
+  QString expNum = "1390 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", euclidean KPSS, v=tor dla 2D, me=1k, m0=4k, mMin=400, sz261";
+      + ", euclidean KPSS, v=tor dla 2D, me=1k, m0=4k, mMin=400, sz477";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
@@ -736,10 +736,10 @@ void MainWindow::on_pushButton_clicked() {
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  double level = 0.05;
+  double level = 0.025;
   while(level < 0.21){
     contourLevels += level;
-    level += 0.05;
+    level += 0.025;
   }
 
   // Add clusters_ to the estimator
