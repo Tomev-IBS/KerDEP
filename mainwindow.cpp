@@ -725,7 +725,8 @@ void MainWindow::on_pushButton_clicked() {
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", euclidean KPSS, v=tor dla 2D, me=1k, m0=4k, mMin=400, sz477";
+      + ", euclidean KPSS, v=0, seed = " + QString::number(seed) +
+        ", me=1k, m0=4k, mMin=400, sz";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home

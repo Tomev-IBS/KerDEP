@@ -448,7 +448,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_iterationsNumber">
            <property name="text">
-            <string>10001</string>
+            <string>13001</string>
            </property>
           </widget>
          </item>
