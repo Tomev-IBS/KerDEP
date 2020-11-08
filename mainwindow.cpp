@@ -726,7 +726,7 @@ void MainWindow::on_pushButton_clicked() {
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", euclidean KPSS, v=0, seed = " + QString::number(seed) +
-        ", me=1k, m0=4k, mMin=400, sz";
+        ", me=1k, m0=4k, mMin=400, sz" + QString::number(seed); // For now seed is sz number
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
