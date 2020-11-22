@@ -716,17 +716,17 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 100;
+  screen_generation_frequency_ = 1000;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
   // Prepare image location.
-  QString expNum = "1415 (2D)";
+  QString expNum = "1420 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", max KPSS, v=0, seed = " + QString::number(seed) +
-        ", me=1k, m0=4k, mMin=400, sz130";
+      + ", max KPSS, v=tor 2D, seed = " + QString::number(seed) +
+        ", m0=4k, mMin=200, sz130";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
