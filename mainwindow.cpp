@@ -837,12 +837,12 @@ void MainWindow::on_pushButton_clicked() {
   );
 
   // Prepare image location.
-  QString expNum = "1426 (2D)";
+  QString expNum = "1430 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", max KPSS, v= spowolniony tor 2D, seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz421";
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz130";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
