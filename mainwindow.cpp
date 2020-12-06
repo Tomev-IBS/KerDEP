@@ -837,7 +837,7 @@ void MainWindow::on_pushButton_clicked() {
   );
 
   // Prepare image location.
-  QString expNum = "1438 (2D)";
+  QString expNum = "1441 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
