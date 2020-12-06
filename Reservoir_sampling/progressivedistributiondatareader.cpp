@@ -64,7 +64,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   //*/
 
   // 26 III 2020 article formula
-  // Stops at 0.5 + 15 + 3 + 1 = 19.5 without offset. Set maxX = 25.
+  // Stops at 0.5 + 6 + 3 + 1 = 10.5 without offset. Set maxX = 15.
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
       x_progression_size = 0.0001;
@@ -73,8 +73,9 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       //x_progression_size = 0.1;
     //case 2000:
     case 5000:
-      // x_progression_size = 0.01 // Klasyczna
-      x_progression_size = 0.005; // Spowolniona
+      // x_progression_size = 0.01 // Klasyczna + 30
+      // x_progression_size = 0.005; // Spowolniona + 15
+      x_progression_size = 0.002; //  Leniwa + 6
       break;
     //case 5000:
     case 8000:
@@ -90,14 +91,15 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       break;
   }
 
-  // Stops at 0 + 10 + 1 = 11
+  // Stops at 0 + 4 + 1 = 5 without offset. Set maxY = 8.
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
       y_progression_size = 0;
       break;
     case 7000:
-      // y_progression_size = 0.01; // Klasyczna
-      y_progression_size = 0.005; // Spowolniona
+      // y_progression_size = 0.01; // Klasyczna + 20
+      // y_progression_size = 0.005; // Spowolniona + 10
+      y_progression_size = 0.002; // Leniwa + 4
       break;
     case 9000:
       y_progression_size = 0;
