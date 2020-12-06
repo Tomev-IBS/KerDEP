@@ -720,21 +720,6 @@ void MainWindow::on_pushButton_clicked() {
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
-  // Prepare image location.
-  QString expNum = "1422 (2D)";
-  this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc =
-      "iw=" + QString::number(screen_generation_frequency_)
-      + ", max KPSS, v=tor 2D, seed = " + QString::number(seed) +
-        ", m0=4k, mMin=100, sz421";
-  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                    + expDesc + ")\\";
-  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
   // Contour levels calculation.
   QList<double> contourLevels;
   double level = 0.025;
@@ -850,6 +835,21 @@ void MainWindow::on_pushButton_clicked() {
   ErrorsCalculator errors_calculator(
     &model_function_values, &estimator_values, &error_domain, &domain_area
   );
+
+  // Prepare image location.
+  QString expNum = "1426 (2D)";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc =
+      "iw=" + QString::number(screen_generation_frequency_)
+      + ", max KPSS, v= spowolniony tor 2D, seed = " + QString::number(seed) +
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz421";
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   log("Experiment started.");
   for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
