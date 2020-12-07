@@ -47,8 +47,8 @@ void Plot::setAxesLimit(const double &limit)
 {
   // Only one argument, because it has to be square.
 
-  setAxisScale(Qt::XAxis, -3, 11); // 11, 14, 24, for classical, slower and lazy paths
-  setAxisScale(Qt::ZAxis, -3, 25); // 25, 31, 51, for classical, slower and lazy paths
+  setAxisScale(Qt::XAxis, -3, 24); // 11, 14, 24, for classical, slower and lazy paths
+  setAxisScale(Qt::ZAxis, -3, 51); // 25, 31, 51, for classical, slower and lazy paths
 }
 
 void Plot::showContour( bool on )

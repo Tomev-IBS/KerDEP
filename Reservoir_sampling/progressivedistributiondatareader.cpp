@@ -73,9 +73,9 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       //x_progression_size = 0.1;
     //case 2000:
     case 5000:
-      // x_progression_size = 0.01 // Klasyczna + 30
+      x_progression_size = 0.01; // Klasyczna + 30
       // x_progression_size = 0.005; // Spowolniona + 15
-      x_progression_size = 0.002; //  Leniwa + 6
+      // x_progression_size = 0.002; //  Leniwa + 6
       break;
     //case 5000:
     case 8000:
@@ -97,9 +97,9 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       y_progression_size = 0;
       break;
     case 7000:
-      // y_progression_size = 0.01; // Klasyczna + 20
+      y_progression_size = 0.01; // Klasyczna + 20
       // y_progression_size = 0.005; // Spowolniona + 10
-      y_progression_size = 0.002; // Leniwa + 4
+      // y_progression_size = 0.002; // Leniwa + 4
       break;
     case 9000:
       y_progression_size = 0;
