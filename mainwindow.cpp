@@ -825,7 +825,7 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
-  QVector<int> initialDrawingSteps = {};
+  QVector<int> initialDrawingSteps = {1};
 
   std::vector<double> model_function_values = {};
   std::vector<double> estimator_values = {};
@@ -837,12 +837,12 @@ void MainWindow::on_pushButton_clicked() {
   );
 
   // Prepare image location.
-  QString expNum = "1444 (2D)";
+  QString expNum = "1446 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
-      + ", max KPSS, v=tor 2D, seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz262";
+      + ", v=0, seed = " + QString::number(seed) +
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
