@@ -11,11 +11,30 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ -lwsock32 -lws2_32 ${CMAKE_CSS_STANDARD_LIBRARIES}")
 set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive")
+
+set(BOOST_ROOT d:/boost_1_75_0/)
+FIND_PACKAGE(Boost)
+
+IF (Boost_FOUND)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+    ADD_DEFINITIONS( "-DHAS_BOOST" )
+ENDIF()
+
+include_directories(include/Compressed_Cumulative_WDE_Over_Stream/)
+
+add_executable(Compressed_Cumulative_WDE_Over_Stream include/Compressed_Cumulative_WDE_Over_Stream/CompressedCumulativeWaveletDensityEstimator.h src/CompressedCumulativeWaveletDensityEstimator.cpp include/Compressed_Cumulative_WDE_Over_Stream/TranslatedDilatedScalingFunction.h src/TranslatedDilatedScalingFunction.cpp include/Compressed_Cumulative_WDE_Over_Stream/WaveletDensityEstimator.h ../Compressed_Cumulative_WDE_Wrappers/LinearWDE.h ../Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp)
+
+#if(NOT Boost_FOUND)
+#    message(FATAL_ERROR "Could not find boost!")
+#endif()
+message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
+message(STATUS "Boost_VERSION: ${Boost_VERSION}")
 
 find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Gui Core printsupport REQUIRED)
@@ -135,12 +154,23 @@ add_executable(KerDEP
                 Benchmarking/errorsCalculator.h
         ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.cpp ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.h ClusterKernelWrappers/varianceBasedClusterKernel.cpp ClusterKernelWrappers/varianceBasedClusterKernel.h ClusterKernelWrappers/enhancedClusterKernelAlgorithm.cpp ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h ClusterKernelWrappers/univariateStreamElement.cpp ClusterKernelWrappers/univariateStreamElement.h
         ClusterKernelsKDE/src/ClusterKernelsAlgorithm.cpp
-        ClusterKernelsKDE/src/UnivariateListBasedClusterKernelAlgorithm.cpp ClusterKernelsKDE/src/WeightedUnivariateListBasedClusterKernelAlgorithm.cpp ClusterKernelsKDE/include/ClusterKernelsKDE/WeightedUnivariateListBasedClusterKernelAlgorithm.h)
+        ClusterKernelsKDE/src/UnivariateListBasedClusterKernelAlgorithm.cpp ClusterKernelsKDE/src/WeightedUnivariateListBasedClusterKernelAlgorithm.cpp ClusterKernelsKDE/include/ClusterKernelsKDE/WeightedUnivariateListBasedClusterKernelAlgorithm.h
+        Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/CompressedCumulativeWaveletDensityEstimator.h
+        Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/TranslatedDilatedScalingFunction.h
+        Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/WaveletDensityEstimator.h
+        Compressed_Cumulative_WDE_Over_Stream/src/CompressedCumulativeWaveletDensityEstimator.cpp
+        Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedScalingFunction.cpp
+        )
 
 include_directories(${QWT_INCLUDE_DIR})
+
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
 include_directories(ClusterKernelsKDE/src/)
 include_directories(ClusterKernelsWrapper/)
+
+include_directories(Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/)
+include_directories(Compressed_Cumulative_WDE_Over_Stream/src/)
+include_directories(Compressed_Cumulative_WDE_Wrappers/)
 
 target_link_libraries(KerDEP PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
