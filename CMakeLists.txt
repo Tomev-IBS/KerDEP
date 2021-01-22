@@ -160,6 +160,8 @@ add_executable(KerDEP
         Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/WaveletDensityEstimator.h
         Compressed_Cumulative_WDE_Over_Stream/src/CompressedCumulativeWaveletDensityEstimator.cpp
         Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedScalingFunction.cpp
+        Compressed_Cumulative_WDE_Wrappers/LinearWDE.h
+        Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp
         )
 
 include_directories(${QWT_INCLUDE_DIR})

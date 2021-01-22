@@ -17,6 +17,8 @@ using std::vector;
 class LinearWDE : public WaveletDensityEstimator {
   public:
     explicit LinearWDE(const double &threshold = 1e-5);
+    LinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients,
+              const double &threshold = 1e-5);
 
     double GetValue(const double &x) const override;
 
@@ -25,11 +27,13 @@ class LinearWDE : public WaveletDensityEstimator {
 
     int GetResolutionIndex() const override;
     vector<EmpiricalCoefficientData> GetEmpiricalCoefficients() const override;
+    unsigned int GetEmpiricalCoefficientsNumber() const override;
 
     double GetWeight() const override;
     void SetWeight(const double &new_weight) override;
     void MultiplyWeight(const double &multiplier) override;
 
+    WaveletDensityEstimator* Merge(WaveletDensityEstimator *other_wde) const override;
 
   protected:
 

@@ -4,7 +4,7 @@
 // Implementation of Linear Wavelet Density Estimator strategy.
 //
 
-#include "Comressed_Cumulative_WDE_Wrappers/LinearWDE.h"
+#include "Compressed_Cumulative_WDE_Wrappers/LinearWDE.h"
 
 #include <cmath>
 #include <numeric>
@@ -35,6 +35,15 @@ double stDev(const vector<double> &values){
 
 LinearWDE::LinearWDE(const double &threshold)
     :  coefficient_threshold_(threshold) { }
+
+LinearWDE::LinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients, const double &threshold)
+    :  coefficient_threshold_(threshold) , empirical_scaling_coefficients_(empirical_scaling_coefficients) {
+  if(!empirical_scaling_coefficients.empty()){
+    resolution_index_ = empirical_scaling_coefficients[0].j_;
+    k_min_ = empirical_scaling_coefficients[0].k_;
+    k_max_ = empirical_scaling_coefficients[empirical_scaling_coefficients.size() - 1].k_;
+  }
+}
 
 /** Updates linear WDE data.
  * @brief Updates linear WDE data.
@@ -190,14 +199,55 @@ int LinearWDE::GetResolutionIndex() const {
   return resolution_index_;
 }
 
-void LinearWDE::MultiplyWeight(const double &multiplier) {
-  weight_ *= multiplier;
+vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalCoefficients() const {
+  return empirical_scaling_coefficients_;
 }
 
 double LinearWDE::GetWeight() const {
   return weight_;
 }
 
-vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalCoefficients() const {
-  return empirical_scaling_coefficients_;
+void LinearWDE::SetWeight(const double &new_weight){
+  weight_ = new_weight;
 }
+
+void LinearWDE::MultiplyWeight(const double &multiplier) {
+  weight_ *= multiplier;
+}
+
+unsigned int LinearWDE::GetEmpiricalCoefficientsNumber() const {
+  return empirical_scaling_coefficients_.size();
+}
+
+WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) const {
+  vector<EmpiricalCoefficientData> merged_coefficients = empirical_scaling_coefficients_;
+
+  for(auto coefficient_data : merged_coefficients){
+    coefficient_data.coefficient_ *= weight_;
+  }
+
+  auto other_coefficients = other_wde->GetEmpiricalCoefficients();
+  auto other_weight = other_wde->GetWeight();
+
+  unsigned int i = 0;
+
+  for(auto coefficient_data : other_coefficients){
+    while(merged_coefficients[i].k_ < coefficient_data.k_){
+      ++i;
+    }
+    if(merged_coefficients[i].k_ == coefficient_data.k_){
+      merged_coefficients[i].coefficient_ += coefficient_data.coefficient_ * other_weight;
+    } else {
+      merged_coefficients.insert(merged_coefficients.begin() + i, coefficient_data);
+      merged_coefficients[i].coefficient_ *= other_weight;
+      ++i;
+    }
+  }
+
+  return new LinearWDE(merged_coefficients);
+
+}
+
+
+
+
