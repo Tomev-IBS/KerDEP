@@ -23,12 +23,16 @@
 #include "ClusterKernelWrappers/varianceBasedClusterKernel.h"
 #include "ClusterKernelWrappers/univariateStreamElement.h"
 
+#include "CompressedCumulativeWaveletDensityEstimator.h"
+
 #include "UI/QwtContourPlotUI.h"
 
 ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element){
   auto newClusterKernel = new VarianceBasedClusterKernel(stream_element);
   return newClusterKernel;
 }
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -123,17 +127,16 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate plot of model function
   if(ui->checkBox_showEstimatedPlot->isChecked()) {
-    QVector<qreal> modelDistributionY =
-      QVector<qreal>::fromStdVector(
-  GetFunctionsValueOnDomain(target_function_.get(), drawable_domain)
-      );
+    auto target_function_values = GetFunctionsValueOnDomain(target_function_.get(), drawable_domain);
+    auto modelDistributionY = QVector<qreal>(target_function_values.begin(), target_function_values.end());
     AddPlot(&modelDistributionY, model_plot_pen_);
   }
 
   // Generate less elements KDE plot (navy blue)
   if(ui->checkBox_showEstimationPlot->isChecked()) {
-    auto less_elements_estimator_y = QVector<double>::fromStdVector(
-        DESDAAlgorithm->getKDEValues(&drawable_domain));
+    auto less_elements_estimator_values = DESDAAlgorithm->getKDEValues(&drawable_domain);
+    auto less_elements_estimator_y = QVector<double>(less_elements_estimator_values.begin(),
+                                                     less_elements_estimator_values.end());
     AddPlot(&less_elements_estimator_y, kde_plot_pen_);
   }
 
@@ -710,7 +713,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 
 void MainWindow::on_pushButton_start_clicked() {
   //Run1DExperimentWithDESDA();
-  Run1DExperimentWithClusterKernels();
+  //Run1DExperimentWithClusterKernels();
+  Run1DExperimentWithWDE();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -1553,6 +1557,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
   expNumLabel.setText("");
 
+  // Setting up the labels
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
@@ -1750,6 +1755,183 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   }
 
   log("Animation finished.");
+}
+
+void MainWindow::Run1DExperimentWithWDE() {
+  // TR TODO: This is basically the same as it is in Cluster Kernels... Initialization should
+  // be made an separate function.
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+  if(!CanAnimationBePerformed(dimensionsNumber)) return;
+
+  QString seedString = ui->lineEdit_seed->text();
+
+  // Log that application started generating KDE
+  // Standard seed was 5625.
+  log("KDE animation with WDE started.");
+  log("Seed: " + seedString);
+  log("Sample size: " + ui->lineEdit_sampleSize->text());
+
+  int number_of_elements_per_block = 100;
+  step_number_ = 0;
+  double sigma = 0;
+
+  srand(static_cast<unsigned int>(seedString.toInt()));
+
+  // Creating target function.
+  FillMeans(&means_);
+  FillStandardDeviations(&standard_deviations_);
+  target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+  std::shared_ptr<distribution>
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
+  qreal progressionSize =
+      ui->lineEdit_distributionProgression->text().toDouble();
+
+  parser_.reset(new distributionDataParser(&attributes_data_));
+
+  reader_.reset(
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            progressionSize,
+                                            0,  /* Delay */
+                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
+                                                                   &alternativeDistributionStDevs, 55))
+               );
+
+  reader_->gatherAttributesData(&attributes_data_);
+  parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Attributes data set.");
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+
+  //QString expNum = "1467 (WDE)";
+  QString expNum = "WDE_TEST_1";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc = "v=0, b = " + QString::number(number_of_elements_per_block);
+  screen_generation_frequency_ = 10;
+
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
+
+  ClearPlot();
+  ResizePlot();
+
+  // Initial screen should only contain exp number (as requested).
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
+  expNumLabel.setFont(QFont("Courier New", 250));
+
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  expNumLabel.setText("");
+
+  QVector<std::shared_ptr<plotLabel>> plotLabels = {};
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+
+  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "iw    = "
+                                                                                     + QString::number(
+                                                                                         screen_generation_frequency_)));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "b     = ", &(number_of_elements_per_block),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "sigma = ", &(sigma),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+
+
+  //====================  SECOND COLUMN =================//
+
+  horizontalOffset = 0.20;
+  verticalOffset = 0.01 + 9 * verticalStep;
+
+  //====================== ERRORS SUM ===================//
+
+  horizontalOffset = 0.87;
+  verticalOffset = 0.01;
+
+  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
+  verticalOffset += verticalStep;
+  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
+  verticalOffset += verticalStep;
+  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  FillDomain(&domain_, nullptr);
+  for(const auto& pt : domain_) drawable_domain_.push_back(pt->at(0));
+
+  ui->widget_plot->replot();
+  QCoreApplication::processEvents();
+
+  int numberOfErrorCalculations = 0;
+  QVector<int> additionalScreensSteps = {};
+
+  /*
+  for(int i = 990; i < 1011; ++i){
+      additionalScreensSteps.append(i);
+  }
+  */
+
+  double error_domain_length = 0;
+  std::vector<std::vector<double>> error_domain = {};
+
+  std::vector<double> model_values = {};
+  std::vector<double> kde_values = {};
+
+  ErrorsCalculator errors_calculator(
+      &model_values, &kde_values, &error_domain, &error_domain_length
+  );
+
+
+
+
+
+  log("Experiment finished!");
 }
 
 

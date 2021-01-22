@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -227,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-10</string>
+            <string>-5</string>
            </property>
           </widget>
          </item>
@@ -241,7 +241,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>40</string>
+            <string>10</string>
            </property>
           </widget>
          </item>
@@ -255,7 +255,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minY">
            <property name="text">
-            <string>-0.2</string>
+            <string>-0.5</string>
            </property>
           </widget>
          </item>
@@ -269,7 +269,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxY">
            <property name="text">
-            <string>0.5</string>
+            <string>1.5</string>
            </property>
           </widget>
          </item>
@@ -330,7 +330,7 @@
               <number>10</number>
              </property>
              <property name="value">
-              <number>2</number>
+              <number>1</number>
              </property>
             </widget>
            </item>
