@@ -142,15 +142,17 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate weighted estimator plot (light blue)
   if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
-    auto weighted_estimator_y = QVector<double>::fromStdVector(
-        DESDAAlgorithm->getWeightedKDEValues(&drawable_domain));
+    auto weighted_estimator_values =DESDAAlgorithm->getWeightedKDEValues(&drawable_domain);
+    auto weighted_estimator_y = QVector<double>(weighted_estimator_values.begin(),
+                                                weighted_estimator_values.end());
     AddPlot(&weighted_estimator_y, weighted_plot_pen_);
   }
 
   // Generate full estimator plot (BLACK)
   if(ui->checbox_showFullEstimator->isChecked()) {
-    auto windowed_estimator_y = QVector<double>::fromStdVector(
-        DESDAAlgorithm->getWindowKDEValues(&drawable_domain));
+    auto windowed_estimator_values = DESDAAlgorithm->getWindowKDEValues(&drawable_domain);
+    auto windowed_estimator_y = QVector<double>(windowed_estimator_values.begin(),
+                                        windowed_estimator_values.end());
     AddPlot(&windowed_estimator_y, windowed_plot_pen_);
   }
 
@@ -171,8 +173,9 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
-    auto sigmoidally_enhanced_plot_y = QVector<double>::fromStdVector(
-        DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain));
+    auto sigmoidally_enhanced_plot_values = DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain);
+    auto sigmoidally_enhanced_plot_y = QVector<double>(sigmoidally_enhanced_plot_values.begin(),
+                                                       sigmoidally_enhanced_plot_values.end());
     AddPlot(&sigmoidally_enhanced_plot_y, desda_kde_plot_pen_);
   }
 
@@ -184,8 +187,9 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_REESEKDE->isChecked()) {
-    auto rare_elements_enhanced_plot_y = QVector<double>::fromStdVector(
-        DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain));
+    auto rare_elements_enhanced_plot_values = DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain);
+    auto rare_elements_enhanced_plot_y = QVector<double>(rare_elements_enhanced_plot_values.begin(),
+                                                         rare_elements_enhanced_plot_values.end());
     AddPlot(&rare_elements_enhanced_plot_y, desda_rare_elements_kde_plot_pen_);
   }
   // Draw plots
@@ -203,17 +207,17 @@ void MainWindow::DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm) {
 
   // Generate plot of model function
   if(ui->checkBox_showEstimatedPlot->isChecked()) {
-    QVector<qreal> modelDistributionY =
-        QVector<qreal>::fromStdVector(
-            GetFunctionsValueOnDomain(target_function_.get(), drawable_domain)
-                                     );
+    auto model_distribution_values = GetFunctionsValueOnDomain(target_function_.get(), drawable_domain);
+    QVector<qreal> modelDistributionY = QVector<qreal>(model_distribution_values.begin(),
+                                                       model_distribution_values.end());
     AddPlot(&modelDistributionY, model_plot_pen_);
   }
 
   // Generate less elements KDE plot (navy blue)
   if(ui->checkBox_showEstimationPlot->isChecked()) {
-    auto less_elements_estimator_y = QVector<double>::fromStdVector(
-        CKAlgorithm->GetKDEValuesOnDomain(drawable_domain));
+    auto less_elements_estimator_values = CKAlgorithm->GetKDEValuesOnDomain(drawable_domain);
+    auto less_elements_estimator_y = QVector<double>(less_elements_estimator_values.begin(),
+                                                     less_elements_estimator_values.end());
     AddPlot(&less_elements_estimator_y, kde_plot_pen_);
   }
 }
