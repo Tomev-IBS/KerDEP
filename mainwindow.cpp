@@ -1807,7 +1807,6 @@ void MainWindow::Run1DExperimentWithWDE() {
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
-  int number_of_elements_per_block = 100;
   step_number_ = 0;
   double sigma = 0;
 
@@ -1844,10 +1843,17 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
+  double weight_modifier = 0.75; // omega
+  unsigned int maximal_number_of_coefficients = 100; // M
+  unsigned int current_coefficients_number = 0; // #coef
+  int number_of_elements_per_block = 100; // b
+
   //QString expNum = "1467 (WDE)";
-  QString expNum = "WDE_TEST_2";
+  QString expNum = "WDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, b = " + QString::number(number_of_elements_per_block);
+  QString expDesc = "v=0, b=" + QString::number(number_of_elements_per_block) +
+      ", omega=" + QString::number(weight_modifier) +
+      ", M=" + QString::number(maximal_number_of_coefficients) ;
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1894,13 +1900,21 @@ void MainWindow::Run1DExperimentWithWDE() {
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "b     = ", &(number_of_elements_per_block),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
 
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "sigma = ", &(sigma),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+                                                   horizontalOffset, verticalOffset, "M     = ", &(maximal_number_of_coefficients),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
 
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "#coef = ", &(current_coefficients_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "omega = ", &(weight_modifier),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
 
 
   //====================  SECOND COLUMN =================//
@@ -1944,7 +1958,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 0;
-  QVector<int> additionalScreensSteps = {};
+  QVector<int> additionalScreensSteps = {1};
 
   /*
   for(int i = 990; i < 1011; ++i){
@@ -1962,7 +1976,8 @@ void MainWindow::Run1DExperimentWithWDE() {
       &model_values, &wde_values, &error_domain, &error_domain_length
   );
 
-  KerDEP_CC_WDE WDE_Algorithm = KerDEP_CC_WDE(100, 0.75, CreateWaveletDensityEstimatorFromBlock);
+  KerDEP_CC_WDE WDE_Algorithm = KerDEP_CC_WDE(maximal_number_of_coefficients, weight_modifier, CreateWaveletDensityEstimatorFromBlock,
+                                              number_of_elements_per_block);
 
   double l1_sum = 0;
   double l2_sum = 0;
@@ -1981,8 +1996,7 @@ void MainWindow::Run1DExperimentWithWDE() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
-       || additionalScreensSteps.contains(step_number_)) {
+    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
       // Error calculations
@@ -2041,6 +2055,8 @@ void MainWindow::Run1DExperimentWithWDE() {
           .setText("supa =" + FormatNumberForDisplay(sup_w_));
       modaTextLabel
           .setText("moda =" + FormatNumberForDisplay(mod_w_));
+
+      current_coefficients_number = WDE_Algorithm.GetCurrentCoefficientsNumber();
 
       DrawPlots(&WDE_Algorithm);
 

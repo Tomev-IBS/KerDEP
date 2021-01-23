@@ -55,3 +55,17 @@ std::vector<double> KerDEP_CC_WDE::GetEstimatorValuesOnDomain(std::vector<point>
   return estimator_values_on_domain;
 }
 
+unsigned int KerDEP_CC_WDE::GetCurrentCoefficientsNumber() const {
+  unsigned int current_coefficients_number = 0;
+
+  if(estimators_.empty()){
+    return current_coefficients_number;
+  }
+
+  for(auto estimator : estimators_){
+    current_coefficients_number += estimator->GetEmpiricalCoefficientsNumber();
+  }
+
+  return current_coefficients_number;
+}
+
