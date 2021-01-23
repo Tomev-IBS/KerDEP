@@ -12,9 +12,9 @@
 
 KerDEP_CC_WDE::KerDEP_CC_WDE(const unsigned int &maximal_number_of_empirical_coefficients,
                              const double &weights_modifier_, WaveletDensityEstimator *(*wde_factory_method)(
-                             const vector<double> &))
+                             const vector<double> &), const unsigned int &block_size)
     : CompressedCumulativeWaveletDensityEstimator(maximal_number_of_empirical_coefficients, weights_modifier_,
-                                                  wde_factory_method) { }
+                                                  wde_factory_method, block_size) { }
 
 void KerDEP_CC_WDE::PerformStep(point *pt) {
   if(block_size_ == block.size()){

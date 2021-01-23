@@ -13,6 +13,8 @@
 
 using std::cout, std::endl;
 
+TranslatedDilatedScalingFunction LinearWDE::translated_dilated_scaling_function_ = TranslatedDilatedScalingFunction(0, 0);
+
 LinearWDE::LinearWDE(const double &threshold)
     :  coefficient_threshold_(threshold) { }
 
@@ -51,8 +53,7 @@ void LinearWDE::ComputeOptimalResolutionIndex(const vector<double> &values_block
  */
 void LinearWDE::ComputeTranslations(const vector<double> &values_block) {
 
-  auto translated_dilated_scaling_function = TranslatedDilatedScalingFunction(0, 0);
-  auto support = translated_dilated_scaling_function.GetOriginalScalingFunctionSupport();
+  auto support = translated_dilated_scaling_function_.GetOriginalScalingFunctionSupport();
   int support_min = support.first;
   int support_max = support.second;
 
@@ -72,18 +73,16 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values
     return;
   }
 
-  auto scaling_function = TranslatedDilatedScalingFunction(resolution_index_, 0);
-
   for(int k = k_min_; k <= k_max_; ++k){
 
     cout << "k = " << k << " from [" << k_min_ << ", " << k_max_ << "]\n";
 
     double coefficient = 0;
 
-    scaling_function.UpdateIndices(resolution_index_, k);
+    translated_dilated_scaling_function_.UpdateIndices(resolution_index_, k);
 
     for(auto val : values){
-      coefficient += scaling_function.GetValue(val);
+      coefficient += translated_dilated_scaling_function_.GetValue(val);
     }
 
     coefficient /= values.size();
@@ -108,11 +107,9 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values
 double LinearWDE::GetValue(const double &x) const {
   double result = 0;
 
-  auto scaling_function = TranslatedDilatedScalingFunction(resolution_index_, 0);
-
   for(auto data : empirical_scaling_coefficients_){
-    scaling_function.UpdateIndices(data.j_, data.k_);
-    result += data.coefficient_ * scaling_function.GetValue(x);
+    translated_dilated_scaling_function_.UpdateIndices(data.j_, data.k_);
+    result += data.coefficient_ * translated_dilated_scaling_function_.GetValue(x);
   }
 
   return weight_ * result;
@@ -124,8 +121,7 @@ double LinearWDE::GetValue(const double &x) const {
 void LinearWDE::LowerCoefficientsResolution() {
   --resolution_index_;
 
-  auto scaling_function = TranslatedDilatedScalingFunction(0, 0);
-  auto filter_coefficients = scaling_function.GetFilterCoefficients();
+  auto filter_coefficients = translated_dilated_scaling_function_.GetFilterCoefficients();
 
   vector<EmpiricalCoefficientData> LowerResolutionEmpiricalCoefficients = {};
 

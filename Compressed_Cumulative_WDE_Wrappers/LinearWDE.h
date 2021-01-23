@@ -37,6 +37,8 @@ class LinearWDE : public WaveletDensityEstimator {
 
   protected:
 
+    static TranslatedDilatedScalingFunction translated_dilated_scaling_function_;
+
     int resolution_index_ = 0;
     int k_min_ = 0;
     int k_max_ = 0;

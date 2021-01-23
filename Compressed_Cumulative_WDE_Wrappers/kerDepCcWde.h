@@ -11,7 +11,8 @@ class KerDEP_CC_WDE : protected CompressedCumulativeWaveletDensityEstimator {
   public:
     KerDEP_CC_WDE(const unsigned int &maximal_number_of_empirical_coefficients,
                   const double &weights_modifier_,
-                  WaveletDensityEstimator* (*wde_factory_method)(const vector<double> &values_block));
+                  WaveletDensityEstimator* (*wde_factory_method)(const vector<double> &values_block),
+                  const unsigned int &block_size);
 
     void PerformStep(point *pt);
     vector<point> GetErrorDomain() const;
