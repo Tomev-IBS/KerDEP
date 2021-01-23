@@ -20,6 +20,7 @@
 #include "ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h"
 
 #include "DESDA.h"
+#include "kerDepCcWde.h"
 
 #include "UI/plot.h"
 
@@ -117,6 +118,7 @@ class MainWindow : public QMainWindow {
     std::shared_ptr<function> target_function_;
     void DrawPlots(DESDA *DESDAAlgorithm);
     void DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm);
+    void DrawPlots(KerDEP_CC_WDE *WDEAlgorithm);
     void ClearPlot();
     void AddPlot(const QVector<qreal> *Y, const QPen &pen);
     void ResizePlot();

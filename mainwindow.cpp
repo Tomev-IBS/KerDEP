@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <Benchmarking/errorsCalculator.h>
 #include <UI/plotLabelDoubleDataPreparator.h>
+#include <kerDepCcWde.h>
 
 #include "UI/plotLabel.h"
 #include "UI/plotLabelIntDataPreparator.h"
@@ -23,7 +24,7 @@
 #include "ClusterKernelWrappers/varianceBasedClusterKernel.h"
 #include "ClusterKernelWrappers/univariateStreamElement.h"
 
-#include "CompressedCumulativeWaveletDensityEstimator.h"
+#include "LinearWDE.h"
 
 #include "UI/QwtContourPlotUI.h"
 
@@ -32,6 +33,11 @@ ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *s
   return newClusterKernel;
 }
 
+WaveletDensityEstimator *CreateWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
+  auto wde = new LinearWDE();
+  wde->UpdateWDEData(values_block);
+  return wde;
+}
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -219,6 +225,31 @@ void MainWindow::DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm) {
     auto less_elements_estimator_y = QVector<double>(less_elements_estimator_values.begin(),
                                                      less_elements_estimator_values.end());
     AddPlot(&less_elements_estimator_y, kde_plot_pen_);
+  }
+}
+
+void MainWindow::DrawPlots(KerDEP_CC_WDE *WDEAlgorithm) {
+  ClearPlot();
+  ResizePlot();
+
+  std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
+  for(auto value : drawable_domain_){
+    drawable_domain.push_back({value});
+  }
+
+  // Generate plot of model function
+  if(ui->checkBox_showEstimatedPlot->isChecked()) {
+    auto model_distribution_values = GetFunctionsValueOnDomain(target_function_.get(), drawable_domain);
+    QVector<qreal> modelDistributionY = QVector<qreal>(model_distribution_values.begin(),
+                                                       model_distribution_values.end());
+    AddPlot(&modelDistributionY, model_plot_pen_);
+  }
+
+  // Generate less elements KDE plot (navy blue)
+  if(ui->checkBox_showEstimationPlot->isChecked()) {
+    auto estimator_values = WDEAlgorithm->GetEstimatorValuesOnDomain(drawable_domain);
+    auto estimator_y = QVector<double>(estimator_values.begin(), estimator_values.end());
+    AddPlot(&estimator_y, kde_plot_pen_);
   }
 }
 
@@ -1814,7 +1845,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
   //QString expNum = "1467 (WDE)";
-  QString expNum = "WDE_TEST_1";
+  QString expNum = "WDE_TEST_2";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=0, b = " + QString::number(number_of_elements_per_block);
   screen_generation_frequency_ = 10;
@@ -1925,18 +1956,110 @@ void MainWindow::Run1DExperimentWithWDE() {
   std::vector<std::vector<double>> error_domain = {};
 
   std::vector<double> model_values = {};
-  std::vector<double> kde_values = {};
+  std::vector<double> wde_values = {};
 
   ErrorsCalculator errors_calculator(
-      &model_values, &kde_values, &error_domain, &error_domain_length
+      &model_values, &wde_values, &error_domain, &error_domain_length
   );
 
+  KerDEP_CC_WDE WDE_Algorithm = KerDEP_CC_WDE(100, 0.75, CreateWaveletDensityEstimatorFromBlock);
 
+  double l1_sum = 0;
+  double l2_sum = 0;
+  double sup_sum = 0;
+  double mod_sum = 0;
 
+  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+    clock_t executionStartTime = clock();
 
+    Point stream_value = {};
+    reader_->getNextRawDatum(&stream_value);
+
+    log("Performing step: " + QString::number(step_number_));
+    WDE_Algorithm.PerformStep(&stream_value);
+    log("Step performed.");
+
+    target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
+       || additionalScreensSteps.contains(step_number_)) {
+      log("Drawing in step number " + QString::number(step_number_) + ".");
+
+      // Error calculations
+      if(step_number_ >= 2) {
+
+        log("Getting error domain.");
+        error_domain = WDE_Algorithm.GetErrorDomain();
+
+        log("Getting model plot on windowed.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+        log("Getting KDE plot on windowed.");
+        wde_values = WDE_Algorithm.GetEstimatorValuesOnDomain(error_domain);
+
+        log("Getting model plot.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+        log("Calculating domain length.");
+
+        error_domain_length =
+            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+        log("Calculating errors.");
+        l1_w_ = errors_calculator.CalculateL1Error();
+        l2_w_ = errors_calculator.CalculateL2Error();
+        sup_w_ = errors_calculator.CalculateSupError();
+        mod_w_ = errors_calculator.CalculateModError();
+        l1_sum += l1_w_;
+        l2_sum += l2_w_;
+        sup_sum += sup_w_;
+        mod_sum += mod_w_;
+
+        ++numberOfErrorCalculations;
+        log("Errors calculated.");
+      }
+
+      // ============ SUMS =========== //
+
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
+      L2TextLabel
+          .setText("L2   =" + FormatNumberForDisplay(
+              l2_sum / numberOfErrorCalculations));
+      supTextLabel
+          .setText("sup  =" + FormatNumberForDisplay(
+              sup_sum / numberOfErrorCalculations));
+      modTextLabel
+          .setText("mod  =" + FormatNumberForDisplay(
+              mod_sum / numberOfErrorCalculations));
+
+      L1aTextLabel
+          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
+      L2aTextLabel
+          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
+      supaTextLabel
+          .setText("supa =" + FormatNumberForDisplay(sup_w_));
+      modaTextLabel
+          .setText("moda =" + FormatNumberForDisplay(mod_w_));
+
+      DrawPlots(&WDE_Algorithm);
+
+      for(const auto &label : plotLabels) label->updateText();
+
+      ui->widget_plot->replot();
+      QCoreApplication::processEvents();
+
+      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+      imageName = dirPath + QString::number(step_number_) + ".png";
+      log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+    }
+  }
 
   log("Experiment finished!");
 }
+
+
 
 
 

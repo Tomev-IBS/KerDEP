@@ -162,7 +162,7 @@ add_executable(KerDEP
         Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedScalingFunction.cpp
         Compressed_Cumulative_WDE_Wrappers/LinearWDE.h
         Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp
-        )
+        Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.cpp Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.h Compressed_Cumulative_WDE_Wrappers/math_helpers.h Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp)
 
 include_directories(${QWT_INCLUDE_DIR})
 
