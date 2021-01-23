@@ -47,7 +47,7 @@ double ErrorsCalculator::CalculateL2Error() {
   // Then, get its average.
   auto average_of_absolute_differences = sum_of_absolute_differences / model_function_values_->size();
   // Finally multiply it by domains length, area or so, and square it all.
-  return pow(average_of_absolute_differences * *domain_quantity_, 0.5);
+  return pow(average_of_absolute_differences, 0.5) * *domain_quantity_; // According to PK mail
 }
 
 double ErrorsCalculator::CalculateSupError() {
