@@ -16,6 +16,9 @@ class KerDEP_CC_WDE : protected CompressedCumulativeWaveletDensityEstimator {
 
     void PerformStep(point *pt);
     vector<point> GetErrorDomain() const;
+    vector<point> GetErrorDomainFromBlock() const;
+    vector<point> GetErrorDomainFromCoefficients() const;
+    std::pair<double, double> GetEstimatorSupport() const;
     std::vector<double> GetEstimatorValuesOnDomain(std::vector<point> domain) const;
     unsigned int GetCurrentCoefficientsNumber() const;
 

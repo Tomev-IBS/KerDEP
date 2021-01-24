@@ -3,10 +3,10 @@
 //
 
 #include "kerDepCcWde.h"
+#include "TranslatedDilatedScalingFunction.h"
 
 #include <cmath>
 #include <algorithm>
-
 
 #include "math_helpers.h"
 
@@ -29,19 +29,12 @@ void KerDEP_CC_WDE::PerformStep(point *pt) {
 }
 
 vector<point> KerDEP_CC_WDE::GetErrorDomain() const {
-  vector<point> error_domain = {};
 
-  auto standard_deviation = stDev(block);
-  double minimal_value = *std::min_element(block.begin(), block.end()) - 5 * standard_deviation;
-  double maximal_value = *std::max_element(block.begin(), block.end()) + 5 * standard_deviation;
-
-  double step_size = (maximal_value - minimal_value) / 1000;
-
-  for(auto current_value = minimal_value; current_value < maximal_value; current_value += step_size){
-    error_domain.push_back({current_value});
+  if(estimators_.empty()){
+    return GetErrorDomainFromBlock();
   }
 
-  return error_domain;
+  return GetErrorDomainFromCoefficients();
 }
 
 std::vector<double> KerDEP_CC_WDE::GetEstimatorValuesOnDomain(std::vector<point> domain) const {
@@ -67,5 +60,90 @@ unsigned int KerDEP_CC_WDE::GetCurrentCoefficientsNumber() const {
   }
 
   return current_coefficients_number;
+}
+
+std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
+  if(estimators_.empty()){
+    return {0, 0};
+  }
+
+  auto coefficients = estimators_[0]->GetEmpiricalCoefficients();
+
+  auto phi_jk = TranslatedDilatedScalingFunction(coefficients[0].j_, coefficients[0].k_);
+  auto support = phi_jk.GetOriginalScalingFunctionSupport();
+
+  for(auto coefficient : coefficients){
+    phi_jk.UpdateIndices(coefficient.j_, coefficient.k_);
+    auto current_support = phi_jk.GetTranslatedDilatedScalingFunctionSupport();
+
+    if(support.first > current_support.first){
+      support.first = current_support.first;
+    }
+
+    if(support.second < current_support.second){
+      support.second = current_support.second;
+    }
+
+  }
+
+  for(unsigned int i = 1; i < estimators_.size(); ++i){
+
+    coefficients = estimators_[i]->GetEmpiricalCoefficients();
+
+    for(auto coefficient : coefficients){
+      phi_jk.UpdateIndices(coefficient.j_, coefficient.k_);
+      auto current_support = phi_jk.GetTranslatedDilatedScalingFunctionSupport();
+
+      if(support.first > current_support.first){
+        support.first = current_support.first;
+      }
+
+      if(support.second < current_support.second){
+        support.second = current_support.second;
+      }
+
+    }
+  }
+
+  return support;
+}
+
+vector<point> KerDEP_CC_WDE::GetErrorDomainFromBlock() const {
+
+  vector<point> error_domain = {};
+
+  double standard_deviation = stDev(block);
+  double minimal_value = *std::min_element(block.begin(), block.end()) - 5 * standard_deviation;
+  double maximal_value = *std::max_element(block.begin(), block.end()) + 5 * standard_deviation;
+
+  auto sections_number = 1000;
+
+  double step_size = (maximal_value - minimal_value) / sections_number; // We want hard codded 1000 sections
+
+  for(auto current_value = minimal_value; current_value < maximal_value; current_value += step_size){
+    error_domain.push_back({current_value});
+  }
+
+  return error_domain;
+}
+
+vector<point> KerDEP_CC_WDE::GetErrorDomainFromCoefficients() const {
+
+  vector<point> error_domain = {};
+
+  auto support = GetEstimatorSupport();
+
+  double minimal_value = support.first;
+  double maximal_value = support.second;
+
+  auto sections_number = 1000;
+
+  double step_size = (maximal_value - minimal_value) / sections_number; // We want hard codded 1000 sections
+
+  for(auto current_value = minimal_value; current_value < maximal_value; current_value += step_size){
+    error_domain.push_back({current_value});
+  }
+
+  return error_domain;
 }
 
