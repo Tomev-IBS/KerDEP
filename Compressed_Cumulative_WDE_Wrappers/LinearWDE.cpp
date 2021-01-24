@@ -6,7 +6,6 @@
 
 #include "Compressed_Cumulative_WDE_Wrappers/LinearWDE.h"
 
-#include <iostream> // For debug
 #include <cmath>
 
 #include "math_helpers.h"
@@ -75,8 +74,6 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values
 
   for(int k = k_min_; k <= k_max_; ++k){
 
-    cout << "k = " << k << " from [" << k_min_ << ", " << k_max_ << "]\n";
-
     double coefficient = 0;
 
     translated_dilated_scaling_function_.UpdateIndices(resolution_index_, k);
@@ -87,16 +84,15 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values
 
     coefficient /= values.size();
 
-    if(fabs(coefficient) > coefficient_threshold_){
-      EmpiricalCoefficientData data;
-      data.coefficient_ = coefficient;
-      data.j_ = resolution_index_;
-      data.k_ = k;
-      empirical_scaling_coefficients_.push_back(data);
-    }
+    //if(fabs(coefficient) > coefficient_threshold_){
+    EmpiricalCoefficientData data;
+    data.coefficient_ = coefficient;
+    data.j_ = resolution_index_;
+    data.k_ = k;
+    empirical_scaling_coefficients_.push_back(data);
+    //}
   }
 
-  cout << "Got " << empirical_scaling_coefficients_.size() << " coefficients.\n";
 }
 
 /** Computes value of decomposed function in 1D point.
@@ -142,21 +138,17 @@ void LinearWDE::LowerCoefficientsResolution() {
       lower_res_coefficient += val.coefficient_ * filter_coefficients[filter_coefficient_index];
     }
 
-    cout << "Coefficient for k = " << k << " is " << lower_res_coefficient << ".\n";
-
-    if(fabs(lower_res_coefficient) > coefficient_threshold_){
-      auto data = EmpiricalCoefficientData();
-      data.coefficient_ = lower_res_coefficient;
-      data.j_ = resolution_index_;
-      data.k_ = k;
-      LowerResolutionEmpiricalCoefficients.push_back(data);
-    }
+    //if(fabs(lower_res_coefficient) > coefficient_threshold_){
+    auto data = EmpiricalCoefficientData();
+    data.coefficient_ = lower_res_coefficient;
+    data.j_ = resolution_index_;
+    data.k_ = k;
+    LowerResolutionEmpiricalCoefficients.push_back(data);
+    //}
 
   }
 
   empirical_scaling_coefficients_ = LowerResolutionEmpiricalCoefficients;
-
-  cout << "Got " << empirical_scaling_coefficients_.size() << " coefficients.\n";
 }
 
 void LinearWDE::ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients) {
@@ -198,8 +190,10 @@ unsigned int LinearWDE::GetEmpiricalCoefficientsNumber() const {
 WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) const {
   vector<EmpiricalCoefficientData> merged_coefficients = empirical_scaling_coefficients_;
 
-  for(auto coefficient_data : merged_coefficients){
-    coefficient_data.coefficient_ *= weight_;
+  //for(auto coefficient_data : merged_coefficients){
+  for(int i = 0; i < merged_coefficients.size(); ++i) {
+    auto weighted_coefficient = merged_coefficients[i].coefficient_ * weight_;
+    merged_coefficients[i].coefficient_ = weighted_coefficient;
   }
 
   auto other_coefficients = other_wde->GetEmpiricalCoefficients();
@@ -221,7 +215,6 @@ WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) co
   }
 
   return new LinearWDE(merged_coefficients);
-
 }
 
 
