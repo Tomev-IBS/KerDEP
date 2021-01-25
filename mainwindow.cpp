@@ -1843,15 +1843,15 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  double weight_modifier = 0.75; // omega
+  double weight_modifier = 0.5; // omega
   unsigned int maximal_number_of_coefficients = 100; // M
   unsigned int current_coefficients_number = 0; // #coef
-  int number_of_elements_per_block = 100; // b
+  int number_of_elements_per_block = 500; // b
 
-  //QString expNum = "1467 (WDE)";
-  QString expNum = "WDE_TEST_3";
+  QString expNum = "1467 (WDE)";
+  //QString expNum = "WDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, b=" + QString::number(number_of_elements_per_block) +
+  QString expDesc = "v=tor klasyczny, b=" + QString::number(number_of_elements_per_block) +
       ", omega=" + QString::number(weight_modifier) +
       ", M=" + QString::number(maximal_number_of_coefficients) ;
   screen_generation_frequency_ = 10;
