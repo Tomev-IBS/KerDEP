@@ -30,7 +30,7 @@ class LinearWDE : public WaveletDensityEstimator {
     unsigned int GetEmpiricalCoefficientsNumber() const override;
 
     double GetWeight() const override;
-    void SetWeight(const double &new_weight) override;
+    virtual void SetWeight(const double &new_weight) override;
     void MultiplyWeight(const double &multiplier) override;
 
     WaveletDensityEstimator* Merge(WaveletDensityEstimator *other_wde) const override;
@@ -49,7 +49,7 @@ class LinearWDE : public WaveletDensityEstimator {
 
     void ComputeOptimalResolutionIndex(const vector<double> &values_block);
     void ComputeTranslations(const vector<double> &values_block);
-    void ComputeEmpiricalScalingCoefficients(const vector<double> &values);
+    virtual void ComputeEmpiricalScalingCoefficients(const vector<double> &values);
     void ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients);
 };
 

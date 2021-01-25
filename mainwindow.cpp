@@ -27,6 +27,7 @@
 #include "ClusterKernelWrappers/univariateStreamElement.h"
 
 #include "LinearWDE.h"
+#include "WeightedLinearWDE.h"
 
 #include "UI/QwtContourPlotUI.h"
 
@@ -41,6 +42,11 @@ WaveletDensityEstimator *CreateWaveletDensityEstimatorFromBlock(const vector<dou
   return wde;
 }
 
+WaveletDensityEstimator *CreateWeightedWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
+  auto wde = new WeightedLinearWDE();
+  wde->UpdateWDEData(values_block);
+  return wde;
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1850,7 +1856,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   unsigned int current_coefficients_number = 0; // #coef
   int number_of_elements_per_block = 1000; // b
 
-  QString expNum = "1470 (Window WDE)";
+  QString expNum = "1471 (Weighted Window WDE)";
   //QString expNum = "WDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor klasyczny, b=" + QString::number(number_of_elements_per_block) +
@@ -1978,7 +1984,7 @@ void MainWindow::Run1DExperimentWithWDE() {
       &model_values, &wde_values, &error_domain, &error_domain_length
   );
 
-  Windowed_WDE WDE_Algorithm = Windowed_WDE(maximal_number_of_coefficients, weight_modifier, CreateWaveletDensityEstimatorFromBlock,
+  Windowed_WDE WDE_Algorithm = Windowed_WDE(maximal_number_of_coefficients, weight_modifier, CreateWeightedWaveletDensityEstimatorFromBlock,
                                               number_of_elements_per_block);
 
   double l1_sum = 0;
