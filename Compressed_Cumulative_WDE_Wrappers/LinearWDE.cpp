@@ -188,7 +188,18 @@ unsigned int LinearWDE::GetEmpiricalCoefficientsNumber() const {
 }
 
 WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) const {
-  vector<EmpiricalCoefficientData> merged_coefficients = empirical_scaling_coefficients_;
+
+  //cout << "Entering merge function. Creating empty vector.\n";
+
+  vector<EmpiricalCoefficientData> merged_coefficients = {};
+
+  //cout << "Created empty vector. Filling it with coefficients from this.\n";
+
+  for(auto coefficient_data : empirical_scaling_coefficients_){
+    merged_coefficients.push_back(coefficient_data);
+  }
+
+  //cout << "Filled empty vector initially filled. Multiplying coefficients by weights.\n";
 
   //for(auto coefficient_data : merged_coefficients){
   for(int i = 0; i < merged_coefficients.size(); ++i) {
@@ -196,24 +207,46 @@ WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) co
     merged_coefficients[i].coefficient_ = weighted_coefficient;
   }
 
+  //cout << "Coefficients weighted. Getting weight and coeffs from other.\n";
+
   auto other_coefficients = other_wde->GetEmpiricalCoefficients();
   auto other_weight = other_wde->GetWeight();
 
+  //cout << "Got weight and coeffs from other. Summing weighted coeffs to merged coeffs.\n";
+
   unsigned int i = 0;
+
+  /*
+  cout  << "Merged size: " << merged_coefficients.size() << "\n"
+        << "Others size: " << other_coefficients.size() << "\n"
+        << "\n";
+  */
 
   for(auto coefficient_data : other_coefficients){
     while(merged_coefficients[i].k_ < coefficient_data.k_){
       ++i;
+      //cout << "Incremented i to " << i << endl;
     }
     if(merged_coefficients[i].k_ == coefficient_data.k_){
+      //cout << "Adding coefficients at " << i << ".\n";
       merged_coefficients[i].coefficient_ += coefficient_data.coefficient_ * other_weight;
+      //cout << "Coefficients at " << i << " added.\n";
     } else {
-      merged_coefficients.insert(merged_coefficients.begin() + i, coefficient_data);
+      //cout << "Inserting coefficient at " << i << ".\n";
+      //cout << "Merged coefficient size is: " << merged_coefficients.size() << endl;
+      if(merged_coefficients.size() <= i){
+        //cout << "Pushing back!\n";
+        merged_coefficients.push_back(coefficient_data);
+      } else {
+        //cout << "Inserting!\n";
+        merged_coefficients.insert(merged_coefficients.begin() + i, coefficient_data);
+      }
+      //cout << "Inserted. Weighting coefficient at " << i << ".\n";
       merged_coefficients[i].coefficient_ *= other_weight;
-      ++i;
     }
   }
 
+  //cout << "Returning from merge function.\n";
   return new LinearWDE(merged_coefficients);
 }
 
