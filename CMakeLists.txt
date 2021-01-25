@@ -27,8 +27,6 @@ ENDIF()
 
 include_directories(include/Compressed_Cumulative_WDE_Over_Stream/)
 
-add_executable(Compressed_Cumulative_WDE_Over_Stream include/Compressed_Cumulative_WDE_Over_Stream/CompressedCumulativeWaveletDensityEstimator.h src/CompressedCumulativeWaveletDensityEstimator.cpp include/Compressed_Cumulative_WDE_Over_Stream/TranslatedDilatedScalingFunction.h src/TranslatedDilatedScalingFunction.cpp include/Compressed_Cumulative_WDE_Over_Stream/WaveletDensityEstimator.h ../Compressed_Cumulative_WDE_Wrappers/LinearWDE.h ../Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp)
-
 #if(NOT Boost_FOUND)
 #    message(FATAL_ERROR "Could not find boost!")
 #endif()
