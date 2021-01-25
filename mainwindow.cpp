@@ -1851,7 +1851,7 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  double weight_modifier = 0.5; // omega
+  double weight_modifier = 0.99; // omega
   unsigned int maximal_number_of_coefficients = 100; // M
   unsigned int current_coefficients_number = 0; // #coef
   int number_of_elements_per_block = 1000; // b
