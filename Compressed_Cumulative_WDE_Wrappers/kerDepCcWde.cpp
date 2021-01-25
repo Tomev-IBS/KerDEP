@@ -5,7 +5,6 @@
 #include "kerDepCcWde.h"
 #include "TranslatedDilatedScalingFunction.h"
 
-#include <cmath>
 #include <algorithm>
 
 #include "math_helpers.h"
@@ -63,6 +62,7 @@ unsigned int KerDEP_CC_WDE::GetCurrentCoefficientsNumber() const {
 }
 
 std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
+
   if(estimators_.empty()){
     return {0, 0};
   }
@@ -72,7 +72,14 @@ std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
   auto phi_jk = TranslatedDilatedScalingFunction(coefficients[0].j_, coefficients[0].k_);
   auto support = phi_jk.GetOriginalScalingFunctionSupport();
 
-  for(auto coefficient : coefficients){
+  phi_jk.UpdateIndices(coefficients[coefficients.size() - 1].j_, coefficients[coefficients.size() - 1].k_);
+  support.second = phi_jk.GetTranslatedDilatedScalingFunctionSupport().second;
+
+  for(unsigned int i = 1; i < estimators_.size(); ++i){
+
+    coefficients = estimators_[i]->GetEmpiricalCoefficients();
+
+    auto coefficient = coefficients[0];
     phi_jk.UpdateIndices(coefficient.j_, coefficient.k_);
     auto current_support = phi_jk.GetTranslatedDilatedScalingFunctionSupport();
 
@@ -80,29 +87,14 @@ std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
       support.first = current_support.first;
     }
 
+    coefficient = coefficients[coefficients.size() - 1];
+    phi_jk.UpdateIndices(coefficient.j_, coefficient.k_);
+    current_support = phi_jk.GetTranslatedDilatedScalingFunctionSupport();
+
     if(support.second < current_support.second){
       support.second = current_support.second;
     }
 
-  }
-
-  for(unsigned int i = 1; i < estimators_.size(); ++i){
-
-    coefficients = estimators_[i]->GetEmpiricalCoefficients();
-
-    for(auto coefficient : coefficients){
-      phi_jk.UpdateIndices(coefficient.j_, coefficient.k_);
-      auto current_support = phi_jk.GetTranslatedDilatedScalingFunctionSupport();
-
-      if(support.first > current_support.first){
-        support.first = current_support.first;
-      }
-
-      if(support.second < current_support.second){
-        support.second = current_support.second;
-      }
-
-    }
   }
 
   return support;
