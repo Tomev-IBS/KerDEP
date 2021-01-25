@@ -1846,9 +1846,9 @@ void MainWindow::Run1DExperimentWithWDE() {
   double weight_modifier = 0.5; // omega
   unsigned int maximal_number_of_coefficients = 100; // M
   unsigned int current_coefficients_number = 0; // #coef
-  int number_of_elements_per_block = 100; // b
+  int number_of_elements_per_block = 1000; // b
 
-  QString expNum = "1469 (WDE)";
+  QString expNum = "1470 (WDE)";
   //QString expNum = "WDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor klasyczny, b=" + QString::number(number_of_elements_per_block) +
@@ -1857,9 +1857,9 @@ void MainWindow::Run1DExperimentWithWDE() {
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; \\ Home
   //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
