@@ -1856,7 +1856,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   unsigned int current_coefficients_number = 0; // #coef
   int number_of_elements_per_block = 1000; // b
 
-  QString expNum = "1471 (Weighted Window WDE)";
+  QString expNum = "1472 (Weighted Window WDE)";
   //QString expNum = "WDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor klasyczny, b=" + QString::number(number_of_elements_per_block) +

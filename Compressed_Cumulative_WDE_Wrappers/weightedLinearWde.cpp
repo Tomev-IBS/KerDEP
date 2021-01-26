@@ -2,6 +2,9 @@
 // Created by Tomev on 26/01/2021.
 //
 
+#include <iostream>
+using std::cout;
+
 #include "weightedLinearWde.h"
 
 WeightedLinearWDE::WeightedLinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients,
@@ -10,6 +13,8 @@ WeightedLinearWDE::WeightedLinearWDE(vector<EmpiricalCoefficientData> empirical_
 }
 
 void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values) {
+
+  cout << "Computing weighted scaling coefficients!\n";
 
   if(values.size() != elements_weights_.size()) {
     ComputeElementsWeights(values.size());
