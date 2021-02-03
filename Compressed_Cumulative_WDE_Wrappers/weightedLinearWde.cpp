@@ -2,6 +2,7 @@
 // Created by Tomev on 26/01/2021.
 //
 
+#include <algorithm>
 #include <iostream>
 using std::cout;
 
@@ -13,8 +14,6 @@ WeightedLinearWDE::WeightedLinearWDE(vector<EmpiricalCoefficientData> empirical_
 }
 
 void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values) {
-
-  cout << "Computing weighted scaling coefficients!\n";
 
   if(values.size() != elements_weights_.size()) {
     ComputeElementsWeights(values.size());
@@ -60,6 +59,8 @@ void WeightedLinearWDE::ComputeElementsWeights(const unsigned int &elements_numb
     elements_weights_.push_back(element_weight);
     weights_sum_ += element_weight;
   }
+
+  std::reverse(elements_weights_.begin(), elements_weights_.end());
 }
 
 void WeightedLinearWDE::SetWeight(const double &new_weight) {
@@ -67,6 +68,8 @@ void WeightedLinearWDE::SetWeight(const double &new_weight) {
   ComputeElementsWeights(elements_weights_.size());
 }
 
-WeightedLinearWDE::WeightedLinearWDE(const double &threshold) : LinearWDE(threshold) {};
+WeightedLinearWDE::WeightedLinearWDE(const double &threshold) : LinearWDE(threshold) {
+  weight_ = 0.99;
+};
 
 
