@@ -3,17 +3,51 @@
 //
 
 #include <algorithm>
-#include <iostream>
-using std::cout;
 
 #include "weightedLinearWde.h"
+#include "math_helpers.h"
 
 WeightedLinearWDE::WeightedLinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients,
                                      const double &threshold) : LinearWDE(empirical_scaling_coefficients, threshold) {
   weight_ = 0.99;
 }
 
-void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values) {
+WeightedLinearWDE::WeightedLinearWDE(const double &threshold) : LinearWDE(threshold) {
+  weight_ = 0.99;
+};
+
+
+vector<StreamElementData> WeightedLinearWDE::PrepareBlockData(const vector<double> &values_block) {
+  if(values_block.size() != elements_weights_.size()){
+    ComputeElementsWeights(values_block.size());
+  }
+
+  auto prepared_block_data = vector<StreamElementData>();
+
+  for(unsigned int i = 0; i < values_block.size(); ++i){
+    prepared_block_data.emplace_back(StreamElementData());
+    prepared_block_data.back().value_ = values_block[i];
+    prepared_block_data.back().weight_ = elements_weights_[i];
+  }
+
+  std::sort(prepared_block_data.begin(), prepared_block_data.end());
+
+  return prepared_block_data;
+}
+
+void WeightedLinearWDE::ComputeOptimalResolutionIndex(const vector<StreamElementData> &values_block) {
+  std::vector<double> unweighted_values = {};
+  std::vector<double> weights = {};
+
+  for(auto val : values_block){
+    unweighted_values.push_back(val.value_);
+    weights.push_back(val.weight_);
+  }
+
+  resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(WeightedStDev(unweighted_values, weights));
+}
+
+void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamElementData> &values) {
 
   if(values.size() != elements_weights_.size()) {
     ComputeElementsWeights(values.size());
@@ -31,21 +65,17 @@ void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double>
 
     translated_dilated_scaling_function_.UpdateIndices(resolution_index_, k);
 
-    for(unsigned int i = 0; i < values.size(); ++i){
-      auto val = values[i];
-      auto weight = elements_weights_[i];
-      coefficient += translated_dilated_scaling_function_.GetValue(val) * weight;
+    for(auto val : values){
+      coefficient += translated_dilated_scaling_function_.GetValue(val.value_) * val.weight_;
     }
 
     coefficient /= weights_sum_;
 
-    //if(fabs(coefficient) > coefficient_threshold_){
     EmpiricalCoefficientData data;
     data.coefficient_ = coefficient;
     data.j_ = resolution_index_;
     data.k_ = k;
     empirical_scaling_coefficients_.push_back(data);
-    //}
   }
 
 }
@@ -68,8 +98,9 @@ void WeightedLinearWDE::SetWeight(const double &new_weight) {
   ComputeElementsWeights(elements_weights_.size());
 }
 
-WeightedLinearWDE::WeightedLinearWDE(const double &threshold) : LinearWDE(threshold) {
-  weight_ = 0.99;
-};
+
+
+
+
 
 

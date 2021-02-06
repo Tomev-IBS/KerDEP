@@ -17,7 +17,10 @@ class WeightedLinearWDE : public LinearWDE {
     void SetWeight(const double &new_weight) override;
 
   protected:
-    virtual void ComputeEmpiricalScalingCoefficients(const vector<double> &values) override;
+
+    virtual vector<StreamElementData> PrepareBlockData(const vector<double> &values_block);
+    void ComputeOptimalResolutionIndex(const vector<StreamElementData> &values_block);
+    virtual void ComputeEmpiricalScalingCoefficients(const vector<StreamElementData> &values) override;
     void ComputeElementsWeights(const unsigned int &elements_number);
 
     vector<double> elements_weights_;
