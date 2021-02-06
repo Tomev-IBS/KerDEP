@@ -7,6 +7,7 @@
 #include "Compressed_Cumulative_WDE_Wrappers/LinearWDE.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "math_helpers.h"
 
@@ -31,9 +32,23 @@ LinearWDE::LinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coeffici
  * @param values_block - Block of new values which will be used during update process.
  */
 void LinearWDE::UpdateWDEData(const vector<double> &values_block) {
-  ComputeOptimalResolutionIndex(values_block);
-  ComputeTranslations(values_block);
-  ComputeEmpiricalScalingCoefficients(values_block);
+  auto prepared_block = PrepareBlockData(values_block);
+  ComputeOptimalResolutionIndex(prepared_block);
+  ComputeTranslations(prepared_block);
+  ComputeEmpiricalScalingCoefficients(prepared_block);
+}
+
+vector<StreamElementData> LinearWDE::PrepareBlockData(const vector<double> &values_block) {
+  auto prepared_values_block = vector<StreamElementData>();
+
+  for(auto val : values_block){
+    prepared_values_block.emplace_back(StreamElementData());
+    prepared_values_block.back().value_ = val;
+  }
+
+  std::sort(prepared_values_block.begin(), prepared_values_block.end());
+
+  return prepared_values_block;
 }
 
 /** Computes optimal resolition index.
@@ -42,29 +57,35 @@ void LinearWDE::UpdateWDEData(const vector<double> &values_block) {
  * @param values_block - Values from which resolution (dilation) index is computed.
  * @return Optimal resolution index.
  */
-void LinearWDE::ComputeOptimalResolutionIndex(const vector<double> &values_block) {
-    resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(stDev(values_block));
+void LinearWDE::ComputeOptimalResolutionIndex(const vector<StreamElementData> &values_block) {
+  std::vector<double> unweighted_values = {};
+
+  for(auto val : values_block){
+    unweighted_values.push_back(val.value_);
+  }
+
+  resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(StDev(unweighted_values));
 }
 
 /** Computes k_min and k_max (translation indices).
  * @brief Computes k_min and k_max (translation indices).
  * @param values_block - SORTED vector of values.
  */
-void LinearWDE::ComputeTranslations(const vector<double> &values_block) {
+void LinearWDE::ComputeTranslations(const vector<StreamElementData> &values_block) {
 
   auto support = translated_dilated_scaling_function_.GetOriginalScalingFunctionSupport();
   int support_min = support.first;
   int support_max = support.second;
 
-  k_min_ = ceil(pow(2, resolution_index_) * values_block[0] - support_max);
-  k_max_ = floor(pow(2, resolution_index_) * values_block[values_block.size() - 1] - support_min);
+  k_min_ = ceil(pow(2, resolution_index_) * values_block[0].value_ - support_max);
+  k_max_ = floor(pow(2, resolution_index_) * values_block[values_block.size() - 1].value_ - support_min);
 }
 
 /** Computes most important (according to threshold) empirical scaling function coefficients.
  * @brief Computes most important (according to threshold) empirical scaling function coefficients.
  * @param values - Vector of values in the block.
  */
-void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values) {
+void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamElementData> &values) {
 
   empirical_scaling_coefficients_ = {};
 
@@ -79,18 +100,16 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<double> &values
     translated_dilated_scaling_function_.UpdateIndices(resolution_index_, k);
 
     for(auto val : values){
-      coefficient += translated_dilated_scaling_function_.GetValue(val);
+      coefficient += translated_dilated_scaling_function_.GetValue(val.value_);
     }
 
     coefficient /= values.size();
 
-    //if(fabs(coefficient) > coefficient_threshold_){
     EmpiricalCoefficientData data;
     data.coefficient_ = coefficient;
     data.j_ = resolution_index_;
     data.k_ = k;
     empirical_scaling_coefficients_.push_back(data);
-    //}
   }
 
 }
@@ -167,7 +186,7 @@ int LinearWDE::GetResolutionIndex() const {
   return resolution_index_;
 }
 
-vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalCoefficients() const {
+vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalScalingCoefficients() const {
   return empirical_scaling_coefficients_;
 }
 
@@ -189,66 +208,46 @@ unsigned int LinearWDE::GetEmpiricalCoefficientsNumber() const {
 
 WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) const {
 
-  //cout << "Entering merge function. Creating empty vector.\n";
-
   vector<EmpiricalCoefficientData> merged_coefficients = {};
-
-  //cout << "Created empty vector. Filling it with coefficients from this.\n";
 
   for(auto coefficient_data : empirical_scaling_coefficients_){
     merged_coefficients.push_back(coefficient_data);
   }
 
-  //cout << "Filled empty vector initially filled. Multiplying coefficients by weights.\n";
-
-  //for(auto coefficient_data : merged_coefficients){
   for(int i = 0; i < merged_coefficients.size(); ++i) {
     auto weighted_coefficient = merged_coefficients[i].coefficient_ * weight_;
     merged_coefficients[i].coefficient_ = weighted_coefficient;
   }
 
-  //cout << "Coefficients weighted. Getting weight and coeffs from other.\n";
-
-  auto other_coefficients = other_wde->GetEmpiricalCoefficients();
+  auto other_coefficients = other_wde->GetEmpiricalScalingCoefficients();
   auto other_weight = other_wde->GetWeight();
 
-  //cout << "Got weight and coeffs from other. Summing weighted coeffs to merged coeffs.\n";
-
   unsigned int i = 0;
-
-  /*
-  cout  << "Merged size: " << merged_coefficients.size() << "\n"
-        << "Others size: " << other_coefficients.size() << "\n"
-        << "\n";
-  */
 
   for(auto coefficient_data : other_coefficients){
     while(merged_coefficients[i].k_ < coefficient_data.k_){
       ++i;
-      //cout << "Incremented i to " << i << endl;
     }
     if(merged_coefficients[i].k_ == coefficient_data.k_){
-      //cout << "Adding coefficients at " << i << ".\n";
       merged_coefficients[i].coefficient_ += coefficient_data.coefficient_ * other_weight;
-      //cout << "Coefficients at " << i << " added.\n";
     } else {
-      //cout << "Inserting coefficient at " << i << ".\n";
-      //cout << "Merged coefficient size is: " << merged_coefficients.size() << endl;
       if(merged_coefficients.size() <= i){
-        //cout << "Pushing back!\n";
         merged_coefficients.push_back(coefficient_data);
       } else {
-        //cout << "Inserting!\n";
         merged_coefficients.insert(merged_coefficients.begin() + i, coefficient_data);
       }
-      //cout << "Inserted. Weighting coefficient at " << i << ".\n";
       merged_coefficients[i].coefficient_ *= other_weight;
     }
   }
 
-  //cout << "Returning from merge function.\n";
   return new LinearWDE(merged_coefficients);
 }
+
+vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalWaveletCoefficients() const {
+  return vector<EmpiricalCoefficientData>();
+}
+
+
 
 
 

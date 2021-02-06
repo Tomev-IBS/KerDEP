@@ -14,19 +14,34 @@
 
 using std::vector;
 
+struct StreamElementData {
+    double value_ = 0;
+    double weight_ = 1;
+
+  bool operator >(const StreamElementData &other_stream_element) const {
+    return this->value_ > other_stream_element.value_;
+  }
+
+  bool operator <(const StreamElementData &other_stream_element) const {
+    return this->value_ < other_stream_element.value_;
+  }
+
+};
+
 class LinearWDE : public WaveletDensityEstimator {
   public:
     explicit LinearWDE(const double &threshold = 1e-5);
     LinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients,
               const double &threshold = 1e-5);
 
-    double GetValue(const double &x) const override;
+    virtual double GetValue(const double &x) const override;
 
     void UpdateWDEData(const vector<double> &values_block) override;
     void LowerCoefficientsResolution() override;
 
     int GetResolutionIndex() const override;
-    vector<EmpiricalCoefficientData> GetEmpiricalCoefficients() const override;
+    vector<EmpiricalCoefficientData> GetEmpiricalScalingCoefficients() const override;
+    vector<EmpiricalCoefficientData> GetEmpiricalWaveletCoefficients() const override;
     unsigned int GetEmpiricalCoefficientsNumber() const override;
 
     double GetWeight() const override;
@@ -47,9 +62,10 @@ class LinearWDE : public WaveletDensityEstimator {
 
     double coefficient_threshold_ = 1e-5; // Denotes if the coefficient should be included.
 
-    void ComputeOptimalResolutionIndex(const vector<double> &values_block);
-    void ComputeTranslations(const vector<double> &values_block);
-    virtual void ComputeEmpiricalScalingCoefficients(const vector<double> &values);
+    virtual vector<StreamElementData> PrepareBlockData(const vector<double> &values_block);
+    virtual void ComputeOptimalResolutionIndex(const vector<StreamElementData> &values_block);
+    void ComputeTranslations(const vector<StreamElementData> &values_block);
+    virtual void ComputeEmpiricalScalingCoefficients(const vector<StreamElementData> &values);
     void ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients);
 };
 
