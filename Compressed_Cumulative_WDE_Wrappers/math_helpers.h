@@ -13,7 +13,8 @@ using std::vector;
  * @param values - Vector of values.
  * @return Standard deviation estimator of values.
  */
-double stDev(const vector<double> &values);
+double StDev(const vector<double> &values);
 
+double WeightedStDev(const vector<double> &values, const vector<double> &weights);
 
 #endif

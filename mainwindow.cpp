@@ -1576,7 +1576,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   QString expNum = "1386 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, weighted stDev, updated h coefficient, alpha=0.01";
+  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1856,7 +1856,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   unsigned int current_coefficients_number = 0; // #coef
   int number_of_elements_per_block = 1000; // b
 
-  QString expNum = "1473 (Weighted Window WDE)";
+  QString expNum = "1477 (Weighted Window WDE)";
   //QString expNum = "WDE_TEST_3";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor klasyczny, b=" + QString::number(number_of_elements_per_block) +

@@ -160,7 +160,7 @@ add_executable(KerDEP
         Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedScalingFunction.cpp
         Compressed_Cumulative_WDE_Wrappers/LinearWDE.h
         Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp
-        Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.cpp Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.h Compressed_Cumulative_WDE_Wrappers/math_helpers.h Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h)
+        Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.cpp Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.h Compressed_Cumulative_WDE_Wrappers/math_helpers.h Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.cpp Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.h)
 
 include_directories(${QWT_INCLUDE_DIR})
 
