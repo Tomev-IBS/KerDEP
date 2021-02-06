@@ -67,7 +67,7 @@ std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
     return {0, 0};
   }
 
-  auto coefficients = estimators_[0]->GetEmpiricalCoefficients();
+  auto coefficients = estimators_[0]->GetEmpiricalScalingCoefficients();
 
   auto phi_jk = TranslatedDilatedScalingFunction(coefficients[0].j_, coefficients[0].k_);
   auto support = phi_jk.GetOriginalScalingFunctionSupport();
@@ -77,7 +77,7 @@ std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
 
   for(unsigned int i = 1; i < estimators_.size(); ++i){
 
-    coefficients = estimators_[i]->GetEmpiricalCoefficients();
+    coefficients = estimators_[i]->GetEmpiricalScalingCoefficients();
 
     auto coefficient = coefficients[0];
     phi_jk.UpdateIndices(coefficient.j_, coefficient.k_);
@@ -104,7 +104,7 @@ vector<point> KerDEP_CC_WDE::GetErrorDomainFromBlock() const {
 
   vector<point> error_domain = {};
 
-  double standard_deviation = stDev(block);
+  double standard_deviation = StDev(block);
   double minimal_value = *std::min_element(block.begin(), block.end()) - 5 * standard_deviation;
   double maximal_value = *std::max_element(block.begin(), block.end()) + 5 * standard_deviation;
 
