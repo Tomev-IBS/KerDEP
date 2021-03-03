@@ -9,11 +9,11 @@
 
 WeightedLinearWDE::WeightedLinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients,
                                      const double &threshold) : LinearWDE(empirical_scaling_coefficients, threshold) {
-  weight_ = 0.99;
+  weight_ = 0.999;
 }
 
 WeightedLinearWDE::WeightedLinearWDE(const double &threshold) : LinearWDE(threshold) {
-  weight_ = 0.99;
+  weight_ = 0.999;
 };
 
 
@@ -44,7 +44,7 @@ void WeightedLinearWDE::ComputeOptimalResolutionIndex(const vector<StreamElement
     weights.push_back(val.weight_);
   }
 
-  resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(WeightedStDev(unweighted_values, weights));
+  scaling_function_resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(WeightedStDev(unweighted_values, weights));
 }
 
 void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamElementData> &values) {
@@ -63,7 +63,7 @@ void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamE
 
     double coefficient = 0;
 
-    translated_dilated_scaling_function_.UpdateIndices(resolution_index_, k);
+    translated_dilated_scaling_function_.UpdateIndices(scaling_function_resolution_index_, k);
 
     for(auto val : values){
       coefficient += translated_dilated_scaling_function_.GetValue(val.value_) * val.weight_;
@@ -73,7 +73,7 @@ void WeightedLinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamE
 
     EmpiricalCoefficientData data;
     data.coefficient_ = coefficient;
-    data.j_ = resolution_index_;
+    data.j_ = scaling_function_resolution_index_;
     data.k_ = k;
     empirical_scaling_coefficients_.push_back(data);
   }

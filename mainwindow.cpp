@@ -28,6 +28,9 @@
 
 #include "LinearWDE.h"
 #include "WeightedLinearWDE.h"
+#include "WeightedThresholdedWDE.h"
+#include "ThresholdingStrategies/hardThresholdingStrategy.h"
+#include "ThresholdingStrategies/softThresholdingStrategy.h"
 
 #include "UI/QwtContourPlotUI.h"
 
@@ -44,6 +47,13 @@ WaveletDensityEstimator *CreateWaveletDensityEstimatorFromBlock(const vector<dou
 
 WaveletDensityEstimator *CreateWeightedWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
   auto wde = new WeightedLinearWDE();
+  wde->UpdateWDEData(values_block);
+  return wde;
+}
+
+WaveletDensityEstimator *CreateWeightedThresholdedWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
+  auto thresholding_strategy = ThresholdingStrategyPtr(new SoftThresholdingStrategy);
+  auto wde = new WeightedThresholdedWDE(thresholding_strategy);
   wde->UpdateWDEData(values_block);
   return wde;
 }
@@ -964,7 +974,7 @@ void MainWindow::on_pushButton_clicked() {
 
       QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image name: " + imageName);
-      log("Saved: " + QString(ui->widget_contour_plot_holder->grab().save(imageName)));
+      log("Saved: " + QString::number(ui->widget_contour_plot_holder->grab().save(imageName)));
       log("Drawing finished.");
     }
 
@@ -1158,7 +1168,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
   expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
@@ -1516,7 +1526,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
       imageName = dirPath + QString::number(step_number_) + ".png";
-      log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+      log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
 
@@ -1597,7 +1607,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
   expNumLabel.setText("");
 
   // Setting up the labels
@@ -1793,7 +1803,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
       imageName = dirPath + QString::number(step_number_) + ".png";
-      log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+      log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
 
@@ -1851,23 +1861,23 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  double weight_modifier = 0.99; // omega
+  double weight_modifier = 0.95; // omega
   unsigned int maximal_number_of_coefficients = 100; // M
   unsigned int current_coefficients_number = 0; // #coef
   int number_of_elements_per_block = 1000; // b
 
-  QString expNum = "1477 (Weighted Window WDE)";
-  //QString expNum = "WDE_TEST_3";
+  QString expNum = "1491 TEST (Thresholded Weighted Window WDE)";
+  //QString expNum = "THRESHOLDED_WDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, b=" + QString::number(number_of_elements_per_block) +
+  QString expDesc = "v=tor klasyczny, soft threshold, b=" + QString::number(number_of_elements_per_block) +
       ", omega=" + QString::number(weight_modifier) +
       ", M=" + QString::number(maximal_number_of_coefficients) ;
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
   //QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1882,7 +1892,7 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
   expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
@@ -1984,8 +1994,10 @@ void MainWindow::Run1DExperimentWithWDE() {
       &model_values, &wde_values, &error_domain, &error_domain_length
   );
 
-  Windowed_WDE WDE_Algorithm = Windowed_WDE(maximal_number_of_coefficients, weight_modifier, CreateWeightedWaveletDensityEstimatorFromBlock,
-                                              number_of_elements_per_block);
+  Windowed_WDE WDE_Algorithm = Windowed_WDE(maximal_number_of_coefficients, weight_modifier,
+                                            CreateWeightedThresholdedWaveletDensityEstimatorFromBlock,
+                                            //CreateWeightedWaveletDensityEstimatorFromBlock,
+                                            number_of_elements_per_block);
 
   double l1_sum = 0;
   double l2_sum = 0;
@@ -2076,7 +2088,7 @@ void MainWindow::Run1DExperimentWithWDE() {
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
       imageName = dirPath + QString::number(step_number_) + ".png";
-      log("Image saved: " + QString(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+      log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
 

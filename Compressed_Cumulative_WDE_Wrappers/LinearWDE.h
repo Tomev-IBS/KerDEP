@@ -34,18 +34,21 @@ class LinearWDE : public WaveletDensityEstimator {
     LinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients,
               const double &threshold = 1e-5);
 
-    virtual double GetValue(const double &x) const override;
+    double GetValue(const double &x) const override;
 
     void UpdateWDEData(const vector<double> &values_block) override;
     void LowerCoefficientsResolution() override;
+    void RemoveSmallestWaveletCoefficients(const unsigned int &number_of_coefficients) override;
 
     int GetResolutionIndex() const override;
     vector<EmpiricalCoefficientData> GetEmpiricalScalingCoefficients() const override;
     vector<EmpiricalCoefficientData> GetEmpiricalWaveletCoefficients() const override;
+    unsigned int GetEmpiricalScalingCoefficientsNumber() const override;
+    unsigned int GetEmpiricalWaveletCoefficientsNumber() const override;
     unsigned int GetEmpiricalCoefficientsNumber() const override;
 
     double GetWeight() const override;
-    virtual void SetWeight(const double &new_weight) override;
+    void SetWeight(const double &new_weight) override;
     void MultiplyWeight(const double &multiplier) override;
 
     WaveletDensityEstimator* Merge(WaveletDensityEstimator *other_wde) const override;
@@ -54,7 +57,7 @@ class LinearWDE : public WaveletDensityEstimator {
 
     static TranslatedDilatedScalingFunction translated_dilated_scaling_function_;
 
-    int resolution_index_ = 0;
+    int scaling_function_resolution_index_ = 0;
     int k_min_ = 0;
     int k_max_ = 0;
     vector<EmpiricalCoefficientData> empirical_scaling_coefficients_ = {};
@@ -64,9 +67,12 @@ class LinearWDE : public WaveletDensityEstimator {
 
     virtual vector<StreamElementData> PrepareBlockData(const vector<double> &values_block);
     virtual void ComputeOptimalResolutionIndex(const vector<StreamElementData> &values_block);
-    void ComputeTranslations(const vector<StreamElementData> &values_block);
+    virtual void ComputeTranslations(const vector<StreamElementData> &values_block);
     virtual void ComputeEmpiricalScalingCoefficients(const vector<StreamElementData> &values);
-    void ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients);
+    vector<int> ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients,
+                                                   const vector<EmpiricalCoefficientData> &scaling_coefficients) const;
+    vector<EmpiricalCoefficientData> ComputeLowerResolutionScalingCoefficients(
+        const vector<EmpiricalCoefficientData> &coefficients) const;
 };
 
 #endif //COMPRESSED_CUMULATIVE_WDE_OVER_STREAM_LINEARWDE_H

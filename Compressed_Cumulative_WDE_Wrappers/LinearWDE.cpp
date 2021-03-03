@@ -21,7 +21,7 @@ LinearWDE::LinearWDE(const double &threshold)
 LinearWDE::LinearWDE(vector<EmpiricalCoefficientData> empirical_scaling_coefficients, const double &threshold)
     :  coefficient_threshold_(threshold) , empirical_scaling_coefficients_(empirical_scaling_coefficients) {
   if(!empirical_scaling_coefficients.empty()){
-    resolution_index_ = empirical_scaling_coefficients[0].j_;
+    scaling_function_resolution_index_ = empirical_scaling_coefficients[0].j_;
     k_min_ = empirical_scaling_coefficients[0].k_;
     k_max_ = empirical_scaling_coefficients[empirical_scaling_coefficients.size() - 1].k_;
   }
@@ -64,7 +64,7 @@ void LinearWDE::ComputeOptimalResolutionIndex(const vector<StreamElementData> &v
     unweighted_values.push_back(val.value_);
   }
 
-  resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(StDev(unweighted_values));
+  scaling_function_resolution_index_ = log2(values_block.size()) / 3.0 - 2.0 - log2(StDev(unweighted_values));
 }
 
 /** Computes k_min and k_max (translation indices).
@@ -77,8 +77,8 @@ void LinearWDE::ComputeTranslations(const vector<StreamElementData> &values_bloc
   int support_min = support.first;
   int support_max = support.second;
 
-  k_min_ = ceil(pow(2, resolution_index_) * values_block[0].value_ - support_max);
-  k_max_ = floor(pow(2, resolution_index_) * values_block[values_block.size() - 1].value_ - support_min);
+  k_min_ = ceil(pow(2, scaling_function_resolution_index_) * values_block[0].value_ - support_max);
+  k_max_ = floor(pow(2, scaling_function_resolution_index_) * values_block[values_block.size() - 1].value_ - support_min);
 }
 
 /** Computes most important (according to threshold) empirical scaling function coefficients.
@@ -97,7 +97,7 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamElementDa
 
     double coefficient = 0;
 
-    translated_dilated_scaling_function_.UpdateIndices(resolution_index_, k);
+    translated_dilated_scaling_function_.UpdateIndices(scaling_function_resolution_index_, k);
 
     for(auto val : values){
       coefficient += translated_dilated_scaling_function_.GetValue(val.value_);
@@ -107,7 +107,7 @@ void LinearWDE::ComputeEmpiricalScalingCoefficients(const vector<StreamElementDa
 
     EmpiricalCoefficientData data;
     data.coefficient_ = coefficient;
-    data.j_ = resolution_index_;
+    data.j_ = scaling_function_resolution_index_;
     data.k_ = k;
     empirical_scaling_coefficients_.push_back(data);
   }
@@ -134,56 +134,34 @@ double LinearWDE::GetValue(const double &x) const {
  * @brief Computes coefficients for the lower resolution.
  */
 void LinearWDE::LowerCoefficientsResolution() {
-  --resolution_index_;
-
   auto filter_coefficients = translated_dilated_scaling_function_.GetFilterCoefficients();
 
-  vector<EmpiricalCoefficientData> LowerResolutionEmpiricalCoefficients = {};
+  auto lower_resolution_translations = ComputeLowerResolutionTranslations(filter_coefficients.size() - 1,
+                                                                          empirical_scaling_coefficients_);
 
-  ComputeLowerResolutionTranslations(filter_coefficients.size() - 1);
+  k_min_ = lower_resolution_translations[0];
+  k_max_ = lower_resolution_translations[1];
 
-  for(int k = k_min_; k <= k_max_; ++k){
+  empirical_scaling_coefficients_ = ComputeLowerResolutionScalingCoefficients(empirical_scaling_coefficients_);
 
-    double lower_res_coefficient = 0;
-
-    for(auto val : empirical_scaling_coefficients_){
-      int l = val.k_;
-      int filter_coefficient_index = l - 2 * k;
-
-      if(filter_coefficient_index < 0 || filter_coefficient_index >= filter_coefficients.size()){
-        continue;
-      }
-
-      lower_res_coefficient += val.coefficient_ * filter_coefficients[filter_coefficient_index];
-    }
-
-    //if(fabs(lower_res_coefficient) > coefficient_threshold_){
-    auto data = EmpiricalCoefficientData();
-    data.coefficient_ = lower_res_coefficient;
-    data.j_ = resolution_index_;
-    data.k_ = k;
-    LowerResolutionEmpiricalCoefficients.push_back(data);
-    //}
-
-  }
-
-  empirical_scaling_coefficients_ = LowerResolutionEmpiricalCoefficients;
+  --scaling_function_resolution_index_;
 }
 
-void LinearWDE::ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients) {
+vector<int> LinearWDE::ComputeLowerResolutionTranslations(const int &number_of_filter_coefficients,
+                                                          const vector<EmpiricalCoefficientData> &scaling_coefficients)
+                                                          const {
   int min_coefficient_number = 0;
   int max_coefficient_number = number_of_filter_coefficients - 1;
 
-  int k_min = ceil((empirical_scaling_coefficients_[0].k_ - max_coefficient_number) / 2);
-  int k_max = empirical_scaling_coefficients_[empirical_scaling_coefficients_.size() - 1].k_;
+  int k_min = ceil((scaling_coefficients[0].k_ - max_coefficient_number) / 2);
+  int k_max = scaling_coefficients[scaling_coefficients.size() - 1].k_;
   k_max = floor((k_max - min_coefficient_number) / 2);
 
-  k_min_ = k_min;
-  k_max_ = k_max;
+  return {k_min, k_max};
 }
 
 int LinearWDE::GetResolutionIndex() const {
-  return resolution_index_;
+  return scaling_function_resolution_index_;
 }
 
 vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalScalingCoefficients() const {
@@ -203,7 +181,7 @@ void LinearWDE::MultiplyWeight(const double &multiplier) {
 }
 
 unsigned int LinearWDE::GetEmpiricalCoefficientsNumber() const {
-  return empirical_scaling_coefficients_.size();
+  return GetEmpiricalScalingCoefficientsNumber() + GetEmpiricalWaveletCoefficientsNumber();
 }
 
 WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) const {
@@ -245,6 +223,56 @@ WaveletDensityEstimator *LinearWDE::Merge(WaveletDensityEstimator *other_wde) co
 
 vector<EmpiricalCoefficientData> LinearWDE::GetEmpiricalWaveletCoefficients() const {
   return vector<EmpiricalCoefficientData>();
+}
+
+unsigned int LinearWDE::GetEmpiricalScalingCoefficientsNumber() const {
+  return empirical_scaling_coefficients_.size();
+}
+
+unsigned int LinearWDE::GetEmpiricalWaveletCoefficientsNumber() const {
+  return 0;
+}
+
+void LinearWDE::RemoveSmallestWaveletCoefficients(const unsigned int &number_of_coefficients) {
+  return;
+}
+
+vector<EmpiricalCoefficientData> LinearWDE::ComputeLowerResolutionScalingCoefficients(
+    const vector<EmpiricalCoefficientData> &coefficients) const {
+
+  // All coefficients should have same resolution.
+  int new_resolution = coefficients[0].j_ - 1;
+
+  auto filter_coefficients = translated_dilated_scaling_function_.GetFilterCoefficients();
+
+  auto lower_resolution_translations = ComputeLowerResolutionTranslations(filter_coefficients.size() - 1,
+                                                                          coefficients);
+
+  vector<EmpiricalCoefficientData> LowerResolutionEmpiricalCoefficients = {};
+
+  for(int k = lower_resolution_translations[0]; k <= lower_resolution_translations[1]; ++k){
+
+    double lower_res_coefficient = 0;
+
+    for(auto val : coefficients){
+      int l = val.k_;
+      int filter_coefficient_index = l - 2 * k;
+
+      if(filter_coefficient_index < 0 || filter_coefficient_index >= filter_coefficients.size()){
+        continue;
+      }
+
+      lower_res_coefficient += val.coefficient_ * filter_coefficients[filter_coefficient_index];
+    }
+
+    auto data = EmpiricalCoefficientData();
+    data.coefficient_ = lower_res_coefficient;
+    data.j_ = new_resolution;
+    data.k_ = k;
+    LowerResolutionEmpiricalCoefficients.push_back(data);
+  }
+
+  return LowerResolutionEmpiricalCoefficients;
 }
 
 
