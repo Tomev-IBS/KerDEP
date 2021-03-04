@@ -5,21 +5,22 @@
 
 distributionDataParser::distributionDataParser(std::unordered_map<std::string, attributeData *> *attributesData)
 {
-    buffer = new QVector<qreal>();
+    buffer = new vector<double>();
     this->attributesData = attributesData;
 }
 
 void distributionDataParser::parseData(void *target)
 {
-  QVector<qreal> *data            = static_cast<QVector<qreal>*>(buffer);
+  vector<double> *data            = static_cast<vector<double>*>(buffer);
   distributionDataSample *sample  = static_cast<distributionDataSample*>(target);
 
   sample->attributesValues.clear();
 
-  for(int i = 0; i < data->size(); ++i)
+  for(size_t i = 0; i < data->size(); ++i)
     sample->attributesValues[attributesOrder->at(i)] = std::to_string(data->at(i));
 
   sample->attributesData = attributesData;
+  sample->attributesOrder = attributesOrder;
 
   updateAttributesData(sample);
 }
@@ -43,18 +44,16 @@ void distributionDataParser::setAttributesOrder(std::vector<std::string> *attrib
 
 void distributionDataParser::updateAttributesData(distributionDataSample *sample)
 {
-  for(auto kv : sample->attributesValues)
+  for(auto kv : sample->attributesValues)  {
+    // For now only consider numerical data
+    if(attributesData->at(kv.first)->getType() == "numerical")
     {
-      // For now only consider numerical data
-      if(attributesData->at(kv.first)->getType() == "numerical")
-      {
-        numericalAttributeData *numAttribute = static_cast<numericalAttributeData*>(attributesData->at(kv.first));
-        double value = stod(kv.second);
+      numericalAttributeData *numAttribute = static_cast<numericalAttributeData*>(attributesData->at(kv.first));
+      double value = stod(kv.second);
 
-        numAttribute->setMaximalValue(value);
-        numAttribute->setMinimalValue(value);
-
-        numAttribute->attributeOccured();
-      }
+      numAttribute->setMaximalValue(value);
+      numAttribute->setMinimalValue(value);
+      numAttribute->attributeOccured();
     }
+  }
 }

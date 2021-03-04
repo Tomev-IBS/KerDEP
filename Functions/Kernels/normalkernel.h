@@ -2,20 +2,20 @@
 #define NORMALKERNEL_H
 
 #include "kernel.h"
-#define _USE_MATH_DEFINES
 #include <cmath>
+#define _USE_MATH_DEFINES
 
 class normalKernel : public kernel
 {
     public:
         normalKernel();
 
-        qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
-        static qreal getW(){ return 1.0 / (2.0 * M_PI); }
-        static qreal getU(){ return 1.0; }
+        double getValue(vector<double>* arguments); // Only one argument should be passed
+        static double getW(){ return 1.0 / (2.0 * 3.14); }
+        static double getU(){ return 1.0; }
 
     private:
-        qreal   mean = 0.0,
+        double  mean = 0.0,
                 standardDeviation = 1.0;
 
 };

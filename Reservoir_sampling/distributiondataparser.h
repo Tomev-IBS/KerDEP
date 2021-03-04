@@ -1,14 +1,15 @@
 #ifndef DISTRIBUTIONDATAPARSER_H
 #define DISTRIBUTIONDATAPARSER_H
 
-#include <QVector>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 #include <string>
 
 #include "dataParser.h"
 #include "distributionDataSample.h"
 #include "../groupingThread/kMedoidsAlgorithm/attributeData.h"
+
+using std::vector;
 
 class distributionDataParser: public dataParser
 {

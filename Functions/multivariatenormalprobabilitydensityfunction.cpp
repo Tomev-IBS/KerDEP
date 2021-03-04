@@ -3,12 +3,12 @@
 #include "QtMath"
 #include <QDebug>
 
-multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(QVector<qreal> *means, QVector<qreal> *stDevs)
+multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(vector<double> *means, vector<double> *stDevs, int covarianceCoefficient)
 {
-    qreal correlationCoefficient = 0.5;
+    double correlationCoefficient = covarianceCoefficient;
     matrix covarianceMatrix;
 
-    this->means = QVector<qreal>(*means);
+    this->means = vector<double>(*means);
 
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
 
@@ -17,7 +17,7 @@ multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensi
     fillInverseMatrix(&covarianceMatrix, &inverseCovarianceMatrix);
 }
 
-qreal multivariateNormalProbabilityDensityFunction::getValue(point *arguments)
+double multivariateNormalProbabilityDensityFunction::getValue(point *arguments)
 {
     if(covarianceMatrixDeterminant == 0)
     {
@@ -25,29 +25,35 @@ qreal multivariateNormalProbabilityDensityFunction::getValue(point *arguments)
         return -1;
     }
 
-    QVector<qreal> vectorMatrixProduct;
-    qreal value, result = 0;
+    vector<double> vectorMatrixProduct;
+    double value, result = 0;
 
-    for(int rowIndex = 0; rowIndex < inverseCovarianceMatrix.size(); ++rowIndex)
+    for(size_t rowIndex = 0; rowIndex < inverseCovarianceMatrix.size(); ++rowIndex)
     {
         value = 0;
 
-        for(int columnIndex = 0; columnIndex < inverseCovarianceMatrix.at(rowIndex)->size(); ++columnIndex)
+        for(size_t columnIndex = 0; columnIndex < inverseCovarianceMatrix.at(rowIndex)->size(); ++columnIndex)
         {
             value += inverseCovarianceMatrix.at(rowIndex)->at(columnIndex)
                     * (arguments->at(columnIndex) - means.at(columnIndex));
         }
 
-        vectorMatrixProduct.append(value);
+        vectorMatrixProduct.push_back(value);
     }
 
-    for(int i = 0; i < vectorMatrixProduct.size(); ++i)
+    for(size_t i = 0; i < vectorMatrixProduct.size(); ++i)
         result += vectorMatrixProduct.at(i) * (arguments->at(i) - means.at(i));
 
     result /= -2;
 
     result = exp(result);
-    result /= qSqrt(qPow(2*M_PI, arguments->size()) * covarianceMatrixDeterminant);
+    result /= qPow(2 * M_PI, arguments->size() / 2.0);
+    result /= qSqrt(covarianceMatrixDeterminant);
 
     return result;
+}
+
+void multivariateNormalProbabilityDensityFunction::setMeans(const vector<double> &newMeans)
+{
+  means = newMeans;
 }

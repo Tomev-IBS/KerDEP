@@ -1,11 +1,9 @@
 #include "complexfunction.h"
 
-#include "QDebug"
-
-complexFunction::complexFunction(QVector<qreal> *contributions, QVector<std::shared_ptr<function>> *elementalFunctions)
+complexFunction::complexFunction(vector<double> *contributions, vector<std::shared_ptr<function>> *elementalFunctions)
 {
-    this->contributions         = QVector<qreal>(*contributions);
-    this->elementalFunctions    = QVector<std::shared_ptr<function>>(*elementalFunctions);
+    this->contributions         = vector<double>(*contributions);
+    this->elementalFunctions    = vector<std::shared_ptr<function>>(*elementalFunctions);
 }
 
 complexFunction::~complexFunction()
@@ -14,12 +12,12 @@ complexFunction::~complexFunction()
     elementalFunctions.clear();
 }
 
-qreal complexFunction::getValue(point *args)
+double complexFunction::getValue(point *args)
 {
-    qreal result = 0;
+    double result = 0;
 
-    for(int functionIndex = 0; functionIndex < elementalFunctions.size(); ++functionIndex)
-        result += elementalFunctions.at(functionIndex).get()->getValue(args) * contributions.at(functionIndex)/100;
+    for(size_t functionIndex = 0; functionIndex < elementalFunctions.size(); ++functionIndex)
+        result += elementalFunctions.at(functionIndex).get()->getValue(args) * contributions.at(functionIndex)/100.0;
 
     return result;
 }

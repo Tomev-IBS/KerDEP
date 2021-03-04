@@ -8,14 +8,14 @@
 class complexFunction : public function
 {
     public:
-        complexFunction(QVector<qreal>* contributions, QVector<std::shared_ptr<function>>* elementalFunctions);
+        complexFunction(vector<double> *contributions, vector<std::shared_ptr<function>> *elementalFunctions);
         ~complexFunction();
 
-        qreal getValue(point* args);
+        double getValue(point* args);
 
     private:
-        QVector<qreal> contributions;
-        QVector<std::shared_ptr<function>> elementalFunctions;
+        vector<double> contributions;
+        vector<std::shared_ptr<function>> elementalFunctions;
 
 };
 

@@ -50,3 +50,14 @@ unsigned int biasedReservoirSamplingAlgorithm::getReservoidMaxSize()
 {
   return 1 / biasRate;
 }
+
+void biasedReservoirSamplingAlgorithm::changeReservoirMaxSize(unsigned int newMaxSize)
+{
+  if (newMaxSize == 0) return;
+  biasRate = 1.0 / newMaxSize;
+}
+
+std::vector<std::string> *biasedReservoirSamplingAlgorithm::getAttributesList()
+{
+  return reader->getAttributesOrder();
+}

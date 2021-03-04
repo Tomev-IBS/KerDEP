@@ -1,35 +1,35 @@
 #include "complexdistribution.h"
 
-complexDistribution::complexDistribution(int seed, QVector<std::shared_ptr<distribution>> *elementalDistributions, QVector<qreal> *contributions) :
+complexDistribution::complexDistribution(int seed, vector<std::shared_ptr<distribution>> *elementalDistributions, vector<double> *contributions) :
     uniformDistribution(0.0, 1.0)
 {
-    this->elementalDistributions = QVector<std::shared_ptr<distribution>>(*elementalDistributions);
-    this->contributions = QVector<qreal>(*contributions);
+    this->elementalDistributions = vector<std::shared_ptr<distribution>>(*elementalDistributions);
+    this->contributions = vector<double>(*contributions);
 
     generator = std::default_random_engine(seed);
 }
 
-void complexDistribution::getValue(QVector<qreal> *result)
+void complexDistribution::getValue(vector<double> *result)
 {
     int distributionIndex = randomizeDistributionIndex();
 
     elementalDistributions.at(distributionIndex)->getValue(result);
 }
 
-void complexDistribution::increaseMeans(qreal addend)
+void complexDistribution::increaseMeans(double addend, int index)
 {
     for(std::shared_ptr<distribution> elementalDistribution : elementalDistributions)
     {
-        elementalDistribution->increaseMeans(addend);
+        elementalDistribution->increaseMeans(addend, index);
     }
 }
 
 int complexDistribution::randomizeDistributionIndex()
 {
-    std::uniform_real_distribution<qreal> uniformDistribution(0,1);
+    std::uniform_real_distribution<double> uniformDistribution(0,1);
 
-    qreal threshold = uniformDistribution(generator) * 100;
-    qreal checker = contributions.at(0);
+    double threshold = uniformDistribution(generator) * 100;
+    double checker = contributions.at(0);
 
     int distributionIndex = 0;
 

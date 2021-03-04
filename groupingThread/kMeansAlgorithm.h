@@ -17,7 +17,9 @@ class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
     enum initialMeansFindingStrategy
     {
       RANDOM = 0,
-      RANDOM_ACCORDING_TO_DISTANCE = 1
+      RANDOM_ACCORDING_TO_DISTANCE = 1,
+      FIRST_M_CLUSTERS = 2,
+      LATEST_M_CLUSTERS = 3
     };
 
     kMeansAlgorithm(    int numberOfClusters,
@@ -56,6 +58,8 @@ class kMeansAlgorithm : public distanceBasedGroupingAlgorithm
     void clusterObjects(std::vector<std::shared_ptr<sample>> *objects);
     int performGrouping(std::vector<std::shared_ptr<cluster>>* target);
       int findInitialMeans();
+        int getMeansFromFirstMClusters();
+        int getMeansFromNewestClusters();
         int findRandomMeans();
         int findMeansAccordingToDistance();
           int addNewMeanToMeansVector(int meanIndex);

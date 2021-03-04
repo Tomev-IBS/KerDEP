@@ -8,9 +8,9 @@ class epanecznikowKernel : public kernel
 public:
     epanecznikowKernel();
 
-    qreal getValue(QVector<qreal>* arguments); // Only one argument should be passed
-    static qreal getW(){ return 0.2; }
-    static qreal getU(){ return 0.6; }
+    double getValue(vector<double>* arguments); // Only one argument should be passed
+    static double getW(){ return 0.2; }
+    static double getU(){ return 0.6; }
 };
 
 #endif // EPANECZNIKOWKERNEL_H

@@ -14,7 +14,7 @@
    <string>KerDEP</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_5">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
@@ -90,42 +90,81 @@
            </widget>
           </item>
           <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_contourPlot">
+       <attribute name="title">
+        <string>Contour Plot (3D)</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QWidget" name="widget_contour_plot_holder" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QWidget" name="widget_contour_plot" native="true"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
            <widget class="QGroupBox" name="groupBox_3">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="title">
-             <string>Selected Parameters Values</string>
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>50</height>
+             </size>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Controls</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QLabel" name="label_h_parameter_text">
-               <property name="text">
-                <string>h = </string>
+              <widget class="QPushButton" name="pushButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_h_parameter_value">
                <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_sigma_text">
-               <property name="text">
-                <string>, sigma_i = </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_sigma_value">
-               <property name="text">
-                <string>0</string>
+                <string>Start</string>
                </property>
               </widget>
              </item>
@@ -133,7 +172,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_2">
+           <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -188,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-3.0</string>
+            <string>-5</string>
            </property>
           </widget>
          </item>
@@ -202,7 +241,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>8</string>
+            <string>38</string>
            </property>
           </widget>
          </item>
@@ -244,7 +283,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_domainDensity">
            <property name="text">
-            <string>0.1</string>
+            <string>0.01</string>
            </property>
           </widget>
          </item>
@@ -289,6 +328,9 @@
              </property>
              <property name="maximum">
               <number>10</number>
+             </property>
+             <property name="value">
+              <number>1</number>
              </property>
             </widget>
            </item>
@@ -340,7 +382,7 @@
           <x>180</x>
           <y>10</y>
           <width>191</width>
-          <height>351</height>
+          <height>431</height>
          </rect>
         </property>
         <property name="title">
@@ -357,7 +399,14 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_sampleSize">
            <property name="text">
-            <string>1000</string>
+            <string>10000</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Reservoir algorithm</string>
            </property>
           </widget>
          </item>
@@ -385,7 +434,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_distributionProgression">
            <property name="text">
-            <string>0.0001</string>
+            <string>0.01</string>
            </property>
           </widget>
          </item>
@@ -399,7 +448,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_iterationsNumber">
            <property name="text">
-            <string>100000</string>
+            <string>11001</string>
            </property>
           </widget>
          </item>
@@ -463,8 +512,8 @@
        <widget class="QGroupBox" name="groupBox_generalSettings">
         <property name="geometry">
          <rect>
-          <x>180</x>
-          <y>370</y>
+          <x>190</x>
+          <y>450</y>
           <width>191</width>
           <height>91</height>
          </rect>
@@ -483,7 +532,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_seed">
            <property name="text">
-            <string>1</string>
+            <string>5625</string>
            </property>
           </widget>
          </item>
@@ -525,7 +574,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_rarity">
            <property name="text">
-            <string>0.02</string>
+            <string>0.1</string>
            </property>
           </widget>
          </item>
@@ -615,7 +664,7 @@
          <rect>
           <x>390</x>
           <y>310</y>
-          <width>181</width>
+          <width>241</width>
           <height>231</height>
          </rect>
         </property>
@@ -626,7 +675,17 @@
          <item>
           <widget class="QCheckBox" name="checkBox_showEstimatedPlot">
            <property name="text">
-            <string>Estimated Plot</string>
+            <string>Estimated Plot (Red)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checbox_showFullEstimator">
+           <property name="text">
+            <string>Full Estimator Plot (Black)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -636,7 +695,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_showEstimationPlot">
            <property name="text">
-            <string>Estimation Plot</string>
+            <string>Estimation Plot (Navy)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -644,12 +703,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_showTimeDerivativePlot">
+          <widget class="QCheckBox" name="checkBox_showWeightedEstimationPlot">
            <property name="text">
-            <string>Time Derivative</string>
+            <string>Weighted Estimation Plot (Light Blue)</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -659,34 +718,14 @@
             <string>Unusual clusters</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_showNewTrends">
-           <property name="text">
-            <string>New trends</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_negativeC2Clusters">
-           <property name="text">
-            <string>Negative c2 clusters</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
            <property name="text">
-            <string>Kernel prognosed Plot</string>
+            <string>Kernel prognosed Plot (Orange)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -694,12 +733,32 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
+          <widget class="QCheckBox" name="checkBox_standarizedDerivative">
            <property name="text">
-            <string>Sigmoidally Enhanced KDE</string>
+            <string>Standarized Derivative Plot (Yellow)</string>
            </property>
            <property name="checked">
             <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
+           <property name="text">
+            <string>Sigmoidally Enhanced KDE (Magenta)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_REESEKDE">
+           <property name="text">
+            <string>REE SE KDE (Green)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

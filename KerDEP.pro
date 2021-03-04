@@ -11,10 +11,28 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET      =   KerDEP
 TEMPLATE    =   app
 CONFIG      +=  static
+CONFIG      +=  qwt
 
 QMAKE_CXXFLAGS += -std=c++11
 
+INCLUDEPATH += $$PWD/ClusterKernelWrappers/
+INCLUDEPATH += $$PWD/ClusterKernelsKDE/include/ClusterKernelsKDE/
+INCLUDEPATH += $$PWD/ClusterKernelsKDE/src/
+
 SOURCES     +=  main.cpp\
+                Benchmarking/errorsCalculator.cpp \
+                ClusterKernelWrappers/enhancedClusterKernelAlgorithm.cpp \
+                ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.cpp \
+                ClusterKernelWrappers/univariateStreamElement.cpp \
+                ClusterKernelWrappers/varianceBasedClusterKernel.cpp \
+                ClusterKernelsKDE/src/ClusterKernelsAlgorithm.cpp \
+                ClusterKernelsKDE/src/UnivariateListBasedClusterKernelAlgorithm.cpp \
+                ClusterKernelsKDE/src/WeightedUnivariateListBasedClusterKernelAlgorithm.cpp \
+                DESDAReservoir.cpp \
+                UI/QwtContourPlotUI.cpp \
+                UI/plot.cpp \
+                UI/plotLabelDoubleDataPreparator.cpp \
+                UI/plotLabelIntDataPreparator.cpp \
                 mainwindow.cpp \
                 QCustomPlot/qcustomplot.cpp \
                 KDE/kerneldensityestimator.cpp \
@@ -49,9 +67,23 @@ SOURCES     +=  main.cpp\
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp \
                 groupingThread/kMeansAlgorithm.cpp \
-    DESDA.cpp
+                DESDA.cpp \
+                StationarityTests/kpssstationaritytest.cpp \
+                UI/plotLabel.cpp
 
 HEADERS     +=  mainwindow.h \
+                Benchmarking/errorsCalculator.h \
+                ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h \
+                ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.h \
+                ClusterKernelWrappers/univariateStreamElement.h \
+                ClusterKernelWrappers/varianceBasedClusterKernel.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernel.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernelStreamElement.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernelsAlgorithm.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/RealValuedFunction.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/UnivariateListBasedClusterKernelAlgorithm.h \
+                ClusterKernelsKDE/include/ClusterKernelsKDE/WeightedUnivariateListBasedClusterKernelAlgorithm.h \
+                DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
                 KDE/kerneldensityestimator.h \
@@ -79,6 +111,11 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
+                UI/QwtContourPlotUI.h \
+                UI/i_plotLabelDataPreparator.h \
+                UI/plot.h \
+                UI/plotLabelDoubleDataPreparator.h \
+                UI/plotLabelIntDataPreparator.h \
                 groupingThread/groupingThread.h \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/categorical/smdCategoricalAttributesDistanceMeasure.h \
                 groupingThread/kMedoidsAlgorithm/attributesDistanceMeasures/numerical/gowersNumericalAttributesDistanceMeasure.h \
@@ -104,9 +141,14 @@ HEADERS     +=  mainwindow.h \
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.h \
                 groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h \
-    groupingThread/kMeansAlgorithm.h \
-    DESDA.h
+                groupingThread/kMeansAlgorithm.h \
+                DESDA.h \
+                StationarityTests/kpssstationaritytest.h \
+                StationarityTests/i_stationaritytest.h \
+                UI/plotLabel.h
 
 FORMS       +=  mainwindow.ui
 
-DISTFILES   +=  .gitignore
+DISTFILES   +=  .gitignore \
+  ClusterKernelsKDE/.gitignore \
+  ClusterKernelsKDE/CMakeLists.txt

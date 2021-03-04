@@ -2,17 +2,17 @@
 #define MATRIXOPERATIONSLIBRARY_H
 
 // TODO: Write Matrix Class
-
-#include <QObject>
-#include <QVector>
 #include <memory>
+#include <vector>
 
-typedef QVector<std::shared_ptr<QVector<qreal>>>* matrixPtr;
-typedef QVector<std::shared_ptr<QVector<qreal>>> matrix;
+using std::vector;
 
-void fillCovarianceMatrix(qreal correlationCoefficient, QVector<qreal>* stDevs, matrix *covarianceMatrix);
+typedef vector<std::shared_ptr<vector<double>>>* matrixPtr;
+typedef vector<std::shared_ptr<vector<double>>> matrix;
 
-qreal countMatrixDeterminantRecursively(matrixPtr baseMatrix);
+void fillCovarianceMatrix(double correlationCoefficient, vector<double>* stDevs, matrix *covarianceMatrix);
+
+double countMatrixDeterminantRecursively(matrixPtr baseMatrix);
 
 void fillCholeskyDecompositionMatrix(matrixPtr baseMatrix, matrixPtr decomposedMatrix);
 

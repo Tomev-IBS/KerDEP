@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <QMainWindow>
 #include <QDoubleValidator>
@@ -17,187 +17,158 @@
 #include "KDE/smoothingParameterCounter.h"
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
+#include "ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h"
 
-enum positionalSecondGradeEstimatorCountingMethods
-{
-  STANDARD = 0,
-  WEIGHTED = 1
+#include "DESDA.h"
+#include "kerDepCcWde.h"
+
+#include "UI/plot.h"
+
+enum class KernelSettingsColumns : int {
+  kKernelColumnIndex = 0,
+  kSmoothingParameterColumnIndex = 1,
+  kCarrierRestrictionColumnIndex = 2
 };
 
-namespace Ui
-{
-    class MainWindow;
+enum class TargetFunctionSettingsColumns : int {
+  kMeanColumnIndex = 0,
+  kStandardDeviationColumnIndex = 1,
+  kContributionColumnIndex = 2
+};
+
+enum class ReservoirSamplingAlgorithms : int {
+  kBasicReservoirSamplingAlgorithm = 0,
+  kBiasedReservoirSamplingAlgorithm = 1
+};
+
+namespace Ui {
+  class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
   Q_OBJECT
 
   public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
   protected:
-    void keyPressEvent(QKeyEvent* event);
-
-    int stepNumber = 0;
-
-    std::vector<std::shared_ptr<cluster>> uncommonClusters;
+    int step_number_ = 0;
+    QVector<std::shared_ptr<point>> domain_;
+    QVector<double> drawable_domain_;
+    QVector<double> windowed_error_domain_;
+    QVector<double> error_domain_;
 
   private:
-    void setupValidators();
-    void setupPlot();
-    void setupKernelsTable();
+    // Pens for 1d plot
+    const QPen model_plot_pen_ = QPen(Qt::red);
+    const QPen windowed_plot_pen_ = QPen(Qt::black);
+    const QPen kde_plot_pen_ = QPen(Qt::blue);
+    const QPen weighted_plot_pen_ = QPen(Qt::cyan);
+    const QPen derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
+    const QPen standardized_derivative_plot_pen_ = QPen(QColor(255, 220, 0)); // Yellow
+    const QPen desda_kde_plot_pen_ = QPen(Qt::magenta);
+    const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::green);
 
-    long long start;
+    // Contour plots
+    Plot *contour_plot_ = nullptr;
+    std::vector<QCPAbstractItem *> lines_on_plot_;
 
-    double _longestStepExecutionInSecs = 0;
-
-    // Uncommon clusters dynamic parameter
-    const double MAX_A                = 1.5;
-    const double MIN_A                = 0.01;
-    double _a                         = 1;
-    double _maxEstimatorValueOnDomain = 0;
-    double _previousUncommonClustersWeight = 0.0;
-    void updateA();
-
+    long long start = 0;
+    int screen_generation_frequency_ = 1;
     // Default settings
-    const qreal MAX_X                 = 999.0;
-    const qreal MIN_X                 = -999.0;
-    const qreal MAX_Y                 = 99.0;
-    const qreal MIN_Y                 = -99.0;
-    const qreal MIN_SMOOTHING_P       = 0.0;
-    const qreal MAX_SMOOTHING_P       = 2.0;
-    const int   DECIMAL_NUMBERS       = 3;
-    const qreal DEFAULT_MIN_X         = -5;
-    const qreal DEFAULT_MAX_X         = 15;
-    const qreal DEFAULT_MIN_Y         = -0.3;
-    const qreal DEFAULT_MAX_Y         = 0.5;
-
-    const unsigned int MEDOIDS_NUMBER = 10;
-
-    std::vector<std::vector<std::shared_ptr<cluster>>> storedMedoids;
-
+    const qreal kMaxX = 999.0;
+    const qreal kMinX = -999.0;
+    const qreal kMaxY = 99.0;
+    const qreal kMinY = -99.0;
+    const qreal kMinSmoothingParameter = 0.0;
+    const qreal kMaxSmoothingParameter = 2.0;
+    const int kDecimalNumbers = 3;
+    const qreal kDefaultMinX = -5;
+    const qreal kDefaultMaxX = 15;
+    const qreal kDefaultMinY = -0.3;
+    const qreal kDefaultMaxY = 0.5;
+    std::vector<std::shared_ptr<cluster>> stored_medoids_;
     Ui::MainWindow *ui;
-
-    QVector<std::shared_ptr<QVector<qreal>>> samples;
-    std::vector<std::shared_ptr<sample>> objects;
-    std::vector<std::shared_ptr<cluster>> *clusters;
-
-    QVector<qreal> KDETemporalDerivativeY;
-
-    std::unordered_map<std::string, attributeData*> attributesData;
-
+    vector<std::shared_ptr<vector<double>>> samples_;
+    std::vector<std::shared_ptr<sample>> objects_;
+    std::vector<std::shared_ptr<cluster>> *clusters_ = nullptr;
+    std::unordered_map<std::string, attributeData *> attributes_data_;
     // Tests
-    void testNewFunctionalities();
-
-    QVector<qreal> KDEEstimationY;
-
+    /*static*/ void testNewFunctionalities();
+    void SetupValidators();
+    void SetupPlot();
+    void SetupKernelsTable();
     // Prediction
-    QVector<double> _kernelPrognosisDerivativeValues;
-
-    double positionalSecondGradeEstimator = 0.0;
-
-    std::shared_ptr<dataParser> parser;
-    std::shared_ptr<dataReader> reader;
-
-    QVector<qreal> oldKerernelY;
-    QVector<qreal> newKernelY;
-
-    std::shared_ptr<kernelDensityEstimator> kernelPrognoser;
-
-    double adaptivePredictionPowerParameter = 1e15;
-
-    QVector<std::shared_ptr<QVector<qreal>>> means, stDevs;
-
-    int positionalSecondGradeEstimatorCountingMethod = WEIGHTED;
-
-    QStringList kernelTypes;
-
-    unsigned long long insertObjectsBetweenIntervals(unsigned int objectsNumber);
-    unsigned long long generateInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects,
-                                                    unsigned int objectsNumber);
-    unsigned long long selectDesiredNumberOfInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
-    unsigned long long insertClustersFromInterIntervalObjects(std::vector<std::shared_ptr<sample>> *interIntervalObjects);
-    double setInterIntervalClustersWeights(std::vector<std::shared_ptr<cluster>> *newClusters);
-    double countInterIntervalClustersWeight();
-
-    unsigned long long insertMassiveData();
-    unsigned long long generateMassiveData(std::vector<std::shared_ptr<sample> > *dataContainer);
-
-    void drawPlots(kernelDensityEstimator* estimator, function* targetFunction);
-    void clearPlot();
-    void resizePlot();
-    void addModelPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
-    void addEstimatedPlot(const QVector<qreal> *X, const QVector<qreal> *Y);
-    double countNewtonianDerivative(int i, const QVector<qreal> *Y);
-    void addKernelPrognosisDerivativePlot(const QVector<qreal> *X);
-    void countKernelPrognosisDerivativeY(const QVector<qreal> *X);
-    void addSigmoidallyEnhancedEstimationPlot(const QVector<qreal> *X, kernelDensityEstimator *estimator);
-    int updateClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
-    int initializeClusterPredictionParameter(std::shared_ptr<cluster> c, double KDEValue);
-    unsigned long long markUncommonClusters();
-    void markNewTrends();
-    void markClustersWithNegativeDerivative();
-
-    void addTemporalDerivativePlot(const QVector<qreal> *X, const QVector<qreal> *Y);
-
-    void fillStandardDeviations(QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
-    void fillMeans(QVector<std::shared_ptr<QVector<qreal> > > *means);
+    QVector<double> kernel_prognosis_derivative_values_;
+    // Errors
+    double l1_w_ = 0, l1_m_ = 0, l1_d_ = 0, l1_p_ = 0, l1_n_ = 0,
+           l2_w_ = 0, l2_m_ = 0, l2_d_ = 0, l2_p_ = 0, l2_n_ = 0,
+           sup_w_ = 0, sup_m_ = 0, sup_d_ = 0, sup_p_ = 0, sup_n_ = 0,
+           mod_w_ = 0, mod_m_ = 0, mod_d_ = 0, mod_p_ = 0, mod_n_ = 0;
+    QVector<std::pair<double, double>>
+        atypical_elements_values_and_derivatives_ = {};
+    double quantile_estimator_value_ = 0;
+    std::shared_ptr<dataParser> parser_;
+    std::shared_ptr<dataReader> reader_;
+    std::shared_ptr<kernelDensityEstimator> derivative_estimator_;
+    std::shared_ptr<kernelDensityEstimator> enhanced_kde_;
+    vector<std::shared_ptr<vector<double>>> means_, standard_deviations_;
+    QStringList kernel_types_;
+    std::shared_ptr<function> target_function_;
+    void DrawPlots(DESDA *DESDAAlgorithm);
+    void DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm);
+    void DrawPlots(KerDEP_CC_WDE *WDEAlgorithm);
+    void ClearPlot();
+    void AddPlot(const QVector<qreal> *Y, const QPen &pen);
+    void ResizePlot();
+    unsigned long long MarkUncommonClusters();
+    void FillStandardDeviations(
+        vector<std::shared_ptr<vector<double>>> *stDevs);
+    void FillMeans(vector<std::shared_ptr<vector<double>>> *means);
 
   private slots:
 
-    void refreshKernelsTable();
-    void addKernelToTable(int rowNumber, QDoubleValidator *smoothingParameterValidator);
-    void refreshTargetFunctionTable();
-    void uniformContributions();
-    qreal countLastContribution();
-    void updateLastContribution();
-
-    void fillDomain(QVector<std::shared_ptr<point> > *domain, std::shared_ptr<point> *prototypePoint);
-    distribution *generateTargetDistribution(QVector<std::shared_ptr<QVector<qreal> > > *means,
-                                             QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
-    reservoirSamplingAlgorithm *generateReservoirSamplingAlgorithm(dataReader *reader,
-                                                                   dataParser *parser);
-    kernelDensityEstimator *generateKernelDensityEstimator(int dimensionsNumber);
-    function *generateTargetFunction(QVector<std::shared_ptr<QVector<qreal> > > *means, QVector<std::shared_ptr<QVector<qreal> > > *stDevs);
-
+    void RefreshKernelsTable();
+    void AddKernelToTable(int rowNumber,
+                          QDoubleValidator *smoothingParameterValidator);
+    void RefreshTargetFunctionTable();
+    void UniformContributions();
+    qreal CountLastContribution();
+    void UpdateLastContribution();
+    void FillDomain(QVector<std::shared_ptr<point> > *domain,
+                    std::shared_ptr<point> *prototypePoint);
+    distribution *GenerateTargetDistribution(
+        vector<std::shared_ptr<vector<double>>> *means,
+        vector<std::shared_ptr<vector<double>>> *stDevs);
+    reservoirSamplingAlgorithm *GenerateReservoirSamplingAlgorithm(
+        dataReader *reader,
+        dataParser *parser);
+    kernelDensityEstimator *GenerateKernelDensityEstimator(
+        int dimensionsNumber);
+    function *GenerateTargetFunction(
+        vector<std::shared_ptr<vector<double>>> *means,
+        vector<std::shared_ptr<vector<double>>> *stDevs);
+    static int CanAnimationBePerformed(int dimensionsNumber);
+    static QString FormatNumberForDisplay(double number);
     void on_pushButton_start_clicked();
-    int canAnimationBePerformed(int dimensionsNumber);
-    void clusterMassiveData(std::vector<std::shared_ptr<sample>> *objects,
-                            std::vector<std::vector<std::shared_ptr<cluster>>> *storage);
-    std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
-    void countKDEValuesOnClusters(std::shared_ptr<kernelDensityEstimator> estimator);
-    unsigned long long findUncommonClusters();
-
-
-    void delay(int ms);
-
+    void Run1DExperimentWithDESDA();
+    void Run1DExperimentWithClusterKernels();
+    void Run1DExperimentWithWDE();
     void on_spinBox_dimensionsNumber_editingFinished();
-
     void on_pushButton_addTargetFunction_clicked();
-
     void on_pushButton_removeTargetFunction_clicked();
+    void on_pushButton_clicked();
+    void resizeEvent(QResizeEvent *event) override;
+    // 2D Plot
+    static std::vector<std::vector<double>> Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static std::vector<std::vector<double>> Generate1DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static std::vector<std::vector<double>> Generate1DWindowedPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
+    static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
+
 };
 
-enum kernelSettingsColumns
-{
-  KERNEL_COLUMN_INDEX                 = 0,
-  SMOOTHING_PARAMETER_COLUMN_INDEX    = 1,
-  CARRIER_RESTRICTION_COLUMN_INDEX    = 2
-};
 
-enum targetFunctionSettingsColumns
-{
-  MEAN_COLUMN_INDEX           = 0,
-  STDEV_COLUMN_INDEX          = 1,
-  CONTRIBUTION_COLUMN_INDEX   = 2
-};
 
-enum reservoirSamplingAlgorithms
-{
-  BASIC_RESERVOIR_SAMPLING_ALGORITHM = 0,
-  BIASED_RESERVOIR_SAMPLING_ALGORITHM = 1
-};
-
-#endif // MAINWINDOW_H
+#endif // MAIN_WINDOW_H

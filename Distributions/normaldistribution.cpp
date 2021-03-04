@@ -3,15 +3,16 @@
 
 #include <QDebug>
 
-normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<qreal> *stDevs) :
-    means(means), stDevs(stDevs)
+normalDistribution::normalDistribution(int seed, vector<double> *means,
+                                       vector<double> *stDevs, double maxMean) :
+    means(means), stDevs(stDevs), _maxMean(maxMean)
 {
     generator = std::default_random_engine(seed);
 
-    //this->means = QVector<qreal>(*means);
-    //this->stDevs = QVector<qreal>(*stDevs);
+    //this->means = vector<double>(*means);
+    //this->stDevs = vector<double>(*stDevs);
 
-    qreal correlationCoefficient = 0.5;
+    double correlationCoefficient = 0;
     matrix covarianceMatrix;
 
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
@@ -19,42 +20,50 @@ normalDistribution::normalDistribution(int seed, QVector<qreal> *means, QVector<
     fillCholeskyDecompositionMatrix(&covarianceMatrix, &A);
 }
 
-void normalDistribution::getValue(QVector<qreal> *result)
+void normalDistribution::getValue(vector<double> *result)
 {
     // Generate vector Z of n values from random distribution
 
-    QVector<qreal> Z;
-    std::normal_distribution<qreal> normalDis(0,1);
+    vector<double> Z;
+    std::normal_distribution<double> normalDis(0,1);
 
-    for(int i = 0; i < A.size(); ++i)
-        Z.append(normalDis(generator));
+    for(size_t i = 0; i < A.size(); ++i)
+        Z.push_back(normalDis(generator));
 
     // Generete result according to X = u + AZ
 
-    qreal value;
+    double value;
 
-    for(int i = 0; i < A.size(); ++i)
+    for(size_t i = 0; i < A.size(); ++i)
     {
         value = 0.0;
 
-        for(int j = 0; j < A.size(); ++j)
+        for(size_t j = 0; j < A.size(); ++j)
             value += A.at(i)->at(j) * Z.at(j);
 
         value += means->at(i);
 
-        result->append(value);
+        result->push_back(value);
     }
 }
 
-void normalDistribution::increaseMeans(qreal addend)
+void normalDistribution::increaseMeans(double addend, int index)
 {
-    for(int i = 0; i < means->size(); ++i)
-    {
-        // TODO: FIXED THRESHOLD FOR RESEARCHES
-        if(means->at(i) < 1)
-        {
-            means->push_back(means->at(i) + addend);
-            means->pop_front();
-        }
+  // Update mean at index, if it has been provided.
+  if(index > -1 || means->size() > index){
+    if(means->at(index) < _maxMean){
+      (*means)[index] += addend;
     }
+    return;
+  }
+
+  // Otherwise update all means
+  for(size_t i = 0; i < means->size(); ++i)
+  {
+    // TODO: FIXED THRESHOLD FOR RESEARCHES
+    if(means->at(i) < _maxMean)
+    {
+      (*means)[i] += addend;
+    }
+  }
 }

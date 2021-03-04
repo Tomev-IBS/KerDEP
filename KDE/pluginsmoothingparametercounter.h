@@ -7,37 +7,48 @@
 
 #include "smoothingparametercounter.h"
 
+// Page 80 of Kernel Estimators in System Analysis.
+
 class pluginSmoothingParameterCounter : public smoothingParameterCounter
 {
-    public:
-        pluginSmoothingParameterCounter();
-        pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank);
+public:
+  pluginSmoothingParameterCounter();
+  pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank);
 
-        double countSmoothingParameterValue();
+  double countSmoothingParameterValue();
 
-        void setSamples(QVector<qreal>* samples);
+  void setSamples(QVector<qreal>* samples);
 
-        qreal count2ndRankPluginSmoothingParameter();
-        qreal count3rdRankPluginSmoothingParameter();
-
+  qreal count4thRankPluginSmoothingParameter();
+  qreal count3rdRankPluginSmoothingParameter();
+  qreal count2ndRankPluginSmoothingParameter();
+  qreal count1stRankPluginSmoothingParameter();
+  qreal count0RankPluginSmoothingParameter();
 
 private:
 
-        QVector<qreal>* samples;
+  QVector<qreal>* samples;
 
-        int rank;
+  int rank;
 
-        qreal countCapitalC(int xsi, qreal smoothingParameter);
-        qreal countSmallC(int xsi);
-        qreal count1stRankPluginSmoothingParameter(qreal h2);
-        qreal countPluginSmoothingParameter(qreal h2);
-        qreal countStandardDeviationEstimator();
+  bool isNearlyEqual(double x, double y);
 
-        qreal countK4thDerivativeInPoint(qreal point);
-        qreal countK6thDerivativeInPoint(qreal point);
-        qreal countK8thDerivativeInPoint(qreal point);
+  qreal countCapitalC(int xsi, qreal smoothingParameter);
+  qreal countSmallC(int xsi);
+  qreal countPluginSmoothingParameter(qreal h1 = 0);
+  qreal countStandardDeviationEstimator();
 
-        const qreal U = 1.0;
+  qreal countH4(qreal h5 = 0);
+  qreal countH3(qreal h4 = 0);
+  qreal countH2(qreal h3 = 0);
+  qreal countH1(qreal h2 = 0);
+
+  qreal countK4thDerivativeInPoint(qreal point);
+  qreal countK6thDerivativeInPoint(qreal point);
+  qreal countK8thDerivativeInPoint(qreal point);
+  qreal countK10thDerivativeInPoint(qreal point);
+
+  const qreal U = 1.0;
 };
 
 #endif // PLUGINSMOOTHINGPARAMETERCOUNTER_H
