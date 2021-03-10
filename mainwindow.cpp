@@ -32,6 +32,8 @@
 #include "ThresholdingStrategies/hardThresholdingStrategy.h"
 #include "ThresholdingStrategies/softThresholdingStrategy.h"
 
+#include "SOMKEWrappers/somkeNormalKernel.h"
+
 #include "UI/QwtContourPlotUI.h"
 
 ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element){
@@ -767,7 +769,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 void MainWindow::on_pushButton_start_clicked() {
   //Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
-  Run1DExperimentWithWDE();
+  //Run1DExperimentWithWDE();
+  Run1DExperimentWithSOMKE();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -2093,6 +2096,316 @@ void MainWindow::Run1DExperimentWithWDE() {
   }
 
   log("Experiment finished!");
+}
+
+void MainWindow::Run1DExperimentWithSOMKE() {
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+  if(!CanAnimationBePerformed(dimensionsNumber)) return;
+
+  QString seedString = ui->lineEdit_seed->text();
+
+  // Log that application started generating KDE
+  // Standard seed was 5625.
+  log("KDE animation with WDE started.");
+  log("Seed: " + seedString);
+  log("Sample size: " + ui->lineEdit_sampleSize->text());
+
+  step_number_ = 0;
+  double sigma = 0;
+
+  srand(static_cast<unsigned int>(seedString.toInt()));
+
+  // Creating target function.
+  FillMeans(&means_);
+  FillStandardDeviations(&standard_deviations_);
+  target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+  std::shared_ptr<distribution>
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
+  qreal progressionSize =
+      ui->lineEdit_distributionProgression->text().toDouble();
+
+  parser_.reset(new distributionDataParser(&attributes_data_));
+
+  reader_.reset(
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            progressionSize,
+                                            0,  /* Delay */
+                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
+                                                                   &alternativeDistributionStDevs, 55))
+               );
+
+  reader_->gatherAttributesData(&attributes_data_);
+  parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Attributes data set.");
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+
+  int neurons_number = 100;
+  int epochs_number = 100;
+  int data_window_size = 500;
+  int max_number_of_som_seq_entries = 1;
+
+  QString expNum = "1492 (SOMKE)";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc = "v=tor klasyczny, simplified"
+                    ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
+                    ", neurons_num=" + QString::number(neurons_number) +
+                    ", window_size=" + QString::number(data_window_size) +
+                    ", epochs_num= " + QString::number(epochs_number);
+  screen_generation_frequency_ = 10;
+
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
+
+  ClearPlot();
+  ResizePlot();
+
+  // Initial screen should only contain exp number (as requested).
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
+  expNumLabel.setFont(QFont("Courier New", 250));
+
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  expNumLabel.setText("");
+
+  QVector<std::shared_ptr<plotLabel>> plotLabels = {};
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+
+  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "iw    = "
+                                                                                     + QString::number(
+                                                                                         screen_generation_frequency_)));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "Neurons  = ", &(neurons_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "Seq_max  = ", &(max_number_of_som_seq_entries),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "win_size = ", &(data_window_size),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "epochs   = ", &(epochs_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+
+
+  //====================  SECOND COLUMN =================//
+
+  horizontalOffset = 0.20;
+  verticalOffset = 0.01 + 9 * verticalStep;
+
+  //====================== ERRORS SUM ===================//
+
+  horizontalOffset = 0.87;
+  verticalOffset = 0.01;
+
+  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
+  verticalOffset += verticalStep;
+  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
+  verticalOffset += verticalStep;
+  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  FillDomain(&domain_, nullptr);
+  for(const auto& pt : domain_) drawable_domain_.push_back(pt->at(0));
+
+  ui->widget_plot->replot();
+  QCoreApplication::processEvents();
+
+  int numberOfErrorCalculations = 0;
+  QVector<int> additionalScreensSteps = {1};
+
+  /*
+  for(int i = 990; i < 1011; ++i){
+      additionalScreensSteps.append(i);
+  }
+  */
+
+  double error_domain_length = 0;
+  std::vector<std::vector<double>> error_domain = {};
+
+  std::vector<double> model_values = {};
+  std::vector<double> somke_values = {};
+
+  ErrorsCalculator errors_calculator(
+      &model_values, &somke_values, &error_domain, &error_domain_length
+                                    );
+  KernelPtr kernel(new SOMKENormalKernel());
+    SOMKEAlgorithm somke_algorithm(kernel, neurons_number, epochs_number, data_window_size, max_number_of_som_seq_entries);
+
+  double l1_sum = 0;
+  double l2_sum = 0;
+  double sup_sum = 0;
+  double mod_sum = 0;
+
+  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+    clock_t executionStartTime = clock();
+
+    Point stream_value = {};
+    reader_->getNextRawDatum(&stream_value);
+
+    log("Performing step: " + QString::number(step_number_));
+    somke_algorithm.PerformStep(stream_value);
+    log("Step performed.");
+
+    target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
+      log("Drawing in step number " + QString::number(step_number_) + ".");
+
+      // Error calculations
+      if(step_number_ >= 1000) {
+
+        log("Getting error domain.");
+        error_domain = somke_algorithm.divergence_domain_;
+
+        log("Getting model plot on windowed.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+        log("Getting KDE plot on windowed.");
+        somke_values = {};
+        for(auto pt : error_domain){
+          somke_values.push_back(somke_algorithm.GetValue(pt));
+        }
+
+        log("Getting model plot.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+        log("Calculating domain length.");
+
+        error_domain_length =
+            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+        log("Calculating errors.");
+        l1_w_ = errors_calculator.CalculateL1Error();
+        l2_w_ = errors_calculator.CalculateL2Error();
+        sup_w_ = errors_calculator.CalculateSupError();
+        mod_w_ = errors_calculator.CalculateModError();
+        l1_sum += l1_w_;
+        l2_sum += l2_w_;
+        sup_sum += sup_w_;
+        mod_sum += mod_w_;
+
+        ++numberOfErrorCalculations;
+        log("Errors calculated.");
+      }
+
+      // ============ SUMS =========== //
+
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
+      L2TextLabel
+          .setText("L2   =" + FormatNumberForDisplay(
+              l2_sum / numberOfErrorCalculations));
+      supTextLabel
+          .setText("sup  =" + FormatNumberForDisplay(
+              sup_sum / numberOfErrorCalculations));
+      modTextLabel
+          .setText("mod  =" + FormatNumberForDisplay(
+              mod_sum / numberOfErrorCalculations));
+
+      L1aTextLabel
+          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
+      L2aTextLabel
+          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
+      supaTextLabel
+          .setText("supa =" + FormatNumberForDisplay(sup_w_));
+      modaTextLabel
+          .setText("moda =" + FormatNumberForDisplay(mod_w_));
+
+      DrawPlots(&somke_algorithm);
+
+      for(const auto &label : plotLabels) label->updateText();
+
+      ui->widget_plot->replot();
+      QCoreApplication::processEvents();
+
+      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+      imageName = dirPath + QString::number(step_number_) + ".png";
+      log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+    }
+  }
+
+  log("Experiment finished!");
+}
+
+void MainWindow::DrawPlots(SOMKEAlgorithm *somke_algorithm) {
+  ClearPlot();
+  ResizePlot();
+
+  std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
+  for(auto value : drawable_domain_){
+    drawable_domain.push_back({value});
+  }
+
+  // Generate plot of model function
+  if(ui->checkBox_showEstimatedPlot->isChecked()) {
+    auto model_distribution_values = GetFunctionsValueOnDomain(target_function_.get(), drawable_domain);
+    QVector<qreal> modelDistributionY = QVector<qreal>(model_distribution_values.begin(),
+                                                       model_distribution_values.end());
+    AddPlot(&modelDistributionY, model_plot_pen_);
+  }
+
+  // Generate less elements KDE plot (navy blue)
+  if(ui->checkBox_showEstimationPlot->isChecked()) {
+    vector<double> estimator_values = {};
+    for(auto pt : drawable_domain){
+      estimator_values.push_back(somke_algorithm->GetValue(pt));
+    }
+    auto estimator_y = QVector<double>(estimator_values.begin(), estimator_values.end());
+    AddPlot(&estimator_y, kde_plot_pen_);
+  }
 }
 
 

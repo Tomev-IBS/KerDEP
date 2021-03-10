@@ -200,9 +200,17 @@ add_executable(KerDEP
         Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/hardThresholdingStrategy.h
         Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/softThresholdingStrategy.cpp
         Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/softThresholdingStrategy.h
-        )
+        SOMKE/include/SOMKE/SOMKEAlgorithm.h
+        SOMKE/include/SOMKE/SOMSequenceEntry.h
+        SOMKE/include/SOMKE/Kernel.h
+        SOMKE/src/SOMKEAlgorithm.cpp
+        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h)
 
 include_directories(${QWT_INCLUDE_DIR})
+
+IF (EXISTS "k:\\Libs\\knnl\\include\\")
+    set(knnl_include "k:\\Libs\\knnl\\include\\")
+ENDIF()
 
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
 include_directories(ClusterKernelsKDE/src/)
@@ -212,10 +220,16 @@ include_directories(Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cum
 include_directories(Compressed_Cumulative_WDE_Over_Stream/src/)
 include_directories(Compressed_Cumulative_WDE_Wrappers/)
 
+include_directories(SOMKE/include/SOMKE/)
+include_directories(SOMKE/src/)
+
 target_link_libraries(KerDEP PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::PrintSupport
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
         ${QWT_LIBRARY}
-        )
+)
+
+target_include_directories(KerDEP PUBLIC ${knnl_include})
+
