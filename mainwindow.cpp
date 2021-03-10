@@ -2152,7 +2152,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   int data_window_size = 500;
   int max_number_of_som_seq_entries = 1;
 
-  QString expNum = "1492 (SOMKE)";
+  QString expNum = "1493 (SOMKE)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor klasyczny, simplified"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
