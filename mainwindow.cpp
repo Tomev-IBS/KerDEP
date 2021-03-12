@@ -33,6 +33,7 @@
 #include "ThresholdingStrategies/softThresholdingStrategy.h"
 
 #include "SOMKEWrappers/somkeNormalKernel.h"
+#include "SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h"
 
 #include "UI/QwtContourPlotUI.h"
 
@@ -2151,10 +2152,11 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   int epochs_number = 100;
   int data_window_size = 500;
   int max_number_of_som_seq_entries = 1;
+  double beta = 0;
 
-  QString expNum = "1493 (SOMKE)";
+  QString expNum = "1494 (SOMKE)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, simplified"
+  QString expDesc = "v=tor klasyczny, fixed memory"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
@@ -2221,6 +2223,12 @@ void MainWindow::Run1DExperimentWithSOMKE() {
                                                    horizontalOffset, verticalOffset, "epochs   = ", &(epochs_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
 
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "beta     = ", &(beta),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
 
   //====================  SECOND COLUMN =================//
 
@@ -2281,7 +2289,8 @@ void MainWindow::Run1DExperimentWithSOMKE() {
       &model_values, &somke_values, &error_domain, &error_domain_length
                                     );
   KernelPtr kernel(new SOMKENormalKernel());
-    SOMKEAlgorithm somke_algorithm(kernel, neurons_number, epochs_number, data_window_size, max_number_of_som_seq_entries);
+  MergingStrategyPtr merging_strategy(new SOMKEFixedMemoryMergingStrategy(max_number_of_som_seq_entries, beta));
+    SOMKEAlgorithm somke_algorithm(kernel, merging_strategy, neurons_number, epochs_number, data_window_size);
 
   double l1_sum = 0;
   double l2_sum = 0;

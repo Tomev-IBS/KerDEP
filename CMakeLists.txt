@@ -204,7 +204,7 @@ add_executable(KerDEP
         SOMKE/include/SOMKE/SOMSequenceEntry.h
         SOMKE/include/SOMKE/Kernel.h
         SOMKE/src/SOMKEAlgorithm.cpp
-        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h)
+        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h SOMKE/include/SOMKE/SOMKEMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h)
 
 include_directories(${QWT_INCLUDE_DIR})
 
