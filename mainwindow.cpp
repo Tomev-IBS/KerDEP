@@ -2160,14 +2160,20 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
   int neurons_number = 100;
-  int epochs_number = 100;
+  int epochs_number = 3000;
   int data_window_size = 500;
   int max_number_of_som_seq_entries = 1;
   double beta = 0;
   double alpha = 1.0;
-  QString expNum = "1495 (SOMKE)";
+
+  double sigma0 = 25.0;
+  double tau1 = 1000 / log(sigma0);
+  double tau2 = 1000.0;
+  double eta0 = 3.0;
+
+  QString expNum = "1496 (SOMKE)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, fixed threshold"
+  QString expDesc = "v=tor klasyczny, fixed threshold, updated training"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
@@ -2217,12 +2223,15 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "Neurons  = ", &(neurons_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
+  /*
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "Seq_max  = ",
                                                    &(max_number_of_som_seq_entries),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
+ */
+
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
@@ -2244,6 +2253,30 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "alpha    = ", &(alpha),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "sigma0   = ", &(sigma0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "eta0     = ", &(eta0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "tau1     = ", &(tau1),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "tau2     = ", &(tau2),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
 
 
