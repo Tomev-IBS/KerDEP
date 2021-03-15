@@ -22,6 +22,7 @@
 
 #include "Reservoir_sampling/distributiondataparser.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
+#include "Reservoir_sampling/textDataReader.h"
 
 #include "ClusterKernelWrappers/varianceBasedClusterKernel.h"
 #include "ClusterKernelWrappers/univariateStreamElement.h"
@@ -795,10 +796,10 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
-  //Run1DExperimentWithDESDA();
+  Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
-  Run1DExperimentWithSOMKE();
+  //Run1DExperimentWithSOMKE();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -1124,13 +1125,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
-                                            0,  /* Delay */
+                                            0,  // Delay
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
+  */
+
+
+  reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Gravitational_Waves_Data_Preparator\\result.txt"));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1171,17 +1177,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(),
       &gt, newWeightB, pluginRank
                       );
-  QString expNum = "1281";
+  QString expNum = "1498";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "reservoir, plugin " + QString::number(pluginRank) +
-                    ", 0,2N(-5,1)0,4N(0,1)0,4N(5,1), v=0-1-0-1, m0=" + QString::number(DESDAAlgorithm._maxM) +
+  QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
+                    ", Gravitational Wave Glitch, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    //", mKPSS=" + QString::number(DESDAAlgorithm._kpssM) + // This can just be commented out.
                     ", sz475";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 

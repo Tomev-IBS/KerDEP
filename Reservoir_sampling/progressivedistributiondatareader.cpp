@@ -179,8 +179,6 @@ void progressiveDistributionDataReader::gatherAttributesData(void *attributes) {
 
     (*attrs_ptr)[attrName] = new numericalAttributeData(attrName);
   }
-
-  return;
 }
 
 bool progressiveDistributionDataReader::hasMoreData() {
