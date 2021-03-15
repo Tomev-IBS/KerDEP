@@ -2171,9 +2171,9 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   double tau2 = 1000.0;
   double eta0 = 3.0;
 
-  QString expNum = "1496 (SOMKE)";
+  QString expNum = "1497 (SOMKE)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, fixed threshold, updated training"
+  QString expDesc = "v=tor klasyczny, fixed threshold, original training"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
