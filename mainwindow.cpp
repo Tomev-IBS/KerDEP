@@ -32,26 +32,30 @@
 #include "ThresholdingStrategies/hardThresholdingStrategy.h"
 #include "ThresholdingStrategies/softThresholdingStrategy.h"
 
+#include "SOMKEWrappers/somkeNormalKernel.h"
+#include "SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h"
+#include "SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h"
+
 #include "UI/QwtContourPlotUI.h"
 
-ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element){
+ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element) {
   auto newClusterKernel = new VarianceBasedClusterKernel(stream_element);
   return newClusterKernel;
 }
 
-WaveletDensityEstimator *CreateWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
+WaveletDensityEstimator *CreateWaveletDensityEstimatorFromBlock(const vector<double> &values_block) {
   auto wde = new LinearWDE();
   wde->UpdateWDEData(values_block);
   return wde;
 }
 
-WaveletDensityEstimator *CreateWeightedWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
+WaveletDensityEstimator *CreateWeightedWaveletDensityEstimatorFromBlock(const vector<double> &values_block) {
   auto wde = new WeightedLinearWDE();
   wde->UpdateWDEData(values_block);
   return wde;
 }
 
-WaveletDensityEstimator *CreateWeightedThresholdedWaveletDensityEstimatorFromBlock(const vector<double> &values_block){
+WaveletDensityEstimator *CreateWeightedThresholdedWaveletDensityEstimatorFromBlock(const vector<double> &values_block) {
   auto thresholding_strategy = ThresholdingStrategyPtr(new SoftThresholdingStrategy);
   auto wde = new WeightedThresholdedWDE(thresholding_strategy);
   wde->UpdateWDEData(values_block);
@@ -91,8 +95,8 @@ MainWindow::~MainWindow() {
   delete ui;
 }
 
-void log(const QString &msg){
- qDebug() << QDateTime::currentDateTime().toString("h:m:s ap") << ": " << msg;
+void log(const QString &msg) {
+  qDebug() << QDateTime::currentDateTime().toString("h:m:s ap") << ": " << msg;
 }
 
 void MainWindow::testNewFunctionalities() {
@@ -145,7 +149,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   ResizePlot();
 
   std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
-  for(auto value : drawable_domain_){
+  for(auto value : drawable_domain_) {
     drawable_domain.push_back({value});
   }
 
@@ -166,7 +170,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate weighted estimator plot (light blue)
   if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
-    auto weighted_estimator_values =DESDAAlgorithm->getWeightedKDEValues(&drawable_domain);
+    auto weighted_estimator_values = DESDAAlgorithm->getWeightedKDEValues(&drawable_domain);
     auto weighted_estimator_y = QVector<double>(weighted_estimator_values.begin(),
                                                 weighted_estimator_values.end());
     AddPlot(&weighted_estimator_y, weighted_plot_pen_);
@@ -176,7 +180,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   if(ui->checbox_showFullEstimator->isChecked()) {
     auto windowed_estimator_values = DESDAAlgorithm->getWindowKDEValues(&drawable_domain);
     auto windowed_estimator_y = QVector<double>(windowed_estimator_values.begin(),
-                                        windowed_estimator_values.end());
+                                                windowed_estimator_values.end());
     AddPlot(&windowed_estimator_y, windowed_plot_pen_);
   }
 
@@ -225,7 +229,7 @@ void MainWindow::DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm) {
   ResizePlot();
 
   std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
-  for(auto value : drawable_domain_){
+  for(auto value : drawable_domain_) {
     drawable_domain.push_back({value});
   }
 
@@ -251,7 +255,7 @@ void MainWindow::DrawPlots(KerDEP_CC_WDE *WDEAlgorithm) {
   ResizePlot();
 
   std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
-  for(auto value : drawable_domain_){
+  for(auto value : drawable_domain_) {
     drawable_domain.push_back({value});
   }
 
@@ -280,7 +284,7 @@ void MainWindow::AddPlot(const QVector<qreal> *Y, const QPen &pen) {
 void MainWindow::ResizePlot() {
   // Resize plot
   qreal minX = ui->lineEdit_minX->text().toDouble(),
-        maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
+      maxX = ui->lineEdit_maxX->text().toDouble(), // Standard
   //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble() * 3000, // For progression
   //maxX = 3 + ui->lineEdit_distributionProgression->text().toDouble(), // /* should jump */
   minY = ui->lineEdit_minY->text().toDouble(),
@@ -318,7 +322,7 @@ void MainWindow::ResizePlot() {
 
   double i = minX;
 
-  while(i < maxX + 1){
+  while(i < maxX + 1) {
     ticks << i;
     labels << QString::number(i);
     i += 1;
@@ -388,7 +392,8 @@ void MainWindow::FillStandardDeviations(vector<std::shared_ptr<vector<double>>> 
           (
               (dynamic_cast<QLineEdit *>(
                   (dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions
-                                                 ->cellWidget(functionIndex, static_cast<int>(TargetFunctionSettingsColumns::kStandardDeviationColumnIndex))))
+                                                  ->cellWidget(functionIndex,
+                                                               static_cast<int>(TargetFunctionSettingsColumns::kStandardDeviationColumnIndex))))
                       ->cellWidget(dimensionIndex, 0)
               ))
                   ->text().toDouble()
@@ -409,7 +414,8 @@ void MainWindow::FillMeans(vector<std::shared_ptr<vector<double>>> *means) {
           (
               (dynamic_cast<QLineEdit *>(
                   (dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions
-                                                 ->cellWidget(functionIndex, static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex))))
+                                                  ->cellWidget(functionIndex,
+                                                               static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex))))
                       ->cellWidget(dimensionIndex, 0)
               ))
                   ->text().toDouble()
@@ -445,8 +451,8 @@ void MainWindow::FillDomain(QVector<std::shared_ptr<point>> *domain, std::shared
     if(pPoint->size() == (size_t) ui->spinBox_dimensionsNumber->value()) {
       domain->append(std::make_shared<point>());
 
-      for(auto dimensionVal : *(pPoint)){
-          domain->back()->push_back(dimensionVal);
+      for(auto dimensionVal : *(pPoint)) {
+        domain->back()->push_back(dimensionVal);
       }
     }
     else {
@@ -476,7 +482,8 @@ distribution *MainWindow::GenerateTargetDistribution(
     contributions.push_back
                      (
                          (dynamic_cast<QLineEdit *>(ui->tableWidget_targetFunctions
-                                                     ->cellWidget(functionIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
+                                                      ->cellWidget(functionIndex,
+                                                                   static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
                              ->text().toDouble()
                      );
 
@@ -512,17 +519,16 @@ kernelDensityEstimator *MainWindow::GenerateKernelDensityEstimator(
   vector<double> smoothingParameters;
   vector<std::string> carriersRestrictions;
 
-
-
   for(int rowNumber = 0; rowNumber < dimensionsNumber; ++rowNumber) {
     kernelsIDs.push_back(
-        (dynamic_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kKernelColumnIndex))))
+        (dynamic_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
+                                                                                static_cast<int>(KernelSettingsColumns::kKernelColumnIndex))))
             ->currentIndex());
     smoothingParameters.push_back((dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
-                                                                                                         static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex))))
+                                                                                                          static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex))))
                                       ->text().toDouble());
     carriersRestrictions.push_back((dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
-                                                                                                          static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex))))
+                                                                                                           static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex))))
                                        ->text().toStdString());
   }
 
@@ -546,7 +552,8 @@ function *MainWindow::GenerateTargetFunction(
   // Check if contributions are set correctly. If they are, then last
   // contribution is >= 0;
   if(dynamic_cast<QLineEdit *>(ui->tableWidget_targetFunctions
-                                ->cellWidget(targetFunctionElementsNumber - 1, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))
+                                 ->cellWidget(targetFunctionElementsNumber - 1,
+                                              static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))
      )->text().toDouble() <= 0
       ) {
     // If not then uniform distributions and log error
@@ -559,7 +566,8 @@ function *MainWindow::GenerateTargetFunction(
     contributions.push_back
                      (
                          (dynamic_cast<QLineEdit *>(ui->tableWidget_targetFunctions
-                                                     ->cellWidget(functionIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
+                                                      ->cellWidget(functionIndex,
+                                                                   static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
                              ->text().toDouble()
                      );
 
@@ -572,10 +580,10 @@ function *MainWindow::GenerateTargetFunction(
 }
 
 int MainWindow::CanAnimationBePerformed(int dimensionsNumber) {
-  if(dimensionsNumber == 1){
+  if(dimensionsNumber == 1) {
     return 1;
   }
-  else{
+  else {
     log("Dimensions number is not equal 1. Animation cannot be performed.");
   }
   return -2;
@@ -599,7 +607,8 @@ void MainWindow::RefreshKernelsTable() {
   QLocale locale = QLocale::English;
   locale.setNumberOptions(QLocale::c().numberOptions());
 
-  auto smoothingParameterValidator = new QDoubleValidator(kMinSmoothingParameter, kMaxSmoothingParameter, kDecimalNumbers, this);
+  auto smoothingParameterValidator =
+      new QDoubleValidator(kMinSmoothingParameter, kMaxSmoothingParameter, kDecimalNumbers, this);
   smoothingParameterValidator->setLocale(locale);
   smoothingParameterValidator->setNotation(QDoubleValidator::StandardNotation);
 
@@ -610,23 +619,32 @@ void MainWindow::RefreshKernelsTable() {
 void MainWindow::AddKernelToTable(int rowNumber,
                                   QDoubleValidator *smoothingParameterValidator) {
   // Add combobox with kernels
-  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kKernelColumnIndex), new QComboBox());
+  ui->tableWidget_dimensionKernels
+    ->setCellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kKernelColumnIndex), new QComboBox());
 
-  (dynamic_cast<QComboBox *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kKernelColumnIndex))))
+  (dynamic_cast<QComboBox *>(ui->tableWidget_dimensionKernels
+                               ->cellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kKernelColumnIndex))))
       ->insertItems(0, kernel_types_);
 
   // Add input box with validator for smoothing parameters
-  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kSmoothingParameterColumnIndex), new QLineEdit());
+  ui->tableWidget_dimensionKernels
+    ->setCellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kSmoothingParameterColumnIndex),
+                    new QLineEdit());
 
-  (dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kSmoothingParameterColumnIndex))))
+  (dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
+                                                                          static_cast<int>(KernelSettingsColumns::kSmoothingParameterColumnIndex))))
       ->setText("1.0");
-  (dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kSmoothingParameterColumnIndex))))
+  (dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
+                                                                          static_cast<int>(KernelSettingsColumns::kSmoothingParameterColumnIndex))))
       ->setValidator(smoothingParameterValidator);
 
   // Add input box for carrier restriction value
-  ui->tableWidget_dimensionKernels->setCellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex), new QLineEdit());
+  ui->tableWidget_dimensionKernels
+    ->setCellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex),
+                    new QLineEdit());
 
-  (dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber, static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex))))
+  (dynamic_cast<QLineEdit *>(ui->tableWidget_dimensionKernels->cellWidget(rowNumber,
+                                                                          static_cast<int>(KernelSettingsColumns::kCarrierRestrictionColumnIndex))))
       ->setText("None.");
 }
 
@@ -661,19 +679,25 @@ void MainWindow::RefreshTargetFunctionTable() {
 
   for(int rowIndex = 0; rowIndex < numberOfRows; ++rowIndex) {
     // TODO TR: Ensure that this doesn't result in memory leaks
-    targetFunctionTablePointer->setCellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex), new QTableWidget());
+    targetFunctionTablePointer
+        ->setCellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex),
+                        new QTableWidget());
 
     meansTablePointer =
-        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex)));
+        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex,
+                                                                                 static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex)));
     meansTablePointer->setRowCount(dimensionsNumber);
     meansTablePointer->setColumnCount(1);
     meansTablePointer->horizontalHeader()->hide();
 
     // TODO TR: Ensure that this doesn't result in memory leaks
-    targetFunctionTablePointer->setCellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kStandardDeviationColumnIndex), new QTableWidget());
+    targetFunctionTablePointer
+        ->setCellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kStandardDeviationColumnIndex),
+                        new QTableWidget());
 
     stDevsTablePointer =
-        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kStandardDeviationColumnIndex)));
+        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(rowIndex,
+                                                                                 static_cast<int>(TargetFunctionSettingsColumns::kStandardDeviationColumnIndex)));
     stDevsTablePointer->setRowCount(dimensionsNumber);
     stDevsTablePointer->setColumnCount(1);
     stDevsTablePointer->horizontalHeader()->hide();
@@ -689,18 +713,24 @@ void MainWindow::RefreshTargetFunctionTable() {
     }
 
     // TODO TR: Ensure that this doesn't result in memory leaks
-    targetFunctionTablePointer->setCellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex), new QLineEdit());
-    (dynamic_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
+    targetFunctionTablePointer
+        ->setCellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex),
+                        new QLineEdit());
+    (dynamic_cast<QLineEdit *>(targetFunctionTablePointer
+        ->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
         ->setMaxLength(6);
-    (dynamic_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
+    (dynamic_cast<QLineEdit *>(targetFunctionTablePointer
+        ->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
         ->setValidator(contributionValidator);
     QObject::connect(
-        (dynamic_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex)))),
+        (dynamic_cast<QLineEdit *>(targetFunctionTablePointer
+            ->cellWidget(rowIndex, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex)))),
         SIGNAL(textEdited(QString)), this, SLOT(UpdateLastContribution()));
   }
 
   // Disable last contribution cell, as it's filled automatically
-  (dynamic_cast<QLineEdit *>(targetFunctionTablePointer->cellWidget(numberOfRows - 1, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
+  (dynamic_cast<QLineEdit *>(targetFunctionTablePointer
+      ->cellWidget(numberOfRows - 1, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
       ->setEnabled(false);
 
   UniformContributions();
@@ -767,7 +797,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 void MainWindow::on_pushButton_start_clicked() {
   //Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
-  Run1DExperimentWithWDE();
+  //Run1DExperimentWithWDE();
+  Run1DExperimentWithSOMKE();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -780,7 +811,7 @@ void MainWindow::on_pushButton_clicked() {
   // Contour levels calculation.
   QList<double> contourLevels;
   double level = 0.025;
-  while(level < 0.21){
+  while(level < 0.21) {
     contourLevels += level;
     level += 0.025;
   }
@@ -816,9 +847,8 @@ void MainWindow::on_pushButton_clicked() {
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
 
-  std::shared_ptr < distribution >
-  targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
-
+  std::shared_ptr<distribution>
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
   std::vector<double> stDevsForDistribution = {1.0, 1.0};
 
@@ -873,7 +903,6 @@ void MainWindow::on_pushButton_clicked() {
   double actual_l2 = 0;
   double actual_sup = 0;
   double actual_mod = 0;
-
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
@@ -883,15 +912,13 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.updateTexts();
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   QVector<int> initialDrawingSteps = {1};
-
   std::vector<double> model_function_values = {};
   std::vector<double> estimator_values = {};
   double domain_area = 0;
   std::vector<std::vector<double>> error_domain = {};
-
   ErrorsCalculator errors_calculator(
-    &model_function_values, &estimator_values, &error_domain, &domain_area
-  );
+      &model_function_values, &estimator_values, &error_domain, &domain_area
+                                    );
 
   // Prepare image location.
   QString expNum = "1446 (2D)";
@@ -1009,7 +1036,8 @@ double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> 
   return xLen * yLen;
 }
 
-std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain) {
+std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func,
+                                                          const std::vector<std::vector<double>> &domain) {
   std::vector<double> values = {};
 
   for(auto pt : domain) {
@@ -1168,7 +1196,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
@@ -1178,7 +1206,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                    horizontalOffset, verticalOffset, "i     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
-
 
   plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "iw    = "
@@ -1316,7 +1343,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   verticalOffset += verticalStep;
 
   FillDomain(&domain_, nullptr);
-  for(const auto& pt : domain_) drawable_domain_.push_back(pt->at(0));
+  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
 
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
@@ -1334,16 +1361,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
   double windowed_error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
   std::vector<std::vector<double>> windowed_error_domain = {};
-
   std::vector<double> windowed_model_values = {};
   std::vector<double> windowed_kde_values = {};
-
   std::vector<double> model_values = {};
   std::vector<double> less_elements_kde_values = {};
   std::vector<double> weighted_kde_values = {};
   std::vector<double> enhanced_kde_values = {};
   std::vector<double> rare_elements_kde_values = {};
-
   ErrorsCalculator windowed_errors_calculator(
       &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
                                              );
@@ -1583,10 +1607,10 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-
   QString expNum = "1386 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels) + ", mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
+  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels)
+                    + ", mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1607,7 +1631,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
 
   // Setting up the labels
@@ -1618,7 +1642,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                                    horizontalOffset, verticalOffset, "i     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
-
 
   plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "iw    = "
@@ -1632,7 +1655,8 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "m     = ", &(number_of_cluster_kernels),
+                                                   horizontalOffset, verticalOffset, "m     = ",
+                                                   &(number_of_cluster_kernels),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
 
   verticalOffset += verticalStep;
@@ -1683,7 +1707,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   verticalOffset += verticalStep;
 
   FillDomain(&domain_, nullptr);
-  for(const auto& pt : domain_) drawable_domain_.push_back(pt->at(0));
+  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
 
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
@@ -1699,18 +1723,15 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
-
   std::vector<double> model_values = {};
   std::vector<double> kde_values = {};
-
   ErrorsCalculator errors_calculator(
-    &model_values, &kde_values, &error_domain, &error_domain_length
-  );
+      &model_values, &kde_values, &error_domain, &error_domain_length
+                                    );
 
   log("Crating CK Algorithm!");
   auto CKAlgorithm = EnhancedClusterKernelAlgorithm(number_of_cluster_kernels,
                                                     CreateNewVarianceBasedClusterKernel);
-
   double l1_sum = 0;
   double l2_sum = 0;
   double sup_sum = 0;
@@ -1718,7 +1739,6 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
-
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
     UnivariateStreamElement element(stream_value);
@@ -1860,7 +1880,6 @@ void MainWindow::Run1DExperimentWithWDE() {
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-
   double weight_modifier = 0.95; // omega
   unsigned int maximal_number_of_coefficients = 100; // M
   unsigned int current_coefficients_number = 0; // #coef
@@ -1870,8 +1889,8 @@ void MainWindow::Run1DExperimentWithWDE() {
   //QString expNum = "THRESHOLDED_WDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "v=tor klasyczny, soft threshold, b=" + QString::number(number_of_elements_per_block) +
-      ", omega=" + QString::number(weight_modifier) +
-      ", M=" + QString::number(maximal_number_of_coefficients) ;
+                    ", omega=" + QString::number(weight_modifier) +
+                    ", M=" + QString::number(maximal_number_of_coefficients);
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1892,7 +1911,7 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName,0, 0, 1, -1)));
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
@@ -1902,7 +1921,6 @@ void MainWindow::Run1DExperimentWithWDE() {
                                                    horizontalOffset, verticalOffset, "i     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
-
 
   plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "iw    = "
@@ -1916,17 +1934,20 @@ void MainWindow::Run1DExperimentWithWDE() {
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "b     = ", &(number_of_elements_per_block),
+                                                   horizontalOffset, verticalOffset, "b     = ",
+                                                   &(number_of_elements_per_block),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "M     = ", &(maximal_number_of_coefficients),
+                                                   horizontalOffset, verticalOffset, "M     = ",
+                                                   &(maximal_number_of_coefficients),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "#coef = ", &(current_coefficients_number),
+                                                   horizontalOffset, verticalOffset, "#coef = ",
+                                                   &(current_coefficients_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
   verticalOffset += verticalStep;
 
@@ -1970,7 +1991,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   verticalOffset += verticalStep;
 
   FillDomain(&domain_, nullptr);
-  for(const auto& pt : domain_) drawable_domain_.push_back(pt->at(0));
+  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
 
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
@@ -1986,19 +2007,15 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
-
   std::vector<double> model_values = {};
   std::vector<double> wde_values = {};
-
   ErrorsCalculator errors_calculator(
       &model_values, &wde_values, &error_domain, &error_domain_length
-  );
-
+                                    );
   Windowed_WDE WDE_Algorithm = Windowed_WDE(maximal_number_of_coefficients, weight_modifier,
                                             CreateWeightedThresholdedWaveletDensityEstimatorFromBlock,
-                                            //CreateWeightedWaveletDensityEstimatorFromBlock,
+      //CreateWeightedWaveletDensityEstimatorFromBlock,
                                             number_of_elements_per_block);
-
   double l1_sum = 0;
   double l2_sum = 0;
   double sup_sum = 0;
@@ -2006,7 +2023,6 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
-
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
 
@@ -2093,6 +2109,359 @@ void MainWindow::Run1DExperimentWithWDE() {
   }
 
   log("Experiment finished!");
+}
+
+void MainWindow::Run1DExperimentWithSOMKE() {
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+  if(!CanAnimationBePerformed(dimensionsNumber)) return;
+
+  QString seedString = ui->lineEdit_seed->text();
+
+  // Log that application started generating KDE
+  // Standard seed was 5625.
+  log("KDE animation with WDE started.");
+  log("Seed: " + seedString);
+  log("Sample size: " + ui->lineEdit_sampleSize->text());
+
+  step_number_ = 0;
+  double sigma = 0;
+
+  srand(static_cast<unsigned int>(seedString.toInt()));
+
+  // Creating target function.
+  FillMeans(&means_);
+  FillStandardDeviations(&standard_deviations_);
+  target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+  std::shared_ptr<distribution>
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
+  qreal progressionSize =
+      ui->lineEdit_distributionProgression->text().toDouble();
+
+  parser_.reset(new distributionDataParser(&attributes_data_));
+
+  reader_.reset(
+      new progressiveDistributionDataReader(targetDistribution.get(),
+                                            progressionSize,
+                                            0,  /* Delay */
+                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
+                                                                   &alternativeDistributionStDevs, 55))
+               );
+
+  reader_->gatherAttributesData(&attributes_data_);
+  parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Attributes data set.");
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+  int neurons_number = 100;
+  int epochs_number = 3000;
+  int data_window_size = 500;
+  int max_number_of_som_seq_entries = 1;
+  double beta = 0;
+  double alpha = 1.0;
+
+  double sigma0 = 25.0;
+  double tau1 = 1000 / log(sigma0);
+  double tau2 = 1000.0;
+  double eta0 = 3.0;
+
+  QString expNum = "1497 (SOMKE)";
+  this->setWindowTitle("Experiment #" + expNum);
+  QString expDesc = "v=tor klasyczny, fixed threshold, original training"
+                    ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
+                    ", neurons_num=" + QString::number(neurons_number) +
+                    ", window_size=" + QString::number(data_window_size) +
+                    ", epochs_num= " + QString::number(epochs_number);
+  screen_generation_frequency_ = 10;
+
+  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
+                    + expDesc + ")\\";
+
+  ClearPlot();
+  ResizePlot();
+
+  // Initial screen should only contain exp number (as requested).
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
+  expNumLabel.setFont(QFont("Courier New", 250));
+
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+  expNumLabel.setText("");
+
+  QVector<std::shared_ptr<plotLabel>> plotLabels = {};
+  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "iw    = "
+                                                                                     + QString::number(
+                                                                                         screen_generation_frequency_)));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "Neurons  = ", &(neurons_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  /*
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "Seq_max  = ",
+                                                   &(max_number_of_som_seq_entries),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+ */
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "win_size = ", &(data_window_size),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "epochs   = ", &(epochs_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "beta     = ", &(beta),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "alpha    = ", &(alpha),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "sigma0   = ", &(sigma0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "eta0     = ", &(eta0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "tau1     = ", &(tau1),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "tau2     = ", &(tau2),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+
+  //====================  SECOND COLUMN =================//
+
+  horizontalOffset = 0.20;
+  verticalOffset = 0.01 + 9 * verticalStep;
+
+  //====================== ERRORS SUM ===================//
+
+  horizontalOffset = 0.87;
+  verticalOffset = 0.01;
+
+  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+  verticalOffset += verticalStep;
+  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
+  verticalOffset += verticalStep;
+  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
+  verticalOffset += verticalStep;
+  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
+  verticalOffset += verticalStep;
+  verticalOffset += verticalStep;
+
+  FillDomain(&domain_, nullptr);
+  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
+
+  ui->widget_plot->replot();
+  QCoreApplication::processEvents();
+
+  int numberOfErrorCalculations = 0;
+  QVector<int> additionalScreensSteps = {1};
+
+  /*
+  for(int i = 990; i < 1011; ++i){
+      additionalScreensSteps.append(i);
+  }
+  */
+
+  double error_domain_length = 0;
+  std::vector<std::vector<double>> error_domain = {};
+  std::vector<double> model_values = {};
+  std::vector<double> somke_values = {};
+  ErrorsCalculator errors_calculator(
+      &model_values, &somke_values, &error_domain, &error_domain_length
+                                    );
+  KernelPtr kernel(new SOMKENormalKernel());
+  // MergingStrategyPtr merging_strategy(new SOMKEFixedMemoryMergingStrategy(max_number_of_som_seq_entries, beta));
+  MergingStrategyPtr merging_strategy(new SOMKEFixedThresholdMergingStrategy(alpha, beta));
+  SOMKEAlgorithm somke_algorithm(kernel, merging_strategy, neurons_number, epochs_number, data_window_size);
+  double l1_sum = 0;
+  double l2_sum = 0;
+  double sup_sum = 0;
+  double mod_sum = 0;
+
+  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+    clock_t executionStartTime = clock();
+    Point stream_value = {};
+    reader_->getNextRawDatum(&stream_value);
+
+    log("Performing step: " + QString::number(step_number_));
+    somke_algorithm.PerformStep(stream_value);
+    log("Step performed.");
+
+    target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
+      log("Drawing in step number " + QString::number(step_number_) + ".");
+
+      // Error calculations
+      if(step_number_ >= 1000) {
+
+        log("Getting error domain.");
+        error_domain = somke_algorithm.divergence_domain_;
+
+        log("Getting model plot on windowed.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+        log("Getting KDE plot on windowed.");
+        somke_values = {};
+        for(auto pt : error_domain) {
+          somke_values.push_back(somke_algorithm.GetValue(pt));
+        }
+
+        log("Getting model plot.");
+        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+        log("Calculating domain length.");
+
+        error_domain_length =
+            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+        log("Calculating errors.");
+        l1_w_ = errors_calculator.CalculateL1Error();
+        l2_w_ = errors_calculator.CalculateL2Error();
+        sup_w_ = errors_calculator.CalculateSupError();
+        mod_w_ = errors_calculator.CalculateModError();
+        l1_sum += l1_w_;
+        l2_sum += l2_w_;
+        sup_sum += sup_w_;
+        mod_sum += mod_w_;
+
+        ++numberOfErrorCalculations;
+        log("Errors calculated.");
+      }
+
+      // ============ SUMS =========== //
+
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
+      L2TextLabel
+          .setText("L2   =" + FormatNumberForDisplay(
+              l2_sum / numberOfErrorCalculations));
+      supTextLabel
+          .setText("sup  =" + FormatNumberForDisplay(
+              sup_sum / numberOfErrorCalculations));
+      modTextLabel
+          .setText("mod  =" + FormatNumberForDisplay(
+              mod_sum / numberOfErrorCalculations));
+
+      L1aTextLabel
+          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
+      L2aTextLabel
+          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
+      supaTextLabel
+          .setText("supa =" + FormatNumberForDisplay(sup_w_));
+      modaTextLabel
+          .setText("moda =" + FormatNumberForDisplay(mod_w_));
+
+      DrawPlots(&somke_algorithm);
+
+      for(const auto &label : plotLabels) label->updateText();
+
+      ui->widget_plot->replot();
+      QCoreApplication::processEvents();
+
+      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+      imageName = dirPath + QString::number(step_number_) + ".png";
+      log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+    }
+  }
+
+  log("Experiment finished!");
+}
+
+void MainWindow::DrawPlots(SOMKEAlgorithm *somke_algorithm) {
+  ClearPlot();
+  ResizePlot();
+
+  std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
+  for(auto value : drawable_domain_) {
+    drawable_domain.push_back({value});
+  }
+
+  // Generate plot of model function
+  if(ui->checkBox_showEstimatedPlot->isChecked()) {
+    auto model_distribution_values = GetFunctionsValueOnDomain(target_function_.get(), drawable_domain);
+    QVector<qreal> modelDistributionY = QVector<qreal>(model_distribution_values.begin(),
+                                                       model_distribution_values.end());
+    AddPlot(&modelDistributionY, model_plot_pen_);
+  }
+
+  // Generate less elements KDE plot (navy blue)
+  if(ui->checkBox_showEstimationPlot->isChecked()) {
+    vector<double> estimator_values = {};
+    for(auto pt : drawable_domain) {
+      estimator_values.push_back(somke_algorithm->GetValue(pt));
+    }
+    auto estimator_y = QVector<double>(estimator_values.begin(), estimator_values.end());
+    AddPlot(&estimator_y, kde_plot_pen_);
+  }
 }
 
 

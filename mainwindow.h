@@ -21,6 +21,7 @@
 
 #include "DESDA.h"
 #include "kerDepCcWde.h"
+#include "SOMKEAlgorithm.h"
 
 #include "UI/plot.h"
 
@@ -119,6 +120,7 @@ class MainWindow : public QMainWindow {
     void DrawPlots(DESDA *DESDAAlgorithm);
     void DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm);
     void DrawPlots(KerDEP_CC_WDE *WDEAlgorithm);
+    void DrawPlots(SOMKEAlgorithm *somke_algorithm);
     void ClearPlot();
     void AddPlot(const QVector<qreal> *Y, const QPen &pen);
     void ResizePlot();
@@ -155,6 +157,7 @@ class MainWindow : public QMainWindow {
     void Run1DExperimentWithDESDA();
     void Run1DExperimentWithClusterKernels();
     void Run1DExperimentWithWDE();
+    void Run1DExperimentWithSOMKE();
     void on_spinBox_dimensionsNumber_editingFinished();
     void on_pushButton_addTargetFunction_clicked();
     void on_pushButton_removeTargetFunction_clicked();
