@@ -32,7 +32,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mA = _maxM / 10; // For avg max |a| calculation
 
   _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
-  _kpssM = 600; // This is independent of maxM. Normally 500.
+  _kpssM = 50; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
@@ -843,13 +843,19 @@ std::vector<clusterPtr> DESDA::getAtypicalElements() {
   recountQuantileEstimatorValue(sortedIndicesValues);
   std::vector<clusterPtr> atypicalElements = {};
 
+  _trendsNumber = 0;
+
   for(int i = 0; i < sortedIndicesValues.size(); ++i) {
     if(_quantileEstimator > sortedIndicesValues[i].second) {
       atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
+      if((*_clusters)[sortedIndicesValues[i].first]->_currentDerivativeValue > 0){
+        ++_trendsNumber;
+      }
     }
   }
 
   _rareElementsNumber = atypicalElements.size();
+
   return atypicalElements;
 }
 

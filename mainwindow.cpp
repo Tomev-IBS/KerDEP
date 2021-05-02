@@ -37,6 +37,10 @@
 #include "SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h"
 #include "SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h"
 
+#include <QDateTime>
+#include <QDate>
+#include <QTime>
+
 #include "UI/QwtContourPlotUI.h"
 
 ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element) {
@@ -1136,7 +1140,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   */
 
 
-  reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Gravitational_Waves_Data_Preparator\\result.txt"));
+  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
+  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
+  reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt"));
+  //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1177,20 +1184,21 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(),
       &gt, newWeightB, pluginRank
                       );
-  QString expNum = "1498";
+  QString expNum = "1524";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Gravitational Wave Glitch, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Metro 2017 avg fill, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz475";
+                    ", home";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                    + expDesc + ")\\";
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();
@@ -1208,6 +1216,24 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+
+
+  // Exps with days
+    // Bike Sharing Experiment
+  //QDate startDate(2011, 1, 1);
+  //QTime startTime(0, 0, 0);
+    // Air Quality Italy Experiment
+  //QDate startDate(2004, 3, 10);
+  //QTime startTime(18, 0, 0);
+    // Metro Minneapolis Experiment
+  QDate startDate(2016, 10, 1);
+  QTime startTime(0, 0, 0);
+
+  QDateTime dateTime(startDate, startTime);
+
+  plotLabel date_label(ui->widget_plot, horizontalOffset, verticalOffset, "");
+  verticalOffset += verticalStep;
+  // Exps with days
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "i     = ", &step_number_,
@@ -1273,6 +1299,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                    horizontalOffset, verticalOffset, "rare  = ",
                                                    &(DESDAAlgorithm._rareElementsNumber),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
+  verticalOffset += verticalStep;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   horizontalOffset, verticalOffset, "trend = ",
+                                                   &(DESDAAlgorithm._trendsNumber),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
+
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
@@ -1358,11 +1391,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
   int numberOfErrorCalculations = 1;
   QVector<int> additionalScreensSteps = {};
 
-  /*
-  for(int i = 990; i < 1011; ++i){
+
+  for(int i = 2750; i < 2781; ++i){
       additionalScreensSteps.append(i);
   }
-  */
+
+  for(int i = 3220; i < 3241; ++i){
+    additionalScreensSteps.append(i);
+  }
 
   double error_domain_length = 0;
   double windowed_error_domain_length = 0;
@@ -1390,6 +1426,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   ErrorsCalculator rare_elements_kde_errors_calculator(
       &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
                                                       );
+  bool compute_errors = false;
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
@@ -1406,7 +1443,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&drawable_domain_);
 
       // Error calculations
-      if(step_number_ >= 1) {
+      if(step_number_ >= 1 && compute_errors) {
 
         log("Getting windowed domain.");
         //windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
@@ -1423,16 +1460,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
         log("Getting model plot.");
         model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
         log("Getting KDE plot on lesser elements.");
-        //less_elements_estimator_error_y_ = DESDAAlgorithm.getKDEValues(&error_domain_);
         less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
         log("Getting weighted KDE plot.");
-        //weighted_estimator_error_y_ = DESDAAlgorithm.getWeightedKDEValues(&error_domain_);
         weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
         log("Getting sgm KDE plot.");
-        //sigmoidally_enhanced_error_plot_y_ = DESDAAlgorithm.getEnhancedKDEValues(&error_domain_);
         enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
         log("Getting rare KDE plot.");
-        //rare_elements_enhanced_error_plot_Y = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain_);
         rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
 
         error_domain_length =
@@ -1549,7 +1582,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
       betaTextLabel.setText("beta0 = " + QString::number(DESDAAlgorithm._beta0));
 
-      for(const auto &label : plotLabels) label->updateText();
+      for(const auto &label : plotLabels){
+        label->updateText();
+      }
+
+      date_label.setText(dateTime.toString());
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -1559,6 +1596,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
       imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600); // Bike sharing
   }
 
   log("Animation finished.");
