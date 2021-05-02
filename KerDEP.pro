@@ -13,11 +13,32 @@ TEMPLATE    =   app
 CONFIG      +=  static
 CONFIG      +=  qwt
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++17
+
+# SUBDIRS += k:/Libs/Qwt-6.1.5/include/
+# SUBDIRS += k:/Libs/Qwt-6.1.5/lib/
+INCLUDEPATH += k:/Libs/Qwt-6.1.5/include/
+INCLUDEPATH += k:/Libs/Qwt-6.1.5/lib/
+INCLUDEPATH += k:/Libs/Qwt-6.1.5/
+INCLUDEPATH += k:/Libs/boost_1_75_0/
+
+INCLUDEPATH += k:\Libs\knnl\include\
 
 INCLUDEPATH += $$PWD/ClusterKernelWrappers/
+
+LIBS += -L "k:/Libs/Qwt-6.1.5/lib/" -lqwt
+
 INCLUDEPATH += $$PWD/ClusterKernelsKDE/include/ClusterKernelsKDE/
 INCLUDEPATH += $$PWD/ClusterKernelsKDE/src/
+
+INCLUDEPATH += $$PWD/Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream
+INCLUDEPATH += $$PWD/Compressed_Cumulative_WDE_Over_Stream/src
+
+INCLUDEPATH += $$PWD/Compressed_Cumulative_WDE_Wrappers/
+
+INCLUDEPATH += $$PWD/SOMKE/include/SOMKE/
+INCLUDEPATH += $$PWD/SOMKE/src/
+
 
 SOURCES     +=  main.cpp\
                 Benchmarking/errorsCalculator.cpp \
@@ -28,7 +49,23 @@ SOURCES     +=  main.cpp\
                 ClusterKernelsKDE/src/ClusterKernelsAlgorithm.cpp \
                 ClusterKernelsKDE/src/UnivariateListBasedClusterKernelAlgorithm.cpp \
                 ClusterKernelsKDE/src/WeightedUnivariateListBasedClusterKernelAlgorithm.cpp \
+                Compressed_Cumulative_WDE_Over_Stream/src/CompressedCumulativeWaveletDensityEstimator.cpp \
+                Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedScalingFunction.cpp \
+                Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedWaveletFunction.cpp \
+                Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp \
+                Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/hardThresholdingStrategy.cpp \
+                Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/softThresholdingStrategy.cpp \
+                Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.cpp \
+                Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.cpp \
+                Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp \
+                Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp \
+                Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp \
                 DESDAReservoir.cpp \
+                Reservoir_sampling/textDataReader.cpp \
+                SOMKE/src/SOMKEAlgorithm.cpp \
+                SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp \
+                SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.cpp \
+                SOMKEWrappers/somkeNormalKernel.cpp \
                 UI/QwtContourPlotUI.cpp \
                 UI/plot.cpp \
                 UI/plotLabelDoubleDataPreparator.cpp \
@@ -83,6 +120,19 @@ HEADERS     +=  mainwindow.h \
                 ClusterKernelsKDE/include/ClusterKernelsKDE/RealValuedFunction.h \
                 ClusterKernelsKDE/include/ClusterKernelsKDE/UnivariateListBasedClusterKernelAlgorithm.h \
                 ClusterKernelsKDE/include/ClusterKernelsKDE/WeightedUnivariateListBasedClusterKernelAlgorithm.h \
+                Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/CompressedCumulativeWaveletDensityEstimator.h \
+                Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/TranslatedDilatedScalingFunction.h \
+                Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/TranslatedDilatedWaveletFunction.h \
+                Compressed_Cumulative_WDE_Over_Stream/include/Compressed_Cumulative_WDE_Over_Stream/WaveletDensityEstimator.h \
+                Compressed_Cumulative_WDE_Wrappers/LinearWDE.h \
+                Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/ThresholdingStrategyInterface.h \
+                Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/hardThresholdingStrategy.h \
+                Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/softThresholdingStrategy.h \
+                Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.h \
+                Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.h \
+                Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h \
+                Compressed_Cumulative_WDE_Wrappers/math_helpers.h \
+                Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h \
                 DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
@@ -111,6 +161,16 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
+                Reservoir_sampling/sample.h \
+                Reservoir_sampling/textDataReader.h \
+                SOMKE/include/SOMKE/Kernel.h \
+                SOMKE/include/SOMKE/SOMKEAlgorithm.h \
+                SOMKE/include/SOMKE/SOMKEMergingStrategy.h \
+                SOMKE/include/SOMKE/SOMSequenceEntry.h \
+                SOMKE/include/SOMKE/wtm_localized_training_algorithm.h \
+                SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h \
+                SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h \
+                SOMKEWrappers/somkeNormalKernel.h \
                 UI/QwtContourPlotUI.h \
                 UI/i_plotLabelDataPreparator.h \
                 UI/plot.h \
@@ -124,6 +184,9 @@ HEADERS     +=  mainwindow.h \
                 groupingThread/kMedoidsAlgorithm/clusterDistanceMeasures/centroidLinkClusterDistanceMeasure.h \
                 groupingThread/kMedoidsAlgorithm/clusterDistanceMeasures/completeLinkClusterDistanceMeasure.h \
                 groupingThread/kMedoidsAlgorithm/clusterDistanceMeasures/singleLinkClusterDistanceMeasure.h \
+                groupingThread/kMedoidsAlgorithm/dataParsers/textDataParser.h \
+                groupingThread/kMedoidsAlgorithm/dataReaders/textDataReader.h \
+                groupingThread/kMedoidsAlgorithm/dataSamples/textDataSample.h \
                 groupingThread/kMedoidsAlgorithm/groupingAlgorithm/cluster.h \
                 groupingThread/kMedoidsAlgorithm/groupingAlgorithm/distanceBasedGroupingAlgorithm.h \
                 groupingThread/kMedoidsAlgorithm/groupingAlgorithm/groupingAlgorithm.h \
@@ -150,5 +213,22 @@ HEADERS     +=  mainwindow.h \
 FORMS       +=  mainwindow.ui
 
 DISTFILES   +=  .gitignore \
+  .gitmodules \
+  .idea/.gitignore \
+  .idea/KerDEP.iml \
+  .idea/dataSources.local.xml \
+  .idea/misc.xml \
+  .idea/modules.xml \
+  .idea/vcs.xml \
+  .idea/workspace.xml \
+  CMakeLists.txt \
   ClusterKernelsKDE/.gitignore \
-  ClusterKernelsKDE/CMakeLists.txt
+  ClusterKernelsKDE/CMakeLists.txt \
+  Compressed_Cumulative_WDE_Over_Stream/.gitignore \
+  Compressed_Cumulative_WDE_Over_Stream/CMakeLists.txt \
+  Compressed_Cumulative_WDE_Over_Stream/FindBoost.cmake \
+  FindQwt.cmake \
+  SOMKE/.gitignore \
+  SOMKE/CMakeLists.txt \
+  groupingThread/kMedoidsAlgorithm/.gitignore \
+  groupingThread/medoidStoringAlgorithm/.gitignore
