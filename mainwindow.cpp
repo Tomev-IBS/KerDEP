@@ -830,9 +830,9 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
-  auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  //auto densityFunction =
+  //    new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
+  //contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -852,14 +852,14 @@ void MainWindow::on_pushButton_clicked() {
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
 
-  std::shared_ptr<distribution>
-      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  //std::shared_ptr<distribution>
+  //    targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
   std::vector<double> stDevsForDistribution = {1.0, 1.0};
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
+  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
   //data_path = "y:\\Data\\Metro2017.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
@@ -910,8 +910,6 @@ void MainWindow::on_pushButton_clicked() {
   step_number_ = 0;
 
   time_t startTime, endTime;
-
-  log("Ble");
 
   l1_n_ = 0;
   l2_n_ = 0;
@@ -1002,7 +1000,7 @@ void MainWindow::on_pushButton_clicked() {
       }
        */
 
-      densityFunction->setMeans(*means_.back().get());
+      // densityFunction->setMeans(*means_.back().get());
 
       log("Texts updates.");
       plotUi.updateTexts();
@@ -1042,8 +1040,8 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
   QMainWindow::resizeEvent(event);
   int newSize = std::min(ui->widget_contour_plot->height(),
                          ui->widget_contour_plot->width()) - offset;
-  //ui->widget->resize(newSize, newSize);
-  contour_plot_->resize(2 * newSize, newSize);
+  contour_plot_->resize(newSize, newSize);
+  //contour_plot_->resize(2 * newSize, newSize);
 }
 
 double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> &domain) {
