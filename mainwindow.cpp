@@ -809,7 +809,7 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 1000;
+  screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -859,12 +859,23 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
+  //data_path = "y:\\Data\\Metro2017.txt";
+
+  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
+  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
+  reader_.reset(new TextDataReader(data_path));
+  //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
+
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(), 0,
-                                            0,  /* Delay */
+                                            0,
                                             new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
                                                                    55))
                );
+
+  */
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -900,6 +911,8 @@ void MainWindow::on_pushButton_clicked() {
 
   time_t startTime, endTime;
 
+  log("Ble");
+
   l1_n_ = 0;
   l2_n_ = 0;
   sup_n_ = 0;
@@ -926,22 +939,22 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1446 (2D)";
+  QString expNum = "1527-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", v=0, seed = " + QString::number(seed) +
       ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   log("Experiment started.");
-  for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
+  for(step_number_ = 1; step_number_ < 42000; ++step_number_) {
 
     log("New step.");
     startTime = time(nullptr);
@@ -961,6 +974,7 @@ void MainWindow::on_pushButton_clicked() {
       log("Estimator preparation finished.");
       // Error calculation
 
+      /*
       if(step_number_ >= 0) {
         log("Error calculation started.");
         ++errorCalculationsNumber;
@@ -986,6 +1000,7 @@ void MainWindow::on_pushButton_clicked() {
         mod_n_ = sum_mod / errorCalculationsNumber;
         log("Error calculation finished.");
       }
+       */
 
       densityFunction->setMeans(*means_.back().get());
 

@@ -39,7 +39,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _stepNumber = 1;
   _smoothingParameterEnhancer = 0.9;
 
-  stationarityTest.reset(new KPSSStationarityTest(_kpssM));
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
   }
@@ -169,23 +168,21 @@ void DESDA::performStep() {
 
   // KPSS count
   std::vector<double> values =
-      {stod(newCluster->getObject()->attributesValues["Val0"])};
+      {
+        stod(newCluster->getObject()->attributesValues["Val0"]),
+        stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
+      };
 
   for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
     auto c = (*_clusters)[i];
     values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
   }
 
-  _avg = average(values);
-
-  stationarityTest->addNewSample(
-      std::stod(newCluster->getObject()->attributesValues["Val0"])
-                                );
-
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
   }
+
 
   _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
                      - _sgmKPSSParameters[_sgmKPSSPercent][1]);

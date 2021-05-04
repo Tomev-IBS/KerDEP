@@ -22,21 +22,22 @@ void TextDataReader::getNextRawDatum(void *target) {
   targetPtr->clear();
 
   string line;
-  if(std::getline(opened_file_, line)){
+  if(std::getline(opened_file_, line)) {
     targetPtr->push_back(std::stod(line));
+    targetPtr->push_back(std::stod(line)); // 2D Experiment test
   }
-
 }
 
 void TextDataReader::gatherAttributesData(void *attributes) {
   std::unordered_map<std::string, attributeData *> *attrs_ptr =
     static_cast<std::unordered_map<std::string, attributeData *> *>(attributes);
+  std::vector<string> attrsNames = {"Val0", "Val1"}; // 2D
 
-  string attrName = "Val0"; // 1D data
+  for(auto attrName : attrsNames){
+    attributesOrder.push_back(attrName);
+    (*attrs_ptr)[attrName] = new numericalAttributeData(attrName);
+  }
 
-  attributesOrder.push_back(attrName);
-
-  (*attrs_ptr)[attrName] = new numericalAttributeData(attrName);
 }
 
 bool TextDataReader::hasMoreData() {
