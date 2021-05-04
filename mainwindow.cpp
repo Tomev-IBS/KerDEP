@@ -860,7 +860,7 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
-  //data_path = "y:\\Data\\Metro2017.txt";
+  data_path = "y:\\Data\\metro2017_2D.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
@@ -902,8 +902,7 @@ void MainWindow::on_pushButton_clicked() {
       samplingAlgorithm,
       clusters_,
       &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(),
-      &gt, newWeightB, pluginRank
+      ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
   // Start the test
@@ -921,9 +920,15 @@ void MainWindow::on_pushButton_clicked() {
   double actual_mod = 0;
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
+
+  QDate data_start_date(2016, 10, 1); // Metro
+  QTime data_start_time(0, 0, 0);
+  QDateTime data_date_time(data_start_date, data_start_time);
+
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
-                          &actual_l1, &actual_l2, &actual_sup, &actual_mod);
+                          &actual_l1, &actual_l2, &actual_sup, &actual_mod,
+                          &data_date_time);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
@@ -944,8 +949,8 @@ void MainWindow::on_pushButton_clicked() {
       + ", v=0, seed = " + QString::number(seed) +
       ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
@@ -1028,6 +1033,8 @@ void MainWindow::on_pushButton_clicked() {
     }
 
     endTime = time(nullptr);
+
+    data_date_time = data_date_time.addSecs(3600); // Add hour to the date
 
     log("Step time: " + QString::number(endTime - startTime) + " s");
   }
@@ -1197,8 +1204,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       algorithm,
       clusters_,
       &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(),
-      &gt, newWeightB, pluginRank
+      ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
   QString expNum = "1526-1";
   this->setWindowTitle("Experiment #" + expNum);
@@ -1211,8 +1217,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
   ClearPlot();
