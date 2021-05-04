@@ -26,12 +26,12 @@ if(exists(k:/Libs/)){
 }
 
 if(exists(y:/Code/)){
-    INCLUDEPATH += y:/Qwt-6.1.5_i/include/
-    INCLUDEPATH += y:/Qwt-6.1.5_i/lib/
-    INCLUDEPATH += y:/Qwt-6.1.5_i/
+    INCLUDEPATH += c:/Qwt-6.1.5/include/
+    INCLUDEPATH += c:/Qwt-6.1.5/lib/
+    INCLUDEPATH += c:/Qwt-6.1.5/
     INCLUDEPATH += y:/boost_1_75_0/
     INCLUDEPATH += y:/knnl/include/
-    LIBS += -L "y:/Qwt-6.1.5_i/lib/" -lqwt
+    LIBS += -L "c/Qwt-6.1.5/lib/" -lqwt
 }
 
 
