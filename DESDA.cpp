@@ -32,7 +32,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _mA = _maxM / 10; // For avg max |a| calculation
 
   _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
-  _kpssM = 600; // This is independent of maxM. Normally 500.
+  _kpssM = 50; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
@@ -843,13 +843,19 @@ std::vector<clusterPtr> DESDA::getAtypicalElements() {
   recountQuantileEstimatorValue(sortedIndicesValues);
   std::vector<clusterPtr> atypicalElements = {};
 
+  _trendsNumber = 0;
+
   for(int i = 0; i < sortedIndicesValues.size(); ++i) {
     if(_quantileEstimator > sortedIndicesValues[i].second) {
       atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
+      if((*_clusters)[sortedIndicesValues[i].first]->_currentDerivativeValue > 0){
+        ++_trendsNumber;
+      }
     }
   }
 
   _rareElementsNumber = atypicalElements.size();
+
   return atypicalElements;
 }
 
@@ -924,7 +930,8 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
       qDebug() << "Sorted indices values (using 0):";
       for(auto pair: sortedIndicesValues) {
         auto attrVals = _clusters->at(pair.first)->getRepresentative()->attributesValues;
-        std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+        //std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+        std::vector<double> pt = {std::stod(attrVals["Val0"])};
         qDebug() << "\ti: " << pair.first << ", x: " << pt[0] << ", y: " << pt[1]
                  << ", remembered value: " << pair.second
                  << ", estimator value: " << _estimator->getValue(&pt);
@@ -947,7 +954,8 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
     qDebug() << "Sorted indices values (using " << i - 1 << "and" << i << "):";
     for(auto pair: sortedIndicesValues) {
       auto attrVals = _clusters->at(pair.first)->getRepresentative()->attributesValues;
-      std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+      //std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+      std::vector<double> pt = {std::stod(attrVals["Val0"])};
       qDebug() << "\ti: " << pair.first << ", x: " << pt[0] << ", y: " << pt[1]
                << ", remembered value: " << pair.second
                << ", estimator value: " << _estimator->getValue(&pt);
