@@ -10,7 +10,7 @@
 	url = https://github.com/Tomev-IBS/ClusterKernelsKDE.git
 [submodule "Compressed_Cumulative_WDE_Over_Stream"]
 	path = Compressed_Cumulative_WDE_Over_Stream
-	url = https://github.com/Tomev-IBS/Compressed_Cumulative_WDE_Over_Stream
+	url = git@github.com:Tomev-IBS/Compressed_Cumulative_WDE_Over_Stream
 [submodule "SOMKE"]
 	path = SOMKE
 	url = git@github.com:Tomev-IBS/SOMKE.git
