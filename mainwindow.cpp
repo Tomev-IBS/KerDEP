@@ -1141,7 +1141,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   */
 
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
-  data_path = "y:\\Data\\cracow2016.txt";
+  data_path = "y:\\Data\\Metro2017.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
@@ -1187,20 +1187,20 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(),
       &gt, newWeightB, pluginRank
                       );
-  QString expNum = "1525-2";
+  QString expNum = "1526-1";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Cracow, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Metro, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz002";
+                    ", sz022";
   screen_generation_frequency_ = 1;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();
