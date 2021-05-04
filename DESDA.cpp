@@ -930,7 +930,8 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
       qDebug() << "Sorted indices values (using 0):";
       for(auto pair: sortedIndicesValues) {
         auto attrVals = _clusters->at(pair.first)->getRepresentative()->attributesValues;
-        std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+        //std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+        std::vector<double> pt = {std::stod(attrVals["Val0"])};
         qDebug() << "\ti: " << pair.first << ", x: " << pt[0] << ", y: " << pt[1]
                  << ", remembered value: " << pair.second
                  << ", estimator value: " << _estimator->getValue(&pt);
@@ -953,7 +954,8 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
     qDebug() << "Sorted indices values (using " << i - 1 << "and" << i << "):";
     for(auto pair: sortedIndicesValues) {
       auto attrVals = _clusters->at(pair.first)->getRepresentative()->attributesValues;
-      std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+      //std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
+      std::vector<double> pt = {std::stod(attrVals["Val0"])};
       qDebug() << "\ti: " << pair.first << ", x: " << pt[0] << ", y: " << pt[1]
                << ", remembered value: " << pair.second
                << ", estimator value: " << _estimator->getValue(&pt);
