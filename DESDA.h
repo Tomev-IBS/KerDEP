@@ -22,7 +22,7 @@ class DESDA
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::shared_ptr<cluster>> *storedMedoids,
-          double desiredRarity, groupingThread *gt, double newWeightB,
+          double desiredRarity, double newWeightB,
           double pluginRank=2);
 
     void performStep();
@@ -118,15 +118,10 @@ class DESDA
     double _weightModifier = 0.0;
     double _smoothingParameterMultiplier = 1.0;
     double _positionalSecondGradeEstimator = 0.0;
-    double _maxEstimatorValueOnDomain = 0.0;
-    double _a = 0.0;
-    double _previousUncommonClustersWeight = 0.0;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;
     std::shared_ptr<kernelDensityEstimator> _enhancedKDE;
-    std::shared_ptr<distribution> _targetDistribution;
-    weightedSilvermanSmoothingParameterCounter *_smoothingParamCounter;
     reservoirSamplingAlgorithm *_samplingAlgorithm;
     std::vector<std::shared_ptr<cluster>> *_clusters;
     std::vector<std::shared_ptr<cluster>> _clustersForWindowed;
@@ -135,14 +130,11 @@ class DESDA
     std::vector<std::shared_ptr<cluster>> *_storedMedoids;
     std::vector<std::shared_ptr<cluster>> _uncommonClusters;
 
-    groupingThread *_grpThread;
-
     // Random deletion
     std::default_random_engine generator;
     std::uniform_real_distribution<double> dist;
     double _d = 0;
 
-    int randomizeIndexToDelete();
     void updateWeights();
     void updateExaminedClustersIndices();
     std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
@@ -151,14 +143,11 @@ class DESDA
     void updatePrognosisParameters();
     void countDerivativeValuesOnClusters();
     void updateM();
-    void updateDelta();
     void updateMaxAbsAVector();
     double getCurrentMaxAbsA();
     void updateMaxAbsDerivativeVector();
     double getCurrentMaxAbsDerivativeValue();
-    void updateAverageMaxAbsDerivativeInLastMASteps();
     void updateMaxAbsDerivativeInCurrentStep();
-    void updateExaminedClustersAsVector();
 
     // Domain reduction
     std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);

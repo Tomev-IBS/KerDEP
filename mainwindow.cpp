@@ -809,7 +809,7 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 1000;
+  screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -830,9 +830,9 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
-  auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  //auto densityFunction =
+  //    new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
+  //contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -852,19 +852,30 @@ void MainWindow::on_pushButton_clicked() {
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
 
-  std::shared_ptr<distribution>
-      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  //std::shared_ptr<distribution>
+  //    targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
   std::vector<double> stDevsForDistribution = {1.0, 1.0};
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
+  data_path = "y:\\Data\\metro2017_2D.txt";
+
+  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
+  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
+  reader_.reset(new TextDataReader(data_path));
+  //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
+
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(), 0,
-                                            0,  /* Delay */
+                                            0,
                                             new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
                                                                    55))
                );
+
+  */
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -891,8 +902,7 @@ void MainWindow::on_pushButton_clicked() {
       samplingAlgorithm,
       clusters_,
       &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(),
-      &gt, newWeightB, pluginRank
+      ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
   // Start the test
@@ -910,9 +920,15 @@ void MainWindow::on_pushButton_clicked() {
   double actual_mod = 0;
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
+
+  QDate data_start_date(2016, 10, 1); // Metro
+  QTime data_start_time(0, 0, 0);
+  QDateTime data_date_time(data_start_date, data_start_time);
+
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
-                          &actual_l1, &actual_l2, &actual_sup, &actual_mod);
+                          &actual_l1, &actual_l2, &actual_sup, &actual_mod,
+                          &data_date_time);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
@@ -926,7 +942,7 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1446 (2D)";
+  QString expNum = "1527-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
@@ -941,7 +957,7 @@ void MainWindow::on_pushButton_clicked() {
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   log("Experiment started.");
-  for(step_number_ = 1; step_number_ < 13001; ++step_number_) {
+  for(step_number_ = 1; step_number_ < 42000; ++step_number_) {
 
     log("New step.");
     startTime = time(nullptr);
@@ -961,6 +977,7 @@ void MainWindow::on_pushButton_clicked() {
       log("Estimator preparation finished.");
       // Error calculation
 
+      /*
       if(step_number_ >= 0) {
         log("Error calculation started.");
         ++errorCalculationsNumber;
@@ -986,8 +1003,9 @@ void MainWindow::on_pushButton_clicked() {
         mod_n_ = sum_mod / errorCalculationsNumber;
         log("Error calculation finished.");
       }
+       */
 
-      densityFunction->setMeans(*means_.back().get());
+      // densityFunction->setMeans(*means_.back().get());
 
       log("Texts updates.");
       plotUi.updateTexts();
@@ -1016,6 +1034,8 @@ void MainWindow::on_pushButton_clicked() {
 
     endTime = time(nullptr);
 
+    data_date_time = data_date_time.addSecs(3600); // Add hour to the date
+
     log("Step time: " + QString::number(endTime - startTime) + " s");
   }
 
@@ -1027,8 +1047,8 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
   QMainWindow::resizeEvent(event);
   int newSize = std::min(ui->widget_contour_plot->height(),
                          ui->widget_contour_plot->width()) - offset;
-  //ui->widget->resize(newSize, newSize);
-  contour_plot_->resize(2 * newSize, newSize);
+  contour_plot_->resize(newSize, newSize);
+  //contour_plot_->resize(2 * newSize, newSize);
 }
 
 double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> &domain) {
@@ -1140,10 +1160,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
                );
   */
 
-  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
-  data_path = "y:\\Data\\Metro2017.txt";
+  //std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
+  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
+  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
+  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
+  data_path = "y:\\Data\\BikeSharingPrices.txt";
 
-  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
   //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
@@ -1184,13 +1206,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       algorithm,
       clusters_,
       &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(),
-      &gt, newWeightB, pluginRank
+      ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
-  QString expNum = "1526-1";
+  QString expNum = "1513";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Metro, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Bike, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz022";
   screen_generation_frequency_ = 1;
@@ -1199,8 +1220,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();
@@ -1222,14 +1243,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
   // Bike Sharing Experiment
-  //QDate startDate(2011, 1, 1);
-  //QTime startTime(0, 0, 0);
+  QDate startDate(2011, 1, 1);
+  QTime startTime(0, 0, 0);
   // Air Quality Italy Experiment
   //QDate startDate(2004, 3, 10);
   //QTime startTime(18, 0, 0);
   // Metro Minneapolis Experiment
-  QDate startDate(2016, 10, 1);
-  QTime startTime(0, 0, 0);
+  //QDate startDate(2016, 10, 1);
+  //QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 

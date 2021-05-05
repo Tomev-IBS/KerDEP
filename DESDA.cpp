@@ -17,29 +17,26 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
-             double desiredRarity, groupingThread *gt,
-             double newWeightB, double pluginRank) :
+             double desiredRarity, double newWeightB, double pluginRank) :
     _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
     _estimatorDerivative(estimatorDerivative), _estimator(estimator),
     _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
-    _grpThread(gt), _newWeightB(newWeightB), _enhancedKDE(enchancedKDE),
+    _newWeightB(newWeightB), _enhancedKDE(enchancedKDE),
     _pluginRank(pluginRank) {
   _objects.clear();
 
   _maxM = _samplingAlgorithm->getReservoidMaxSize(); // _maxM should be like 1000 + 100 for every mode
 
   _m = _maxM;
-  _mA = _maxM / 10; // For avg max |a| calculation
 
   _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
-  _kpssM = 50; // This is independent of maxM. Normally 500.
+  _kpssM = 500; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
   _stepNumber = 1;
   _smoothingParameterEnhancer = 0.9;
 
-  stationarityTest.reset(new KPSSStationarityTest(_kpssM));
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
   }
@@ -104,51 +101,6 @@ double average(std::vector<double> values) {
   return average;
 }
 
-int DESDA::randomizeIndexToDelete() {
-
-  std::vector<double> partialProbabilities = {};
-  std::vector<double> probabilities = {};
-  double partialProbabilitesSum = 0;
-  auto m = _clusters->size();
-
-  //qDebug() << "Clusters size: " << m;
-
-  for(size_t i = 1; i <= m; ++i) {
-    partialProbabilities.push_back((double) (_d * i) / (m + 1.0) + 0.5 - 0.5 * _d);
-    partialProbabilitesSum += partialProbabilities.back();
-  }
-
-  qDebug() << "Partial probabilities: " << partialProbabilities;
-  qDebug() << "pProbabilities sum: " << partialProbabilitesSum;
-
-  double pSum = 0;
-
-  for(auto pProbability : partialProbabilities) {
-    probabilities.push_back(pProbability / partialProbabilitesSum);
-    pSum += probabilities.back();
-  }
-
-  qDebug() << "Probabilities: " << probabilities;
-  qDebug() << "Sum: " << pSum;
-
-  double deletionProbability = dist(generator);
-  double currentProbability = 0;
-  int i;
-
-  qDebug() << "Deletion probablity: " << deletionProbability;
-
-  for(i = 0; i < m; ++i) {
-    currentProbability += probabilities[i];
-
-    qDebug() << "Current prob:" << currentProbability;
-
-    if(currentProbability > deletionProbability) break;
-  }
-
-  qDebug() << "Removing " << i << " cluster.";
-  return i;
-}
-
 void DESDA::performStep() {
   // Making place for new cluster
   while(_clustersForWindowed.size() >= _maxM) {
@@ -169,23 +121,21 @@ void DESDA::performStep() {
 
   // KPSS count
   std::vector<double> values =
-      {stod(newCluster->getObject()->attributesValues["Val0"])};
+      {
+        stod(newCluster->getObject()->attributesValues["Val0"])
+        //,stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
+      };
 
   for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
     auto c = (*_clusters)[i];
     values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
   }
 
-  _avg = average(values);
-
-  stationarityTest->addNewSample(
-      std::stod(newCluster->getObject()->attributesValues["Val0"])
-                                );
-
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
   }
+
 
   _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
                      - _sgmKPSSParameters[_sgmKPSSPercent][1]);
@@ -223,7 +173,6 @@ void DESDA::performStep() {
   // Update a
   updateMaxAbsAVector();
   updateMaxAbsDerivativeVector();
-  updateAverageMaxAbsDerivativeInLastMASteps();
   updateMaxAbsDerivativeInCurrentStep();
 
   _examinedClustersDerivatives.clear();
@@ -440,19 +389,6 @@ double DESDA::getCurrentMaxAbsDerivativeValue() {
   }
 
   return maxAbsDerivative;
-}
-
-void DESDA::updateAverageMaxAbsDerivativeInLastMASteps() {
-  double sumOfConsideredMaxAbsDerivatives = 0;
-  int consideredElementsNumber =
-      _maxAbsDerivatives.size() < _mA ? _maxAbsAs.size() : _mA;
-
-  for(int i = 0; i < consideredElementsNumber; ++i) {
-    sumOfConsideredMaxAbsDerivatives += _maxAbsDerivatives[i];
-  }
-
-  _averageMaxDerivativeValueInLastMASteps = sumOfConsideredMaxAbsDerivatives;
-  _averageMaxDerivativeValueInLastMASteps /= consideredElementsNumber;
 }
 
 void DESDA::updateMaxAbsDerivativeInCurrentStep() {

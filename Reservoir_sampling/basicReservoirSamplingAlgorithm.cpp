@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "basicReservoirSamplingAlgorithm.h"
 
 basicReservoirSamplingAlgorithm::basicReservoirSamplingAlgorithm(
