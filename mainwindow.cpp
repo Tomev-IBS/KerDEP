@@ -1160,10 +1160,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
                );
   */
 
-  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
-  data_path = "y:\\Data\\Metro2017.txt";
+  //std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
+  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
+  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
+  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
+  data_path = "y:\\Data\\BikeSharingPrices.txt";
 
-  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
   //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
@@ -1206,10 +1208,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
-  QString expNum = "1526-1";
+  QString expNum = "1513";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Metro, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Bike, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz022";
   screen_generation_frequency_ = 1;
@@ -1217,9 +1219,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();
@@ -1241,14 +1243,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
   // Bike Sharing Experiment
-  //QDate startDate(2011, 1, 1);
-  //QTime startTime(0, 0, 0);
+  QDate startDate(2011, 1, 1);
+  QTime startTime(0, 0, 0);
   // Air Quality Italy Experiment
   //QDate startDate(2004, 3, 10);
   //QTime startTime(18, 0, 0);
   // Metro Minneapolis Experiment
-  QDate startDate(2016, 10, 1);
-  QTime startTime(0, 0, 0);
+  //QDate startDate(2016, 10, 1);
+  //QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 

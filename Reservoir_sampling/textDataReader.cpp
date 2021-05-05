@@ -48,7 +48,8 @@ void TextDataReader::getNextRawDatum(void *target) {
 void TextDataReader::gatherAttributesData(void *attributes) {
   std::unordered_map<std::string, attributeData *> *attrs_ptr =
     static_cast<std::unordered_map<std::string, attributeData *> *>(attributes);
-  std::vector<string> attrsNames = {"Val0", "Val1"}; // 2D
+  std::vector<string> attrsNames = {"Val0"}; // 2D
+  //std::vector<string> attrsNames = {"Val0", "Val1"}; // 2D
 
   for(auto attrName : attrsNames){
     attributesOrder.push_back(attrName);

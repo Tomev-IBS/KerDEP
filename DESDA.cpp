@@ -122,8 +122,8 @@ void DESDA::performStep() {
   // KPSS count
   std::vector<double> values =
       {
-        stod(newCluster->getObject()->attributesValues["Val0"]),
-        stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
+        stod(newCluster->getObject()->attributesValues["Val0"])
+        //,stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
       };
 
   for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
