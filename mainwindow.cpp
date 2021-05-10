@@ -1164,7 +1164,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  //data_path = "y:\\Data\\BikeSharingPrices.txt";
+  data_path = "y:\\Data\\BikeSharingPrices.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
@@ -1203,6 +1203,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
+
   QString expNum = "1523";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
