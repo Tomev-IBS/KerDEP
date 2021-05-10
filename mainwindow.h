@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <chrono>
 
+#include "UI/plotLabel.h"
+
 #include "QCustomPlot/qcustomplot.h"
 
 #include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
@@ -18,6 +20,8 @@
 #include "Functions/function.h"
 #include "groupingThread/kMedoidsAlgorithm/attributeData.h"
 #include "ClusterKernelWrappers/enhancedClusterKernelAlgorithm.h"
+
+#include "Benchmarking/errorsCalculator.h"
 
 #include "DESDA.h"
 #include "kerDepCcWde.h"
@@ -46,6 +50,9 @@ namespace Ui {
   class MainWindow;
 }
 
+typedef std::shared_ptr<double> double_ptr;
+typedef std::shared_ptr<int> int_ptr;
+
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
@@ -59,6 +66,22 @@ class MainWindow : public QMainWindow {
     QVector<double> drawable_domain_;
     QVector<double> windowed_error_domain_;
     QVector<double> error_domain_;
+
+    QVector<std::shared_ptr<plotLabel>> plot_labels_;
+    double label_vertical_offset_ = 0;
+    double label_horizontal_offset_ = 0;
+    const double label_vertical_offset_step_ = 0.03;
+
+    void AddDoubleLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values);
+    void AddDoubleLabelToPlot(const QString &label, double *value);
+    void AddIntLabelToPlot(const QString &label, int *value);
+    void AddConstantLabelToPlot(const QString &label);
+    void AddL1ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
+    void AddL2ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
+    void AddSupErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
+    void AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
+    void AddColorsLegendToPlot();
+
 
   private:
     // Pens for 1d plot
@@ -103,10 +126,10 @@ class MainWindow : public QMainWindow {
     // Prediction
     QVector<double> kernel_prognosis_derivative_values_;
     // Errors
-    double l1_w_ = 0, l1_m_ = 0, l1_d_ = 0, l1_p_ = 0, l1_n_ = 0,
-           l2_w_ = 0, l2_m_ = 0, l2_d_ = 0, l2_p_ = 0, l2_n_ = 0,
-           sup_w_ = 0, sup_m_ = 0, sup_d_ = 0, sup_p_ = 0, sup_n_ = 0,
-           mod_w_ = 0, mod_m_ = 0, mod_d_ = 0, mod_p_ = 0, mod_n_ = 0;
+    double l1_w_ = 0, l1_n_ = 0,
+           l2_w_ = 0, l2_n_ = 0,
+           sup_w_ = 0, sup_n_ = 0,
+           mod_w_ = 0, mod_n_ = 0;
     QVector<std::pair<double, double>>
         atypical_elements_values_and_derivatives_ = {};
     double quantile_estimator_value_ = 0;

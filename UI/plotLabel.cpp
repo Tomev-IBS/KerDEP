@@ -45,3 +45,7 @@ void plotLabel::updateText()
   if(_value == nullptr) return;
   _label.setText(_text + _dataPreparator->prepareValue(_value));
 }
+
+void plotLabel::SetColor(const QColor &color) {
+  _label.setColor(color);
+}

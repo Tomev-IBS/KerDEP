@@ -13,6 +13,7 @@ class plotLabel
     plotLabel(const plotLabel &pl);
     void setText(QString text);
     void setFont(const QFont &newFont);
+    void SetColor(const QColor &color);
     void updateText();
   private:
     QString _text;
