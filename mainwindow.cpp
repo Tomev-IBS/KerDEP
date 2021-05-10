@@ -1280,7 +1280,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   AddDoubleLabelToPlot("q     = ", &(DESDAAlgorithm._quantileEstimator));
   AddIntLabelToPlot("rare  = ", &(DESDAAlgorithm._rareElementsNumber));
   AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
-  label_vertical_offset_ += label_vertical_offset_step_;
+  label_vertical_offset_ += 5 * label_vertical_offset_step_;
+
+  AddColorsLegendToPlot();
 
   //====================  SECOND COLUMN =================//
 
@@ -2416,5 +2418,46 @@ void MainWindow::AddSupErrorsToSum(QVector<ErrorsCalculator*> &errors_calculator
 void MainWindow::AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
   for(size_t i = 0; i < errors_calculators.size(); ++i){
     errors_sums[i] += errors_calculators[i]->CalculateModError();
+  }
+}
+
+void MainWindow::AddColorsLegendToPlot() {
+  if(ui->checkBox_showEstimatedPlot->isChecked()) {
+    AddConstantLabelToPlot("Model");
+    plot_labels_.back()->SetColor(model_plot_pen_.color());
+  }
+  if(ui->checbox_showFullEstimator->isChecked()){
+    AddConstantLabelToPlot("Window");
+    plot_labels_.back()->SetColor(windowed_plot_pen_.color());
+  }
+
+  if(ui->checkBox_showEstimationPlot->isChecked()){
+    AddConstantLabelToPlot("Less elements");
+    plot_labels_.back()->SetColor(kde_plot_pen_.color());
+  }
+
+  if(ui->checkBox_showWeightedEstimationPlot->isChecked()){
+    AddConstantLabelToPlot("Weights");
+    plot_labels_.back()->SetColor(weighted_plot_pen_.color());
+  }
+
+  if(ui->checkBox_kernelPrognosedPlot->isChecked()){
+    AddConstantLabelToPlot("Derivative");
+    plot_labels_.back()->SetColor(derivative_plot_pen_.color());
+  }
+
+  if(ui->checkBox_standarizedDerivative->isChecked()){
+    AddConstantLabelToPlot("Std. Derivative");
+    plot_labels_.back()->SetColor(standardized_derivative_plot_pen_.color());
+  }
+
+  if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()){
+    AddConstantLabelToPlot("Prediction");
+    plot_labels_.back()->SetColor(desda_kde_plot_pen_.color());
+  }
+
+  if(ui->checkBox_REESEKDE->isChecked()){
+    AddConstantLabelToPlot("Rare Elements");
+    plot_labels_.back()->SetColor(desda_rare_elements_kde_plot_pen_.color());
   }
 }

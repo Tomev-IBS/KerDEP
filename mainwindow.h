@@ -80,6 +80,7 @@ class MainWindow : public QMainWindow {
     void AddL2ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
     void AddSupErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
     void AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
+    void AddColorsLegendToPlot();
 
 
   private:
