@@ -49,6 +49,9 @@ void Plot::setAxesLimit(const double &limit)
 
   setAxisScale(Qt::XAxis, -36, 36); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
   setAxisScale(Qt::ZAxis, 0, 72); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
+
+  setAxisTitle(Qt::XAxis, "X");
+  setAxisTitle(Qt::ZAxis, "Z");
 }
 
 void Plot::showContour( bool on )
