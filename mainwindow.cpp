@@ -1164,7 +1164,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\BikeSharingPrices.txt";
+  //data_path = "y:\\Data\\BikeSharingPrices.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
@@ -1179,15 +1179,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   objects_.clear();
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
-  int medoidsNumber = 50;
-  groupingThread gt(&stored_medoids_, parser_);
-
-  gt.setAttributesData(&attributes_data_);
 
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  gt.initialize(medoidsNumber, sampleSize);
 
   double newWeightB = 0.5;
 
@@ -1208,17 +1203,20 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
-  QString expNum = "1513";
+  QString expNum = "1523";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Bike, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Cracow, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz022";
-  screen_generation_frequency_ = 1;
+                    ", home";
+
+  screen_generation_frequency_ = 10;
+  bool compute_errors = false;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "D:\\Test\\"; // Test
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+
   //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1237,191 +1235,112 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
 
-  QVector<std::shared_ptr<plotLabel>> plotLabels = {};
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
-
+  plot_labels_ = {};
+  label_horizontal_offset_ = label_vertical_offset_ = 0.01;
 
   // Exps with days
-  // Bike Sharing Experiment
+    // Bike Sharing Experiment
   QDate startDate(2011, 1, 1);
   QTime startTime(0, 0, 0);
-  // Air Quality Italy Experiment
+    // Air Quality Italy Experiment
   //QDate startDate(2004, 3, 10);
   //QTime startTime(18, 0, 0);
-  // Metro Minneapolis Experiment
+   // Metro Minneapolis Experiment
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 
-  plotLabel date_label(ui->widget_plot, horizontalOffset, verticalOffset, "");
-  verticalOffset += verticalStep;
-  // Exps with days
+  plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
+  label_vertical_offset_ += label_vertical_offset_step_;
+  // END Exps with days
 
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+  AddIntLabelToPlot("i     = ", &step_number_);
+  AddConstantLabelToPlot("iw    = " + QString::number(screen_generation_frequency_));
+  AddConstantLabelToPlot("seed  = " + seedString);
+  label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel KPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
+  plotLabel KPSSTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                           "KPSS     = 0");
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabel sgmKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                             "sgmKPSS  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  AddDoubleLabelToPlot("sgmKPSS  = ", &DESDAAlgorithm._sgmKPSS);
+  label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabel mKPSSTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                           "mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
-  verticalOffset += verticalStep;
+  AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
+  AddConstantLabelToPlot("m0    = " + ui->lineEdit_sampleSize->text());
+  AddConstantLabelToPlot("mmin  = " + QString::number(DESDAAlgorithm._minM));
+  AddIntLabelToPlot("m     = ", &(DESDAAlgorithm._m));
+  label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot, horizontalOffset, verticalOffset,
-                                                   "m0    = " + ui->lineEdit_sampleSize->text()));
-  verticalOffset += verticalStep;
+  AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
+  label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "mmin  = "
-                                                                                     + QString::number(
-                                                                                         DESDAAlgorithm._minM)));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "m     = ", &(DESDAAlgorithm._m),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel betaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                          "beta0 = " + QString::number(DESDAAlgorithm._beta0));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel rTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "r     =" + FormatNumberForDisplay(DESDAAlgorithm._r));
-  verticalOffset += verticalStep;
-
-  plotLabel qTextLabel(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "q     =" + FormatNumberForDisplay(
-                           DESDAAlgorithm._quantileEstimator));
-
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "rare  = ",
-                                                   &(DESDAAlgorithm._rareElementsNumber),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "trend = ",
-                                                   &(DESDAAlgorithm._trendsNumber),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  AddDoubleLabelToPlot("r     = ", &(DESDAAlgorithm._r));
+  AddDoubleLabelToPlot("q     = ", &(DESDAAlgorithm._quantileEstimator));
+  AddIntLabelToPlot("rare  = ", &(DESDAAlgorithm._rareElementsNumber));
+  AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   //====================  SECOND COLUMN =================//
 
-  horizontalOffset = 0.20;
-  verticalOffset = 0.01 + 9 * verticalStep;
+  label_horizontal_offset_ = 0.20;
+  label_vertical_offset_ = 0.01 + 9 * label_vertical_offset_step_;
 
   //==================== ERRORS SUM =================//
 
-  horizontalOffset = 0.87;
-  verticalOffset = 0.01;
+  label_horizontal_offset_ = 0.87;
+  label_vertical_offset_ = 0.01;
 
-  plotLabel L1WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_w = 0");
-  verticalOffset += verticalStep;
+  QVector<double> l1_errors_sums = {};
+  QVector<double> l2_errors_sums = {};
+  QVector<double> sup_errors_sums = {};
+  QVector<double> mod_errors_sums = {};
 
-  plotLabel L1MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_m = 0");
-  verticalOffset += verticalStep;
+  QVector<double_ptr> l1_errors = {};
+  QVector<double_ptr> l2_errors = {};
+  QVector<double_ptr> sup_errors = {};
+  QVector<double_ptr> mod_errors = {};
 
-  plotLabel L1DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_d = 0");
-  verticalOffset += verticalStep;
+  if(compute_errors) {
 
-  plotLabel L1PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_p = 0");
-  verticalOffset += verticalStep;
+    QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
+    QVector<QString> l2_labels = {"L2_w  = ", "L2_m  = ", "L2_d  = ", "L2_p  = ", "L2_n  = "};
+    QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
+    QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
 
-  plotLabel L1NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1_n = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+    for(size_t i = 0; i < l1_labels.size(); ++i){
+      l1_errors.push_back(std::make_shared<double>(0));
+      l1_errors_sums.push_back(0);
+      l2_errors.push_back(std::make_shared<double>(0));
+      l2_errors_sums.push_back(0);
+      sup_errors.push_back(std::make_shared<double>(0));
+      sup_errors_sums.push_back(0);
+      mod_errors.push_back(std::make_shared<double>(0));
+      mod_errors_sums.push_back(0);
+    }
 
-  plotLabel L2WTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_w = 0");
-  verticalOffset += verticalStep;
+    AddDoubleLabelsToPlot(l1_labels, l1_errors);
+    label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabel L2MTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_m = 0");
-  verticalOffset += verticalStep;
+    AddDoubleLabelsToPlot(l2_labels, l2_errors);
+    label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabel L2DTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_d = 0");
-  verticalOffset += verticalStep;
+    AddDoubleLabelsToPlot(sup_labels, sup_errors);
+    label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabel L2PTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel L2NTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2_n = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel supWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_w = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel supNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup_n = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modWTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_w = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modMTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_m = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modDTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_d = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modPTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_p = 0");
-  verticalOffset += verticalStep;
-
-  plotLabel modNTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod_n = 0");
-  verticalOffset += verticalStep;
+    AddDoubleLabelsToPlot(mod_labels, mod_errors);
+    label_vertical_offset_ += label_vertical_offset_step_;
+  }
 
   FillDomain(&domain_, nullptr);
-  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
+  for(const auto &pt : domain_){ drawable_domain_.push_back(pt->at(0)); }
 
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 1;
   QVector<int> additionalScreensSteps = {};
-
-
-  for(int i = 2750; i < 2781; ++i){
-    additionalScreensSteps.append(i);
-  }
-
-  for(int i = 3220; i < 3241; ++i){
-    additionalScreensSteps.append(i);
-  }
 
   double error_domain_length = 0;
   double windowed_error_domain_length = 0;
@@ -1434,6 +1353,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   std::vector<double> weighted_kde_values = {};
   std::vector<double> enhanced_kde_values = {};
   std::vector<double> rare_elements_kde_values = {};
+
   ErrorsCalculator windowed_errors_calculator(
       &windowed_model_values, &windowed_kde_values, &windowed_error_domain, &windowed_error_domain_length
                                              );
@@ -1449,7 +1369,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   ErrorsCalculator rare_elements_kde_errors_calculator(
       &model_values, &rare_elements_kde_values, &error_domain, &error_domain_length
                                                       );
-  bool compute_errors = false;
+
+  QVector<ErrorsCalculator*> errors_calculators = {
+      &windowed_errors_calculator, &less_elements_kde_errors_calculator, &weighted_kde_errors_calculator,
+      &enhanced_kde_errors_calculator, &rare_elements_kde_errors_calculator
+  };
+
 
   for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
@@ -1469,10 +1394,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
       if(step_number_ >= 1 && compute_errors) {
 
         log("Getting windowed domain.");
-        //windowed_error_domain_ = DESDAAlgorithm.getWindowedErrorDomain();
         windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
         log("Getting non-windowed domain.");
-        //error_domain_ = DESDAAlgorithm.getErrorDomain();
         error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
 
         log("Getting model plot on windowed.");
@@ -1491,121 +1414,33 @@ void MainWindow::Run1DExperimentWithDESDA() {
         log("Getting rare KDE plot.");
         rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
 
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+        error_domain_length = error_domain[error_domain.size() - 1][0] - error_domain[0][0];
         windowed_error_domain_length =
             windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
 
-        l1_w_ += windowed_errors_calculator.CalculateL1Error();
-        l2_w_ += windowed_errors_calculator.CalculateL2Error();
-        sup_w_ += windowed_errors_calculator.CalculateSupError();
-        mod_w_ += windowed_errors_calculator.CalculateModError();
+        AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
+        AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
+        AddSupErrorsToSum(errors_calculators, sup_errors_sums);
+        AddModErrorsToSum(errors_calculators, mod_errors_sums);
 
-        l1_m_ += less_elements_kde_errors_calculator.CalculateL1Error();
-        l2_m_ += less_elements_kde_errors_calculator.CalculateL2Error();
-        sup_m_ += less_elements_kde_errors_calculator.CalculateSupError();
-        mod_m_ += less_elements_kde_errors_calculator.CalculateModError();
-
-        l1_d_ += weighted_kde_errors_calculator.CalculateL1Error();
-        l2_d_ += weighted_kde_errors_calculator.CalculateL2Error();
-        sup_d_ += weighted_kde_errors_calculator.CalculateSupError();
-        mod_d_ += weighted_kde_errors_calculator.CalculateModError();
-
-        l1_p_ += enhanced_kde_errors_calculator.CalculateL1Error();
-        l2_p_ += enhanced_kde_errors_calculator.CalculateL2Error();
-        sup_p_ += enhanced_kde_errors_calculator.CalculateSupError();
-        mod_p_ += enhanced_kde_errors_calculator.CalculateModError();
-
-        l1_n_ += rare_elements_kde_errors_calculator.CalculateL1Error();
-        l2_n_ += rare_elements_kde_errors_calculator.CalculateL2Error();
-        sup_n_ += rare_elements_kde_errors_calculator.CalculateSupError();
-        mod_n_ += rare_elements_kde_errors_calculator.CalculateModError();
+        for(size_t i = 0; i < errors_calculators.size(); ++i){
+          *l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
+          *l2_errors[i] = l2_errors_sums[i] / numberOfErrorCalculations;
+          *sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
+          *mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
+        }
 
         ++numberOfErrorCalculations;
       }
 
-      // ============ SUMS =========== //
-
-      L1WTextLabel
-          .setText("L1_w  =" + FormatNumberForDisplay(
-              l1_w_ / numberOfErrorCalculations));
-      L1MTextLabel
-          .setText("L1_m  =" + FormatNumberForDisplay(
-              l1_m_ / numberOfErrorCalculations));
-      L1DTextLabel
-          .setText("L1_d  =" + FormatNumberForDisplay(
-              l1_d_ / numberOfErrorCalculations));
-      L1PTextLabel
-          .setText("L1_p  =" + FormatNumberForDisplay(
-              l1_p_ / numberOfErrorCalculations));
-      L1NTextLabel
-          .setText("L1_n  =" + FormatNumberForDisplay(
-              l1_n_ / numberOfErrorCalculations));
-      L2WTextLabel
-          .setText("L2_w  =" + FormatNumberForDisplay(
-              l2_w_ / numberOfErrorCalculations));
-      L2MTextLabel
-          .setText("L2_m  =" + FormatNumberForDisplay(
-              l2_m_ / numberOfErrorCalculations));
-      L2DTextLabel
-          .setText("L2_d  =" + FormatNumberForDisplay(
-              l2_d_ / numberOfErrorCalculations));
-      L2PTextLabel
-          .setText("L2_p  =" + FormatNumberForDisplay(
-              l2_p_ / numberOfErrorCalculations));
-      L2NTextLabel
-          .setText("L2_n  =" + FormatNumberForDisplay(
-              l2_n_ / numberOfErrorCalculations));
-      supWTextLabel
-          .setText("sup_w =" + FormatNumberForDisplay(
-              sup_w_ / numberOfErrorCalculations));
-      supMTextLabel
-          .setText("sup_m =" + FormatNumberForDisplay(
-              sup_m_ / numberOfErrorCalculations));
-      supDTextLabel
-          .setText("sup_d =" + FormatNumberForDisplay(
-              sup_d_ / numberOfErrorCalculations));
-      supPTextLabel
-          .setText("sup_p =" + FormatNumberForDisplay(
-              sup_p_ / numberOfErrorCalculations));
-      supNTextLabel
-          .setText("sup_n =" + FormatNumberForDisplay(
-              sup_n_ / numberOfErrorCalculations));
-      modWTextLabel
-          .setText("mod_w =" + FormatNumberForDisplay(
-              mod_w_ / numberOfErrorCalculations));
-      modMTextLabel
-          .setText("mod_m =" + FormatNumberForDisplay(
-              mod_m_ / numberOfErrorCalculations));
-      modDTextLabel
-          .setText("mod_d =" + FormatNumberForDisplay(
-              mod_d_ / numberOfErrorCalculations));
-      modPTextLabel
-          .setText("mod_p =" + FormatNumberForDisplay(
-              mod_p_ / numberOfErrorCalculations));
-      modNTextLabel
-          .setText("mod_n =" + FormatNumberForDisplay(
-              mod_n_ / numberOfErrorCalculations));
-
-
       // ============= LEFT SIDE UPDATE ================ //
-
-      qTextLabel.setText("q     =" + FormatNumberForDisplay(
-          DESDAAlgorithm._quantileEstimator));
 
       KPSSTextLabel.setText("KPSS     = " + FormatNumberForDisplay(
           DESDAAlgorithm.getStationarityTestValue()));
 
-      sgmKPSSTextLabel.setText("sgmKPSS  = " + FormatNumberForDisplay(
-          DESDAAlgorithm._sgmKPSS));
-
-      rTextLabel.setText("r     =" + FormatNumberForDisplay(DESDAAlgorithm._r));
-
       DrawPlots(&DESDAAlgorithm);
 
-      betaTextLabel.setText("beta0 = " + QString::number(DESDAAlgorithm._beta0));
-
-      for(const auto &label : plotLabels){
+      for(const auto &label : plot_labels_){
         label->updateText();
       }
 
@@ -2533,7 +2368,53 @@ void MainWindow::DrawPlots(SOMKEAlgorithm *somke_algorithm) {
   }
 }
 
+void MainWindow::AddDoubleLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values) {
+  // TODO TR: I assume that labels.size() == values_references.size()
+  for(size_t i = 0; i < labels.size(); ++i){
+    AddDoubleLabelToPlot(labels[i], values[i].get());
+  }
+}
 
+void MainWindow::AddDoubleLabelToPlot(const QString &label, double *value) {
+  plot_labels_.push_back(std::make_shared<plotLabel>(ui->widget_plot, label_horizontal_offset_,
+                                                     label_vertical_offset_, label, value,
+                                                     std::make_shared<plotLabelDoubleDataPreparator>()));
+  label_vertical_offset_ += label_vertical_offset_step_;
+}
 
+void MainWindow::AddIntLabelToPlot(const QString &label, int *value) {
+  plot_labels_.push_back(std::make_shared<plotLabel>(ui->widget_plot, label_horizontal_offset_,
+                                                     label_vertical_offset_, label, value,
+                                                     std::make_shared<plotLabelIntDataPreparator>()));
+  label_vertical_offset_ += label_vertical_offset_step_;
+}
 
+void MainWindow::AddConstantLabelToPlot(const QString &label) {
+  plot_labels_.push_back(std::make_shared<plotLabel>(ui->widget_plot, label_horizontal_offset_,
+                                                     label_vertical_offset_, label));
+  label_vertical_offset_ += label_vertical_offset_step_;
+}
 
+void MainWindow::AddL1ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
+  for(size_t i = 0; i < errors_calculators.size(); ++i){
+    errors_sums[i] += errors_calculators[i]->CalculateL1Error();
+  }
+}
+
+void MainWindow::AddL2ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
+  for(size_t i = 0; i < errors_calculators.size(); ++i){
+    errors_sums[i] += errors_calculators[i]->CalculateL1Error();
+  }
+}
+
+void MainWindow::AddSupErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
+  for(size_t i = 0; i < errors_calculators.size(); ++i){
+    errors_sums[i] += errors_calculators[i]->CalculateSupError();
+  }
+}
+
+void MainWindow::AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
+  for(size_t i = 0; i < errors_calculators.size(); ++i){
+    errors_sums[i] += errors_calculators[i]->CalculateModError();
+  }
+}
