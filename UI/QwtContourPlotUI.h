@@ -16,11 +16,14 @@ class QwtContourPlotUI
                      double* actual_sup_error, double* actual_mod_error, QDateTime* date_time);
     void updateTexts();
     void attach(QwtPlot* plot);
+    void SetErrorsPrinting(const bool &should_print_errors);
   private:
     QwtText _leftColumnText;
     QwtText _rightColumnText;
     QwtPlotTextLabel _rightColumnLabel;
     QwtPlotTextLabel _leftColumnLabel;
+
+    bool should_print_errors = true;
 
     int *_currentStep;
     double *_L1Error;

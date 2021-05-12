@@ -809,7 +809,7 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 100;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -931,6 +931,7 @@ void MainWindow::on_pushButton_clicked() {
                           &data_date_time);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
+  plotUi.SetErrorsPrinting(false);
   //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   QVector<int> initialDrawingSteps = {1};
   std::vector<double> model_function_values = {};
@@ -942,18 +943,18 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1527-1 (2D)";
+  QString expNum = "1528-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", v=0, seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz129";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
-                    + expDesc + ")\\";
+  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   log("Experiment started.");
@@ -1047,8 +1048,8 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
   QMainWindow::resizeEvent(event);
   int newSize = std::min(ui->widget_contour_plot->height(),
                          ui->widget_contour_plot->width()) - offset;
-  contour_plot_->resize(newSize, newSize);
-  //contour_plot_->resize(2 * newSize, newSize);
+  //contour_plot_->resize(newSize, newSize);
+  contour_plot_->resize(2 * newSize, newSize);
 }
 
 double MainWindow::Calculate2DDomainArea(const std::vector<std::vector<double>> &domain) {

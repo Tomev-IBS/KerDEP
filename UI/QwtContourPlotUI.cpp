@@ -118,6 +118,12 @@ void QwtContourPlotUI::updateRightColumnText()
 
   QString rightColumnText = "";
 
+  if(!should_print_errors){
+    _rightColumnText.setText(rightColumnText);
+    _rightColumnLabel.setText(_rightColumnText);
+    return;
+  }
+
   rightColumnText += "L1   = " + formatNumberForDisplay(*_L1Error) + "\n";
   rightColumnText += "L1a  = " + formatNumberForDisplay(*actual_l1_) + "\n";
   rightColumnText += "\n";
@@ -152,4 +158,8 @@ QString QwtContourPlotUI::formatNumberForDisplay(const double& number)
     result += splitNumber[1][i];
 
   return result;
+}
+
+void QwtContourPlotUI::SetErrorsPrinting(const bool &should_print_errors) {
+  this->should_print_errors = should_print_errors;
 }
