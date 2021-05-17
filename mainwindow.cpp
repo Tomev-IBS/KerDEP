@@ -809,7 +809,7 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 100;
+  screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -842,12 +842,12 @@ void MainWindow::on_pushButton_clicked() {
 
   std::vector<double> pt = {0, 0};
 
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), -10.0), QPen(QColor(0, 255, 0)));
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), -40.0), QPen(QColor(0, 255, 0)));
 
   // After adding plots set contours and stuff.
   contour_plot_->setContours(contourLevels);
   contour_plot_->showContour(true);
-  contour_plot_->setAlpha(0);
+  //contour_plot_->setAlpha(0);
 
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
@@ -860,7 +860,7 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
-  data_path = "y:\\Data\\metro2017_2D.txt";
+  //data_path = "y:\\Data\\metro2017_2D.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
@@ -932,8 +932,8 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(false);
-  //QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
-  QVector<int> initialDrawingSteps = {1};
+  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+  //QVector<int> initialDrawingSteps = {1};
   std::vector<double> model_function_values = {};
   std::vector<double> estimator_values = {};
   double domain_area = 0;

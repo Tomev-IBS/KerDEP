@@ -113,6 +113,10 @@ double kernelDensityEstimator::getProductKernelValue(vector<double> *x)
 
     result /= weight;
 
+    if(std::isinf(result)){
+      qDebug() << *x << ", weight = " << weight << ",h = " << smoothingParameters;
+    }
+
     return result;
 }
 

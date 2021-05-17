@@ -29,7 +29,7 @@ class kernelDensityEstimator : public function {
     // DEBUG ONLY
     bool _printClusters = false;
     //
-  private:
+  protected:
 
     int kernelType;
     double weight;

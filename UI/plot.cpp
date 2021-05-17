@@ -9,12 +9,33 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_renderer.h>
+#include <qwt_compat.h>
 #include "plot.h"
 
+
+class ColorMap: public QwtLinearColorMap{
+  public:
+    ColorMap():
+        QwtLinearColorMap( Qt::darkBlue, Qt::darkRed )
+    {
+      addColorStop( 0.2, Qt::blue );
+      addColorStop( 0.4, Qt::cyan );
+      addColorStop( 0.6, Qt::yellow );
+      addColorStop( 0.8, Qt::red );
+    }
+};
 
 Plot::Plot( QWidget *parent ): QwtPlot( parent ), d_alpha(0)
 {
   plotLayout()->setAlignCanvasToScales( true );
+
+  QwtDoubleInterval range(0, 0.2);
+  QwtScaleWidget *scale = this->axisWidget(QwtPlot::yRight);
+  scale->setColorBarEnabled(true);
+  scale->setColorMap(range, new ColorMap());
+
+  this->setAxisScale(QwtPlot::yRight, 0, 0.2);
+  this->enableAxis(QwtPlot::yRight);
 }
 
 void Plot::clearSpectrograms()
@@ -35,11 +56,13 @@ void Plot::setContours(const QList<double> &contourLevels)
 
 void Plot::addQwtPlotSpectrogram(SpectrogramData *data, const QPen &pen)
 {
+
   spectrograms.push_back(new QwtPlotSpectrogram());
-  spectrograms.back()->setRenderThreadCount( 0 ); // use system specific thread count
+  spectrograms.back()->setRenderThreadCount( 1 ); // use system specific thread count
   spectrograms.back()->setCachePolicy( QwtPlotRasterItem::PaintCache );
   spectrograms.back()->setDefaultContourPen(pen);
   spectrograms.back()->setData(data);
+  spectrograms.back()->setColorMap(new ColorMap());
   spectrograms.back()->attach(this);
 }
 
@@ -64,21 +87,24 @@ void Plot::showContour( bool on )
 void Plot::showSpectrogram( bool on )
 {
   for(auto spectrogram: spectrograms){
-    spectrogram->setDisplayMode( QwtPlotSpectrogram::ImageMode, on );
-    spectrogram->setDefaultContourPen(
-          on ? QPen( Qt::black, 0 ) : QPen( Qt::NoPen ) );
+    spectrogram->setDefaultContourPen( on ? QPen( Qt::black, 0 ) : QPen( Qt::NoPen ) );
   }
 }
 
 void Plot::setAlpha( int alpha )
 {
-  // setting an alpha value doesn't make sense in combination
-  // with a color map interpolating the alpha value
+  // setting an alpha value doesn't make sense in combination with a color map interpolating the alpha value
   d_alpha = alpha;
   for(auto spectrogram: spectrograms){
-
     spectrogram->setAlpha(alpha);
   }
+}
+
+void Plot::replot() {
+  if(spectrograms.size() > 0) {
+    spectrograms.back()->setColorMap(new ColorMap());
+  }
+  QwtPlot::replot();
 }
 
 

@@ -5,6 +5,7 @@
 #include <qwt_point_3d.h>
 #include "../Functions/multivariatenormalprobabilitydensityfunction.h"
 #include <QDebug>
+#include <cmath>
 
 #ifndef CONTOUR_PLANE
 #define CONTOUR_PLANE
@@ -306,11 +307,11 @@ class SpectrogramData2 : public SpectrogramData {
 
     function *densityFunction;
 
-    SpectrogramData2(function *dFunction, float xy_interval_limit = 10.0)
+    SpectrogramData2(function *dFunction, float xy_interval_limit = 40.0)
         : densityFunction(dFunction) {
       setInterval(Qt::XAxis, QwtInterval(-xy_interval_limit, xy_interval_limit));
       setInterval(Qt::YAxis, QwtInterval(-xy_interval_limit, xy_interval_limit));
-      setInterval(Qt::ZAxis, QwtInterval(0.0, 0.5));
+      setInterval(Qt::ZAxis, QwtInterval(0.0, 0.2));
     }
 
     ~SpectrogramData2() {
@@ -321,7 +322,9 @@ class SpectrogramData2 : public SpectrogramData {
       std::vector<double> pt = {x, y};
 
       if(densityFunction != nullptr) {
-        return densityFunction->getValue(&pt);
+        auto val = densityFunction->getValue(&pt);
+
+        return val;
       }
       else {
         return -1;
@@ -343,6 +346,7 @@ class Plot : public QwtPlot {
     void setContours(const QList<double> &contours);
     void addQwtPlotSpectrogram(SpectrogramData *data, const QPen &pen);
     void setAxesLimit(const double &limit);
+    void replot() override;
 
   public Q_SLOTS:
     void showContour(bool on);

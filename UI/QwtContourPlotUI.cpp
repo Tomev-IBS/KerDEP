@@ -15,6 +15,9 @@ QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
   uiFont.setStyleHint(QFont::TypeWriter);
   uiFont.setPointSize(16);
 
+  _rightColumnText.setColor(Qt::white);
+  _leftColumnText.setColor(Qt::white);
+
   _leftColumnText.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
   _rightColumnText.setRenderFlags(Qt::AlignRight | Qt::AlignTop);
   _leftColumnText.setFont(uiFont);

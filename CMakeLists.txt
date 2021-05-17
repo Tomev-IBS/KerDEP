@@ -7,6 +7,7 @@ set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\lib\\")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
 
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -232,4 +233,3 @@ target_link_libraries(KerDEP PRIVATE
 )
 
 target_include_directories(KerDEP PUBLIC ${knnl_include})
-
