@@ -24,24 +24,28 @@ vector<string> tokenize(string s, string del = " ")
 }
 
 TextDataReader::TextDataReader(const string &path_to_text_file) {
-  opened_file_ = std::ifstream(path_to_text_file);
+  auto opened_file = std::ifstream(path_to_text_file);
+
+  string line;
+  while(not opened_file.eof()) {
+    if(std::getline(opened_file, line)) {
+      lines.push_back(line);
+    }
+  }
+
+  opened_file.close();
 }
 
-TextDataReader::~TextDataReader(){
-  opened_file_.close();
-}
+TextDataReader::~TextDataReader(){ }
 
 void TextDataReader::getNextRawDatum(void *target) {
   vector<double> *targetPtr = static_cast<vector<double> *>(target);
   targetPtr->clear();
 
-  string line;
+  auto values = tokenize(lines[i++], "; ");
 
-  if(std::getline(opened_file_, line)) {
-    auto values = tokenize(line, "; ");
-    for(auto value : values){
-      targetPtr->push_back(std::stod(value));
-    }
+  for(auto value : values){
+    targetPtr->push_back(std::stod(value));
   }
 }
 
@@ -55,11 +59,10 @@ void TextDataReader::gatherAttributesData(void *attributes) {
     attributesOrder.push_back(attrName);
     (*attrs_ptr)[attrName] = new numericalAttributeData(attrName);
   }
-
 }
 
 bool TextDataReader::hasMoreData() {
-  return opened_file_.eof();
+  return i < lines.size();
 }
 
 std::vector<std::string> *TextDataReader::getAttributesOrder() {

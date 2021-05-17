@@ -28,7 +28,8 @@ class TextDataReader : public dataReader {
 
   protected:
     vector<string> attributesOrder;
-    std::ifstream opened_file_;
+    vector<string> lines;
+    int i = 0;
 };
 
 #endif //KERDEP_TEXTDATAREADER_H
