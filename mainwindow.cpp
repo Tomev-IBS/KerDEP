@@ -842,7 +842,7 @@ void MainWindow::on_pushButton_clicked() {
 
   std::vector<double> pt = {0, 0};
 
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), -40.0), QPen(QColor(0, 255, 0)));
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 40.0), QPen(QColor(255, 0, 255)));
 
   // After adding plots set contours and stuff.
   contour_plot_->setContours(contourLevels);
@@ -862,10 +862,7 @@ void MainWindow::on_pushButton_clicked() {
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
   data_path = "y:\\Data\\metro2017_2D.txt";
 
-  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\result.txt"));
-  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
-  //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
 
   /*
   reader_.reset(
@@ -943,18 +940,18 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1528-1 (2D)";
+  QString expNum = "1529-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", v=0, seed = " + QString::number(seed) +
       ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz129";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   log("Experiment started.");

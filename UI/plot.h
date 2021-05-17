@@ -311,7 +311,7 @@ class SpectrogramData2 : public SpectrogramData {
         : densityFunction(dFunction) {
       setInterval(Qt::XAxis, QwtInterval(-xy_interval_limit, xy_interval_limit));
       setInterval(Qt::YAxis, QwtInterval(-xy_interval_limit, xy_interval_limit));
-      setInterval(Qt::ZAxis, QwtInterval(0.0, 0.2));
+      setInterval(Qt::ZAxis, QwtInterval(0.0, 0.3));
     }
 
     ~SpectrogramData2() {
@@ -323,6 +323,10 @@ class SpectrogramData2 : public SpectrogramData {
 
       if(densityFunction != nullptr) {
         auto val = densityFunction->getValue(&pt);
+
+        if(val > 0.16){
+          qDebug() << x << ", " << y << ", " << val;
+        }
 
         return val;
       }
