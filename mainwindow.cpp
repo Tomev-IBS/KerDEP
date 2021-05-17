@@ -1202,10 +1202,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
-  QString expNum = "1523";
+  QString expNum = "1515";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Cracow, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Bike Sharing Prices, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", home";
 
@@ -1213,12 +1213,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   bool compute_errors = false;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  QString driveDir = "D:\\Test\\"; // Test
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Test
+  QString driveDir = "Y:\\"; // WIT PCs after update
 
-  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();

@@ -29,7 +29,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _m = _maxM;
 
-  _minM = 400; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
+  _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
   _kpssM = 500; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -123,7 +123,7 @@ void DESDA::performStep() {
   std::vector<double> values =
       {
         stod(newCluster->getObject()->attributesValues["Val0"])
-        ,stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
+        //,stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
   };
 
   for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
