@@ -819,7 +819,7 @@ void MainWindow::on_pushButton_clicked() {
   double level_density = 0.01;
   while(level < 0.21) {
     contourLevels += level;
-    level_density += 0.01;
+    level += level_density;
   }
 
   // Add clusters_ to the estimator
@@ -941,7 +941,7 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1529-1 (2D)";
+  QString expNum = "1530-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
