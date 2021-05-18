@@ -31,13 +31,16 @@ Plot::Plot( QWidget *parent ): QwtPlot( parent ), d_alpha(0)
 {
   plotLayout()->setAlignCanvasToScales( true );
 
-  QwtDoubleInterval range(0, 0.2);
-  QwtScaleWidget *scale = this->axisWidget(QwtPlot::yRight);
-  scale->setColorBarEnabled(true);
-  scale->setColorMap(range, new ColorMap());
+  if(show_color_map_) {
+    QwtDoubleInterval range(0, 0.2);
+    QwtScaleWidget *scale = this->axisWidget(QwtPlot::yRight);
+    scale->setColorBarEnabled(true);
 
-  this->setAxisScale(QwtPlot::yRight, 0, 0.2);
-  this->enableAxis(QwtPlot::yRight);
+    scale->setColorMap(range, new ColorMap());
+
+    this->setAxisScale(QwtPlot::yRight, 0, 0.2);
+    this->enableAxis(QwtPlot::yRight);
+  }
 }
 
 void Plot::clearSpectrograms()
@@ -58,13 +61,14 @@ void Plot::setContours(const QList<double> &contourLevels)
 
 void Plot::addQwtPlotSpectrogram(SpectrogramData *data, const QPen &pen)
 {
-
   spectrograms.push_back(new QwtPlotSpectrogram());
   spectrograms.back()->setRenderThreadCount( 1 ); // use system specific thread count
   spectrograms.back()->setCachePolicy( QwtPlotRasterItem::PaintCache );
   spectrograms.back()->setDefaultContourPen(pen);
   spectrograms.back()->setData(data);
-  spectrograms.back()->setColorMap(new ColorMap());
+  if(show_color_map_) {
+    spectrograms.back()->setColorMap(new ColorMap());
+  }
   spectrograms.back()->attach(this);
 }
 
@@ -103,10 +107,14 @@ void Plot::setAlpha( int alpha )
 }
 
 void Plot::replot() {
-  if(spectrograms.size() > 0) {
+  if(spectrograms.size() > 0 && show_color_map_) {
     spectrograms.back()->setColorMap(new ColorMap());
   }
   QwtPlot::replot();
+}
+
+void Plot::ShowColorMap(const bool &show_color_map) {
+  show_color_map_ = show_color_map;
 }
 
 
