@@ -815,10 +815,11 @@ void MainWindow::on_pushButton_clicked() {
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  double level = 0.025;
+  double level = 0.01;
+  double level_density = 0.01;
   while(level < 0.21) {
     contourLevels += level;
-    level += 0.025;
+    level_density += 0.01;
   }
 
   // Add clusters_ to the estimator
@@ -925,7 +926,7 @@ void MainWindow::on_pushButton_clicked() {
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
-                          &data_date_time);
+                          &data_date_time, &level_density);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(false);

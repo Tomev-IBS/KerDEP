@@ -324,10 +324,6 @@ class SpectrogramData2 : public SpectrogramData {
       if(densityFunction != nullptr) {
         auto val = densityFunction->getValue(&pt);
 
-        if(val > 0.16){
-          qDebug() << x << ", " << y << ", " << val;
-        }
-
         return val;
       }
       else {
