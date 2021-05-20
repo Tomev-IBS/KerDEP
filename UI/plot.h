@@ -355,7 +355,7 @@ class Plot : public QwtPlot {
     void ShowColorMap(const bool &show_color_map);
 
   protected:
-    bool show_color_map_ = false;
+    bool show_color_map_ = true;
 
   private:
     QVector<QwtPlotSpectrogram *> spectrograms;

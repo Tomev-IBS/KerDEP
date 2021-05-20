@@ -815,9 +815,9 @@ void MainWindow::on_pushButton_clicked() {
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  double level = 0.01;
-  double level_density = 0.01;
-  while(level < 0.21) {
+  double level = 0.0025;
+  double level_density = 0.0025;
+  while(level < 0.025) {
     contourLevels += level;
     level += level_density;
   }
@@ -848,7 +848,7 @@ void MainWindow::on_pushButton_clicked() {
   // After adding plots set contours and stuff.
   contour_plot_->setContours(contourLevels);
   contour_plot_->showContour(true);
-  contour_plot_->setAlpha(0);
+  //contour_plot_->setAlpha(0);
 
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
@@ -941,12 +941,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1528-1 (2D)";
+  QString expNum = "1530-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", v=0, seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz022";
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
