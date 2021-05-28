@@ -1240,14 +1240,17 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
     // Bike Sharing Experiment
-  QDate startDate(2011, 1, 1);
-  QTime startTime(0, 0, 0);
+  //QDate startDate(2011, 1, 1);
+  //QTime startTime(0, 0, 0);
     // Air Quality Italy Experiment
   //QDate startDate(2004, 3, 10);
   //QTime startTime(18, 0, 0);
    // Metro Minneapolis Experiment
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
+    // Chicago flights
+  QDate startDate(1987, 1, 1);
+  QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 
