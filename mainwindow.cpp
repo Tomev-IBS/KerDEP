@@ -815,10 +815,11 @@ void MainWindow::on_pushButton_clicked() {
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  double level = 0.025;
-  while(level < 0.21) {
+  double level = 0.0025;
+  double level_density = 0.0025;
+  while(level < 0.025) {
     contourLevels += level;
-    level += 0.025;
+    level += level_density;
   }
 
   // Add clusters_ to the estimator
@@ -841,7 +842,7 @@ void MainWindow::on_pushButton_clicked() {
   estimator->_shouldConsiderWeights = true;
 
   std::vector<double> pt = {0, 0};
-
+  //contour_plot_->ShowColorMap(false);
   contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 40.0), QPen(QColor(255, 0, 255)));
 
   // After adding plots set contours and stuff.
@@ -925,7 +926,7 @@ void MainWindow::on_pushButton_clicked() {
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
-                          &data_date_time);
+                          &data_date_time, &level_density);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(false);
@@ -940,12 +941,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1529-1 (2D)";
+  QString expNum = "1530-1 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "iw=" + QString::number(screen_generation_frequency_)
       + ", v=0, seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz129";
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
@@ -1162,7 +1163,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\BikeSharingPrices.txt";
+  data_path = "y:\\Data\\chicago_temperatures.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
@@ -1202,12 +1203,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
-  QString expNum = "1515";
+  QString expNum = "1531";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
                     ", Bike Sharing Prices, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", home";
+                    ", sz001";
 
   screen_generation_frequency_ = 10;
   bool compute_errors = false;
@@ -1239,14 +1240,17 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
     // Bike Sharing Experiment
-  QDate startDate(2011, 1, 1);
-  QTime startTime(0, 0, 0);
+  //QDate startDate(2011, 1, 1);
+  //QTime startTime(0, 0, 0);
     // Air Quality Italy Experiment
   //QDate startDate(2004, 3, 10);
   //QTime startTime(18, 0, 0);
    // Metro Minneapolis Experiment
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
+    // Chicago flights
+  QDate startDate(1987, 1, 1);
+  QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 

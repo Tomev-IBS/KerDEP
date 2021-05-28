@@ -324,10 +324,6 @@ class SpectrogramData2 : public SpectrogramData {
       if(densityFunction != nullptr) {
         auto val = densityFunction->getValue(&pt);
 
-        if(val > 0.16){
-          qDebug() << x << ", " << y << ", " << val;
-        }
-
         return val;
       }
       else {
@@ -356,6 +352,10 @@ class Plot : public QwtPlot {
     void showContour(bool on);
     void showSpectrogram(bool on);
     void setAlpha(int);
+    void ShowColorMap(const bool &show_color_map);
+
+  protected:
+    bool show_color_map_ = true;
 
   private:
     QVector<QwtPlotSpectrogram *> spectrograms;
