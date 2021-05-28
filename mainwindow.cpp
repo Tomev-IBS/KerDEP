@@ -1203,12 +1203,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
-  QString expNum = "1532";
+  QString expNum = "1533";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", MIA (in 100 minutes), m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", EWR (in 100 minutes), m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz195";
+                    ", sz197";
 
   screen_generation_frequency_ = 10;
   bool compute_errors = false;
@@ -1460,7 +1460,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
 
-    dateTime = dateTime.addSecs(3600); // Bike sharing
+    dateTime = dateTime.addSecs(3600 * 24); // Bike sharing
   }
 
   log("Animation finished.");
