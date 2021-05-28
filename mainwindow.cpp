@@ -1206,7 +1206,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString expNum = "1532";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", MIA, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", MIA (in 100 minutes), m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz195";
 
