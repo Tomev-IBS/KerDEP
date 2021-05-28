@@ -227,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-10</string>
+            <string>-15</string>
            </property>
           </widget>
          </item>
@@ -295,7 +295,7 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>40</height>
+             <height>60</height>
             </size>
            </property>
           </spacer>
