@@ -23,7 +23,7 @@ vector<string> tokenize(string s, string del = " ")
   return tokens;
 }
 
-TextDataReader::TextDataReader(const string &path_to_text_file) {
+TextDataReader::TextDataReader(const string &path_to_text_file, const int &dimension) {
   auto opened_file = std::ifstream(path_to_text_file);
 
   string line;
@@ -32,6 +32,8 @@ TextDataReader::TextDataReader(const string &path_to_text_file) {
       lines.push_back(line);
     }
   }
+
+  dimension_ = dimension;
 
   opened_file.close();
 }
@@ -50,12 +52,10 @@ void TextDataReader::getNextRawDatum(void *target) {
 }
 
 void TextDataReader::gatherAttributesData(void *attributes) {
-  std::unordered_map<std::string, attributeData *> *attrs_ptr =
-    static_cast<std::unordered_map<std::string, attributeData *> *>(attributes);
-  std::vector<string> attrsNames = {"Val0"}; // 1D
-  //attrsNames = {"Val0", "Val1"}; // 2D
+  auto *attrs_ptr = static_cast<std::unordered_map<std::string, attributeData *> *>(attributes);
 
-  for(auto attrName : attrsNames){
+  for(size_t i = 0; i < dimension_; ++i){
+    string attrName = "Val" + std::to_string(i);
     attributesOrder.push_back(attrName);
     (*attrs_ptr)[attrName] = new numericalAttributeData(attrName);
   }

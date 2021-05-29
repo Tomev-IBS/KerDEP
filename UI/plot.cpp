@@ -77,10 +77,10 @@ void Plot::setAxesLimit(const double &limit)
 {
   // Only one argument, because it has to be square.
 
-  setAxisScale(Qt::XAxis, 0, 40); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
+  setAxisScale(Qt::XAxis, -10, 30); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
   setAxisScale(Qt::ZAxis, -40, 40); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
 
-  setAxisTitle(Qt::XAxis, "People (/ 200)"); // Vertical
+  setAxisTitle(Qt::XAxis, "Delays Sum (/ 200)"); // Vertical
   setAxisTitle(Qt::ZAxis, "Temperature");  // Horizontal
 }
 

@@ -29,7 +29,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _m = _maxM;
 
-  _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
+  _minM = 400; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
   _kpssM = 500; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -120,16 +120,19 @@ void DESDA::performStep() {
   newCluster->setTimestamp(_stepNumber);
 
   // KPSS count
-  std::vector<double> values =
-      {
-        stod(newCluster->getObject()->attributesValues["Val0"])
-        //,stod(newCluster->getObject()->attributesValues["Val1"]) // 2D
-  };
+  /*
+  std::vector<double> values = {};
+
+
+  for(size_t i = 0; i < newCluster->dimension(); ++i){
+    values.push_back(stod(newCluster->getObject()->attributesValues["Val" + std::to_string(i)]));
+  }
 
   for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
     auto c = (*_clusters)[i];
     values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
   }
+   */
 
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];

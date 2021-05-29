@@ -861,9 +861,9 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
-  data_path = "y:\\Data\\metro2017_2D.txt";
+  data_path = "y:\\Data\\chicago_2D.txt";
 
-  reader_.reset(new TextDataReader(data_path));
+  reader_.reset(new TextDataReader(data_path, 2));
 
   /*
   reader_.reset(
@@ -919,7 +919,7 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(2016, 10, 1); // Metro
+  QDate data_start_date(1987, 1, 1); // Metro
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
@@ -941,10 +941,10 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1530-1 (2D)";
+  QString expNum = "1535 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "iw=" + QString::number(screen_generation_frequency_)
+      "Chicago 2D Color, iw=" + QString::number(screen_generation_frequency_)
       + ", v=0, seed = " + QString::number(seed) +
       ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1163,7 +1163,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\BOTH.txt";
+  //data_path = "y:\\Data\\BOTH.txt";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
@@ -1206,7 +1206,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString expNum = "1534";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", EWR (in 100 minutes), m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", BOTH (in 100 minutes), m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz261";
 
