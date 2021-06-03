@@ -1159,15 +1159,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
                );
   */
 
-  //std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result.txt";
-  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt";
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  //data_path = "y:\\Data\\BOTH.txt";
+  data_path = "y:\\Data\\rio_rain.csv";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
-  //reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt"));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1203,12 +1200,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
-  QString expNum = "1534";
+  QString expNum = "1537";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", BOTH (in 100 minutes), m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", , m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz261";
+                    ", sz";
 
   screen_generation_frequency_ = 10;
   bool compute_errors = false;
@@ -1249,7 +1246,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
     // Chicago flights
-  QDate startDate(1987, 1, 1);
+  QDate startDate(2013, 10, 1);
   QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
