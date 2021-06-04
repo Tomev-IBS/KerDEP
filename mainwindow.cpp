@@ -1457,7 +1457,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
 
-    dateTime = dateTime.addSecs(3600 * 24); // Bike sharing
+    dateTime = dateTime.addSecs(3600); // Bike sharing
   }
 
   log("Animation finished.");
