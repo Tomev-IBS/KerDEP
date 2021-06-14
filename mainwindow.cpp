@@ -337,6 +337,7 @@ void MainWindow::ResizePlot() {
   textTicker->addTicks(ticks, labels);
 
   ui->widget_plot->xAxis->setTicker(textTicker);
+  ui->widget_plot->xAxis->setTickLabelRotation(90);
 }
 
 void MainWindow::ClearPlot() {
@@ -1161,7 +1162,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\rio_rain.csv";
+  data_path = "y:\\Data\\cracow_2020_temp.csv";
 
   // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
   reader_.reset(new TextDataReader(data_path));
@@ -1200,10 +1201,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
                       );
 
-  QString expNum = "1537";
+  QString expNum = "1547";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", , m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Cracow 2020 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz";
 
@@ -1246,7 +1247,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
     // Chicago flights
-  QDate startDate(2013, 10, 1);
+  QDate startDate(2019, 10, 1);
   QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
