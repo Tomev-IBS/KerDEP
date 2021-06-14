@@ -843,13 +843,13 @@ void MainWindow::on_pushButton_clicked() {
   estimator->_shouldConsiderWeights = true;
 
   std::vector<double> pt = {0, 0};
-  //contour_plot_->ShowColorMap(false);
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 40.0), QPen(QColor(255, 0, 255)));
+  contour_plot_->ShowColorMap(false);
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 105.0), QPen(QColor(255, 0, 255)));
 
   // After adding plots set contours and stuff.
   contour_plot_->setContours(contourLevels);
   contour_plot_->showContour(true);
-  //contour_plot_->setAlpha(0);
+  contour_plot_->setAlpha(0); // Set alpha to 0 for lack of coloring
 
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
@@ -862,7 +862,7 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
-  data_path = "y:\\Data\\chicago_2D.txt";
+  data_path = "y:\\Data\\rio_humidity_temp.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
 
@@ -920,7 +920,7 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(1987, 1, 1); // Metro
+  QDate data_start_date(2014, 10, 1); // Metro
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
@@ -942,12 +942,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1535 (2D)";
+  QString expNum = "1548 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Chicago 2D Color, iw=" + QString::number(screen_generation_frequency_)
-      + ", v=0, seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz001";
+      "Rio Temp Humidity Contours, iw=" + QString::number(screen_generation_frequency_)
+      + ", seed = " + QString::number(seed) +
+      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz197";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
@@ -1237,16 +1237,16 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_horizontal_offset_ = label_vertical_offset_ = 0.01;
 
   // Exps with days
-    // Bike Sharing Experiment
+  // Bike Sharing Experiment
   //QDate startDate(2011, 1, 1);
   //QTime startTime(0, 0, 0);
-    // Air Quality Italy Experiment
+  // Air Quality Italy Experiment
   //QDate startDate(2004, 3, 10);
   //QTime startTime(18, 0, 0);
-   // Metro Minneapolis Experiment
+  // Metro Minneapolis Experiment
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
-    // Chicago flights
+  // Chicago flights
   QDate startDate(2019, 10, 1);
   QTime startTime(0, 0, 0);
 

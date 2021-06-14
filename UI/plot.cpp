@@ -50,7 +50,7 @@ void Plot::clearSpectrograms()
     spectrograms[j]->detach();
     delete spectrograms[j];
     spectrograms.pop_back();
-    }
+  }
 }
 
 void Plot::setContours(const QList<double> &contourLevels)
@@ -77,11 +77,13 @@ void Plot::setAxesLimit(const double &limit)
 {
   // Only one argument, because it has to be square.
 
-  setAxisScale(Qt::XAxis, -10, 30); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
-  setAxisScale(Qt::ZAxis, -40, 40); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
+  // First column - HORIZONTAL
+  setAxisScale(Qt::ZAxis, -5, 105); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
+  setAxisTitle(Qt::ZAxis, "Humidity [%]");
 
-  setAxisTitle(Qt::XAxis, "Delays Sum (/ 200)"); // Vertical
-  setAxisTitle(Qt::ZAxis, "Temperature");  // Horizontal
+  // Second column - VERTICAL
+  setAxisScale(Qt::XAxis, 5, 45); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
+  setAxisTitle(Qt::XAxis, "Temperature [C]");
 }
 
 void Plot::showContour( bool on )
