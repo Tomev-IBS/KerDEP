@@ -29,7 +29,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   _m = _maxM;
 
-  _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
+  // _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
+  _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
   _kpssM = 500; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
