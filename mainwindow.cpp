@@ -959,7 +959,9 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(2014, 10, 1); // Metro
+  QDate data_start_date(2014, 10, 1); // Rio
+  //QDate data_start_date(2017, 10, 1); // Metro
+  //QDate data_start_date(2020, 10, 1); // Metro
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
@@ -981,12 +983,11 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1548 (2D)";
+  QString expNum = "1556 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Rio Temp Humidity Contours, iw=" + QString::number(screen_generation_frequency_)
-      + ", seed = " + QString::number(seed) +
-      ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz197";
+      "Rio 2014 Humidity Temp, iw=" + QString::number(screen_generation_frequency_)
+      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz196";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
