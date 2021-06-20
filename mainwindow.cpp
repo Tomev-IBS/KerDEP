@@ -1202,7 +1202,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Text data reader
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\cracow_2020_humidity.csv";
+  data_path = "y:\\Data\\rio_2014_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1237,12 +1237,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1554";
+  QString expNum = "1555";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Kraków 2020 wilgotność, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Rio 2014 wilgotność, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz130";
+                    ", sz195";
 
   bool compute_errors = false;
 
@@ -1276,11 +1276,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
   // Rio 2014 Experiment
-  //QDate startDate(2013, 10, 1);
-  //QTime startTime(0, 0, 0);
-  // Cracow 2020 Experiment
-  QDate startDate(2019, 10, 1);
+  QDate startDate(2013, 10, 1);
   QTime startTime(0, 0, 0);
+  // Cracow 2020 Experiment
+  //QDate startDate(2019, 10, 1);
+  //QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 
