@@ -1276,7 +1276,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
   // Rio Experiment
-  // QDate startDate(2019, 10, 1);
+  // QDate startDate(2013, 10, 1);
   // QTime startTime(0, 0, 0);
   // Cracow 2020 Experiment
   QDate startDate(2019, 10, 1);
