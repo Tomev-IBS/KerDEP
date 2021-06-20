@@ -1244,7 +1244,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz003";
 
-  bool compute_errors = true;
+  bool compute_errors = false;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
@@ -1285,7 +1285,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QDateTime dateTime(startDate, startTime);
 
   plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
-  //label_vertical_offset_ += label_vertical_offset_step_;
+  label_vertical_offset_ += label_vertical_offset_step_;
   // END Exps with days
 
   AddIntLabelToPlot("t          = ", &step_number_);
