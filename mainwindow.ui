@@ -678,7 +678,7 @@
             <string>Estimated Plot (Red)</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>

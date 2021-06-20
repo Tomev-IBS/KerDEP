@@ -68,7 +68,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
-      x_progression_size = 0.0001;
+      x_progression_size = 0.0005;
       break;
     //case 200: // Added for faster q test
       //x_progression_size = 0.1;
@@ -80,7 +80,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       break;
     case 5000:
     //case 8000: // 2D
-      x_progression_size = 0.001;
+      x_progression_size = 0.005;
       break;
     case 8000:
     //case 11000: // 2D
