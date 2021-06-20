@@ -153,6 +153,8 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   ClearPlot();
   ResizePlot();
 
+  int replace_constant = 0;
+
   std::vector<std::vector<double>> drawable_domain = {}; // This is required for types :P
   for(auto value : drawable_domain_) {
     drawable_domain.push_back({value});
@@ -165,36 +167,77 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
     AddPlot(&modelDistributionY, model_plot_pen_);
   }
 
-  // Generate less elements KDE plot (navy blue)
-  if(ui->checkBox_showEstimationPlot->isChecked()) {
-    auto less_elements_estimator_values = DESDAAlgorithm->getKDEValues(&drawable_domain);
-    auto less_elements_estimator_y = QVector<double>(less_elements_estimator_values.begin(),
-                                                     less_elements_estimator_values.end());
-    AddPlot(&less_elements_estimator_y, kde_plot_pen_);
-  }
-
-  // Generate weighted estimator plot (light blue)
-  if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
-    auto weighted_estimator_values = DESDAAlgorithm->getWeightedKDEValues(&drawable_domain);
-    auto weighted_estimator_y = QVector<double>(weighted_estimator_values.begin(),
-                                                weighted_estimator_values.end());
-    AddPlot(&weighted_estimator_y, weighted_plot_pen_);
-  }
-
-  // Generate full estimator plot (BLACK)
+  // Generate m=m0 estimator plot
   if(ui->checbox_showFullEstimator->isChecked()) {
     auto windowed_estimator_values = DESDAAlgorithm->getWindowKDEValues(&drawable_domain);
     auto windowed_estimator_y = QVector<double>(windowed_estimator_values.begin(),
                                                 windowed_estimator_values.end());
+
+    for(auto i = 0; i < drawable_domain_.size(); ++i){
+      drawable_domain_[i] += replace_constant;
+    }
+
     AddPlot(&windowed_estimator_y, windowed_plot_pen_);
   }
 
-  // Generate plot for kernel prognosis derivative
-  if(ui->checkBox_kernelPrognosedPlot->isChecked())
-    AddPlot(&kernel_prognosis_derivative_values_, derivative_plot_pen_);
+  // Generate variable m estimator plot
+  if(ui->checkBox_showEstimationPlot->isChecked()) {
+    auto less_elements_estimator_values = DESDAAlgorithm->getKDEValues(&drawable_domain);
+    auto less_elements_estimator_y = QVector<double>(less_elements_estimator_values.begin(),
+                                                     less_elements_estimator_values.end());
 
-  // Generate plot for standardized prognosis derivative, assuming that
-  // normal derivative was generated first
+    for(auto i = 0; i < drawable_domain_.size(); ++i){
+      drawable_domain_[i] += replace_constant;
+    }
+
+    AddPlot(&less_elements_estimator_y, kde_plot_pen_);
+  }
+
+  // Generate weights estimator plot
+  if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
+    auto weighted_estimator_values = DESDAAlgorithm->getWeightedKDEValues(&drawable_domain);
+    auto weighted_estimator_y = QVector<double>(weighted_estimator_values.begin(),
+                                                weighted_estimator_values.end());
+
+    for(auto i = 0; i < drawable_domain_.size(); ++i){
+      drawable_domain_[i] += replace_constant;
+    }
+
+    AddPlot(&weighted_estimator_y, weighted_plot_pen_);
+  }
+
+  // Generate plot for prognosis estimator
+  if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
+    auto prognosis_enhanced_plot_values = DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain);
+    auto prognosis_enhanced_plot_y = QVector<double>(prognosis_enhanced_plot_values.begin(),
+                                                     prognosis_enhanced_plot_values.end());
+
+    for(auto i = 0; i < drawable_domain_.size(); ++i){
+      drawable_domain_[i] += replace_constant;
+    }
+
+    AddPlot(&prognosis_enhanced_plot_y, desda_kde_plot_pen_);
+  }
+
+  // Generate plot for atypical estimator
+  if(ui->checkBox_REESEKDE->isChecked()) {
+    auto rare_elements_enhanced_plot_values = DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain);
+    auto rare_elements_enhanced_plot_y = QVector<double>(rare_elements_enhanced_plot_values.begin(),
+                                                         rare_elements_enhanced_plot_values.end());
+
+    for(auto i = 0; i < drawable_domain_.size(); ++i){
+      drawable_domain_[i] += replace_constant;
+    }
+
+    AddPlot(&rare_elements_enhanced_plot_y, desda_rare_elements_kde_plot_pen_);
+  }
+
+  // Generate prognosis derivative plot
+  if(ui->checkBox_kernelPrognosedPlot->isChecked()) {
+    AddPlot(&kernel_prognosis_derivative_values_, derivative_plot_pen_);
+  }
+
+  // Generate plot for standardized prognosis derivative, assuming that normal derivative was generated first
   if(ui->checkBox_standarizedDerivative->isChecked()) {
     QVector<double> standardizedDerivativeY = {};
     for(auto val : kernel_prognosis_derivative_values_) {
@@ -205,13 +248,6 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
     AddPlot(&standardizedDerivativeY, standardized_derivative_plot_pen_);
   }
 
-  if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
-    auto sigmoidally_enhanced_plot_values = DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain);
-    auto sigmoidally_enhanced_plot_y = QVector<double>(sigmoidally_enhanced_plot_values.begin(),
-                                                       sigmoidally_enhanced_plot_values.end());
-    AddPlot(&sigmoidally_enhanced_plot_y, desda_kde_plot_pen_);
-  }
-
   if(ui->checkBox_showUnusualClusters->isChecked()) {
     atypical_elements_values_and_derivatives_ =
         DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
@@ -219,12 +255,6 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
     MarkUncommonClusters();
   }
 
-  if(ui->checkBox_REESEKDE->isChecked()) {
-    auto rare_elements_enhanced_plot_values = DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain);
-    auto rare_elements_enhanced_plot_y = QVector<double>(rare_elements_enhanced_plot_values.begin(),
-                                                         rare_elements_enhanced_plot_values.end());
-    AddPlot(&rare_elements_enhanced_plot_y, desda_rare_elements_kde_plot_pen_);
-  }
   // Draw plots
   ui->widget_plot->replot();
 }
@@ -369,7 +399,7 @@ unsigned long long MainWindow::MarkUncommonClusters() {
 
 QString MainWindow::FormatNumberForDisplay(double number) {
   // According to PK the number should be displayed as #.######
-  QString result = " ";
+  QString result = "";
 
   if(number < 0) result = "";
 
@@ -380,7 +410,7 @@ QString MainWindow::FormatNumberForDisplay(double number) {
 
   result += ".";
 
-  for(int i = 0; i < 6 && i < splitNumber[1].size(); ++i)
+  for(int i = 0; i < 3 && i < splitNumber[1].size(); ++i)
     result += splitNumber[1][i];
 
   return result;
@@ -1125,6 +1155,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
   step_number_ = 0;
+  screen_generation_frequency_ = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1150,7 +1181,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1158,14 +1188,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
-  */
 
-  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\Cracow_Temp_2016\\result.txt";
-  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\cracow_2020_temp.csv";
-
-  // reader_.reset(new TextDataReader("k:\\Coding\\Python\\KerDEP_Data_Preparator\\AirQuality\\result.txt"));
-  reader_.reset(new TextDataReader(data_path));
+  // Text data reader
+  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
+  // data_path = "y:\\Data\\cracow_2020_temp.csv";
+  // reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1199,21 +1226,21 @@ void MainWindow::Run1DExperimentWithDESDA() {
       clusters_,
       &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
-                      );
+  );
 
-  QString expNum = "1547";
+  // QString expNum = "1547";
+  QString expNum = "TEST";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
                     ", Cracow 2020 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz";
 
-  screen_generation_frequency_ = 10;
-  bool compute_errors = false;
+  bool compute_errors = true;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Test
+  //QString driveDir = "Y:\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1256,31 +1283,30 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ += label_vertical_offset_step_;
   // END Exps with days
 
-  AddIntLabelToPlot("i     = ", &step_number_);
-  AddConstantLabelToPlot("iw    = " + QString::number(screen_generation_frequency_));
-  AddConstantLabelToPlot("seed  = " + seedString);
+  AddIntLabelToPlot("t          = ", &step_number_);
+  // AddConstantLabelToPlot("iw    = " + QString::number(screen_generation_frequency_));
+  // AddConstantLabelToPlot("seed  = " + seedString);
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  plotLabel KPSSTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                          "KPSS     = 0");
+  plotLabel KPSSTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "KPSS         = 0");
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("sgmKPSS  = ", &DESDAAlgorithm._sgmKPSS);
+  AddDoubleLabelToPlot("sgmKPSS    = ", &DESDAAlgorithm._sgmKPSS);
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
-  AddConstantLabelToPlot("m0    = " + ui->lineEdit_sampleSize->text());
-  AddConstantLabelToPlot("mmin  = " + QString::number(DESDAAlgorithm._minM));
-  AddIntLabelToPlot("m     = ", &(DESDAAlgorithm._m));
+  //AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
+  AddIntLabelToPlot("m          = ", &(DESDAAlgorithm._m));
+  AddConstantLabelToPlot("m_min      = " + QString::number(DESDAAlgorithm._minM));
+  AddConstantLabelToPlot("m_0        = " + ui->lineEdit_sampleSize->text());
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
-  label_vertical_offset_ += label_vertical_offset_step_;
+  //AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
+  //label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("r     = ", &(DESDAAlgorithm._r));
-  AddDoubleLabelToPlot("q     = ", &(DESDAAlgorithm._quantileEstimator));
-  AddIntLabelToPlot("rare  = ", &(DESDAAlgorithm._rareElementsNumber));
-  AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
+  AddDoubleLabelToPlot("r          = ", &(DESDAAlgorithm._r));
+  AddDoubleLabelToPlot("q          = ", &(DESDAAlgorithm._quantileEstimator));
+  AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
+  //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
   label_vertical_offset_ += 5 * label_vertical_offset_step_;
 
   AddColorsLegendToPlot();
@@ -1307,33 +1333,33 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   if(compute_errors) {
 
-    QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
+    //QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
     QVector<QString> l2_labels = {"L2_w  = ", "L2_m  = ", "L2_d  = ", "L2_p  = ", "L2_n  = "};
-    QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
-    QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
+    //QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
+    //QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
 
-    for(size_t i = 0; i < l1_labels.size(); ++i){
-      l1_errors.push_back(std::make_shared<double>(0));
-      l1_errors_sums.push_back(0);
+    for(size_t i = 0; i < l2_labels.size(); ++i){
+      //l1_errors.push_back(std::make_shared<double>(0));
+      //l1_errors_sums.push_back(0);
       l2_errors.push_back(std::make_shared<double>(0));
       l2_errors_sums.push_back(0);
-      sup_errors.push_back(std::make_shared<double>(0));
-      sup_errors_sums.push_back(0);
-      mod_errors.push_back(std::make_shared<double>(0));
-      mod_errors_sums.push_back(0);
+      //sup_errors.push_back(std::make_shared<double>(0));
+      //sup_errors_sums.push_back(0);
+      //mod_errors.push_back(std::make_shared<double>(0));
+      //mod_errors_sums.push_back(0);
     }
 
-    AddDoubleLabelsToPlot(l1_labels, l1_errors);
+    //AddErrorLabelsToPlot(l1_labels, l1_errors);
+    //label_vertical_offset_ += label_vertical_offset_step_;
+
+    AddErrorLabelsToPlot(l2_labels, l2_errors);
     label_vertical_offset_ += label_vertical_offset_step_;
 
-    AddDoubleLabelsToPlot(l2_labels, l2_errors);
-    label_vertical_offset_ += label_vertical_offset_step_;
+    //AddErrorLabelsToPlot(sup_labels, sup_errors);
+    //label_vertical_offset_ += label_vertical_offset_step_;
 
-    AddDoubleLabelsToPlot(sup_labels, sup_errors);
-    label_vertical_offset_ += label_vertical_offset_step_;
-
-    AddDoubleLabelsToPlot(mod_labels, mod_errors);
-    label_vertical_offset_ += label_vertical_offset_step_;
+    //AddErrorLabelsToPlot(mod_labels, mod_errors);
+    //label_vertical_offset_ += label_vertical_offset_step_;
   }
 
   FillDomain(&domain_, nullptr);
@@ -1421,16 +1447,16 @@ void MainWindow::Run1DExperimentWithDESDA() {
         windowed_error_domain_length =
             windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
 
-        AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
+        //AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
         AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
-        AddSupErrorsToSum(errors_calculators, sup_errors_sums);
-        AddModErrorsToSum(errors_calculators, mod_errors_sums);
+        //AddSupErrorsToSum(errors_calculators, sup_errors_sums);
+        //AddModErrorsToSum(errors_calculators, mod_errors_sums);
 
         for(size_t i = 0; i < errors_calculators.size(); ++i){
-          *l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
+          //*l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
           *l2_errors[i] = l2_errors_sums[i] / numberOfErrorCalculations;
-          *sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
-          *mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
+          //*sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
+          //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
         }
 
         ++numberOfErrorCalculations;
@@ -1438,7 +1464,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
       // ============= LEFT SIDE UPDATE ================ //
 
-      KPSSTextLabel.setText("KPSS     = " + FormatNumberForDisplay(
+      KPSSTextLabel.setText("KPSS       = " + FormatNumberForDisplay(
           DESDAAlgorithm.getStationarityTestValue()));
 
       DrawPlots(&DESDAAlgorithm);
@@ -1447,7 +1473,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      date_label.setText(dateTime.toString());
+      date_label.setText(dateTime.toString("dd MMM yyyy, hh:mm"));
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -2371,10 +2397,10 @@ void MainWindow::DrawPlots(SOMKEAlgorithm *somke_algorithm) {
   }
 }
 
-void MainWindow::AddDoubleLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values) {
+void MainWindow::AddErrorLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values) {
   // TODO TR: I assume that labels.size() == values_references.size()
   for(size_t i = 0; i < labels.size(); ++i){
-    AddDoubleLabelToPlot(labels[i], values[i].get());
+    AddErrorLabelToPlot(labels[i], values[i].get());
   }
 }
 
@@ -2423,42 +2449,53 @@ void MainWindow::AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculator
 }
 
 void MainWindow::AddColorsLegendToPlot() {
+
+  label_vertical_offset_ = 0.75;
+
   if(ui->checkBox_showEstimatedPlot->isChecked()) {
     AddConstantLabelToPlot("Model");
     plot_labels_.back()->SetColor(model_plot_pen_.color());
   }
   if(ui->checbox_showFullEstimator->isChecked()){
-    AddConstantLabelToPlot("Window");
+    AddConstantLabelToPlot("m=m0");
     plot_labels_.back()->SetColor(windowed_plot_pen_.color());
   }
 
   if(ui->checkBox_showEstimationPlot->isChecked()){
-    AddConstantLabelToPlot("Less elements");
+    AddConstantLabelToPlot("m variable (Sec. 3.1)");
     plot_labels_.back()->SetColor(kde_plot_pen_.color());
   }
 
   if(ui->checkBox_showWeightedEstimationPlot->isChecked()){
-    AddConstantLabelToPlot("Weights");
+    AddConstantLabelToPlot("weights    (Sec. 3.2)");
     plot_labels_.back()->SetColor(weighted_plot_pen_.color());
   }
 
-  if(ui->checkBox_kernelPrognosedPlot->isChecked()){
-    AddConstantLabelToPlot("Derivative");
-    plot_labels_.back()->SetColor(derivative_plot_pen_.color());
-  }
-
-  if(ui->checkBox_standarizedDerivative->isChecked()){
-    AddConstantLabelToPlot("Std. Derivative");
-    plot_labels_.back()->SetColor(standardized_derivative_plot_pen_.color());
-  }
-
   if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()){
-    AddConstantLabelToPlot("Prediction");
+    AddConstantLabelToPlot("prediction (Sec. 3.3)");
     plot_labels_.back()->SetColor(desda_kde_plot_pen_.color());
   }
 
   if(ui->checkBox_REESEKDE->isChecked()){
-    AddConstantLabelToPlot("Rare Elements");
+    AddConstantLabelToPlot("atypical   (Sec. 3.4)");
     plot_labels_.back()->SetColor(desda_rare_elements_kde_plot_pen_.color());
   }
+
+  if(ui->checkBox_kernelPrognosedPlot->isChecked()){
+    AddConstantLabelToPlot("derivative");
+    plot_labels_.back()->SetColor(derivative_plot_pen_.color());
+  }
+
+  if(ui->checkBox_standarizedDerivative){
+    AddConstantLabelToPlot("derivative standardized");
+    plot_labels_.back()->SetColor(standardized_derivative_plot_pen_.color());
+  }
+
+}
+
+void MainWindow::AddErrorLabelToPlot(const QString &label, double *value) {
+  plot_labels_.push_back(std::make_shared<plotLabel>(ui->widget_plot, label_horizontal_offset_,
+                                                     label_vertical_offset_, label, value,
+                                                     std::make_shared<plotLabelDoubleDataPreparator>(6)));
+  label_vertical_offset_ += label_vertical_offset_step_;
 }

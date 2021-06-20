@@ -1,6 +1,9 @@
 #include "plotLabelDoubleDataPreparator.h"
 
-plotLabelDoubleDataPreparator::plotLabelDoubleDataPreparator(){ }
+plotLabelDoubleDataPreparator::plotLabelDoubleDataPreparator(const unsigned int &decimal_numbers,
+                                                             const bool &possibly_negative)
+   :  possibly_negative_(possibly_negative), decimal_numbers_(decimal_numbers)
+{ }
 
 /** plotLabelDoubleDataPreparator::prepareValue
  * @brief Prepares double data. Real number are to be formatted with 6 digit
@@ -24,9 +27,11 @@ QString plotLabelDoubleDataPreparator::prepareValue(void *value)
  */
 QString plotLabelDoubleDataPreparator::formatNumberForDisplay(double number)
 {
-  QString result = " ";
+  QString result = "";
 
-  if(number < 0) result = "";
+  if(possibly_negative_ && number > 0){
+    result = " ";
+  }
 
   QStringList splitNumber = QString::number(number, 'f', 7).split(".");
   result += splitNumber[0];
@@ -35,7 +40,7 @@ QString plotLabelDoubleDataPreparator::formatNumberForDisplay(double number)
 
   result += ".";
 
-  for(int i = 0; i < 6 && i < splitNumber[1].size(); ++i)
+  for(int i = 0; i < decimal_numbers_ && i < splitNumber[1].size(); ++i)
     result += splitNumber[1][i];
 
   return result;

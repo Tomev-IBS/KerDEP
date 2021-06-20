@@ -72,7 +72,8 @@ class MainWindow : public QMainWindow {
     double label_horizontal_offset_ = 0;
     const double label_vertical_offset_step_ = 0.03;
 
-    void AddDoubleLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values);
+    void AddErrorLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values);
+    void AddErrorLabelToPlot(const QString &label, double *value);
     void AddDoubleLabelToPlot(const QString &label, double *value);
     void AddIntLabelToPlot(const QString &label, int *value);
     void AddConstantLabelToPlot(const QString &label);
@@ -86,13 +87,14 @@ class MainWindow : public QMainWindow {
   private:
     // Pens for 1d plot
     const QPen model_plot_pen_ = QPen(Qt::red);
-    const QPen windowed_plot_pen_ = QPen(Qt::black);
-    const QPen kde_plot_pen_ = QPen(Qt::blue);
-    const QPen weighted_plot_pen_ = QPen(Qt::cyan);
+    const QPen windowed_plot_pen_ = QPen(QColor(0, 255, 0));
+    const QPen kde_plot_pen_ = QPen(QColor(0, 255, 255));
+    const QPen weighted_plot_pen_ = QPen(QColor(0, 150, 255));
+    const QPen desda_kde_plot_pen_ = QPen(QColor(0, 50, 255));
+    const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::black, 2);
+
     const QPen derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
     const QPen standardized_derivative_plot_pen_ = QPen(QColor(255, 220, 0)); // Yellow
-    const QPen desda_kde_plot_pen_ = QPen(Qt::magenta);
-    const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::green);
 
     // Contour plots
     Plot *contour_plot_ = nullptr;
