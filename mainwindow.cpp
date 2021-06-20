@@ -1302,8 +1302,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
   AddIntLabelToPlot("m          = ", &(DESDAAlgorithm._m));
-  AddConstantLabelToPlot("m_min      = " + QString::number(DESDAAlgorithm._minM));
-  AddConstantLabelToPlot("m_0        = " + ui->lineEdit_sampleSize->text());
+  //AddConstantLabelToPlot("m_min      = " + QString::number(DESDAAlgorithm._minM));
+  //AddConstantLabelToPlot("m_0        = " + ui->lineEdit_sampleSize->text());
   label_vertical_offset_ += label_vertical_offset_step_;
 
   //AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
@@ -2405,6 +2405,9 @@ void MainWindow::DrawPlots(SOMKEAlgorithm *somke_algorithm) {
 
 void MainWindow::AddErrorLabelsToPlot(const QVector<QString> &labels, const QVector<double_ptr> &values) {
   // TODO TR: I assume that labels.size() == values_references.size()
+
+  label_vertical_offset_ = 0.75 + label_vertical_offset_step_;
+
   for(size_t i = 0; i < labels.size(); ++i){
     AddErrorLabelToPlot(labels[i], values[i].get());
     plot_labels_.back()->SetColor(error_indices_colors[i]);

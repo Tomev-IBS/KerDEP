@@ -76,31 +76,33 @@ void QwtContourPlotUI::updateLeftColumnText()
     */
 
   QString leftColumnText = "";
-  leftColumnText += date_time_->toString() + "\n";
-  leftColumnText += "i    = " + QString::number(*_currentStep) + "\n";
-  leftColumnText += _imagesPeriodString;
-  leftColumnText += _levelsString;
-  leftColumnText += _seedString;
+  leftColumnText += date_time_->toString("dd MMM yyyy, hh:mm") + "\n";
+  leftColumnText += "t         = " + QString::number(*_currentStep) + "\n";
+  //leftColumnText += _imagesPeriodString;
+  //leftColumnText += _levelsString;
+  //leftColumnText += _seedString;
   leftColumnText += "\n";
-  leftColumnText += "KPSS    =" + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
-  leftColumnText += "sgmKPSS =" + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
+  leftColumnText += "KPSS      =" + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
+  leftColumnText += "sgmKPSS   =" + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
   leftColumnText += "\n";
-  leftColumnText += _mKPSSString;
-  leftColumnText += _mMaxString;
-  leftColumnText += _mMinString;
-  leftColumnText += "m     = " + QString::number(_DESDAAlgorithm->_m) + "\n";
+  //leftColumnText += _mKPSSString;
+  //leftColumnText += _mMaxString;
+  //leftColumnText += _mMinString;
+  leftColumnText += "m         = " + QString::number(_DESDAAlgorithm->_m) + "\n";
   leftColumnText += "\n";
-  leftColumnText += "beta0 =" + formatNumberForDisplay(_DESDAAlgorithm->_beta0) + "\n";
-  leftColumnText += "\n";
-  leftColumnText += "r    = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
-  leftColumnText += "q    = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
-  leftColumnText += "rare =  " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
+  //leftColumnText += "beta0 =" + formatNumberForDisplay(_DESDAAlgorithm->_beta0) + "\n";
+  //leftColumnText += "\n";
+  leftColumnText += "r         = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
+  leftColumnText += "q         = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
+  leftColumnText += "#atypical =  " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
 
+  /*
   if(_DESDAAlgorithm->_smoothingParametersVector.size() == 2) {
     leftColumnText += "\n";
     leftColumnText += "h1 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[0]) + "\n";
     leftColumnText += "h2 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
   }
+  */
 
   _leftColumnText.setText(leftColumnText);
   _leftColumnLabel.setText(_leftColumnText);
@@ -148,7 +150,7 @@ void QwtContourPlotUI::updateRightColumnText()
 QString QwtContourPlotUI::formatNumberForDisplay(const double& number)
 {
   // According to PK the number should be displayed as #.######
-  QString result = " ";
+  QString result = "";
 
   if(number < 0) result = "";
 
@@ -159,7 +161,7 @@ QString QwtContourPlotUI::formatNumberForDisplay(const double& number)
 
   result += ".";
 
-  for(int i = 0; i < 6 && i < splitNumber[1].size(); ++i)
+  for(int i = 0; i < 3 && i < splitNumber[1].size(); ++i)
     result += splitNumber[1][i];
 
   return result;
