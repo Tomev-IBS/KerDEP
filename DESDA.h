@@ -22,8 +22,7 @@ class DESDA
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
           std::vector<std::shared_ptr<cluster>> *storedMedoids,
-          double desiredRarity, double newWeightB,
-          double pluginRank=2);
+          double desiredRarity, double pluginRank=2);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension=0);
@@ -59,10 +58,9 @@ class DESDA
 
     // Sizes
     int _maxM = 1000;
-    int _minM = 200;
+    int _minM = 100;
     int _m = 0; // Cardinality of objects to build KDE
 
-    double _newWeightB = 0;
     int _kpssM = 0; // m_Eta
 
     // From 31 XI 2019 mail

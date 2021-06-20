@@ -17,19 +17,17 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
              std::vector<std::shared_ptr<cluster> > *storedMedoids,
-             double desiredRarity, double newWeightB, double pluginRank) :
+             double desiredRarity, double pluginRank) :
     _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
     _estimatorDerivative(estimatorDerivative), _estimator(estimator),
     _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
-    _newWeightB(newWeightB), _enhancedKDE(enchancedKDE),
-    _pluginRank(pluginRank) {
+    _enhancedKDE(enchancedKDE), _pluginRank(pluginRank) {
   _objects.clear();
 
   _maxM = _samplingAlgorithm->getReservoidMaxSize(); // _maxM should be like 1000 + 100 for every mode
 
   _m = _maxM;
 
-  // _minM = 100; // 50, 75, 100, 150, 200, 300, 400, 500 -- normally 100
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
   _kpssM = 500; // This is independent of maxM. Normally 500.
 

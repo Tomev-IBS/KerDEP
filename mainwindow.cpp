@@ -82,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent) :
   QSizePolicy p(QSizePolicy::Maximum, QSizePolicy::Maximum);
   contour_plot_->setSizePolicy(p);
 
+  FillErrorIndicesColors();
+
   // Setting up the validators
   SetupValidators();
   SetupPlot();
@@ -93,6 +95,14 @@ MainWindow::MainWindow(QWidget *parent) :
   auto appFont = QFont("Courier New");
   appFont.setStyleHint(QFont::TypeWriter);
   setFont(appFont);
+}
+
+void MainWindow::FillErrorIndicesColors() {
+  error_indices_colors.push_back(windowed_plot_pen_.color());
+  error_indices_colors.push_back(kde_plot_pen_.color());
+  error_indices_colors.push_back(weighted_plot_pen_.color());
+  error_indices_colors.push_back(desda_kde_plot_pen_.color());
+  error_indices_colors.push_back(desda_rare_elements_kde_plot_pen_.color());
 }
 
 MainWindow::~MainWindow() {
@@ -917,7 +927,6 @@ void MainWindow::on_pushButton_clicked() {
   clusters_->clear();
 
   int pluginRank = 3;
-  double newWeightB = 0.5;
   groupingThread gt(&stored_medoids_, parser_);
 
   derivative_estimator_.reset(GenerateKernelDensityEstimator(2));
@@ -931,8 +940,8 @@ void MainWindow::on_pushButton_clicked() {
       samplingAlgorithm,
       clusters_,
       &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
-                      );
+      ui->lineEdit_rarity->text().toDouble(), pluginRank
+  );
 
   // Start the test
   step_number_ = 0;
@@ -1208,8 +1217,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
 
-  double newWeightB = 0.5;
-
   clusters_ = &stored_medoids_;
 
   weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters_, 0);
@@ -1225,22 +1232,21 @@ void MainWindow::Run1DExperimentWithDESDA() {
       algorithm,
       clusters_,
       &stored_medoids_,
-      ui->lineEdit_rarity->text().toDouble(), newWeightB, pluginRank
+      ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  // QString expNum = "1547";
-  QString expNum = "TEST";
+  QString expNum = "1548";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Cracow 2020 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", ścieżka zdrowia, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
                     ", sz";
 
   bool compute_errors = true;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  QString driveDir = "D:\\Test\\"; // Test
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Test
+  QString driveDir = "Y:\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1279,8 +1285,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QDateTime dateTime(startDate, startTime);
 
-  plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
-  label_vertical_offset_ += label_vertical_offset_step_;
+  //plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
+  //label_vertical_offset_ += label_vertical_offset_step_;
   // END Exps with days
 
   AddIntLabelToPlot("t          = ", &step_number_);
@@ -1334,7 +1340,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   if(compute_errors) {
 
     //QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
-    QVector<QString> l2_labels = {"L2_w  = ", "L2_m  = ", "L2_d  = ", "L2_p  = ", "L2_n  = "};
+    QVector<QString> l2_labels = {"L^2 = ", "L^2 = ", "L^2 = ", "L^2 = ", "L^2 = "};
     //QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
     //QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
 
@@ -1473,7 +1479,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      date_label.setText(dateTime.toString("dd MMM yyyy, hh:mm"));
+      //date_label.setText(dateTime.toString("dd MMM yyyy, hh:mm"));
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -2401,6 +2407,7 @@ void MainWindow::AddErrorLabelsToPlot(const QVector<QString> &labels, const QVec
   // TODO TR: I assume that labels.size() == values_references.size()
   for(size_t i = 0; i < labels.size(); ++i){
     AddErrorLabelToPlot(labels[i], values[i].get());
+    plot_labels_.back()->SetColor(error_indices_colors[i]);
   }
 }
 
@@ -2445,6 +2452,7 @@ void MainWindow::AddSupErrorsToSum(QVector<ErrorsCalculator*> &errors_calculator
 void MainWindow::AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
   for(size_t i = 0; i < errors_calculators.size(); ++i){
     errors_sums[i] += errors_calculators[i]->CalculateModError();
+
   }
 }
 
@@ -2497,5 +2505,8 @@ void MainWindow::AddErrorLabelToPlot(const QString &label, double *value) {
   plot_labels_.push_back(std::make_shared<plotLabel>(ui->widget_plot, label_horizontal_offset_,
                                                      label_vertical_offset_, label, value,
                                                      std::make_shared<plotLabelDoubleDataPreparator>(6)));
+
   label_vertical_offset_ += label_vertical_offset_step_;
 }
+
+

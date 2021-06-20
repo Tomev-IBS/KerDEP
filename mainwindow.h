@@ -64,8 +64,6 @@ class MainWindow : public QMainWindow {
     int step_number_ = 0;
     QVector<std::shared_ptr<point>> domain_;
     QVector<double> drawable_domain_;
-    QVector<double> windowed_error_domain_;
-    QVector<double> error_domain_;
 
     QVector<std::shared_ptr<plotLabel>> plot_labels_;
     double label_vertical_offset_ = 0;
@@ -87,14 +85,18 @@ class MainWindow : public QMainWindow {
   private:
     // Pens for 1d plot
     const QPen model_plot_pen_ = QPen(Qt::red);
-    const QPen windowed_plot_pen_ = QPen(QColor(0, 255, 0));
-    const QPen kde_plot_pen_ = QPen(QColor(0, 255, 255));
-    const QPen weighted_plot_pen_ = QPen(QColor(0, 150, 255));
-    const QPen desda_kde_plot_pen_ = QPen(QColor(0, 50, 255));
+    const QPen windowed_plot_pen_ = QPen(QColor(255, 220, 0));
+    const QPen kde_plot_pen_ = QPen(QColor(0, 255, 0));
+    const QPen weighted_plot_pen_ = QPen(QColor(0, 255, 255));
+    const QPen desda_kde_plot_pen_ = QPen(QColor(0, 0, 255));
     const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::black, 2);
 
     const QPen derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
-    const QPen standardized_derivative_plot_pen_ = QPen(QColor(255, 220, 0)); // Yellow
+    const QPen standardized_derivative_plot_pen_ = QPen(QColor(115, 65, 45)); // Yellow
+
+    void FillErrorIndicesColors();
+
+    QVector<QColor> error_indices_colors = {};
 
     // Contour plots
     Plot *contour_plot_ = nullptr;
