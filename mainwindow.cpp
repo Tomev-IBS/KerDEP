@@ -1190,6 +1190,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1197,11 +1198,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
+  */
 
   // Text data reader
-  // std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  // data_path = "y:\\Data\\cracow_2020_temp.csv";
-  // reader_.reset(new TextDataReader(data_path));
+  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
+  data_path = "y:\\Data\\cracow_2020_temp.csv";
+  reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1235,12 +1237,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1548";
+  QString expNum = "1551";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", ścieżka zdrowia, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", temperatura , m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz";
+                    ", sz003";
 
   bool compute_errors = true;
 
@@ -1270,22 +1272,19 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_horizontal_offset_ = label_vertical_offset_ = 0.01;
 
   // Exps with days
-  // Bike Sharing Experiment
-  //QDate startDate(2011, 1, 1);
-  //QTime startTime(0, 0, 0);
-  // Air Quality Italy Experiment
-  //QDate startDate(2004, 3, 10);
-  //QTime startTime(18, 0, 0);
-  // Metro Minneapolis Experiment
+  // Metro Minneapolis 2017 Experiment
   //QDate startDate(2016, 10, 1);
   //QTime startTime(0, 0, 0);
-  // Chicago flights
+  // Rio Experiment
+  // QDate startDate(2019, 10, 1);
+  // QTime startTime(0, 0, 0);
+  // Cracow 2020 Experiment
   QDate startDate(2019, 10, 1);
   QTime startTime(0, 0, 0);
 
   QDateTime dateTime(startDate, startTime);
 
-  //plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
+  plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
   //label_vertical_offset_ += label_vertical_offset_step_;
   // END Exps with days
 
@@ -1479,7 +1478,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      //date_label.setText(dateTime.toString("dd MMM yyyy, hh:mm"));
+      date_label.setText(dateTime.toString("dd MMM yyyy, hh:mm"));
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
