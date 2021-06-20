@@ -76,7 +76,7 @@ void QwtContourPlotUI::updateLeftColumnText()
     */
 
   QString leftColumnText = "";
-  leftColumnText += date_time_->toString("dd MMM yyyy, hh:mm") + "\n";
+  leftColumnText += QLocale(QLocale::English).toString(*date_time_, "dd MMM yyyy, hh:mm");
   leftColumnText += "t         = " + QString::number(*_currentStep) + "\n";
   //leftColumnText += _imagesPeriodString;
   //leftColumnText += _levelsString;

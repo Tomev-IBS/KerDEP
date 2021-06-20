@@ -902,7 +902,7 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
-  data_path = "y:\\Data\\rio_humidity_temp.csv";
+  data_path = "y:\\Data\\rio_2014_humidity_temp.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
 
@@ -1275,14 +1275,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // Exps with days
   // Metro Minneapolis 2017 Experiment
   //QDate startDate(2016, 10, 1);
-  //QTime startTime(0, 0, 0);
   // Rio 2014 Experiment
   QDate startDate(2013, 10, 1);
-  QTime startTime(0, 0, 0);
   // Cracow 2020 Experiment
   //QDate startDate(2019, 10, 1);
-  //QTime startTime(0, 0, 0);
 
+  QTime startTime(0, 0, 0);
   QDateTime dateTime(startDate, startTime);
 
   plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
@@ -1479,7 +1477,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      date_label.setText(dateTime.toString("dd MMM yyyy, hh:mm"));
+      date_label.setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
