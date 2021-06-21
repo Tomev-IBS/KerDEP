@@ -82,8 +82,8 @@ void QwtContourPlotUI::updateLeftColumnText()
   //leftColumnText += _levelsString;
   //leftColumnText += _seedString;
   leftColumnText += "\n";
-  leftColumnText += "KPSS      =" + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
-  leftColumnText += "sgmKPSS   =" + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
+  leftColumnText += "KPSS      = " + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
+  leftColumnText += "sgmKPSS   = " + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
   leftColumnText += "\n";
   //leftColumnText += _mKPSSString;
   //leftColumnText += _mMaxString;
@@ -94,7 +94,7 @@ void QwtContourPlotUI::updateLeftColumnText()
   //leftColumnText += "\n";
   leftColumnText += "r         = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
   leftColumnText += "q         = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
-  leftColumnText += "#atypical =  " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
+  leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
 
   /*
   if(_DESDAAlgorithm->_smoothingParametersVector.size() == 2) {

@@ -366,11 +366,16 @@ void MainWindow::ResizePlot() {
   // Switch to an array
 
   double i = minX;
+  double i_increment = 1;
+
+  if(maxX - minX >= 100){
+    i_increment = 10;
+  }
 
   while(i < maxX + 1) {
     ticks << i;
     labels << QString::number(i);
-    i += 1;
+    i += i_increment;
   }
 
   QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
@@ -884,7 +889,7 @@ void MainWindow::on_pushButton_clicked() {
 
   std::vector<double> pt = {0, 0};
   contour_plot_->ShowColorMap(false);
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 105.0), QPen(QColor(255, 0, 255)));
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 105.0), QPen(QColor(0, 0, 0)));
 
   // After adding plots set contours and stuff.
   contour_plot_->setContours(contourLevels);
@@ -989,8 +994,8 @@ void MainWindow::on_pushButton_clicked() {
       "Cracow 2020 Humidity Temp, iw=" + QString::number(screen_generation_frequency_)
       + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz261";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1248,8 +1253,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   bool compute_errors = false;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Test
+  //QString driveDir = "Y:\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -2462,7 +2467,7 @@ void MainWindow::AddColorsLegendToPlot() {
   label_vertical_offset_ = 0.75;
 
   if(ui->checkBox_showEstimatedPlot->isChecked()) {
-    AddConstantLabelToPlot("Model");
+    AddConstantLabelToPlot("theoretical");
     plot_labels_.back()->SetColor(model_plot_pen_.color());
   }
   if(ui->checbox_showFullEstimator->isChecked()){
