@@ -1218,7 +1218,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   */
 
   // Text data reader
-  std::string data_path = "y:\\Data\\rio_2014_temp.csv";
+  std::string data_path = "y:\\Data\\minneapolis_2017_temp.txt";
   reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1256,9 +1256,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString expNum = "1560";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Rio 2014 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Minneapolis 2017 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz022";
+                    ", sz129";
 
   bool compute_errors = false;
 
@@ -1290,9 +1290,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
   // Metro Minneapolis 2017 Experiment
-  //QDate startDate(2016, 10, 1);
+  QDate startDate(2016, 10, 1);
   // Rio 2014 Experiment
-  QDate startDate(2013, 10, 1);
+  //QDate startDate(2013, 10, 1);
   // Cracow 2020 Experiment
   //QDate startDate(2019, 10, 1);
 
