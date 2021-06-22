@@ -871,12 +871,13 @@ void MainWindow::on_pushButton_clicked() {
 
   // Contour levels calculation.
   QList<double> contourLevels;
-  double level = 0.0025;
-  double level_density = 0.0025;
-  while(level < 0.025) {
+  double level = 0.0003125;
+  double level_multipliers = 2;
+  while(level < 0.09) {
     contourLevels += level;
-    level += level_density;
+    level *= level_multipliers;
   }
+  contourLevels += 0.155;
 
   // Add clusters_ to the estimator
   means_ = {std::make_shared<std::vector<double >>()};
@@ -916,8 +917,7 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\MetroInterstateTraffic\\result_2D.txt";
-  data_path = "y:\\Data\\cracow_2020_humidity_temp.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
 
@@ -983,7 +983,7 @@ void MainWindow::on_pushButton_clicked() {
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
-                          &data_date_time, &level_density);
+                          &data_date_time, &level_multipliers);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(false);
@@ -998,11 +998,11 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1557 (2D)";
+  QString expNum = "1564 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Cracow 2020 Humidity Temp, iw=" + QString::number(screen_generation_frequency_)
-      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz261";
+      "Cracow 2020 Temp(Humidity), iw=" + QString::number(screen_generation_frequency_)
+      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz196";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
