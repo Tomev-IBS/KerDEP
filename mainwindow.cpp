@@ -1218,7 +1218,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   */
 
   // Text data reader
-  std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
+  std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1253,14 +1253,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1559";
+  QString expNum = "1560";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Cracow 2020 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Rio 2014 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz003";
+                    ", sz022";
 
-  bool compute_errors = true;
+  bool compute_errors = false;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
