@@ -1218,7 +1218,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   */
 
   // Text data reader
-  std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
+  std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1253,12 +1253,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1562";
+  QString expNum = "1563";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Cracow 2020 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Rio 2014 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz130";
+                    ", sz195";
 
   bool compute_errors = false;
 
