@@ -917,7 +917,7 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
 
@@ -974,9 +974,9 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  //QDate data_start_date(2014, 10, 1); // Rio
+  QDate data_start_date(2014, 10, 1); // Rio
   //QDate data_start_date(2017, 10, 1); // Metro
-  QDate data_start_date(2020, 10, 1); // Cracow
+  //QDate data_start_date(2020, 10, 1); // Cracow
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
@@ -998,11 +998,11 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1564 (2D)";
+  QString expNum = "1565 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Cracow 2020 Temp(Humidity), iw=" + QString::number(screen_generation_frequency_)
-      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz196";
+      "Rio 2014 Temp(Humidity), iw=" + QString::number(screen_generation_frequency_)
+      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz262";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
