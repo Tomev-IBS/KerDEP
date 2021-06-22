@@ -260,7 +260,6 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
       }
     }
 
-    kernel_prognosis_derivative_values_.begin(), kernel_prognosis_derivative_values_.end());
     for(auto val : kernel_prognosis_derivative_values_) {
       standardizedDerivativeY.push_back( 0.1 * val / normalization_factor);
     }
@@ -1208,6 +1207,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
 
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1215,12 +1215,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
-
+  */
 
   // Text data reader
-  //std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  //data_path = "y:\\Data\\rio_2014_humidity.csv";
-  //reader_.reset(new TextDataReader(data_path));
+  std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
+  reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1254,12 +1253,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1558";
+  QString expNum = "1559";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", ścieżka zdrowia, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Cracow 2020 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz002";
+                    ", sz003";
 
   bool compute_errors = true;
 
