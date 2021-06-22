@@ -29,7 +29,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
-  _kpssM = 500; // This is independent of maxM. Normally 500.
+  _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
@@ -533,7 +533,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
       if(x > domainMinValue && x < domainMaxValue) {
         std::vector<double> pt = {x};
         kernelPrognosisDerivativeValues.push_back(
-            _estimatorDerivative->getValue(&pt) * 1000 // For visibility
+            _estimatorDerivative->getValue(&pt) * 10000 // For visibility
                                                  );
       }
       else {

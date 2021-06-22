@@ -40,6 +40,7 @@
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
+#include <QtGlobal>
 
 #include "UI/QwtContourPlotUI.h"
 
@@ -250,10 +251,9 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   // Generate plot for standardized prognosis derivative, assuming that normal derivative was generated first
   if(ui->checkBox_standarizedDerivative->isChecked()) {
     QVector<double> standardizedDerivativeY = {};
+    double normalization_factor = *std::max_element(kernel_prognosis_derivative_values_.begin(), kernel_prognosis_derivative_values_.end());
     for(auto val : kernel_prognosis_derivative_values_) {
-      standardizedDerivativeY.push_back(
-          0.1 * val / DESDAAlgorithm->_maxAbsDerivativeValueInCurrentStep
-                                       );
+      standardizedDerivativeY.push_back( 0.1 * val / normalization_factor);
     }
     AddPlot(&standardizedDerivativeY, standardized_derivative_plot_pen_);
   }
@@ -370,6 +370,8 @@ void MainWindow::ResizePlot() {
 
   if(maxX - minX >= 100){
     i_increment = 10;
+  } else {
+    i_increment = 5;
   }
 
   while(i < maxX + 1) {
@@ -382,7 +384,7 @@ void MainWindow::ResizePlot() {
   textTicker->addTicks(ticks, labels);
 
   ui->widget_plot->xAxis->setTicker(textTicker);
-  ui->widget_plot->xAxis->setTickLabelRotation(90);
+  //ui->widget_plot->xAxis->setTickLabelRotation(90);
 }
 
 void MainWindow::ClearPlot() {
@@ -994,8 +996,8 @@ void MainWindow::on_pushButton_clicked() {
       "Cracow 2020 Humidity Temp, iw=" + QString::number(screen_generation_frequency_)
       + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz261";
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\Test\\"; // Home
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1196,7 +1198,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1204,12 +1206,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
-  */
+
 
   // Text data reader
-  std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
-  data_path = "y:\\Data\\rio_2014_humidity.csv";
-  reader_.reset(new TextDataReader(data_path));
+  //std::string data_path = "k:\\Coding\\Python\\KerDEP_Data_Preparator\\BikeSharing\\result.txt";
+  //data_path = "y:\\Data\\rio_2014_humidity.csv";
+  //reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1243,18 +1245,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1555";
+  QString expNum = "1558";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Rio 2014 wilgotność, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", ścieżka zdrowia, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz195";
+                    ", sz002";
 
-  bool compute_errors = false;
+  bool compute_errors = true;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  QString driveDir = "D:\\Test\\"; // Test
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Test
+  QString driveDir = "Y:\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1275,7 +1277,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   expNumLabel.setText("");
 
   plot_labels_ = {};
-  label_horizontal_offset_ = label_vertical_offset_ = 0.01;
+  label_horizontal_offset_ = 0.02;
+  label_vertical_offset_ = 0.01;
 
   // Exps with days
   // Metro Minneapolis 2017 Experiment
@@ -1322,12 +1325,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //====================  SECOND COLUMN =================//
 
-  label_horizontal_offset_ = 0.20;
+  label_horizontal_offset_ = 0.25;
   label_vertical_offset_ = 0.01 + 9 * label_vertical_offset_step_;
 
   //==================== ERRORS SUM =================//
 
-  label_horizontal_offset_ = 0.87;
+  label_horizontal_offset_ = 0.865;
   label_vertical_offset_ = 0.01;
 
   QVector<double> l1_errors_sums = {};
@@ -1621,7 +1624,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   //====================== ERRORS SUM ===================//
 
-  horizontalOffset = 0.87;
+  horizontalOffset = 0.85;
   verticalOffset = 0.01;
 
   plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
