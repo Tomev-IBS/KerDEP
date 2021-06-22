@@ -251,7 +251,16 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   // Generate plot for standardized prognosis derivative, assuming that normal derivative was generated first
   if(ui->checkBox_standarizedDerivative->isChecked()) {
     QVector<double> standardizedDerivativeY = {};
-    double normalization_factor = *std::max_element(kernel_prognosis_derivative_values_.begin(), kernel_prognosis_derivative_values_.end());
+
+    double normalization_factor = qAbs(kernel_prognosis_derivative_values_[0]);
+
+    for(auto val : kernel_prognosis_derivative_values_) {
+      if(qAbs(val) > normalization_factor){
+        normalization_factor = qAbs(val);
+      }
+    }
+
+    kernel_prognosis_derivative_values_.begin(), kernel_prognosis_derivative_values_.end());
     for(auto val : kernel_prognosis_derivative_values_) {
       standardizedDerivativeY.push_back( 0.1 * val / normalization_factor);
     }
