@@ -373,8 +373,8 @@ void MainWindow::ResizePlot() {
   QVector<QString> labels;
   // Switch to an array
 
-  double i = minX;
-  double i_increment = 1;
+  int i = minX;
+  int i_increment = 1;
 
   if(maxX - minX >= 100){
     i_increment = 10;
@@ -382,16 +382,21 @@ void MainWindow::ResizePlot() {
     i_increment = 5;
   }
 
-  while(i < maxX + 1) {
+  for(i = minX; i <= maxX + 1; i += 1){
     ticks << i;
-    labels << QString::number(i);
-    i += i_increment;
+    if(i % i_increment == 0){
+      labels << QString::number(i);
+    }
+    else{
+      labels << "";
+    }
   }
 
   QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
   textTicker->addTicks(ticks, labels);
 
   ui->widget_plot->xAxis->setTicker(textTicker);
+  ui->widget_plot->axisRect()->setMinimumMargins(QMargins(0,0,30,0));
   //ui->widget_plot->xAxis->setTickLabelRotation(90);
 }
 
@@ -1206,7 +1211,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-
   /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
@@ -1216,6 +1220,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   */
+
 
   // Text data reader
   std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
@@ -1256,9 +1261,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString expNum = "1563";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Rio 2014 Temp, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Rio 2014 Humidity, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz195";
+                    ", sz263";
 
   bool compute_errors = false;
 
@@ -1284,20 +1289,25 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
 
-  plot_labels_ = {};
-  label_horizontal_offset_ = 0.02;
-  label_vertical_offset_ = 0.01;
-
   // Exps with days
   // Metro Minneapolis 2017 Experiment
-  QDate startDate(2016, 10, 1);
+  //QDate startDate(2016, 10, 1);
   // Rio 2014 Experiment
-  //QDate startDate(2013, 10, 1);
+  QDate startDate(2013, 10, 1);
   // Cracow 2020 Experiment
   //QDate startDate(2019, 10, 1);
 
   QTime startTime(0, 0, 0);
   QDateTime dateTime(startDate, startTime);
+
+  plot_labels_ = {};
+  label_horizontal_offset_ = 0.02;
+  label_vertical_offset_ = 0.01;
+  plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                       "Rio de Janeiro; 2014; Humidity");
+                        //"Cracow; 2020; Humidity");
+  label_vertical_offset_ += label_vertical_offset_step_;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
   label_vertical_offset_ += label_vertical_offset_step_;
