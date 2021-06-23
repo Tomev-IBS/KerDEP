@@ -13,7 +13,8 @@ class QwtContourPlotUI
     QwtContourPlotUI(int *currentStep, const int& imagesPeriod, const int& seed,
                      DESDA *DESDAAlgorithm, double* L1Error, double* L2Error,
                      double* supError, double* modError, double* actual_l1_error, double* actual_l2_error,
-                     double* actual_sup_error, double* actual_mod_error, QDateTime* date_time, double* level_density);
+                     double* actual_sup_error, double* actual_mod_error, QDateTime* date_time, double* level_density,
+                     const QString &experiment_description);
     void updateTexts();
     void attach(QwtPlot* plot);
     void SetErrorsPrinting(const bool &should_print_errors);
@@ -42,6 +43,7 @@ class QwtContourPlotUI
     QString _mKPSSString;
     QString _mMaxString;
     QString _mMinString;
+    QString experiment_description_;
 
     DESDA *_DESDAAlgorithm;
 

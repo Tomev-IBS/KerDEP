@@ -979,16 +979,18 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(2014, 10, 1); // Rio
-  //QDate data_start_date(2017, 10, 1); // Metro
-  //QDate data_start_date(2020, 10, 1); // Cracow
+  QDate data_start_date(2013, 10, 1); // Rio
+  //QDate data_start_date(2016, 10, 1); // Metro
+  //QDate data_start_date(2019, 10, 1); // Cracow
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
+
+  QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
-                          &data_date_time, &level_multipliers);
+                          &data_date_time, &level_multipliers, experiment_description);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(false);
@@ -1003,18 +1005,29 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1565 (2D)";
+  QString expNum = "1567 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "Rio 2014 Temp(Humidity), iw=" + QString::number(screen_generation_frequency_)
       + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz262";
-  //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  // Initial screen should only contain exp number (as requested).
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
+  expNumLabel.setFont(QFont("Courier New", 250));
+
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  QString imageName = dirPath + QString::number(0) + ".png";
+
+  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+  expNumLabel.setText("");
+  // Initial screen generated.
 
   log("Experiment started.");
   for(step_number_ = 1; step_number_ < 42000; ++step_number_) {

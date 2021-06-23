@@ -4,11 +4,12 @@ QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
                                    const int& seed, DESDA *DESDAAlgorithm,
                                    double* L1Error, double* L2Error,
                                    double* supError, double* modError, double* actual_l1_error, double* actual_l2_error,
-                                   double* actual_sup_error, double* actual_mod_error, QDateTime *date_time, double* level_density)
+                                   double* actual_sup_error, double* actual_mod_error, QDateTime *date_time, double* level_density,
+                                   const QString &experiment_description)
  : _currentStep(currentStep), _L1Error(L1Error), _L2Error(L2Error),
    _supError(supError), _modError(modError), _DESDAAlgorithm(DESDAAlgorithm), actual_l1_(actual_l1_error),
    actual_l2_(actual_l2_error), actual_mod_(actual_mod_error), actual_sup_(actual_sup_error),
-   date_time_(date_time), level_density_(level_density)
+   date_time_(date_time), level_density_(level_density), experiment_description_(experiment_description)
 {
   // Set up the QwtTexts.
   QFont uiFont("Courier New");
@@ -76,6 +77,8 @@ void QwtContourPlotUI::updateLeftColumnText()
     */
 
   QString leftColumnText = "";
+  leftColumnText += experiment_description_;
+  leftColumnText += "\n\n";
   leftColumnText += QLocale(QLocale::English).toString(*date_time_, "dd MMM yyyy, hh:mm");
   leftColumnText += "\nt         = " + QString::number(*_currentStep) + "\n";
   //leftColumnText += _imagesPeriodString;
