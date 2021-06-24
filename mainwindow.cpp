@@ -1224,7 +1224,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1232,12 +1232,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
-  */
+  //*/
 
 
   // Text data reader
-  std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
-  reader_.reset(new TextDataReader(data_path));
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  //reader_.reset(new TextDataReader(data_path));
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1271,12 +1271,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1568";
+  QString expNum = "1569";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Minneapolis 2017 Temperature, m0=" + QString::number(DESDAAlgorithm._maxM) +
+                    ", Ścieżka zdrowia, m0=" + QString::number(DESDAAlgorithm._maxM) +
                     ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz422";
+                    ", sz423";
 
   bool compute_errors = false;
 
@@ -1293,7 +1293,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        "Minneapolis 2017\n  Temperature  ");
+                        //"Minneapolis 2017\n  Temperature  ");
+                        "  Ścieżka\n  Zdrowia");
   expNumLabel.setFont(QFont("Courier New", 130));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
