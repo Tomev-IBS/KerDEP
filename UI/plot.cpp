@@ -78,12 +78,14 @@ void Plot::setAxesLimit(const double &limit)
   // Only one argument, because it has to be square.
 
   // First column - HORIZONTAL
-  setAxisScale(Qt::ZAxis, -40, 40); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
-  setAxisTitle(Qt::ZAxis, "Temperature [C]");
+  //setAxisScale(Qt::ZAxis, -40, 40); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
+  //setAxisTitle(Qt::ZAxis, "Temperature [C]");
+  setAxisScale(Qt::ZAxis, -5, 45); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
+  setAxisTitle(Qt::ZAxis, "");
 
   // Second column - VERTICAL
-  setAxisScale(Qt::XAxis, 0, 100); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
-  setAxisTitle(Qt::XAxis, "Humidity [%]");
+  setAxisScale(Qt::XAxis, -5, 45); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
+  setAxisTitle(Qt::XAxis, "");
 }
 
 void Plot::showContour( bool on )

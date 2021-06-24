@@ -870,7 +870,7 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 100;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -893,9 +893,9 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
-  //auto densityFunction =
-  //    new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-  //contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  auto densityFunction =
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -915,8 +915,7 @@ void MainWindow::on_pushButton_clicked() {
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
 
-  //std::shared_ptr<distribution>
-  //    targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  std::shared_ptr<distribution> targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
   std::vector<double> stDevsForDistribution = {1.0, 1.0};
 
@@ -926,7 +925,7 @@ void MainWindow::on_pushButton_clicked() {
 
   reader_.reset(new TextDataReader(data_path, 2));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(), 0,
                                             0,
@@ -934,7 +933,7 @@ void MainWindow::on_pushButton_clicked() {
                                                                    55))
                );
 
-  */
+  //*/
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -985,7 +984,8 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
-  QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
+  //QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
+  QString experiment_description = "Ścieżka zdrowia; v2=0";
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -1005,21 +1005,22 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1567 (2D)";
+  QString expNum = "1570 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Rio 2014 Temp(Humidity), iw=" + QString::number(screen_generation_frequency_)
-      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz262";
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\Test\\"; // Home
+      "Ścieżka zdrowia 2D, v2=0, iw=" + QString::number(screen_generation_frequency_)
+      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz472";
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
+  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
+                        "  Ścieżka (2D)\n  Zdrowia\n   v2=0");
+  expNumLabel.setFont(QFont("Courier New", 130));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
