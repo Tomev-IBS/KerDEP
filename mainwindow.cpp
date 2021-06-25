@@ -985,7 +985,7 @@ void MainWindow::on_pushButton_clicked() {
   QDateTime data_date_time(data_start_date, data_start_time);
 
   //QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
-  QString experiment_description = "Ścieżka zdrowia; v2=v1";
+  QString experiment_description = "Ścieżka zdrowia; v2=0.5v1";
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -1005,11 +1005,11 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1572 (2D)";
+  QString expNum = "1573 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Ścieżka zdrowia 2D, v2=1, iw=" + QString::number(screen_generation_frequency_)
-      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz474";
+      "Ścieżka zdrowia 2D, v2=0.5v1, iw=" + QString::number(screen_generation_frequency_)
+      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz475";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1019,7 +1019,7 @@ void MainWindow::on_pushButton_clicked() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        "  Ścieżka (2D)\n  Zdrowia\n v2=v1");
+                        "  Ścieżka (2D)\n  Zdrowia\nv2=0.5v1");
   expNumLabel.setFont(QFont("Courier New", 130));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
