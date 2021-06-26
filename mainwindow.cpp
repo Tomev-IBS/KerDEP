@@ -1225,7 +1225,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  //*
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1238,8 +1238,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Text data reader
   //*
-  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
-  //reader_.reset(new TextDataReader(data_path));
+  std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  reader_.reset(new TextDataReader(data_path));
   //*/
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1274,14 +1274,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1574";
+  QString expNum = "1575";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "DESDA, Plugin" + QString::number(pluginRank) +
-                    ", Ścieżka zdrowia, m0=" + QString::number(DESDAAlgorithm._maxM) +
-                    ", mMin=" + QString::number(DESDAAlgorithm._minM) +
-                    ", sz002";
+  QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz003";
 
-  bool compute_errors = true;
+  bool compute_errors = false;
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
@@ -1296,8 +1293,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        //"Minneapolis 2017\n  Temperature  ");
-                        "   (48)-(49)  \n   1D");
+                        "Minneapolis 2017\n  Temperature  ");
+                        //"   (48)-(49)  \n   1D");
   expNumLabel.setFont(QFont("Courier New", 130));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
@@ -1325,16 +1322,15 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                         //"Rio de Janeiro; 2014; Humidity");
                         //"Cracow; 2020; Humidity");
-                        //"Minneapolis; 2017; Temperature");
-                       "(47)-(48); 1D");
+                        "Minneapolis; 2017; Temperature");
+                       //"(47)-(48); 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  /*
+  //*
   plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
   label_vertical_offset_ += label_vertical_offset_step_;
   //*/
-  // END Exps with days
 
   AddIntLabelToPlot("t          = ", &step_number_);
   // AddConstantLabelToPlot("iw    = " + QString::number(screen_generation_frequency_));
@@ -1526,7 +1522,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      //date_label.setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      date_label.setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
