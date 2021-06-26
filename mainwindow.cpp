@@ -1239,7 +1239,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // Text data reader
   //*
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
-  std::string data_path = "y:\\Data\\rio_2014_temp.csv";
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
   reader_.reset(new TextDataReader(data_path));
   //*/
 
@@ -1275,10 +1276,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1576";
+  QString expNum = "1577";
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  QString expDesc = "DESDA, Rio 2014 Temperature, sz129";
+  QString expDesc = "DESDA, Cracow 2020 Temperature, sz130";
 
   bool compute_errors = false;
 
@@ -1296,7 +1297,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
                         //"Minneapolis 2017\n  Temperature  ");
-                        "  Rio 2014\n   Temperature  ");
+                        //"  Rio 2014\n   Temperature  ");
+                        " Cracow 2020\n   Temperature  ");
                         //"   (48)-(49)  \n   1D");
   expNumLabel.setFont(QFont("Courier New", 130));
 
@@ -1309,11 +1311,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
   // Metro Minneapolis 2017 Experiment
-  QDate startDate(2016, 10, 1);
+  //QDate startDate(2016, 10, 1);
   // Rio 2014 Experiment
   //QDate startDate(2013, 10, 1);
   // Cracow 2020 Experiment
-  //QDate startDate(2019, 10, 1);
+  QDate startDate(2019, 10, 1);
 
   QTime startTime(0, 0, 0);
   QDateTime dateTime(startDate, startTime);
@@ -1324,9 +1326,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                         //"Rio de Janeiro; 2014; Humidity");
-                        "Rio de Janeiro; 2014; Temperature");
                         //"Cracow; 2020; Humidity");
+                        //"Rio de Janeiro; 2014; Temperature");
                         //"Minneapolis; 2017; Temperature");
+                       "Cracow; 2020; Temperature");
                        //"(47)-(48); 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
