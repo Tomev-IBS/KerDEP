@@ -1240,7 +1240,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
-  std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
+  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
   //*/
 
@@ -1276,10 +1277,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1577";
+  QString expNum = "1578";
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  QString expDesc = "DESDA, Cracow 2020 Temperature, sz130";
+  QString expDesc = "DESDA, Cracow 2020 Humidity, sz260";
 
   bool compute_errors = false;
 
@@ -1298,7 +1299,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
                         //"Minneapolis 2017\n  Temperature  ");
                         //"  Rio 2014\n   Temperature  ");
-                        " Cracow 2020\n   Temperature  ");
+                        //" Cracow 2020\n   Temperature  ");
+                        " Cracow 2020\n    Humidity  ");
+                        //"  Rio 2014\n   Temperature  ");
                         //"   (48)-(49)  \n   1D");
   expNumLabel.setFont(QFont("Courier New", 130));
 
@@ -1326,11 +1329,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                         //"Rio de Janeiro; 2014; Humidity");
-                        //"Cracow; 2020; Humidity");
+                        "Cracow; 2020; Humidity");
                         //"Rio de Janeiro; 2014; Temperature");
                         //"Minneapolis; 2017; Temperature");
-                       "Cracow; 2020; Temperature");
-                       //"(47)-(48); 1D");
+                        //"Cracow; 2020; Temperature");
+                        //"(47)-(48); 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
