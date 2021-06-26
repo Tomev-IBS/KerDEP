@@ -227,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-40</string>
+            <string>0</string>
            </property>
           </widget>
          </item>
@@ -241,7 +241,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>40</string>
+            <string>100</string>
            </property>
           </widget>
          </item>
