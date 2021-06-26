@@ -1238,7 +1238,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Text data reader
   //*
-  std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   reader_.reset(new TextDataReader(data_path));
   //*/
 
@@ -1274,9 +1275,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1575";
+  QString expNum = "1576";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz003";
+  //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
+  QString expDesc = "DESDA, Rio 2014 Temperature, sz129";
 
   bool compute_errors = false;
 
@@ -1293,7 +1295,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        "Minneapolis 2017\n  Temperature  ");
+                        //"Minneapolis 2017\n  Temperature  ");
+                        "  Rio 2014\n   Temperature  ");
                         //"   (48)-(49)  \n   1D");
   expNumLabel.setFont(QFont("Courier New", 130));
 
@@ -1321,8 +1324,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                         //"Rio de Janeiro; 2014; Humidity");
+                        "Rio de Janeiro; 2014; Temperature");
                         //"Cracow; 2020; Humidity");
-                        "Minneapolis; 2017; Temperature");
+                        //"Minneapolis; 2017; Temperature");
                        //"(47)-(48); 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
