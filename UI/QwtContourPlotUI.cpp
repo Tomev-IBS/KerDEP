@@ -103,11 +103,11 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "r         = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
   leftColumnText += "q         = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
   leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
-  leftColumnText += "\n\n\n\n";
-  leftColumnText += "";
-  leftColumnText += "atypical (Sec 3.4)";
 
   if(should_print_errors){
+    leftColumnText += "\n\n\n\n";
+    leftColumnText += "";
+    leftColumnText += "atypical (Sec 3.4)";
     leftColumnText += "\n\n";
     leftColumnText += "L^2     = " + formatNumberForDisplay(*_L2Error);
   }
@@ -119,8 +119,6 @@ void QwtContourPlotUI::updateLeftColumnText()
     leftColumnText += "h2 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
   }
   */
-
-
 
   _leftColumnText.setText(leftColumnText);
   _leftColumnLabel.setText(_leftColumnText);

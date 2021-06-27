@@ -893,9 +893,14 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
+  bool should_compute_errors = false;
+
   auto densityFunction =
       new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+
+  if(should_compute_errors) {
+    contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  }
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -921,14 +926,14 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
-  std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //*
+  //std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
   //*/
 
-  //*
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(), 0,
                                             0,
@@ -981,19 +986,17 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(2013, 10, 1); // Rio
+  //QDate data_start_date(2013, 10, 1); // Rio
   //QDate data_start_date(2016, 10, 1); // Metro
-  //QDate data_start_date(2019, 10, 1); // Cracow
+  QDate data_start_date(2019, 10, 1); // Cracow
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
   QString v2 = "v1";
 
   //QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
-  //QString experiment_description = "Cracow; 2020; Temperature - Humidity";
-  QString experiment_description = "(48)-(49); v2=" + v2;
-
-  bool should_compute_errors = true;
+  QString experiment_description = "Cracow; 2020; Temperature - Humidity";
+  //QString experiment_description = "(48)-(49); v2=" + v2;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -1013,12 +1016,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1583 (2D)";
+  QString expNum = "1584 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Ścieżka zdrowia 2D, v2=" + v2 + ", sz473";
+      //"Ścieżka zdrowia 2D, v2=" + v2 + ", sz473";
       //"Rio 2014 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz195";
-      //"Cracow 2020 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz475";
+      "Cracow 2020 Temp-Hum, sz476";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1029,9 +1032,9 @@ void MainWindow::on_pushButton_clicked() {
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
                         //"   (48)-(49)  \n  2D v2=0");
-                        "   (48)-(49)  \n   2D v2=1");
+                        //"   (48)-(49)  \n   2D v2=1");
                         //"   (48)-(49)  \n  2D v2=" + v2);
-                        //" Cracow 2020\n    Humidity  ");
+                        " Cracow 2020\n    Temp-Hum  ");
                         //"  Rio 2014\n   Temp-Hum  ");
   //plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,"   (48)-(49)  \n  2D");
   expNumLabel.setFont(QFont("Courier New", 130));
