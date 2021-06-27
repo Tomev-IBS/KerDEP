@@ -109,7 +109,7 @@ void QwtContourPlotUI::updateLeftColumnText()
 
   if(should_print_errors){
     leftColumnText += "\n\n";
-    leftColumnText += "L^2 = " + formatNumberForDisplay(*_L2Error);
+    leftColumnText += "L^2     = " + formatNumberForDisplay(*_L2Error);
   }
 
   /*
