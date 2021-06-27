@@ -870,7 +870,7 @@ void MainWindow::on_pushButton_start_clicked() {
 void MainWindow::on_pushButton_clicked() {
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 100;
+  screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -921,9 +921,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  /*
   std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  //std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
+  //*/
 
   //*
   reader_.reset(
@@ -985,7 +988,10 @@ void MainWindow::on_pushButton_clicked() {
   QDateTime data_date_time(data_start_date, data_start_time);
 
   //QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
-  QString experiment_description = "Ścieżka zdrowia; v2=0.5v1";
+  //QString experiment_description = "Cracow; 2020; Temperature - Humidity";
+  QString experiment_description = "(48)-(49); v2=0";
+
+  bool should_compute_errors = true;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -993,7 +999,7 @@ void MainWindow::on_pushButton_clicked() {
                           &data_date_time, &level_multipliers, experiment_description);
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
-  plotUi.SetErrorsPrinting(false);
+  plotUi.SetErrorsPrinting(should_compute_errors);
   QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
   //QVector<int> initialDrawingSteps = {1};
   std::vector<double> model_function_values = {};
@@ -1005,11 +1011,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1573 (2D)";
+  QString expNum = "1580 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Ścieżka zdrowia 2D, v2=0.5v1, iw=" + QString::number(screen_generation_frequency_)
-      + ", m0=" + QString::number(m0) + ", mMin=" + QString::number(DESDAAlgorithm._minM) + ", sz475";
+      "Ścieżka zdrowia 2D, v2=0, sz195";
+      //"Rio 2014 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz195";
+      //"Cracow 2020 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz475";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1019,7 +1026,10 @@ void MainWindow::on_pushButton_clicked() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        "  Ścieżka (2D)\n  Zdrowia\nv2=0.5v1");
+                        "   (48)-(49)  \n  2D v2=0");
+                        //" Cracow 2020\n    Humidity  ");
+                        //"  Rio 2014\n   Temp-Hum  ");
+  //plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,"   (48)-(49)  \n  2D");
   expNumLabel.setFont(QFont("Courier New", 130));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
@@ -1051,8 +1061,8 @@ void MainWindow::on_pushButton_clicked() {
       log("Estimator preparation finished.");
       // Error calculation
 
-      /*
-      if(step_number_ >= 0) {
+      //*
+      if(step_number_ >= 1000 && should_compute_errors) {
         log("Error calculation started.");
         ++errorCalculationsNumber;
         error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
@@ -1062,22 +1072,22 @@ void MainWindow::on_pushButton_clicked() {
         estimator_values =
             GetFunctionsValueOnDomain(estimator.get(), error_domain);
 
-        actual_l1 = errors_calculator.CalculateL1Error();
+        //actual_l1 = errors_calculator.CalculateL1Error();
         actual_l2 = errors_calculator.CalculateL2Error();
-        actual_sup = errors_calculator.CalculateSupError();
-        actual_mod = errors_calculator.CalculateModError();
-        sum_l1 += actual_l1;
+        //actual_sup = errors_calculator.CalculateSupError();
+        //actual_mod = errors_calculator.CalculateModError();
+        //sum_l1 += actual_l1;
         sum_l2 += actual_l2;
-        sum_sup += actual_sup;
-        sum_mod = actual_mod;
+        //sum_sup += actual_sup;
+        //sum_mod = actual_mod;
 
-        l1_n_ = sum_l1 / errorCalculationsNumber;
+        //l1_n_ = sum_l1 / errorCalculationsNumber;
         l2_n_ = sum_l2 / errorCalculationsNumber;
-        sup_n_ = sum_sup / errorCalculationsNumber;
-        mod_n_ = sum_mod / errorCalculationsNumber;
+        //sup_n_ = sum_sup / errorCalculationsNumber;
+        //mod_n_ = sum_mod / errorCalculationsNumber;
         log("Error calculation finished.");
       }
-       */
+      //*/
 
       // densityFunction->setMeans(*means_.back().get());
 

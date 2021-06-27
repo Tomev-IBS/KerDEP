@@ -16,21 +16,21 @@ QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
   uiFont.setStyleHint(QFont::TypeWriter);
   uiFont.setPointSize(16);
 
-  _rightColumnText.setColor(Qt::black);
+  _coloredColumn.setColor(Qt::red);
   _leftColumnText.setColor(Qt::black);
 
   _leftColumnText.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
-  _rightColumnText.setRenderFlags(Qt::AlignRight | Qt::AlignTop);
+  _coloredColumn.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
   _leftColumnText.setFont(uiFont);
-  _rightColumnText.setFont(uiFont);
+  _coloredColumn.setFont(uiFont);
 
   // Set the constant strings.
   _imagesPeriodString = "iw   = " + QString::number(imagesPeriod) + "\n";
-  _seedString = "seed = " + QString::number(seed) + "\n";
-  _levelsString = "lvls = " + QString::number(*level_density_) + "\n";
-  _mKPSSString = "mKPSS = " + QString::number(_DESDAAlgorithm->_kpssM) + "\n";
-  _mMaxString = "m0    = " + QString::number(_DESDAAlgorithm->_maxM) + "\n";
-  _mMinString = "mmin  = " + QString::number(_DESDAAlgorithm->_minM) + "\n";
+  _seedString         = "seed = " + QString::number(seed) + "\n";
+  _levelsString       = "lvls = " + QString::number(*level_density_) + "\n";
+  _mKPSSString        = "mKPSS = " + QString::number(_DESDAAlgorithm->_kpssM) + "\n";
+  _mMaxString         = "m0    = " + QString::number(_DESDAAlgorithm->_maxM) + "\n";
+  _mMinString         = "mmin  = " + QString::number(_DESDAAlgorithm->_minM) + "\n";
 }
 
 void QwtContourPlotUI::attach(QwtPlot *plot)
@@ -39,7 +39,7 @@ void QwtContourPlotUI::attach(QwtPlot *plot)
    * A method attaching both columns to the specified plot.
    */
   _leftColumnLabel.attach(plot);
-  _rightColumnLabel.attach(plot);
+  _coloredColumnLabel.attach(plot);
 }
 
 void QwtContourPlotUI::updateTexts()
@@ -79,8 +79,12 @@ void QwtContourPlotUI::updateLeftColumnText()
   QString leftColumnText = "";
   leftColumnText += experiment_description_;
   leftColumnText += "\n\n";
-  //leftColumnText += QLocale(QLocale::English).toString(*date_time_, "dd MMM yyyy, hh:mm");
-  //leftColumnText += "\n";
+
+  if(!should_print_errors){
+    leftColumnText += QLocale(QLocale::English).toString(*date_time_, "dd MMM yyyy, hh:mm");
+    leftColumnText += "\n";
+  }
+
   leftColumnText += "t         = " + QString::number(*_currentStep) + "\n";
   //leftColumnText += _imagesPeriodString;
   //leftColumnText += _levelsString;
@@ -99,6 +103,14 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "r         = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
   leftColumnText += "q         = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
   leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
+  leftColumnText += "\n\n\n\n";
+  leftColumnText += "";
+  leftColumnText += "atypical (Sec 3.4)";
+
+  if(should_print_errors){
+    leftColumnText += "\n\n";
+    leftColumnText += "L^2 = " + formatNumberForDisplay(*_L2Error);
+  }
 
   /*
   if(_DESDAAlgorithm->_smoothingParametersVector.size() == 2) {
@@ -107,6 +119,8 @@ void QwtContourPlotUI::updateLeftColumnText()
     leftColumnText += "h2 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
   }
   */
+
+
 
   _leftColumnText.setText(leftColumnText);
   _leftColumnLabel.setText(_leftColumnText);
@@ -129,12 +143,14 @@ void QwtContourPlotUI::updateRightColumnText()
 
   QString rightColumnText = "";
 
-  if(!should_print_errors){
-    _rightColumnText.setText(rightColumnText);
-    _rightColumnLabel.setText(_rightColumnText);
+  if(should_print_errors){
+    rightColumnText = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTheoretical";
+    _coloredColumn.setText(rightColumnText);
+    _coloredColumnLabel.setText(_coloredColumn);
     return;
   }
 
+  /*
   rightColumnText += "L1   = " + formatNumberForDisplay(*_L1Error) + "\n";
   rightColumnText += "L1a  = " + formatNumberForDisplay(*actual_l1_) + "\n";
   rightColumnText += "\n";
@@ -146,9 +162,10 @@ void QwtContourPlotUI::updateRightColumnText()
   rightColumnText += "\n";
   rightColumnText += "mod  = " + formatNumberForDisplay(*_modError) + "\n";
   rightColumnText += "moda = " + formatNumberForDisplay(*actual_mod_) + "\n";
+   //*/
 
-  _rightColumnText.setText(rightColumnText);
-  _rightColumnLabel.setText(_rightColumnText);
+  _coloredColumn.setText(rightColumnText);
+  _coloredColumnLabel.setText(_coloredColumn);
 }
 
 QString QwtContourPlotUI::formatNumberForDisplay(const double& number)

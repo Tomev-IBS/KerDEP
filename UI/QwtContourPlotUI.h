@@ -20,8 +20,8 @@ class QwtContourPlotUI
     void SetErrorsPrinting(const bool &should_print_errors);
   private:
     QwtText _leftColumnText;
-    QwtText _rightColumnText;
-    QwtPlotTextLabel _rightColumnLabel;
+    QwtText _coloredColumn;
+    QwtPlotTextLabel _coloredColumnLabel;
     QwtPlotTextLabel _leftColumnLabel;
 
     bool should_print_errors = true;
