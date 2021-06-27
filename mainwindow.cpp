@@ -987,9 +987,11 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
+  QString v2 = "0.1v1";
+
   //QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
   //QString experiment_description = "Cracow; 2020; Temperature - Humidity";
-  QString experiment_description = "(48)-(49); v2=0";
+  QString experiment_description = "(48)-(49); v2=" + v2;
 
   bool should_compute_errors = true;
 
@@ -1011,10 +1013,10 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1580 (2D)";
+  QString expNum = "1581 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Ścieżka zdrowia 2D, v2=0, sz195";
+      "Ścieżka zdrowia 2D, v2=" + v2 + ", sz262";
       //"Rio 2014 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz195";
       //"Cracow 2020 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz475";
   QString driveDir = "Y:\\"; // WIT PCs after update
@@ -1026,7 +1028,8 @@ void MainWindow::on_pushButton_clicked() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        "   (48)-(49)  \n  2D v2=0");
+                        //"   (48)-(49)  \n  2D v2=0");
+                        "   (48)-(49)  \n  2D v2=" + v2);
                         //" Cracow 2020\n    Humidity  ");
                         //"  Rio 2014\n   Temp-Hum  ");
   //plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,"   (48)-(49)  \n  2D");
