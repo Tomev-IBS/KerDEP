@@ -987,7 +987,7 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
-  QString v2 = "0.1v1";
+  QString v2 = "0.5v1";
 
   //QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
   //QString experiment_description = "Cracow; 2020; Temperature - Humidity";
@@ -1016,7 +1016,7 @@ void MainWindow::on_pushButton_clicked() {
   QString expNum = "1581 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "Ścieżka zdrowia 2D, v2=" + v2 + ", sz262";
+      "Ścieżka zdrowia 2D, v2=" + v2 + ", sz422";
       //"Rio 2014 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz195";
       //"Cracow 2020 Temp-Hum, iw=" + QString::number(screen_generation_frequency_) + ", sz475";
   QString driveDir = "Y:\\"; // WIT PCs after update
