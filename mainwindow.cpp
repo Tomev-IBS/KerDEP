@@ -1485,7 +1485,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   };
 
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
     DESDAAlgorithm.performStep();
