@@ -992,7 +992,7 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
-  QString p2 = "0.5p1";
+  QString p2 = "p1";
 
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
   //QString experiment_description = "Cracow; 2020; temperature-humidity";
@@ -1016,10 +1016,10 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1594 (2D)";
+  QString expNum = "1595 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "equations (48)-(49) 2D, p2=" + p2 + ", sz421";
+      "equations (48)-(49) 2D, p2=" + p2 + ", sz472";
       //"Rio 2014 Temp-Hum, sz477";
       //"Cracow 2020 Temp-Hum, sz476";
   QString driveDir = "Y:\\"; // WIT PCs after update
@@ -1033,8 +1033,8 @@ void MainWindow::on_pushButton_clicked() {
   plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
                         ""
                         //"  0\nequations (48)-(49)\n  2D p2=0");
-                        //"   (48)-(49)  \n   2D p2=1p1");
-                        "  0\nequations (48)-(49)  \n 2D p2=" + p2);
+                        "  0\nequations (48)-(49)\n 2D p2=p1");
+                        //"  0\nequations (48)-(49)  \n 2D p2=" + p2);
                         //" Cracow 2020\n    Temp-Hum  ");
                         //"  Rio 2014\n   Temp-Hum  ");
   //plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,"   (48)-(49)  \n  2D");
