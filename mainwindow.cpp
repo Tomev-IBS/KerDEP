@@ -1257,9 +1257,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // Text data reader
   //*
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
-  std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
-  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
+  std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
   //*/
@@ -1296,10 +1296,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1589";
+  QString expNum = "1590";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  //QString expDesc = "DESDA, Rio 2014 humidity, sz261";
+  //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
+  QString expDesc = "DESDA, Rio 2014 humidity, sz130";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
   //QString expDesc = "DESDA, equations (48)-(49), sz002";
@@ -1319,11 +1319,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
-                        "  0\n  Minneapolis\n    temperature  ");
+                        //"  0\n  Minneapolis\n    temperature  ");
                         //"   0\n   Rio de Janeiro\n    temperature  ");
                         //"  0\n  Cracow\n    temperature  ");
-                        //" Cracow 2020\n    Humidity  ");
-                        //"   0\n  Rio 2014\n    Humidity  ");
+                        //" Cracow 2020\n    humidity  ");
+                        "    0\n    Rio 2014\n      humidity  ");
                         //" 0\nequations (48)-(49)  \n 1D");
   expNumLabel.setFont(QFont("Courier New", 110));
 
@@ -1336,9 +1336,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Exps with days
   // Rio 2014 Experiment
-  //QDate startDate(2013, 10, 1);
+  QDate startDate(2013, 10, 1);
   // Metro Minneapolis 2017 Experiment
-  QDate startDate(2016, 10, 1);
+  //QDate startDate(2016, 10, 1);
   // Cracow 2020 Experiment
   //QDate startDate(2019, 10, 1);
 
@@ -1350,10 +1350,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ = 0.01;
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                        //"Rio de Janeiro; 2014; humidity");
+                        "Rio de Janeiro; 2014; humidity");
                         //"Cracow; 2020; humidity");
                         //"Rio de Janeiro; 2014; temperature");
-                        "Minneapolis; 2017; temperature");
+                        //"Minneapolis; 2017; temperature");
                         //"Cracow; 2020; temperature");
                         //"equations (47)-(48); 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
