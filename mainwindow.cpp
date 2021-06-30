@@ -927,8 +927,8 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   //*
-  std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
   //*/
@@ -986,16 +986,16 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(2013, 10, 1); // Rio
+  //QDate data_start_date(2013, 10, 1); // Rio
   //QDate data_start_date(2016, 10, 1); // Metro
-  //QDate data_start_date(2019, 10, 1); // Cracow
+  QDate data_start_date(2019, 10, 1); // Cracow
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
   QString p2 = "p1";
 
-  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
-  //QString experiment_description = "Cracow; 2020; temperature-humidity";
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
+  QString experiment_description = "Cracow; 2020; temperature-humidity";
   //QString experiment_description = "equations (48)-(49); p2=" + p2;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
@@ -1016,12 +1016,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1596 (2D)";
+  QString expNum = "1597 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       //"equations (48)-(49) 2D, p2=" + p2 + ", sz472";
-      "Rio 2014 Temp-Hum, sz475";
-      //"Cracow 2020 Temp-Hum, sz476";
+      //"Rio 2014 Temp-Hum, sz475";
+      "Cracow 2020 Temp-Hum, sz476";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1035,8 +1035,8 @@ void MainWindow::on_pushButton_clicked() {
                         //"  0\nequations (48)-(49)\n  2D p2=0");
                         //"  0\nequations (48)-(49)\n 2D p2=p1");
                         //"  0\nequations (48)-(49)  \n 2D p2=" + p2);
-                        //" Cracow 2020\n    Temp-Hum  ");
-                        "    0\n   Rio de Janeiro\n   temp.-humidity");
+                        "   0\n  Cracow\n   temp.-humidity");
+                        //"    0\n   Rio de Janeiro\n   temp.-humidity");
   expNumLabel.setFont(QFont("Courier New", 110));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
