@@ -992,11 +992,11 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
-  QString v2 = "v1";
+  QString p2 = "p1";
 
-  QString experiment_description = "Rio de Janeiro; 2014; Temperature - Humidity";
-  //QString experiment_description = "Cracow; 2020; Temperature - Humidity";
-  //QString experiment_description = "(48)-(49); v2=" + v2;
+  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
+  //QString experiment_description = "Cracow; 2020; temperature-humidity";
+  //QString experiment_description = "equations (48)-(49); p2=" + p2;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -1019,7 +1019,7 @@ void MainWindow::on_pushButton_clicked() {
   QString expNum = "1585 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      //"Ścieżka zdrowia 2D, v2=" + v2 + ", sz473";
+      //"Ścieżka zdrowia 2D, p2=" + p2 + ", sz473";
       "Rio 2014 Temp-Hum, sz477";
       //"Cracow 2020 Temp-Hum, sz476";
   QString driveDir = "Y:\\"; // WIT PCs after update
@@ -1031,9 +1031,9 @@ void MainWindow::on_pushButton_clicked() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
-                        //"   (48)-(49)  \n  2D v2=0");
-                        //"   (48)-(49)  \n   2D v2=1");
-                        //"   (48)-(49)  \n  2D v2=" + v2);
+                        //"   (48)-(49)  \n  2D p2=0");
+                        //"   (48)-(49)  \n   2D p2=1p1");
+                        //"   (48)-(49)  \n  2D p2=" + p2);
                         //" Cracow 2020\n    Temp-Hum  ");
                         "  Rio 2014\n   Temp-Hum  ");
   //plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,"   (48)-(49)  \n  2D");
@@ -1243,7 +1243,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1255,11 +1255,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
 
   // Text data reader
-  //*
+  /*
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
-  std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
   //*/
@@ -1296,10 +1296,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1579";
+  QString expNum = "1586";
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  QString expDesc = "DESDA, Rio 2014 Humidity, sz261";
+  //QString expDesc = "DESDA, Rio 2014 humidity, sz261";
+  QString expDesc = "DESDA, Rio 2014 temperature, sz261";
 
   bool compute_errors = false;
 
@@ -1315,14 +1316,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
   ResizePlot();
 
   // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25,
+  plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
                         //"Minneapolis 2017\n  Temperature  ");
                         //"  Rio 2014\n   Temperature  ");
                         //" Cracow 2020\n   Temperature  ");
                         //" Cracow 2020\n    Humidity  ");
-                        "  Rio 2014\n    Humidity  ");
-                        //"   (48)-(49)  \n   1D");
-  expNumLabel.setFont(QFont("Courier New", 130));
+                        //"   0\n  Rio 2014\n    Humidity  ");
+                        " 0\nequations (48)-(49)  \n 1D");
+  expNumLabel.setFont(QFont("Courier New", 110));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
@@ -1347,17 +1348,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ = 0.01;
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                        "Rio de Janeiro; 2014; Humidity");
-                        //"Cracow; 2020; Humidity");
-                        //"Rio de Janeiro; 2014; Temperature");
-                        //"Minneapolis; 2017; Temperature");
-                        //"Cracow; 2020; Temperature");
-                        //"(47)-(48); 1D");
+                        //"Rio de Janeiro; 2014; humidity");
+                        //"Cracow; 2020; humidity");
+                        //"Rio de Janeiro; 2014; temperature");
+                        //"Minneapolis; 2017; temperature");
+                        //"Cracow; 2020; temperature");
+                        "equations (47)-(48); 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
+  QVector<plotLabel> date_labels = {};
   //*
-  plotLabel date_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "");
+  date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
   label_vertical_offset_ += label_vertical_offset_step_;
   //*/
 
@@ -1551,7 +1553,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      date_label.setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -2514,7 +2519,7 @@ void MainWindow::AddL1ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators
 
 void MainWindow::AddL2ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums) {
   for(size_t i = 0; i < errors_calculators.size(); ++i){
-    errors_sums[i] += errors_calculators[i]->CalculateL1Error();
+    errors_sums[i] += errors_calculators[i]->CalculateL2Error();
   }
 }
 

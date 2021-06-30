@@ -105,9 +105,9 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
 
   if(should_print_errors){
-    leftColumnText += "\n\n\n\n";
+    leftColumnText += "\n\n\n\n\n\n\n\n\n";
     leftColumnText += "";
-    leftColumnText += "atypical (Sec 3.4)";
+    leftColumnText += "estimated";
     leftColumnText += "\n\n";
     leftColumnText += "L^2     = " + formatNumberForDisplay(*_L2Error);
   }
@@ -142,7 +142,7 @@ void QwtContourPlotUI::updateRightColumnText()
   QString rightColumnText = "";
 
   if(should_print_errors){
-    rightColumnText = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTheoretical";
+    rightColumnText = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntheoretical";
     _coloredColumn.setText(rightColumnText);
     _coloredColumnLabel.setText(_coloredColumn);
     return;
