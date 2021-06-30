@@ -1321,7 +1321,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
                         //"Minneapolis 2017\n  Temperature  ");
                         //"   0\n   Rio de Janeiro\n    temperature  ");
-                        "   0\n       Cracow\n    temperature  ");
+                        "  0\n  Cracow\n    temperature  ");
                         //" Cracow 2020\n    Humidity  ");
                         //"   0\n  Rio 2014\n    Humidity  ");
                         //" 0\nequations (48)-(49)  \n 1D");
