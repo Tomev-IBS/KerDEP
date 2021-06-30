@@ -1300,7 +1300,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
   //QString expDesc = "DESDA, Rio 2014 humidity, sz261";
-  QString expDesc = "DESDA, Rio 2014 temperature, sz261";
+  //QString expDesc = "DESDA, Rio 2014 temperature, sz261";
+  QString expDesc = "DESDA, equations (48)-(49), sz002";
 
   bool compute_errors = false;
 
