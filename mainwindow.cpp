@@ -992,7 +992,7 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
-  QString p2 = "0.25p1";
+  QString p2 = "0.75p1";
 
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
   //QString experiment_description = "Cracow; 2020; temperature-humidity";
