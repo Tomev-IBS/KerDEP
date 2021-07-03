@@ -1016,7 +1016,7 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1598 (2D)";
+  QString expNum = "1599 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "equations (48)-(49) 2D, p2=" + p2 + ", sz002";
