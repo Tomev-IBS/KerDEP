@@ -1245,7 +1245,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1253,17 +1253,19 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
+  bool compute_errors = true;
   //*/
 
 
   // Text data reader
-  //*
+  /*
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
   //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
   std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
   //*/
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1298,16 +1300,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1591";
+  QString expNum = "1600";
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
   //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
-  QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
+  //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
-  //QString expDesc = "DESDA, equations (48)-(49), sz002";
-
-  bool compute_errors = false;
+  QString expDesc = "DESDA, assumed input, sz002";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
@@ -1322,12 +1322,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
-                        //"  0\n  Minneapolis\n    temperature  ");
-                        //"   0\n   Rio de Janeiro\n    temperature  ");
-                        //"  0\n  Cracow\n    temperature  ");
-                        "    0\n    Cracow\n      humidity  ");
-                        //"    0\n    Rio 2014\n      humidity  ");
-                        //" 0\nequations (48)-(49)  \n 1D");
+                        //"     Minneapolis\n    temperature  ");
+                        //"     Rio de Janeiro\n    temperature  ");
+                        //"     Cracow\n    temperature  ");
+                        //"     Cracow\n      humidity  ");
+                        //"     Rio 2014\n      humidity  ");
+                        "  assumed input  \n    1D");
   expNumLabel.setFont(QFont("Courier New", 110));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
@@ -1354,18 +1354,20 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                         //"Rio de Janeiro; 2014; humidity");
-                        "Cracow; 2020; humidity");
+                        //"Cracow; 2020; humidity");
                         //"Rio de Janeiro; 2014; temperature");
                         //"Minneapolis; 2017; temperature");
                         //"Cracow; 2020; temperature");
-                        //"equations (47)-(48); 1D");
+                        "assumed input; 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
   QVector<plotLabel> date_labels = {};
   //*
-  date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
-  label_vertical_offset_ += label_vertical_offset_step_;
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
+    label_vertical_offset_ += label_vertical_offset_step_;
+  }
   //*/
 
   AddIntLabelToPlot("t          = ", &step_number_);
