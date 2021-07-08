@@ -993,7 +993,7 @@ void MainWindow::on_pushButton_clicked() {
   QDateTime data_date_time(data_start_date, data_start_time);
 
   // p2 = 0.75p1 lub p2=0
-  QString p2 = "0.25p1";
+  QString p2 = "0.5p1";
 
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
   //QString experiment_description = "Cracow; 2020; temperature-humidity";
@@ -1017,10 +1017,10 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1604 (2D)";
+  QString expNum = "1605 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      "assumed input 2D, p2=" + p2 + ", sz260";
+      "assumed input 2D, p2=" + p2 + ", sz263";
       //"Rio 2014 Temp-Hum, sz003";
       //"Cracow 2020 Temp-Hum, sz129";
   QString driveDir = "Y:\\"; // WIT PCs after update
