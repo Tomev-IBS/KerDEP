@@ -927,8 +927,8 @@ void MainWindow::on_pushButton_clicked() {
   parser_.reset(new distributionDataParser(&attributes_data_));
 
   //*
-  std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
   //*/
@@ -994,8 +994,8 @@ void MainWindow::on_pushButton_clicked() {
 
   QString p2 = "0.75p1";
 
-  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
-  //QString experiment_description = "Cracow; 2020; temperature-humidity";
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
+  QString experiment_description = "Cracow; 2020; temperature-humidity";
   //QString experiment_description = "equations (48)-(49); p2=" + p2;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
@@ -1016,12 +1016,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1601 (2D)";
+  QString expNum = "1602 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       //"equations (48)-(49) 2D, p2=" + p2 + ", sz002";
-      "Rio 2014 Temp-Hum, sz003";
-      //"Cracow 2020 Temp-Hum, sz022";
+      //"Rio 2014 Temp-Hum, sz003";
+      "Cracow 2020 Temp-Hum, sz129";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1033,8 +1033,8 @@ void MainWindow::on_pushButton_clicked() {
   plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
                         ""
                         //"  assumed input  \n 2D p2=" + p2);
-                        //"  Cracow\n   temp.-humidity");
-                        "  Rio de Janeiro\n   temp.-humidity");
+                        "  Cracow\n   temp.-humidity");
+                        //"  Rio de Janeiro\n   temp.-humidity");
   expNumLabel.setFont(QFont("Courier New", 110));
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
