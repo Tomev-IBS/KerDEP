@@ -156,7 +156,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   }
   /**/
 
-  double v2_speed_multiplier = 0.75;
+  double v2_speed_multiplier = 1;
   sourceDistribution->increaseMeans(x_progression_size, 0);
   _alternativeDistribution->increaseMeans(x_progression_size, 0);
   sourceDistribution->increaseMeans(x_progression_size * v2_speed_multiplier, 1);
