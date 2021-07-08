@@ -893,7 +893,7 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
-  bool should_compute_errors = false;
+  bool should_compute_errors = true;
 
   auto densityFunction =
       new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
@@ -926,14 +926,14 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  //*
+  /*
   //std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
   std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
   //*/
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(), 0,
                                             0,
@@ -992,11 +992,12 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
 
-  QString p2 = "0.75p1";
+  // p2 = 0.75p1 lub p2=0
+  QString p2 = "0";
 
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
-  QString experiment_description = "Cracow; 2020; temperature-humidity";
-  //QString experiment_description = "equations (48)-(49); p2=" + p2;
+  //QString experiment_description = "Cracow; 2020; temperature-humidity";
+  QString experiment_description = "assumed input; p2=" + p2;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -1016,12 +1017,12 @@ void MainWindow::on_pushButton_clicked() {
                                     );
 
   // Prepare image location.
-  QString expNum = "1602 (2D)";
+  QString expNum = "1603 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
-      //"equations (48)-(49) 2D, p2=" + p2 + ", sz002";
+      "assumed input 2D, p2=" + p2 + ", sz195";
       //"Rio 2014 Temp-Hum, sz003";
-      "Cracow 2020 Temp-Hum, sz129";
+      //"Cracow 2020 Temp-Hum, sz129";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
@@ -1032,8 +1033,8 @@ void MainWindow::on_pushButton_clicked() {
   // Initial screen should only contain exp number (as requested).
   plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
                         ""
-                        //"  assumed input  \n 2D p2=" + p2);
-                        "  Cracow\n   temp.-humidity");
+                        "  assumed input  \n 2D p2=" + p2);
+                        //"  Cracow\n   temp.-humidity");
                         //"  Rio de Janeiro\n   temp.-humidity");
   expNumLabel.setFont(QFont("Courier New", 110));
 
