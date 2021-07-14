@@ -56,7 +56,6 @@ find_package(Qwt REQUIRED)
 
 add_executable(KerDEP
         main.cpp
-        DESDAReservoir.cpp
         UI/QwtContourPlotUI.cpp
         UI/plot.cpp
         UI/plotLabelDoubleDataPreparator.cpp
@@ -99,7 +98,6 @@ add_executable(KerDEP
         StationarityTests/kpssstationaritytest.cpp
         UI/plotLabel.cpp
         mainwindow.h
-        DESDAReservoir.h
         QCustomPlot/qcustomplot.h
         Functions/function.h
         KDE/kerneldensityestimator.h
