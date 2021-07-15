@@ -69,7 +69,6 @@ SOURCES     +=  main.cpp\
                 Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp \
                 Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp \
                 Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp \
-                DESDAReservoir.cpp \
                 Reservoir_sampling/textDataReader.cpp \
                 SOMKE/src/SOMKEAlgorithm.cpp \
                 SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp \
@@ -142,7 +141,6 @@ HEADERS     +=  mainwindow.h \
                 Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h \
                 Compressed_Cumulative_WDE_Wrappers/math_helpers.h \
                 Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h \
-                DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
                 KDE/kerneldensityestimator.h \
