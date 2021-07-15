@@ -1299,14 +1299,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
-  QString expNum = "1600";
+  QString expNum = "1629";
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
   //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
   //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
-  QString expDesc = "DESDA, assumed input, sz002";
+  QString expDesc = "DESDA, assumed input, p_1=p_3=0, sz002";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
@@ -1333,7 +1333,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString imageName = dirPath + QString::number(0) + ".png";
 
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
+  //log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
 
   // Exps with days

@@ -68,7 +68,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
-      x_progression_size = 0.0005;
+      //x_progression_size = 0.0005;
+      x_progression_size = 0;
       break;
     //case 200: // Added for faster q test
       //x_progression_size = 0.1;
@@ -78,9 +79,10 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       // x_progression_size = 0.005; // Spowolniona + 15
       // x_progression_size = 0.002; //  Leniwa + 6
       break;
-    case 5000:
+    case 6000:
     //case 8000: // 2D
-      x_progression_size = 0.005;
+      //x_progression_size = 0.005;
+      x_progression_size = 0;
       break;
     case 8000:
     //case 11000: // 2D
@@ -159,8 +161,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   double v2_speed_multiplier = 1;
   sourceDistribution->increaseMeans(x_progression_size, 0);
   _alternativeDistribution->increaseMeans(x_progression_size, 0);
-  sourceDistribution->increaseMeans(x_progression_size * v2_speed_multiplier, 1);
-  _alternativeDistribution->increaseMeans(x_progression_size * v2_speed_multiplier, 1);
+  //sourceDistribution->increaseMeans(x_progression_size * v2_speed_multiplier, 1);
+  //_alternativeDistribution->increaseMeans(x_progression_size * v2_speed_multiplier, 1);
 
   ++_currentIteration;
 }
