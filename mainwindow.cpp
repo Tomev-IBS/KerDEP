@@ -893,14 +893,8 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
-  bool should_compute_errors = true;
-
   auto densityFunction =
       new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-
-  if(should_compute_errors) {
-    contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
-  }
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -931,6 +925,8 @@ void MainWindow::on_pushButton_clicked() {
   //std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
+
+  bool should_compute_errors = false;
   //*/
 
   /*
@@ -941,6 +937,7 @@ void MainWindow::on_pushButton_clicked() {
                                                                    55))
                );
 
+  bool should_compute_errors = true;
   //*/
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -948,6 +945,10 @@ void MainWindow::on_pushButton_clicked() {
 
   reservoirSamplingAlgorithm *samplingAlgorithm =
       GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
+
+  if(should_compute_errors) {
+    contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  }
 
   objects_.clear();
   clusters_ = &stored_medoids_;

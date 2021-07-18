@@ -201,8 +201,8 @@ void QwtContourPlotUI::updateRightColumnText() {
 
   if(should_print_errors){
     right_column_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nL2 = " + formatNumberForDisplay(*_L2Error);
-    right_column_.setText(right_column_text);
-    right_column_label_.setText(right_column_);
-    return;
   }
+
+  right_column_.setText(right_column_text);
+  right_column_label_.setText(right_column_);
 }
