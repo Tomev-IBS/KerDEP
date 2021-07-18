@@ -85,7 +85,8 @@ class MainWindow : public QMainWindow {
   private:
     // Pens for 1d plot
     const QPen model_plot_pen_ = QPen(Qt::red);
-    const QPen windowed_plot_pen_ = QPen(QColor(255, 220, 0));
+    //const QPen windowed_plot_pen_ = QPen(QColor(255, 220, 0));
+    const QPen windowed_plot_pen_ = QPen(QColor(155, 135, 11));
     const QPen kde_plot_pen_ = QPen(QColor(0, 255, 0));
     const QPen weighted_plot_pen_ = QPen(QColor(0, 255, 255));
     const QPen desda_kde_plot_pen_ = QPen(QColor(0, 0, 255));

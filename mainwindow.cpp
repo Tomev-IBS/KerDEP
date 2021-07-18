@@ -997,7 +997,7 @@ void MainWindow::on_pushButton_clicked() {
 
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
   //QString experiment_description = "Cracow; 2020; temperature-humidity";
-  QString experiment_description = "assumed input; p2=" + p2;
+  QString experiment_description = "assumed input; 2D; p2=" + p2;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
@@ -1015,6 +1015,7 @@ void MainWindow::on_pushButton_clicked() {
   ErrorsCalculator errors_calculator(
       &model_function_values, &estimator_values, &error_domain, &domain_area
                                     );
+  int drawing_start_step = 0;
 
   // Prepare image location.
   QString expNum = "1607 (2D)";
@@ -1023,8 +1024,8 @@ void MainWindow::on_pushButton_clicked() {
       "assumed input 2D, p2=" + p2 + ", sz474";
       //"Rio 2014 Temp-Hum, sz003";
       //"Cracow 2020 Temp-Hum, sz129";
-  QString driveDir = "Y:\\"; // WIT PCs after update
-  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1040,9 +1041,6 @@ void MainWindow::on_pushButton_clicked() {
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
   expNumLabel.setText("");
   // Initial screen generated.
 
@@ -1058,47 +1056,46 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.performStep();
     log("Step performed.");
 
+    // Error calculation
+    //*
+    if(step_number_ >= 1 && should_compute_errors) {
+      log("Error calculation started.");
+      ++errorCalculationsNumber;
+      error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
+      domain_area = Calculate2DDomainArea(error_domain);
+      model_function_values =
+          GetFunctionsValueOnDomain(densityFunction, error_domain);
+      estimator_values =
+          GetFunctionsValueOnDomain(estimator.get(), error_domain);
+
+      //actual_l1 = errors_calculator.CalculateL1Error();
+      actual_l2 = errors_calculator.CalculateL2Error();
+      //actual_sup = errors_calculator.CalculateSupError();
+      //actual_mod = errors_calculator.CalculateModError();
+      //sum_l1 += actual_l1;
+      sum_l2 += actual_l2;
+      //sum_sup += actual_sup;
+      //sum_mod = actual_mod;
+
+      //l1_n_ = sum_l1 / errorCalculationsNumber;
+      l2_n_ = sum_l2 / errorCalculationsNumber;
+      //sup_n_ = sum_sup / errorCalculationsNumber;
+      //mod_n_ = sum_mod / errorCalculationsNumber;
+      log("Error calculation finished.");
+    }
+    //*/
+    if(should_compute_errors) {
+      densityFunction->setMeans(*means_.back().get());
+    }
+
     // Drawing
-    if(step_number_ % screen_generation_frequency_ == 0 ||
-       initialDrawingSteps.contains(step_number_)) {
+    if(step_number_ % screen_generation_frequency_ && step_number_ >= drawing_start_step){
 
       log("Drawing started.");
 
       log("Estimator preparation.");
       DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
       log("Estimator preparation finished.");
-      // Error calculation
-
-      //*
-      if(step_number_ >= 1000 && should_compute_errors) {
-        log("Error calculation started.");
-        ++errorCalculationsNumber;
-        error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
-        domain_area = Calculate2DDomainArea(error_domain);
-        model_function_values =
-            GetFunctionsValueOnDomain(densityFunction, error_domain);
-        estimator_values =
-            GetFunctionsValueOnDomain(estimator.get(), error_domain);
-
-        //actual_l1 = errors_calculator.CalculateL1Error();
-        actual_l2 = errors_calculator.CalculateL2Error();
-        //actual_sup = errors_calculator.CalculateSupError();
-        //actual_mod = errors_calculator.CalculateModError();
-        //sum_l1 += actual_l1;
-        sum_l2 += actual_l2;
-        //sum_sup += actual_sup;
-        //sum_mod = actual_mod;
-
-        //l1_n_ = sum_l1 / errorCalculationsNumber;
-        l2_n_ = sum_l2 / errorCalculationsNumber;
-        //sup_n_ = sum_sup / errorCalculationsNumber;
-        //mod_n_ = sum_mod / errorCalculationsNumber;
-        log("Error calculation finished.");
-      }
-      //*/
-      if(should_compute_errors) {
-        densityFunction->setMeans(*means_.back().get());
-      }
 
       log("Texts updates.");
       plotUi.updateTexts();
@@ -1119,10 +1116,6 @@ void MainWindow::on_pushButton_clicked() {
       log("Image name: " + imageName);
       log("Saved: " + QString::number(ui->widget_contour_plot_holder->grab().save(imageName)));
       log("Drawing finished.");
-    }
-
-    if(step_number_ == 10) {
-      initialDrawingSteps.clear();  // To reduce comparisons for drawing.
     }
 
     endTime = time(nullptr);
@@ -1299,6 +1292,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
+  int drawing_start_step = 0;
+
   // QString expNum = "1629";
   QString expNum = QString::number(1632 + seedString.toInt());
   this->setWindowTitle("Experiment #" + expNum);
@@ -1307,11 +1302,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
-  QString expDesc = "DESDA, assumed input, p_1=0.001, p_3=0, seed=" + seedString + ", sz002";
+  QString expDesc = "DESDA, assumed input, p_1=0.001, p_3=0, seed=" + seedString + ", sz002, draw_start="+ QString::number(drawing_start_step);+"";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\Test\\"; // Test
+  //QString driveDir = "Y:\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1405,7 +1400,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //==================== ERRORS SUM =================//
 
-  label_horizontal_offset_ = 0.865;
+  label_horizontal_offset_ = 0.875;
   label_vertical_offset_ = 0.01;
 
   QVector<double> l1_errors_sums = {};
@@ -1421,7 +1416,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   if(compute_errors) {
 
     //QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
-    QVector<QString> l2_labels = {"L^2 = ", "L^2 = ", "L^2 = ", "L^2 = ", "L^2 = "};
+    QVector<QString> l2_labels = {"L2 = ", "L2 = ", "L2 = ", "L2 = ", "L2 = "};
     //QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
     //QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
 
@@ -1491,7 +1486,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &enhanced_kde_errors_calculator, &rare_elements_kde_errors_calculator
   };
 
-
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
@@ -1499,67 +1493,69 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
-       || additionalScreensSteps.contains(step_number_)) {
+    // Error calculations
+    if(step_number_ >= 1 && compute_errors) {
+
+      log("Getting windowed domain.");
+      windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
+      log("Getting non-windowed domain.");
+      error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
+
+      log("Getting model plot on windowed.");
+      windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
+      log("Getting KDE plot on windowed.");
+      windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on lesser elements.");
+      less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
+      log("Getting weighted KDE plot.");
+      weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
+      log("Getting sgm KDE plot.");
+      enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
+      log("Getting rare KDE plot.");
+      rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
+
+      error_domain_length = error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+      windowed_error_domain_length =
+          windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
+
+      //AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
+      AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
+      //AddSupErrorsToSum(errors_calculators, sup_errors_sums);
+      //AddModErrorsToSum(errors_calculators, mod_errors_sums);
+
+      for(size_t i = 0; i < errors_calculators.size(); ++i) {
+        //*l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
+        *l2_errors[i] = l2_errors_sums[i] / numberOfErrorCalculations;
+        //*sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
+        //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
+      }
+
+      ++numberOfErrorCalculations;
+    }
+
+    if(drawing_start_step <= step_number_ &&
+    ( step_number_ % screen_generation_frequency_ == 0 ||
+      additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
       kernel_prognosis_derivative_values_ =
           DESDAAlgorithm.getKernelPrognosisDerivativeValues(&drawable_domain_);
-
-      // Error calculations
-      if(step_number_ >= 1000 && compute_errors) {
-
-        log("Getting windowed domain.");
-        windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
-        log("Getting non-windowed domain.");
-        error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
-
-        log("Getting model plot on windowed.");
-        windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
-        log("Getting KDE plot on windowed.");
-        windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on lesser elements.");
-        less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
-        log("Getting weighted KDE plot.");
-        weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
-        log("Getting sgm KDE plot.");
-        enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
-        log("Getting rare KDE plot.");
-        rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
-
-        error_domain_length = error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-        windowed_error_domain_length =
-            windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
-
-        //AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
-        AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
-        //AddSupErrorsToSum(errors_calculators, sup_errors_sums);
-        //AddModErrorsToSum(errors_calculators, mod_errors_sums);
-
-        for(size_t i = 0; i < errors_calculators.size(); ++i){
-          //*l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
-          *l2_errors[i] = l2_errors_sums[i] / numberOfErrorCalculations;
-          //*sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
-          //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
-        }
-
-        ++numberOfErrorCalculations;
-      }
 
       // ============= LEFT SIDE UPDATE ================ //
 
       KPSSTextLabel.setText("KPSS       = " + FormatNumberForDisplay(
           DESDAAlgorithm.getStationarityTestValue()));
 
-      DrawPlots(&DESDAAlgorithm);
-
-      for(const auto &label : plot_labels_){
-        label->updateText();
+      if(step_number_ >= drawing_start_step) {
+        DrawPlots(&DESDAAlgorithm);
       }
 
+      for(const auto &label : plot_labels_) {
+        label->updateText();
+      }
 
       for(auto i = 0; i < date_labels.size(); ++i) {
         date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
@@ -1567,9 +1563,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
-
-      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
       imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }

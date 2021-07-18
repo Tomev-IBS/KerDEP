@@ -533,7 +533,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
       if(x > domainMinValue && x < domainMaxValue) {
         std::vector<double> pt = {x};
         kernelPrognosisDerivativeValues.push_back(
-            _estimatorDerivative->getValue(&pt) * 10000 // For visibility
+            _estimatorDerivative->getValue(&pt) * 1000 // For visibility
                                                  );
       }
       else {

@@ -16,13 +16,17 @@ QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
   uiFont.setStyleHint(QFont::TypeWriter);
   uiFont.setPointSize(16);
 
-  _coloredColumn.setColor(Qt::red);
+  colored_column_text_.setColor(Qt::red);
   _leftColumnText.setColor(Qt::black);
+  right_column_.setColor(Qt::black);
+
+  _leftColumnText.setFont(uiFont);
+  colored_column_text_.setFont(uiFont);
+  right_column_.setFont(uiFont);
 
   _leftColumnText.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
-  _coloredColumn.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
-  _leftColumnText.setFont(uiFont);
-  _coloredColumn.setFont(uiFont);
+  colored_column_text_.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
+  right_column_.setRenderFlags(Qt::AlignRight | Qt::AlignTop);
 
   // Set the constant strings.
   _imagesPeriodString = "iw   = " + QString::number(imagesPeriod) + "\n";
@@ -39,7 +43,8 @@ void QwtContourPlotUI::attach(QwtPlot *plot)
    * A method attaching both columns to the specified plot.
    */
   _leftColumnLabel.attach(plot);
-  _coloredColumnLabel.attach(plot);
+  colored_column_label_.attach(plot);
+  right_column_label_.attach(plot);
 }
 
 void QwtContourPlotUI::updateTexts()
@@ -49,6 +54,7 @@ void QwtContourPlotUI::updateTexts()
    */
   updateLeftColumnText();
   updateRightColumnText();
+  updateColoredColumnText();
 }
 
 void QwtContourPlotUI::updateLeftColumnText()
@@ -105,11 +111,11 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
 
   if(should_print_errors){
-    leftColumnText += "\n\n\n\n\n\n\n\n\n\n\n";
+    leftColumnText += "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
     leftColumnText += "";
     leftColumnText += "estimated";
-    leftColumnText += "\n\n";
-    leftColumnText += "L^2      = " + formatNumberForDisplay(*_L2Error);
+    //leftColumnText += "\n\n";
+    //leftColumnText += "L^2      = " + formatNumberForDisplay(*_L2Error);
   }
 
   /*
@@ -124,7 +130,7 @@ void QwtContourPlotUI::updateLeftColumnText()
   _leftColumnLabel.setText(_leftColumnText);
 }
 
-void QwtContourPlotUI::updateRightColumnText()
+void QwtContourPlotUI::updateColoredColumnText()
 {
   /**
     * Method for updating right column texts. Right column holds
@@ -139,31 +145,31 @@ void QwtContourPlotUI::updateRightColumnText()
     * For now we're only using _n estimator.
     */
 
-  QString rightColumnText = "";
+  QString colored_column_text = "";
 
   if(should_print_errors){
-    rightColumnText = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntheoretical";
-    _coloredColumn.setText(rightColumnText);
-    _coloredColumnLabel.setText(_coloredColumn);
+    colored_column_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntheoretical";
+    colored_column_text_.setText(colored_column_text);
+    colored_column_label_.setText(colored_column_text_);
     return;
   }
 
   /*
-  rightColumnText += "L1   = " + formatNumberForDisplay(*_L1Error) + "\n";
-  rightColumnText += "L1a  = " + formatNumberForDisplay(*actual_l1_) + "\n";
-  rightColumnText += "\n";
-  rightColumnText += "L2   = " + formatNumberForDisplay(*_L2Error) + "\n";
-  rightColumnText += "L2a  = " + formatNumberForDisplay(*actual_l2_) + "\n";
-  rightColumnText += "\n";
-  rightColumnText += "sup  = " + formatNumberForDisplay(*_supError) + "\n";
-  rightColumnText += "supa = " + formatNumberForDisplay(*actual_sup_) + "\n";
-  rightColumnText += "\n";
-  rightColumnText += "mod  = " + formatNumberForDisplay(*_modError) + "\n";
-  rightColumnText += "moda = " + formatNumberForDisplay(*actual_mod_) + "\n";
+  colored_column_text += "L1   = " + formatNumberForDisplay(*_L1Error) + "\n";
+  colored_column_text += "L1a  = " + formatNumberForDisplay(*actual_l1_) + "\n";
+  colored_column_text += "\n";
+  colored_column_text += "L2   = " + formatNumberForDisplay(*_L2Error) + "\n";
+  colored_column_text += "L2a  = " + formatNumberForDisplay(*actual_l2_) + "\n";
+  colored_column_text += "\n";
+  colored_column_text += "sup  = " + formatNumberForDisplay(*_supError) + "\n";
+  colored_column_text += "supa = " + formatNumberForDisplay(*actual_sup_) + "\n";
+  colored_column_text += "\n";
+  colored_column_text += "mod  = " + formatNumberForDisplay(*_modError) + "\n";
+  colored_column_text += "moda = " + formatNumberForDisplay(*actual_mod_) + "\n";
    //*/
 
-  _coloredColumn.setText(rightColumnText);
-  _coloredColumnLabel.setText(_coloredColumn);
+  colored_column_text_.setText(colored_column_text);
+  colored_column_label_.setText(colored_column_text_);
 }
 
 QString QwtContourPlotUI::formatNumberForDisplay(const double& number)
@@ -188,4 +194,15 @@ QString QwtContourPlotUI::formatNumberForDisplay(const double& number)
 
 void QwtContourPlotUI::SetErrorsPrinting(const bool &should_print_errors) {
   this->should_print_errors = should_print_errors;
+}
+
+void QwtContourPlotUI::updateRightColumnText() {
+  QString right_column_text = "";
+
+  if(should_print_errors){
+    right_column_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nL2 = " + formatNumberForDisplay(*_L2Error);
+    right_column_.setText(right_column_text);
+    right_column_label_.setText(right_column_);
+    return;
+  }
 }
