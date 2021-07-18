@@ -1018,7 +1018,7 @@ void MainWindow::on_pushButton_clicked() {
   int drawing_start_step = 0;
 
   // Prepare image location.
-  QString expNum = "1607 (2D)";
+  QString expNum = "1660 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       "assumed input 2D, p2=" + p2 + ", sz196";
@@ -1045,7 +1045,7 @@ void MainWindow::on_pushButton_clicked() {
 
     // Error calculation
     //*
-    if(step_number_ >= 1 && should_compute_errors) {
+    if(step_number_ >= 1000 && should_compute_errors) {
       log("Error calculation started.");
       ++errorCalculationsNumber;
       error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
