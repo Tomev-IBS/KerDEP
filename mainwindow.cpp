@@ -1294,19 +1294,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  // QString expNum = "1629";
-  QString expNum = QString::number(1632 + seedString.toInt());
+  QString expNum = "1653";
   this->setWindowTitle("Experiment #" + expNum);
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
   //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
   //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
-  QString expDesc = "DESDA, assumed input, p_1=0.001, p_3=0, seed=" + seedString + ", sz002, draw_start="+ QString::number(drawing_start_step);+"";
+  QString expDesc = "DESDA, new assumed input, sz002";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  QString driveDir = "D:\\Test\\"; // Test
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Test
+  QString driveDir = "Y:\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
