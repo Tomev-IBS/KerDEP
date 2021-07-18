@@ -1253,9 +1253,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
-  std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
+  std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
-  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
   reader_.reset(new TextDataReader(data_path));
   bool compute_errors = false;
   //*/
@@ -1294,14 +1294,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString expNum = "1655";
+  QString expNum = "1657";
   this->setWindowTitle("Experiment #" + expNum);
 
   //QString expDesc = "DESDA, new assumed input, sz002";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
-  QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
+  //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
+  QString expDesc = "DESDA, Rio 2014 humidity, sz130";
   //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
@@ -1321,12 +1321,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString imageName = "";
 
-
   // Exps with days
   // Rio 2014 Experiment
-  //QDate startDate(2013, 10, 1);
+  QDate startDate(2013, 10, 1);
   // Metro Minneapolis 2017 Experiment
-  QDate startDate(2016, 10, 1);
+  //QDate startDate(2016, 10, 1);
   // Cracow 2020 Experiment
   //QDate startDate(2019, 10, 1);
 
@@ -1340,8 +1339,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                         //"Rio de Janeiro; 2014; temperature");
                         //"Cracow; 2020; temperature");
-                        "Minneapolis; 2017; temperature");
-                        //"Rio de Janeiro; 2014; humidity");
+                        //"Minneapolis; 2017; temperature");
+                        "Rio de Janeiro; 2014; humidity");
                         //"Cracow; 2020; humidity");
                         //"assumed input; 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
