@@ -86,14 +86,14 @@ class MainWindow : public QMainWindow {
     // Pens for 1d plot
     const QPen model_plot_pen_ = QPen(Qt::red);
     //const QPen windowed_plot_pen_ = QPen(QColor(255, 220, 0));
-    const QPen windowed_plot_pen_ = QPen(QColor(155, 135, 11));
+    const QPen windowed_plot_pen_ = QPen(QColor(255, 195, 0));
     const QPen kde_plot_pen_ = QPen(QColor(0, 255, 0));
     const QPen weighted_plot_pen_ = QPen(QColor(0, 255, 255));
     const QPen desda_kde_plot_pen_ = QPen(QColor(0, 0, 255));
     const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::black, 2);
 
-    const QPen derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
-    const QPen standardized_derivative_plot_pen_ = QPen(QColor(115, 65, 45)); // Yellow
+    const QPen derivative_plot_pen_ = QPen(QColor(185, 160, 130)); // Orange
+    const QPen standardized_derivative_plot_pen_ = QPen(QColor(110, 40, 0)); // Yellow
 
     void FillErrorIndicesColors();
 
