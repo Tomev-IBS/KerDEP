@@ -920,9 +920,22 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  //QDate data_start_date(2013, 10, 1); // Rio
+  //QDate data_start_date(2016, 10, 1); // Metro
+  QDate data_start_date(2019, 10, 1); // Cracow
+  QTime data_start_time(0, 0, 0);
+  QDateTime data_date_time(data_start_date, data_start_time);
+
+  // p2 = 0.75p1 lub p2=0
+  QString p2 = "0";
+
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
+  QString experiment_description = "Cracow; 2020; temperature-humidity";
+  //QString experiment_description = "assumed input; 2D; p2=" + p2;
+
   //*
-  std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   reader_.reset(new TextDataReader(data_path, 2));
 
@@ -987,19 +1000,6 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  QDate data_start_date(2013, 10, 1); // Rio
-  //QDate data_start_date(2016, 10, 1); // Metro
-  //QDate data_start_date(2019, 10, 1); // Cracow
-  QTime data_start_time(0, 0, 0);
-  QDateTime data_date_time(data_start_date, data_start_time);
-
-  // p2 = 0.75p1 lub p2=0
-  QString p2 = "0";
-
-  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
-  //QString experiment_description = "Cracow; 2020; temperature-humidity";
-  //QString experiment_description = "assumed input; 2D; p2=" + p2;
-
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
@@ -1019,12 +1019,12 @@ void MainWindow::on_pushButton_clicked() {
   int drawing_start_step = 0;
 
   // Prepare image location.
-  QString expNum = "1664 (2D)";
+  QString expNum = "1665 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       //"assumed input 2D, p2=" + p2 + ", sz196";
-      "Rio 2014 Temp-Hum, s475";
-      //"Cracow 2020 Temp-Hum, sz129";
+      //"Rio 2014 Temp-Hum, s475";
+      "Cracow 2020 Temp-Hum, sz477";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
