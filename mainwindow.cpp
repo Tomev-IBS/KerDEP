@@ -862,8 +862,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 
 void MainWindow::on_pushButton_start_clicked() {
   //Run1DExperimentWithDESDA();
-  //Run1DExperimentWithClusterKernels();
-  Run1DExperimentWithWDE();
+  Run1DExperimentWithClusterKernels();
+  //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
 }
 
@@ -1600,10 +1600,10 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  QString expNum = "1386 (CK)";
+  QString expNum = "1668 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels)
-                    + ", mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
+  QString expDesc = "assumed input, m = " + QString::number(number_of_cluster_kernels)
+                    + ",sz422, mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
@@ -1616,16 +1616,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   ClearPlot();
   ResizePlot();
 
-  // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
 
   // Setting up the labels
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
@@ -1675,13 +1666,16 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   horizontalOffset = 0.85;
   verticalOffset = 0.01;
 
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+
+  /*
   plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
   verticalOffset += verticalStep;
   plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+
   verticalOffset += verticalStep;
   plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
   verticalOffset += verticalStep;
@@ -1698,6 +1692,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
+  */
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -1742,51 +1737,51 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
+    // Error calculations
+    if(step_number_ >= 1000) {
+      log("Getting error domain.");
+      error_domain = CKAlgorithm.GetErrorDomain();
+
+      log("Getting model plot on windowed.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on windowed.");
+      kde_values = CKAlgorithm.GetKDEValuesOnDomain(error_domain);
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+      log("Calculating domain length.");
+
+      error_domain_length =
+          error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+      log("Calculating errors.");
+      l1_w_ = errors_calculator.CalculateL1Error();
+      l2_w_ = errors_calculator.CalculateL2Error();
+      sup_w_ = errors_calculator.CalculateSupError();
+      mod_w_ = errors_calculator.CalculateModError();
+      l1_sum += l1_w_;
+      l2_sum += l2_w_;
+      sup_sum += sup_w_;
+      mod_sum += mod_w_;
+
+      ++numberOfErrorCalculations;
+      log("Errors calculated.");
+    }
+
     if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
        || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
-
-      // Error calculations
-      if(step_number_ >= 1) {
-
-        log("Getting error domain.");
-        error_domain = CKAlgorithm.GetErrorDomain();
-
-        log("Getting model plot on windowed.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on windowed.");
-        kde_values = CKAlgorithm.GetKDEValuesOnDomain(error_domain);
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-
-        log("Calculating domain length.");
-
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-
-        log("Calculating errors.");
-        l1_w_ = errors_calculator.CalculateL1Error();
-        l2_w_ = errors_calculator.CalculateL2Error();
-        sup_w_ = errors_calculator.CalculateSupError();
-        mod_w_ = errors_calculator.CalculateModError();
-        l1_sum += l1_w_;
-        l2_sum += l2_w_;
-        sup_sum += sup_w_;
-        mod_sum += mod_w_;
-
-        ++numberOfErrorCalculations;
-        log("Errors calculated.");
-      }
-
       // ============ SUMS =========== //
 
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
       L2TextLabel
           .setText("L2   =" + FormatNumberForDisplay(
               l2_sum / numberOfErrorCalculations));
+      /*
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
+
       supTextLabel
           .setText("sup  =" + FormatNumberForDisplay(
               sup_sum / numberOfErrorCalculations));
@@ -1802,6 +1797,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
           .setText("supa =" + FormatNumberForDisplay(sup_w_));
       modaTextLabel
           .setText("moda =" + FormatNumberForDisplay(mod_w_));
+      */
 
       DrawPlots(&CKAlgorithm);
 
@@ -1815,7 +1811,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      imageName = dirPath + QString::number(step_number_) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
