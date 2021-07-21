@@ -2183,16 +2183,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   ClearPlot();
   ResizePlot();
 
-  // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -2355,51 +2346,50 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
+    // Error calculations
+    if(step_number_ >= 1000) {
+
+      log("Getting error domain.");
+      error_domain = somke_algorithm.divergence_domain_;
+
+      log("Getting model plot on windowed.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on windowed.");
+      somke_values = {};
+      for(auto pt : error_domain) {
+        somke_values.push_back(somke_algorithm.GetValue(pt));
+      }
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+      log("Calculating domain length.");
+
+      error_domain_length =
+          error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+      log("Calculating errors.");
+      l1_w_ = errors_calculator.CalculateL1Error();
+      l2_w_ = errors_calculator.CalculateL2Error();
+      sup_w_ = errors_calculator.CalculateSupError();
+      mod_w_ = errors_calculator.CalculateModError();
+      l1_sum += l1_w_;
+      l2_sum += l2_w_;
+      sup_sum += sup_w_;
+      mod_sum += mod_w_;
+
+      ++numberOfErrorCalculations;
+      log("Errors calculated.");
+    }
+
     if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
-
-      // Error calculations
-      if(step_number_ >= 1000) {
-
-        log("Getting error domain.");
-        error_domain = somke_algorithm.divergence_domain_;
-
-        log("Getting model plot on windowed.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on windowed.");
-        somke_values = {};
-        for(auto pt : error_domain) {
-          somke_values.push_back(somke_algorithm.GetValue(pt));
-        }
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-
-        log("Calculating domain length.");
-
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-
-        log("Calculating errors.");
-        l1_w_ = errors_calculator.CalculateL1Error();
-        l2_w_ = errors_calculator.CalculateL2Error();
-        sup_w_ = errors_calculator.CalculateSupError();
-        mod_w_ = errors_calculator.CalculateModError();
-        l1_sum += l1_w_;
-        l2_sum += l2_w_;
-        sup_sum += sup_w_;
-        mod_sum += mod_w_;
-
-        ++numberOfErrorCalculations;
-        log("Errors calculated.");
-      }
 
       // ============ SUMS =========== //
 
       L2TextLabel
           .setText("L2   =" + FormatNumberForDisplay(
               l2_sum / numberOfErrorCalculations));
-
       /*
       L1TextLabel
           .setText("L1   =" + FormatNumberForDisplay(
