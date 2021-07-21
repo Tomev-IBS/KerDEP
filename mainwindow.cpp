@@ -863,8 +863,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 void MainWindow::on_pushButton_start_clicked() {
   //Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
-  //Run1DExperimentWithWDE();
-  Run1DExperimentWithSOMKE();
+  Run1DExperimentWithWDE();
+  //Run1DExperimentWithSOMKE();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -1878,18 +1878,18 @@ void MainWindow::Run1DExperimentWithWDE() {
   unsigned int current_coefficients_number = 0; // #coef
   int number_of_elements_per_block = 1000; // b
 
-  QString expNum = "1491 TEST (Thresholded Weighted Window WDE)";
+  QString expNum = "1667 (Thresholded Weighted Window WDE)";
   //QString expNum = "THRESHOLDED_WDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, soft threshold, b=" + QString::number(number_of_elements_per_block) +
+  QString expDesc = "assumed input, sz soft threshold, b=" + QString::number(number_of_elements_per_block) +
                     ", omega=" + QString::number(weight_modifier) +
                     ", M=" + QString::number(maximal_number_of_coefficients);
   screen_generation_frequency_ = 10;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1897,15 +1897,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   ResizePlot();
 
   // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
@@ -1959,14 +1951,17 @@ void MainWindow::Run1DExperimentWithWDE() {
   horizontalOffset = 0.87;
   verticalOffset = 0.01;
 
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+  verticalOffset += verticalStep;
+
+  /*
   plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
   verticalOffset += verticalStep;
   plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
+
   plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
@@ -1982,6 +1977,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
+   */
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -2025,50 +2021,55 @@ void MainWindow::Run1DExperimentWithWDE() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
+    // Error calculations
+    if(step_number_ >= 1000) {
+
+      log("Getting error domain.");
+      error_domain = WDE_Algorithm.GetErrorDomain();
+
+      log("Getting model plot on windowed.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on windowed.");
+      wde_values = WDE_Algorithm.GetEstimatorValuesOnDomain(error_domain);
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+      log("Calculating domain length.");
+
+      error_domain_length =
+          error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+      log("Calculating errors.");
+      l2_w_ = errors_calculator.CalculateL2Error();
+      l2_sum += l2_w_;
+
+      /*
+      l1_w_ = errors_calculator.CalculateL1Error();
+      sup_w_ = errors_calculator.CalculateSupError();
+      mod_w_ = errors_calculator.CalculateModError();
+      l1_sum += l1_w_;
+      sup_sum += sup_w_;
+      mod_sum += mod_w_;
+      */
+
+      ++numberOfErrorCalculations;
+      log("Errors calculated.");
+    }
+
     if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
-      // Error calculations
-      if(step_number_ >= 1000) {
-
-        log("Getting error domain.");
-        error_domain = WDE_Algorithm.GetErrorDomain();
-
-        log("Getting model plot on windowed.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on windowed.");
-        wde_values = WDE_Algorithm.GetEstimatorValuesOnDomain(error_domain);
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-
-        log("Calculating domain length.");
-
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-
-        log("Calculating errors.");
-        l1_w_ = errors_calculator.CalculateL1Error();
-        l2_w_ = errors_calculator.CalculateL2Error();
-        sup_w_ = errors_calculator.CalculateSupError();
-        mod_w_ = errors_calculator.CalculateModError();
-        l1_sum += l1_w_;
-        l2_sum += l2_w_;
-        sup_sum += sup_w_;
-        mod_sum += mod_w_;
-
-        ++numberOfErrorCalculations;
-        log("Errors calculated.");
-      }
-
-      // ============ SUMS =========== //
-
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
       L2TextLabel
           .setText("L2   =" + FormatNumberForDisplay(
               l2_sum / numberOfErrorCalculations));
+
+
+      // ============ SUMS =========== //
+      /*
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
       supTextLabel
           .setText("sup  =" + FormatNumberForDisplay(
               sup_sum / numberOfErrorCalculations));
@@ -2084,6 +2085,7 @@ void MainWindow::Run1DExperimentWithWDE() {
           .setText("supa =" + FormatNumberForDisplay(sup_w_));
       modaTextLabel
           .setText("moda =" + FormatNumberForDisplay(mod_w_));
+      */
 
       current_coefficients_number = WDE_Algorithm.GetCurrentCoefficientsNumber();
 
@@ -2096,7 +2098,7 @@ void MainWindow::Run1DExperimentWithWDE() {
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      imageName = dirPath + QString::number(step_number_) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
@@ -2420,7 +2422,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      imageName = dirPath + QString::number(step_number_) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
   }
