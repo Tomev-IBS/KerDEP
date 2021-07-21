@@ -861,10 +861,10 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
-  Run1DExperimentWithDESDA();
+  //Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
-  //Run1DExperimentWithSOMKE();
+  Run1DExperimentWithSOMKE();
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -2113,7 +2113,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   // Log that application started generating KDE
   // Standard seed was 5625.
-  log("KDE animation with WDE started.");
+  log("KDE animation with SOMKE started.");
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
@@ -2164,9 +2164,9 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   double tau2 = 1000.0;
   double eta0 = 3.0;
 
-  QString expNum = "1497 (SOMKE)";
+  QString expNum = "1666 (SOMKE)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, fixed threshold, original training"
+  QString expDesc = "assumed input, fixed threshold, original training, sz002"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
@@ -2175,8 +2175,8 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
-  //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -2283,14 +2283,18 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   horizontalOffset = 0.87;
   verticalOffset = 0.01;
 
+  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
+  verticalOffset += verticalStep;
+
+  /*
+
   plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
   verticalOffset += verticalStep;
   plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
 
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
+
   plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
@@ -2306,6 +2310,8 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
   verticalOffset += verticalStep;
   verticalOffset += verticalStep;
+
+   */
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -2390,12 +2396,14 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
       // ============ SUMS =========== //
 
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
       L2TextLabel
           .setText("L2   =" + FormatNumberForDisplay(
               l2_sum / numberOfErrorCalculations));
+
+      /*
+      L1TextLabel
+          .setText("L1   =" + FormatNumberForDisplay(
+              l1_sum / numberOfErrorCalculations));
       supTextLabel
           .setText("sup  =" + FormatNumberForDisplay(
               sup_sum / numberOfErrorCalculations));
@@ -2411,6 +2419,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
           .setText("supa =" + FormatNumberForDisplay(sup_w_));
       modaTextLabel
           .setText("moda =" + FormatNumberForDisplay(mod_w_));
+      */
 
       DrawPlots(&somke_algorithm);
 

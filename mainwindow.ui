@@ -330,7 +330,7 @@
               <number>10</number>
              </property>
              <property name="value">
-              <number>2</number>
+              <number>1</number>
              </property>
             </widget>
            </item>
@@ -678,7 +678,7 @@
             <string>Estimated Plot (Red)</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
