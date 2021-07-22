@@ -1725,7 +1725,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   double sup_sum = 0;
   double mod_sum = 0;
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
@@ -1769,8 +1769,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       log("Errors calculated.");
     }
 
-    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
-       || additionalScreensSteps.contains(step_number_)) {
+    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
       // ============ SUMS =========== //
 
@@ -1877,7 +1876,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   QString expNum = "1667 (Thresholded Weighted Window WDE)";
   //QString expNum = "THRESHOLDED_WDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "assumed input, sz soft threshold, b=" + QString::number(number_of_elements_per_block) +
+  QString expDesc = "assumed input, soft threshold, b=" + QString::number(number_of_elements_per_block) +
                     ", omega=" + QString::number(weight_modifier) +
                     ", M=" + QString::number(maximal_number_of_coefficients);
   screen_generation_frequency_ = 10;
@@ -1982,7 +1981,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 0;
-  QVector<int> additionalScreensSteps = {1};
+  QVector<int> additionalScreensSteps = {};
 
   /*
   for(int i = 990; i < 1011; ++i){
@@ -2006,7 +2005,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   double sup_sum = 0;
   double mod_sum = 0;
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
@@ -2309,7 +2308,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 0;
-  QVector<int> additionalScreensSteps = {1};
+  QVector<int> additionalScreensSteps = {};
 
   /*
   for(int i = 990; i < 1011; ++i){
@@ -2333,7 +2332,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   double sup_sum = 0;
   double mod_sum = 0;
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
