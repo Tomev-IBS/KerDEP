@@ -2,8 +2,6 @@
 
 #include <cmath>
 
-#include <QDebug>
-
 kernelDensityEstimator::kernelDensityEstimator(
     vector<std::shared_ptr<vector<double>>>* samples,
     vector<double>* smoothingParameters,
@@ -61,7 +59,7 @@ double kernelDensityEstimator::getValue(vector<double>* x)
     if(x->size() == 0)
     {
         //qDebug() << "Argument is empty.";
-        return -1.0;
+        return -2.0;
     }
 
     return getProductKernelValue(x);
@@ -103,7 +101,7 @@ double kernelDensityEstimator::getProductKernelValue(vector<double> *x)
     // Check if values vector dimension is same size as kernels dimension
     if(x->size() != kernels.size())
     {
-        return -1.0;
+        return -4.0;
     }
 
     double result = getProductValuesFromClusters(x);
@@ -112,10 +110,6 @@ double kernelDensityEstimator::getProductKernelValue(vector<double> *x)
         result /= smoothingParameter;
 
     result /= weight;
-
-    if(std::isinf(result)){
-      qDebug() << *x << ", weight = " << weight << ",h = " << smoothingParameters;
-    }
 
     return result;
 }
@@ -158,7 +152,7 @@ int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c,
   // This method assumes, that clustered sample has numerical values only
   smpl->clear();
 
-  if(c.get()->getObject().get() == nullptr) return -1;
+  if(c.get()->getObject().get() == nullptr) return -3;
 
   std::shared_ptr<sample> obj = c->getObject();
 

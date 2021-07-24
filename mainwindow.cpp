@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <Benchmarking/errorsCalculator.h>
 #include <UI/plotLabelDoubleDataPreparator.h>
+#include "KDE/pluginsmoothingparametercounter.h"
 
 #include "kerDepCcWde.h"
 #include "kerDepWindowedWde.h"
@@ -534,6 +535,7 @@ void MainWindow::FillDomain(QVector<std::shared_ptr<point>> *domain, std::shared
 distribution *MainWindow::GenerateTargetDistribution(
     vector<std::shared_ptr<vector<double>>> *means,
     vector<std::shared_ptr<vector<double>>> *stDevs) {
+
   int seed = ui->lineEdit_seed->text().toInt();
   vector<double> contributions;
   vector<std::shared_ptr<distribution>> elementalDistributions;
@@ -861,8 +863,9 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
+  RunAccuracyExperiment();
   //Run1DExperimentWithDESDA();
-  Run1DExperimentWithClusterKernels();
+  //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
 }
@@ -2560,6 +2563,207 @@ void MainWindow::AddErrorLabelToPlot(const QString &label, double *value) {
                                                      std::make_shared<plotLabelDoubleDataPreparator>(6)));
 
   label_vertical_offset_ += label_vertical_offset_step_;
+}
+
+void MainWindow::RunAccuracyExperiment() {
+
+  auto max_seeds = 1000;
+  //vector<double> samples_numbers = {5, 10, 100, 500, 1000}; // Test
+  vector<double> samples_numbers = {50, 100, 1000, 5000, 10000};
+
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+  FillMeans(&means_);
+  FillStandardDeviations(&standard_deviations_);
+
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
+
+  vector<double> l1_sums = {0, 0, 0, 0, 0};
+  vector<double> l2_sums = {0, 0, 0, 0, 0};
+  vector<double> sup_sums = {0, 0, 0, 0, 0};
+
+  // Seed = 0 is the same as Seed = 0
+  for(auto seed = 1; seed <= max_seeds; ++seed){
+
+    int samples_number_index = 0;
+
+    srand(seed);
+    ui->lineEdit_seed->setText(QString::number(seed));
+
+    target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+    std::shared_ptr<kernelDensityEstimator>
+        estimator(GenerateKernelDensityEstimator(dimensionsNumber));
+    estimator->_shouldConsiderWeights = false;
+
+    std::shared_ptr<distribution>
+        targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+
+    parser_.reset(new distributionDataParser(&attributes_data_));
+
+    reader_.reset(
+        new progressiveDistributionDataReader(targetDistribution.get(),
+                                              0,
+                                              0,  // Delay
+                                              new normalDistribution(seed, &alternativeDistributionMean,
+                                                                     &alternativeDistributionStDevs, 55))
+                 );
+
+    reader_->gatherAttributesData(&attributes_data_);
+    parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+    reservoirSamplingAlgorithm *algorithm =
+        GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
+
+    objects_.clear();
+    stored_medoids_.clear();
+
+    double min_val = NAN;
+    double max_val = NAN;
+
+    double mean = 0;
+    QVector<double> samples = {};
+
+    for(double samples_number : samples_numbers) {
+
+      while(stored_medoids_.size() < samples_number) {
+        auto sample_number = stored_medoids_.size() + 1;
+        algorithm->performSingleStep(&objects_, sample_number);
+
+        std::shared_ptr<cluster> newCluster =
+            std::shared_ptr<cluster>(new cluster(sample_number, objects_.back()));
+        newCluster->setTimestamp(sample_number);
+
+        stored_medoids_.push_back(newCluster);
+
+        double val = stod(objects_[sample_number - 1]->attributesValues["Val0"]);
+
+        if(isnan(min_val)){
+          min_val = max_val = val;
+        }
+
+        if(val > max_val) {
+          max_val = val;
+        }
+
+        if(val < min_val) {
+          min_val = val;
+        }
+
+        samples.push_back(val);
+        mean += val;
+      }
+
+      double std = 0;
+      mean /= samples_number;
+
+      for(auto val : samples) {
+        std = (val - mean) * (val - mean);
+      }
+
+      std /= samples_number;
+      std = sqrt(std);
+
+      pluginSmoothingParameterCounter counter(&samples, 3);
+      auto h = counter.countSmoothingParameterValue();
+
+      estimator->setSmoothingParameters({h});
+      estimator->setClusters(stored_medoids_);
+
+      double domain_length = max_val - min_val;
+      std::vector<std::vector<double>> error_domain = {};
+      double stepSize = domain_length / (1000);
+
+      for(auto val = min_val; val <= max_val; val += stepSize) {
+        error_domain.push_back({val});
+      }
+
+      std::vector<double> model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      std::vector<double> kde_values = {};
+
+      for(auto pt : error_domain) {
+        kde_values.push_back(estimator->getValue(&pt));
+      }
+
+      std::vector<double> x = {0.0};
+      qDebug() << "\tEstimator check: KDE(0) = " << estimator->getValue(&x);
+      qDebug() << "\t L1: " << l1_sums;
+      qDebug() << "\t L1: " << l2_sums;
+      qDebug() << "\t L1: " << sup_sums;
+
+      ErrorsCalculator errors_calculator(&model_values, &kde_values, &error_domain, &domain_length);
+
+      l1_sums[samples_number_index] += errors_calculator.CalculateL1Error();
+      l2_sums[samples_number_index] += errors_calculator.CalculateL2Error();
+      sup_sums[samples_number_index] += errors_calculator.CalculateSupError();
+
+      ++samples_number_index;
+    }
+
+    qDebug() << "Saving to file.";
+
+    std::ofstream outfile;
+
+    outfile.open("results.txt");
+
+    outfile << "Seed " << seed << "\n\tl1_sums = [";
+
+    for(auto val : l1_sums){
+      outfile << val << ", ";
+    }
+
+    outfile << "]\n\tl2_sums = [";
+
+    for(auto val : l2_sums){
+      outfile << val << ", ";
+    }
+
+    outfile << "]\n\tSup = [";
+
+    for(auto val : sup_sums){
+      outfile << val << ", ";
+    }
+
+    outfile << "]";
+
+    outfile.close();
+  }
+
+  std::ofstream outfile;
+
+  // Average errors
+  for(auto i = 0; i < samples_numbers.size(); ++i){
+    l1_sums[i] /= max_seeds;
+    l2_sums[i] /= max_seeds;
+    sup_sums[i] /= max_seeds;
+  }
+
+  outfile.open("results.txt"); // append instead of overwrite
+
+  outfile << "Results\n\tl1_sums = [";
+
+  for(auto val : l1_sums){
+    outfile << val << ", ";
+  }
+
+  outfile << "]\n\tl2_sums = [";
+
+  for(auto val : l2_sums){
+    outfile << val << ", ";
+  }
+
+  outfile << "]\n\tSup = [";
+
+  for(auto val : sup_sums){
+    outfile << val << ", ";
+  }
+
+  outfile << "]";
+
+  outfile.close();
+
+  log("Accuracy experiment finished.");
 }
 
 
