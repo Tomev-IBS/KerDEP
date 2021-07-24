@@ -186,6 +186,7 @@ class MainWindow : public QMainWindow {
     void Run1DExperimentWithClusterKernels();
     void Run1DExperimentWithWDE();
     void Run1DExperimentWithSOMKE();
+    void RunAccuracyExperiment();
     void on_spinBox_dimensionsNumber_editingFinished();
     void on_pushButton_addTargetFunction_clicked();
     void on_pushButton_removeTargetFunction_clicked();
