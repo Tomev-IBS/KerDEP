@@ -106,6 +106,9 @@ class DESDA
     std::vector<double> _windowedSmoothingParametersVector;
     double _smoothingParameterEnhancer;
 
+    // Prognosis error
+    double e_ = 0;
+
   protected:
 
     int _stepNumber = 0;
@@ -146,6 +149,7 @@ class DESDA
     void updateMaxAbsDerivativeVector();
     double getCurrentMaxAbsDerivativeValue();
     void updateMaxAbsDerivativeInCurrentStep();
+    double ComputePrognosisError();
 
     // Domain reduction
     std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);
