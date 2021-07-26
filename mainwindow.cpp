@@ -863,8 +863,8 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
-  RunAccuracyExperiment();
-  //Run1DExperimentWithDESDA();
+  //RunAccuracyExperiment();
+  Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
@@ -1200,6 +1200,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("KDE animation started.");
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
+  log("Experiment started.");
+
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(180);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
 
   step_number_ = 0;
   screen_generation_frequency_ = 10;
@@ -1228,7 +1235,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1241,7 +1248,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
 
   // Text data reader
-  //*
+  /*
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
@@ -1285,15 +1292,15 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString expNum = "1658";
+  QString expNum = "1671";
   this->setWindowTitle("Experiment #" + expNum);
 
-  //QString expDesc = "DESDA, new assumed input, sz002";
+  QString expDesc = "DESDA, new assumed input, sz002";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
   //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
-  QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
+  //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
@@ -1332,8 +1339,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
                         //"Cracow; 2020; temperature");
                         //"Minneapolis; 2017; temperature");
                         //"Rio de Janeiro; 2014; humidity");
-                        "Cracow; 2020; humidity");
-                        //"assumed input; 1D");
+                        //"Cracow; 2020; humidity");
+                        "assumed input; 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
@@ -1368,8 +1375,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   AddDoubleLabelToPlot("r          = ", &(DESDAAlgorithm._r));
   AddDoubleLabelToPlot("q          = ", &(DESDAAlgorithm._quantileEstimator));
   AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
+  label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
-  label_vertical_offset_ += 5 * label_vertical_offset_step_;
+  AddDoubleLabelToPlot("e          = ", &(DESDAAlgorithm.e_));
+  label_vertical_offset_ += 3 * label_vertical_offset_step_;
 
   AddColorsLegendToPlot();
 

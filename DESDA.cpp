@@ -101,6 +101,11 @@ double average(std::vector<double> values) {
 }
 
 void DESDA::performStep() {
+
+  // e computation
+  e_ = ComputePrognosisError();
+  // end of e computation
+
   // Making place for new cluster
   while(_clustersForWindowed.size() >= _maxM) {
     _clustersForWindowed.pop_back();
@@ -191,6 +196,7 @@ void DESDA::performStep() {
   _r = 0.01 + 0.09 * _sgmKPSS;
 
   ++_stepNumber;
+
 }
 
 void DESDA::updateWeights() {
@@ -972,5 +978,28 @@ double DESDA::getMaxAbsAOnLastKPSSMSteps() {
     return *(std::max_element(_maxAbsAs.begin(), _maxAbsAs.end()));
 
   return *(std::max_element(_maxAbsAs.begin() + _maxAbsAs.size() - _kpssM, _maxAbsAs.end()));
+}
+
+double DESDA::ComputePrognosisError() {
+
+  if(_stepNumber == 1){
+    return 0;
+  }
+
+  double sum = 0;
+  double sum_of_modules = 0;
+
+  int number_of_clusters = std::min(int(_clusters->size()), _minM - 1);
+
+  for(int i = 0; i < number_of_clusters; ++i){
+    sum_of_modules += fabs((*_clusters)[i]->getLastPrediction() - (*_clusters)[i]->_currentKDEValue);
+    sum += (*_clusters)[i]->getLastPrediction() - (*_clusters)[i]->_currentKDEValue;
+  }
+
+  if(sum == 0 || sum_of_modules == 0){
+    return 0;
+  }
+
+  return fabs(sum) / sum_of_modules;
 }
 
