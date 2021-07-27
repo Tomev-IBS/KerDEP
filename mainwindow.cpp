@@ -864,6 +864,13 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 
 void MainWindow::on_pushButton_start_clicked() {
 
+  log("Start pushed!");
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(60);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
   //RunAccuracyExperiment();
   Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
@@ -1202,12 +1209,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
   log("Experiment started.");
-
-  // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
-  while (QTime::currentTime() < dieTime) {
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-  }
 
   step_number_ = 0;
   screen_generation_frequency_ = 10;
