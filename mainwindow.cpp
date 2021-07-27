@@ -1204,7 +1204,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1275,8 +1275,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   clusters_ = &stored_medoids_;
 
-  weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters_, 0);
-
   derivative_estimator_->_shouldConsiderWeights = false;
 
   int pluginRank = 3;
@@ -1293,7 +1291,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString expNum = "1672";
+  QString expNum = "1672-TST";
   this->setWindowTitle("Experiment #" + expNum);
 
   QString expDesc = "DESDA, new assumed input, sz002";

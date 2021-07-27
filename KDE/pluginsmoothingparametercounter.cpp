@@ -5,7 +5,8 @@
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(){}
 
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(
-    QVector<qreal> *samples, int rank) : samples(samples), rank(rank){}
+    QVector<qreal> *samples, int rank, QVector<qreal> *weights) : samples(samples), rank(rank), weights(weights)
+{}
 
 double pluginSmoothingParameterCounter::countSmoothingParameterValue()
 {
@@ -98,16 +99,18 @@ qreal pluginSmoothingParameterCounter::countCapitalC(int xsi, qreal smoothingPar
     }
 
     qreal C = 0.0;
+    double weights_sum = 0;
 
-    foreach(qreal xi, *samples)
-    {
-        foreach(qreal xj, *samples)
-        {
-            C += (this->*xsithKDerivative)((xi - xj)/smoothingParameter);
-        }
+    for(int i = 0; i < samples->size(); ++i){
+      qreal xi = samples->at(i);
+      for(int j = 0; j < samples->size(); ++j){
+        qreal xj = samples->at(j);
+        C += (this->*xsithKDerivative)((xi - xj)/smoothingParameter) * weights->at(j) * weights->at(i);
+      }
+      weights_sum += weights->at(i);
     }
 
-    C /= qPow(samples->size(), 2);
+    C /= qPow(weights_sum, 2);
     C /= qPow(smoothingParameter, xsi+1);
 
     return C;
@@ -165,10 +168,10 @@ qreal pluginSmoothingParameterCounter::countStandardDeviationEstimator()
 
     qreal substractor = 0.0, V = 0.0;
 
-    foreach(qreal sample, *samples)
+    for(int i = 0; i < samples->size(); ++i)
     {
-        V += qPow(sample, 2.0);
-        substractor += sample;
+        V += qPow(samples->at(i) * weights->at(i), 2.0);
+        substractor += samples->at(i) * weights->at(i);
     }
 
     V /= (samples->size() - 1);

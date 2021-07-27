@@ -164,10 +164,10 @@ void DESDA::performStep() {
   // Calculate smoothing parameterers
   _windowedSmoothingParametersVector = calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
-  _smoothingParametersVector = calculateH(currentClusters);
 
   // Update weights
   updateWeights();
+  _smoothingParametersVector = calculateH(currentClusters);
 
   qDebug() << "Reservoir size in step " << _stepNumber
            << " is: " << currentClusters.size() << ".";
@@ -498,13 +498,22 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
 
   // Plugin method.
   QVector<qreal> samples = {};
+  QVector<qreal> weights = {};
 
   for(auto attribute: *_samplingAlgorithm->getAttributesList()) {
     samples.clear();
     for(auto c: clusters) {
+
       samples.append(std::stod(c->getRepresentative()->attributesValues[attribute]));
+
+      if(compute_weighted_plugin){
+        weights.append(c->getCWeight());
+      } else {
+        weights.append(1);
+      }
     }
-    pluginSmoothingParameterCounter counter(&samples, _pluginRank);
+
+    pluginSmoothingParameterCounter counter(&samples, _pluginRank, &weights);
     smoothingParameters.push_back(counter.countSmoothingParameterValue()
                                   * _smoothingParameterEnhancer);
   }

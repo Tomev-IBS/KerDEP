@@ -109,6 +109,9 @@ class DESDA
     // Prognosis error
     double e_ = 0;
 
+    // Weighted C parameter
+    bool compute_weighted_plugin = true;
+
   protected:
 
     int _stepNumber = 0;

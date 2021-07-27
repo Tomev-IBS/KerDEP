@@ -13,7 +13,7 @@ class pluginSmoothingParameterCounter : public smoothingParameterCounter
 {
 public:
   pluginSmoothingParameterCounter();
-  pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank);
+  pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank, QVector<qreal> *weights = nullptr);
 
   double countSmoothingParameterValue();
 
@@ -28,6 +28,7 @@ public:
 private:
 
   QVector<qreal>* samples;
+  QVector<qreal>* weights;
 
   int rank;
 
