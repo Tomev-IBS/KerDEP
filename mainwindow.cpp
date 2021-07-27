@@ -1237,12 +1237,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
                                             0,  // Delay
-                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
+                                            new normalDistribution(seedString.toInt(),
+                                                                   &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
@@ -1250,8 +1251,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
 
   // Text data reader
-  //*
-  std::string data_path = "y:\\Data\\rio_2014_temp.csv";
+  /*
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
   //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
@@ -1295,11 +1296,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString expNum = "1673";
   this->setWindowTitle("Experiment #" + expNum);
 
-  //QString expDesc = "DESDA, new assumed input, sz002";
+  QString expDesc = "DESDA, new assumed input, weighted plugin, sz002";
   //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
   //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
   //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  QString expDesc = "DESDA, Rio 2014 humidity, sz130";
+  //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
   //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
