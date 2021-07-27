@@ -1204,7 +1204,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(180);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1293,7 +1293,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString expNum = "1671";
+  QString expNum = "1672";
   this->setWindowTitle("Experiment #" + expNum);
 
   QString expDesc = "DESDA, new assumed input, sz002";
