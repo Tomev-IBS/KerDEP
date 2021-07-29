@@ -13,14 +13,12 @@
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
              std::shared_ptr<kernelDensityEstimator> enchancedKDE,
-             double weightModifier,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
-             std::vector<std::shared_ptr<cluster> > *storedMedoids,
              double desiredRarity, double pluginRank) :
-    _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
+    _samplingAlgorithm(samplingAlgorithm),
     _estimatorDerivative(estimatorDerivative), _estimator(estimator),
-    _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
+    _clusters(clusters), _r(desiredRarity),
     _enhancedKDE(enchancedKDE), _pluginRank(pluginRank) {
   _objects.clear();
 
@@ -40,8 +38,6 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
   }
 
-  generator = std::default_random_engine(5625); // Seed should be as in UI, can be passed to constructor
-  dist = std::uniform_real_distribution<double>(0.0, 1.0);
 }
 
 int sgn(double val) {
@@ -54,35 +50,6 @@ double sum(std::vector<double> vals) {
   for(auto val : vals) valsSum += val;
 
   return valsSum;
-}
-
-double absSum(std::vector<double> vals) {
-  double valsSum = 0.0;
-
-  for(auto val : vals) valsSum += fabs(val);
-
-  return valsSum;
-}
-
-double stDev(std::vector<double> vals) {
-  int m = vals.size();
-
-  if(m < 2) return 1.0;
-
-  double sigma = 0.0;
-
-  sigma = sum(vals);
-  sigma *= sigma / m;
-
-  double sqrSum = 0;
-
-  for(auto val : vals) sqrSum += val * val;
-
-  sigma = sqrSum - sigma;
-
-  sigma /= m - 1;
-
-  return std::sqrt(sigma);
 }
 
 double sigmoid(double x) {
@@ -102,10 +69,6 @@ double average(std::vector<double> values) {
 
 void DESDA::performStep() {
 
-  // e computation
-  e_ = ComputePrognosisError();
-  // end of e computation
-
   // Making place for new cluster
   while(_clustersForWindowed.size() >= _maxM) {
     _clustersForWindowed.pop_back();
@@ -123,21 +86,6 @@ void DESDA::performStep() {
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  // KPSS count
-  /*
-  std::vector<double> values = {};
-
-
-  for(size_t i = 0; i < newCluster->dimension(); ++i){
-    values.push_back(stod(newCluster->getObject()->attributesValues["Val" + std::to_string(i)]));
-  }
-
-  for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
-    auto c = (*_clusters)[i];
-    values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
-  }
-   */
-
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
@@ -146,8 +94,6 @@ void DESDA::performStep() {
 
   _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
                      - _sgmKPSSParameters[_sgmKPSSPercent][1]);
-  _d = _sgmKPSS;
-
   // Beta0 update
   _beta0 = 2.0 / 3 * _sgmKPSS; // According to formula from 13 IV 2020
 
@@ -161,7 +107,7 @@ void DESDA::performStep() {
   _v = _m > _clusters->size() ? 1.0 - 1.0 / _clusters->size() : 1.0 - 1.0 / _m;
   cluster::_deactualizationParameter = _v;
 
-  // Calculate smoothing parameterers
+  // Calculate smoothing parameters
   _windowedSmoothingParametersVector = calculateH(*_clusters);
   auto currentClusters = getClustersForEstimator();
 
@@ -174,12 +120,12 @@ void DESDA::performStep() {
 
   // Update clusters prognosis
   countKDEValuesOnClusters();
+
+  e_ = ComputePrognosisError();
+
   updatePrognosisParameters();
   countDerivativeValuesOnClusters();
 
-  // Update a
-  updateMaxAbsAVector();
-  updateMaxAbsDerivativeVector();
   updateMaxAbsDerivativeInCurrentStep();
 
   _examinedClustersDerivatives.clear();
@@ -196,7 +142,6 @@ void DESDA::performStep() {
   _r = 0.01 + 0.09 * _sgmKPSS;
 
   ++_stepNumber;
-
 }
 
 void DESDA::updateWeights() {
@@ -349,54 +294,6 @@ void DESDA::updateM() {
   _m = _m < _minM ? _minM : _m;
   _m = _clusters->size() < _m ? _clusters->size() : _m;
   _m = _m > _maxM ? _maxM : _m;
-}
-
-/** DESDA::updateMaxAbsAVector
- * @brief Updates vector of absolute values of a. This vector should store _maxM
- * values at most and it's values should be counted on all stored clusters (as
- * all of them have their predictions updated.
- */
-void DESDA::updateMaxAbsAVector() {
-  // Add new value
-  _maxAbsAs.insert(_maxAbsAs.begin(), getCurrentMaxAbsA());
-
-  // Ensure size is as expected
-  while(_maxAbsAs.size() > _maxM) _maxAbsAs.pop_back();
-}
-
-/** DESDA::getCurrentMaxAbsA
-* @brief Finds and returns current maximal value of abs(a) of all clusters.
-* @return Current maximal values of abs(a) of all clusters.
-*/
-double DESDA::getCurrentMaxAbsA() {
-  if(_clusters->size() < 0) return -1; // Should not happen.
-  double maxA = fabs((*_clusters)[0]->predictionParameters[1]);
-  for(auto c : *_clusters) {
-    double currentA = fabs(c->predictionParameters[1]);
-    maxA = currentA > maxA ? currentA : maxA;
-  }
-
-  return maxA;
-}
-
-void DESDA::updateMaxAbsDerivativeVector() {
-  // Add new value.
-  _maxAbsDerivatives.insert(_maxAbsDerivatives.begin(),
-                            getCurrentMaxAbsDerivativeValue());
-  // Ensure size is proper.
-  while(_maxAbsDerivatives.size() > _maxM) _maxAbsDerivatives.pop_back();
-}
-
-double DESDA::getCurrentMaxAbsDerivativeValue() {
-  if(_clusters->size() < 0) return -1; // Should not happen.
-  double maxAbsDerivative = fabs((*_clusters)[0]->_currentDerivativeValue);
-  for(auto c : *_clusters) {
-    double currentDerivative = fabs(c->_currentDerivativeValue);
-    maxAbsDerivative =
-        currentDerivative > maxAbsDerivative ? currentDerivative : maxAbsDerivative;
-  }
-
-  return maxAbsDerivative;
 }
 
 void DESDA::updateMaxAbsDerivativeInCurrentStep() {
@@ -713,44 +610,6 @@ std::vector<double> DESDA::getWeightedKDEValues(const vector<vector<double>> *X,
   return weightedKDEValues;
 }
 
-double DESDA::getAverageOfFirstMSampleValues(int M) {
-  double avg = 0;
-  int m0 = std::min(M, (int) _clusters->size());
-
-  for(int i = 0; i < m0; ++i)
-    avg += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-
-  return avg / m0;
-}
-
-double DESDA::getStdDevOfFirstMSampleValues(int M) {
-  int m0 = std::min(M, (int) _clusters->size());
-
-  if(m0 == 1) return 1;
-
-  double avgME = 0;
-
-  // Counting average
-  for(int i = 0; i < m0; ++i) {
-    avgME += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-  }
-
-  avgME /= m0;
-
-  // Counting var
-  double val, var = 0;
-
-  for(int i = 0; i < m0; ++i) {
-    val = std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-    var += pow(val - avgME, 2);
-  }
-
-  var /= m0 - 1;
-
-  _stDev = pow(var, 0.5);
-  return _stDev;
-}
-
 double DESDA::getStationarityTestValue() {
   std::vector<double> stationarityTestsValues = {};
   for(auto test: stationarityTests) {
@@ -982,13 +841,6 @@ QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivative
   return atypicalElementsValuesAndDerivatives;
 }
 
-double DESDA::getMaxAbsAOnLastKPSSMSteps() {
-  if(_maxAbsAs.size() < _kpssM)
-    return *(std::max_element(_maxAbsAs.begin(), _maxAbsAs.end()));
-
-  return *(std::max_element(_maxAbsAs.begin() + _maxAbsAs.size() - _kpssM, _maxAbsAs.end()));
-}
-
 double DESDA::ComputePrognosisError() {
 
   if(_stepNumber == 1){
@@ -998,9 +850,9 @@ double DESDA::ComputePrognosisError() {
   double sum = 0;
   double sum_of_modules = 0;
 
-  int number_of_clusters = std::min(int(_clusters->size()), _minM - 1);
+  int last_examined_cluster_number = std::min(int(_clusters->size()), _minM + 1);
 
-  for(int i = 0; i < number_of_clusters; ++i){
+  for(int i = 1; i < last_examined_cluster_number; ++i){
     sum_of_modules += fabs((*_clusters)[i]->getLastPrediction() - (*_clusters)[i]->_currentKDEValue);
     sum += (*_clusters)[i]->getLastPrediction() - (*_clusters)[i]->_currentKDEValue;
   }
@@ -1009,6 +861,6 @@ double DESDA::ComputePrognosisError() {
     return 0;
   }
 
-  return fabs(sum) / sum_of_modules;
+  return sum / sum_of_modules;
 }
 

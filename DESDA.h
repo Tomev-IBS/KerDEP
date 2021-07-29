@@ -18,10 +18,8 @@ class DESDA
     DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
           std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
           std::shared_ptr<kernelDensityEstimator> enchancedKDE,
-          double weightModifier,
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
-          std::vector<std::shared_ptr<cluster>> *storedMedoids,
           double desiredRarity, double pluginRank=2);
 
     void performStep();
@@ -33,9 +31,6 @@ class DESDA
     vector<double> getWindowKDEValues(const vector<vector<double>> *X, int dimension=0);
     std::vector<double> getKDEValues(const std::vector<std::vector<double>> *X, int dimension=0);
 
-    double getAverageOfFirstMSampleValues(int M);
-    double getStdDevOfFirstMSampleValues(int M);
-    cluster getEmECluster();
     double getStationarityTestValue();
 
     // 2D Plot changes
@@ -43,14 +38,7 @@ class DESDA
     std::vector<double> _unmodifiedCWeightsOfClusters = {};
     void restoreClustersCWeights();
 
-    stationarityTestPtr stationarityTest;
     std::vector<stationarityTestPtr> stationarityTests = {};
-
-    double _u_i = 0.0;
-
-    // Prediction
-    double _avg = 0;
-    double _stDev = 1;
 
     // New prediction
     double _beta0 = 0.7;
@@ -62,11 +50,6 @@ class DESDA
     int _m = 0; // Cardinality of objects to build KDE
 
     int _kpssM = 0; // m_Eta
-
-    // From 31 XI 2019 mail
-    // Delta update parameters
-    double _s = -4.0;
-    double _mu = 1000;
 
     // Rare elements
     double _r = 0.05;
@@ -81,14 +64,8 @@ class DESDA
     int _sgmKPSSPercent = 25;
     double _sgmKPSS = 0;
 
-    // Analysis
-    double getMaxAbsAOnLastKPSSMSteps();
-
     /** According to 2020 first article **/
     std::vector<int> _examinedClustersIndices = {};
-    std::vector<double> _maxAbsAs = {};
-    std::vector<double> _maxAbsDerivatives = {};
-    std::vector<double> _examinedClustersAs = {};
     std::vector<double> _examinedClustersDerivatives = {};
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
@@ -98,9 +75,7 @@ class DESDA
     QVector<double> getErrorDomain(int dimension=0);
     QVector<double> getWindowedErrorDomain(int dimension=0);
 
-    double _averageMaxDerivativeValueInLastMASteps = 0;
     double _maxAbsDerivativeValueInCurrentStep = 0;
-    int _mA = 100;
 
     std::vector<double> _smoothingParametersVector;
     std::vector<double> _windowedSmoothingParametersVector;
@@ -115,13 +90,7 @@ class DESDA
   protected:
 
     int _stepNumber = 0;
-    int _numberOfClustersForGrouping = 100;
-    int _medoidsNumber = 50;
     int _pluginRank = 2;
-
-    double _weightModifier = 0.0;
-    double _smoothingParameterMultiplier = 1.0;
-    double _positionalSecondGradeEstimator = 0.0;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;
@@ -131,14 +100,6 @@ class DESDA
     std::vector<std::shared_ptr<cluster>> _clustersForWindowed;
     std::vector<std::shared_ptr<sample>> _objects;
 
-    std::vector<std::shared_ptr<cluster>> *_storedMedoids;
-    std::vector<std::shared_ptr<cluster>> _uncommonClusters;
-
-    // Random deletion
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> dist;
-    double _d = 0;
-
     void updateWeights();
     void updateExaminedClustersIndices();
     std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
@@ -147,10 +108,6 @@ class DESDA
     void updatePrognosisParameters();
     void countDerivativeValuesOnClusters();
     void updateM();
-    void updateMaxAbsAVector();
-    double getCurrentMaxAbsA();
-    void updateMaxAbsDerivativeVector();
-    double getCurrentMaxAbsDerivativeValue();
     void updateMaxAbsDerivativeInCurrentStep();
     double ComputePrognosisError();
 

@@ -988,10 +988,8 @@ void MainWindow::on_pushButton_clicked() {
       estimator,
       derivative_estimator_,
       enhanced_kde_,
-      ui->lineEdit_weightModifier->text().toDouble(),
       samplingAlgorithm,
       clusters_,
-      &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
@@ -1284,10 +1282,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
       estimator,
       derivative_estimator_,
       enhanced_kde_,
-      ui->lineEdit_weightModifier->text().toDouble(),
       algorithm,
       clusters_,
-      &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), pluginRank
   );
 
