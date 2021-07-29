@@ -879,6 +879,14 @@ void MainWindow::on_pushButton_start_clicked() {
 }
 
 void MainWindow::on_pushButton_clicked() {
+
+  log("Start pushed!");
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(60);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
   log("2D Experiment start.");
 
   screen_generation_frequency_ = 10;
@@ -1028,12 +1036,12 @@ void MainWindow::on_pushButton_clicked() {
   int drawing_start_step = 0;
 
   // Prepare image location.
-  QString expNum = "1665 (2D)";
+  QString expNum = "1691 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
   QString expDesc =
       //"assumed input 2D, p2=" + p2 + ", sz196";
       //"Rio 2014 Temp-Hum, s475";
-      "Cracow 2020 Temp-Hum, sz477";
+      "Cracow 2020 Temp-Hum, sz475";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
