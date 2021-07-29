@@ -1332,12 +1332,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ = 0.01;
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                        "Rio de Janeiro; 2014; temperature");
+                        //"Rio de Janeiro; 2014; temperature");
                         //"Cracow; 2020; temperature");
                         //"Minneapolis; 2017; temperature");
                         //"Rio de Janeiro; 2014; humidity");
                         //"Cracow; 2020; humidity");
-                        //"assumed input; 1D");
+                        "assumed input; 1D");
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
@@ -1374,11 +1374,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
   label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
-  /*
+  //*
   AddDoubleLabelToPlot("e          = ", &(DESDAAlgorithm.e_));
   label_vertical_offset_ += 3 * label_vertical_offset_step_;
   //*/
-  label_vertical_offset_ += 4 * label_vertical_offset_step_;
+  //label_vertical_offset_ += 4 * label_vertical_offset_step_;
   AddColorsLegendToPlot();
 
   //====================  SECOND COLUMN =================//
