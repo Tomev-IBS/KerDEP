@@ -1245,16 +1245,19 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
+  QString expDesc = "DESDA, new assumed input, weighted plugin, sz002";
+  QString plot_description = "assumed input; 1D";
+  QDate startDate(2019, 10, 1); // It's not used anyway.
   //*/
-
 
   // Text data reader
   /*
-  //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
-  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
-  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
+  QString pc_id = "sz002";
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1);
+  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1);
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1);
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1);
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1);
   reader_.reset(new TextDataReader(data_path));
   bool compute_errors = false;
   //*/
@@ -1289,15 +1292,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString expNum = "1673";
+  QString expNum = "1676";
   this->setWindowTitle("Experiment #" + expNum);
-
-  QString expDesc = "DESDA, new assumed input, weighted plugin, sz002";
-  //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
-  //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
-  //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
-  //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
@@ -1316,14 +1312,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString imageName = "";
 
-  // Exps with days
-  // Rio 2014 Experiment
-  QDate startDate(2013, 10, 1);
-  // Metro Minneapolis 2017 Experiment
-  //QDate startDate(2016, 10, 1);
-  // Cracow 2020 Experiment
-  //QDate startDate(2019, 10, 1);
-
   QTime startTime(0, 0, 0);
   QDateTime dateTime(startDate, startTime);
 
@@ -1332,12 +1320,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ = 0.01;
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                        //"Rio de Janeiro; 2014; temperature");
-                        //"Cracow; 2020; temperature");
-                        //"Minneapolis; 2017; temperature");
-                        //"Rio de Janeiro; 2014; humidity");
-                        //"Cracow; 2020; humidity");
-                        "assumed input; 1D");
+                        plot_description);
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
