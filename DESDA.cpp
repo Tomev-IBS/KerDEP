@@ -32,7 +32,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
   _stepNumber = 1;
-  _smoothingParameterEnhancer = 0.9;
+  _smoothingParameterEnhancer = 1;
 
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
