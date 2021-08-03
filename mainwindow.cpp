@@ -882,7 +882,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -925,11 +925,6 @@ void MainWindow::on_pushButton_clicked() {
   contour_plot_->ShowColorMap(false);
   contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 105.0), QPen(QColor(0, 0, 0)));
 
-  // After adding plots set contours and stuff.
-  contour_plot_->setContours(contourLevels);
-  contour_plot_->showContour(true);
-  contour_plot_->setAlpha(0); // Set alpha to 0 for lack of coloring
-
   // Set limit on axes.
   contour_plot_->setAxesLimit(5);
 
@@ -970,17 +965,19 @@ void MainWindow::on_pushButton_clicked() {
                );
 
   bool should_compute_errors = true;
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
   //*/
+
+  // After adding plots set contours and stuff.
+  contour_plot_->setContours(contourLevels);
+  contour_plot_->showContour(true);
+  contour_plot_->setAlpha(0); // Set alpha to 0 for lack of coloring
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
 
   reservoirSamplingAlgorithm *samplingAlgorithm =
       GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
-
-  if(should_compute_errors) {
-    contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
-  }
 
   objects_.clear();
   clusters_ = &stored_medoids_;
