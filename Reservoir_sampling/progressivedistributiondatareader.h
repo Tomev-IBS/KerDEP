@@ -30,11 +30,7 @@ class progressiveDistributionDataReader : public dataReader
         int _currentIteration = 1; // PK always starts from 1.
 
         std::vector<std::string> attributesOrder;
-        std::shared_ptr<distribution> _alternativeDistribution; // For non-random multimodals.
-
-
-
-
+        std::shared_ptr<distribution> _alternativeDistribution; // For non-random multimodals
 };
 
 #endif // PROGRESSIVEDISTRIBUTIONDATAREADER_H

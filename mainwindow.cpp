@@ -939,10 +939,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  QString expNum = "1693 (2D)";
+  QString pc_id = "sz195";
 
-  //*
-  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  /*
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString experiment_description = "Rio 2014 Temp-Hum, " + pc_id;
+  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString experiment_description = "Cracow 2020 Temp-Hum, " + pc_id;
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -953,12 +955,12 @@ void MainWindow::on_pushButton_clicked() {
   bool should_compute_errors = false;
   //*/
 
-  /*
-
+  //*
   // p2 = 0.75p1 lub p2=0
+  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time); // Only to remove problems
   QString p2 = "0";
 
-  QString experiment_description = "assumed input; 2D; p2=" + p2;
+  QString experiment_description = "assumed input; 2D; p2=" + p2; QString expDesc = "assumed input 2D, p2=" + p2 + ", " + pc_id;
 
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(), 0,
@@ -1034,12 +1036,7 @@ void MainWindow::on_pushButton_clicked() {
   int drawing_start_step = 0;
 
   // Prepare image location.
-  QString expNum = "1682 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc =
-      //"assumed input 2D, p2=" + p2 + ", sz196";
-      //"Rio 2014 Temp-Hum, s475";
-      "Cracow 2020 Temp-Hum, sz002";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
