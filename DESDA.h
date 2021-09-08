@@ -83,6 +83,15 @@ class DESDA
 
     // Prognosis error
     double e_ = 0;
+    double statistics_ = 0;
+    int a010_ = 0;
+    int a005_ = 0;
+    int a001_ = 0;
+
+    const double r010_ = 1.64;
+    const double r005_ = 1.96;
+    const double r001_ = 2.58;
+
 
     // Weighted C parameter
     bool compute_weighted_plugin = true;
@@ -109,7 +118,13 @@ class DESDA
     void countDerivativeValuesOnClusters();
     void updateM();
     void updateMaxAbsDerivativeInCurrentStep();
-    double ComputePrognosisError();
+
+    // Prognosis error
+    int max_prognosis_error_clusters_ = 1;
+    vector<double> GetPrognosisErrors();
+    double ComputePrognosisError(const std::vector<double> &errors) const;
+    double ComputeStatistics(const std::vector<double> &errors) const;
+    void UpdateHypothesisResults();
 
     // Domain reduction
     std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);

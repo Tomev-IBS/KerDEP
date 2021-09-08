@@ -27,6 +27,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
+  max_prognosis_error_clusters_ = _minM;
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -56,7 +57,7 @@ double sigmoid(double x) {
   return 1.0 / (1.0 + exp(-x));
 }
 
-double average(std::vector<double> values) {
+double average(const std::vector<double> &values) {
   double average = 0;
 
   for(auto val : values)
@@ -65,6 +66,26 @@ double average(std::vector<double> values) {
   average /= values.size();
 
   return average;
+}
+
+double var(const std::vector<double> &v){
+  auto n = v.size();
+
+  if(n < 2) { return 0; }
+
+  double var = 0;
+
+  for(auto val : v){ var += val; }
+
+  var *= var / n;
+
+  for(auto val : v){ var += val * val; }
+
+  return var / (n - 1);
+}
+
+double stdev(const std::vector<double> &v){
+  return std::pow(var(v), 0.5);
 }
 
 void DESDA::performStep() {
@@ -121,7 +142,10 @@ void DESDA::performStep() {
   // Update clusters prognosis
   countKDEValuesOnClusters();
 
-  e_ = ComputePrognosisError();
+  auto prognosis_errors = GetPrognosisErrors();
+  e_ = ComputePrognosisError(prognosis_errors);
+  statistics_ = ComputeStatistics(prognosis_errors);
+  UpdateHypothesisResults();
 
   updatePrognosisParameters();
   countDerivativeValuesOnClusters();
@@ -841,26 +865,36 @@ QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivative
   return atypicalElementsValuesAndDerivatives;
 }
 
-double DESDA::ComputePrognosisError() {
+vector<double> DESDA::GetPrognosisErrors() {
 
-  if(_stepNumber == 1){
-    return 0;
-  }
+  int last_examined_cluster_number = std::min(int(_clustersForWindowed.size()), max_prognosis_error_clusters_);
 
-  double sum = 0;
-  double sum_of_modules = 0;
-
-  int last_examined_cluster_number = std::min(int(_clusters->size()), _minM + 1);
+  vector<double> errors;
 
   for(int i = 1; i < last_examined_cluster_number; ++i){
-    sum_of_modules += fabs((*_clusters)[i]->getLastPrediction() - (*_clusters)[i]->_currentKDEValue);
-    sum += (*_clusters)[i]->getLastPrediction() - (*_clusters)[i]->_currentKDEValue;
+    errors.push_back((_clustersForWindowed)[i]->getLastPrediction() - (_clustersForWindowed)[i]->_currentKDEValue);
   }
 
-  if(sum == 0 || sum_of_modules == 0){
-    return 0;
-  }
-
-  return sum / sum_of_modules;
+  return errors;
 }
+
+double DESDA::ComputePrognosisError(const vector<double> &errors) const {
+  return average(errors);
+}
+
+double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
+  return e_ / stdev(errors);
+}
+
+void DESDA::UpdateHypothesisResults() {
+  double statistics_module = fabs(statistics_);
+
+  a001_ = statistics_module > r001_ ? 0 : 1;
+  a005_ = statistics_module > r005_ ? 0 : 1;
+  a010_ = statistics_module > r010_ ? 0 : 1;
+}
+
+
+
+
 
