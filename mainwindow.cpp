@@ -866,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1245,14 +1245,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, new assumed input, weighted plugin, T=100, sz262";
+  QString expDesc = "DESDA, new assumed input, weighted plugin, T=100, sz261";
   QString plot_description = "assumed input; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1700";
+  QString expNum = "1701";
 
   // Text data reader
   /*
@@ -1363,11 +1363,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
   //*
-  AddDoubleLabelToPlot("E(e)       = ", &(DESDAAlgorithm.e_));
-  AddDoubleLabelToPlot("s          = " , &(DESDAAlgorithm.statistics_));
-  AddIntLabelToPlot("a0.10      = ", &(DESDAAlgorithm.a010_));
-  AddIntLabelToPlot("a0.05      = ", &(DESDAAlgorithm.a005_));
-  AddIntLabelToPlot("a0.01      = ", &(DESDAAlgorithm.a001_));
+  AddDoubleLabelToPlot("e_t        = ", &(DESDAAlgorithm.e_));
+  AddDoubleLabelToPlot("S_t        = " , &(DESDAAlgorithm.statistics_));
+  AddIntLabelToPlot("alfa_0.10  = ", &(DESDAAlgorithm.a010_));
+  AddIntLabelToPlot("alfa_0.05  = ", &(DESDAAlgorithm.a005_));
+  AddIntLabelToPlot("alfa_0.01  = ", &(DESDAAlgorithm.a001_));
   //label_vertical_offset_ += label_vertical_offset_step_;
 
   //label_vertical_offset_ += 3 * label_vertical_offset_step_;

@@ -27,7 +27,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
-  max_prognosis_error_clusters_ = _minM;
+  max_prognosis_error_clusters_ = _maxM;
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -143,7 +143,7 @@ void DESDA::performStep() {
   countKDEValuesOnClusters();
 
   auto prognosis_errors = GetPrognosisErrors();
-  e_ = ComputePrognosisError(prognosis_errors);
+  e_ = prognosis_errors[0];
   statistics_ = ComputeStatistics(prognosis_errors);
   UpdateHypothesisResults();
 
@@ -883,7 +883,7 @@ double DESDA::ComputePrognosisError(const vector<double> &errors) const {
 }
 
 double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
-  return e_ / stdev(errors);
+  return average(errors) / stdev(errors);
 }
 
 void DESDA::UpdateHypothesisResults() {
