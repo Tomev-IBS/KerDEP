@@ -1245,7 +1245,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, new assumed input, weighted plugin, T=100, sz261";
+  QString expDesc = "DESDA, new assumed input, weighted plugin, T=1000, sz261";
   QString plot_description = "assumed input; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);

@@ -143,7 +143,7 @@ void DESDA::performStep() {
   countKDEValuesOnClusters();
 
   auto prognosis_errors = GetPrognosisErrors();
-  e_ = prognosis_errors[0];
+  e_ = prognosis_errors.empty() ? 0 : prognosis_errors[0];
   statistics_ = ComputeStatistics(prognosis_errors);
   UpdateHypothesisResults();
 
