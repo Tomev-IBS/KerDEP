@@ -193,7 +193,8 @@ class MainWindow : public QMainWindow {
     void on_pushButton_clicked();
     void resizeEvent(QResizeEvent *event) override;
     // 2D Plot
-    static std::vector<std::vector<double>> Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static std::vector<std::vector<double>> Generate2DPlotErrorDomain(const QVector<double> &xErrorDomain,
+                                                                      const QVector<double> &yErrorDomain);
     static std::vector<std::vector<double>> Generate1DPlotErrorDomain(DESDA *DESDAAlgorithm);
     static std::vector<std::vector<double>> Generate1DWindowedPlotErrorDomain(DESDA *DESDAAlgorithm);
     static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);

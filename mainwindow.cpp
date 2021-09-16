@@ -882,14 +882,21 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
 
   log("2D Experiment start.");
 
-  screen_generation_frequency_ = 10;
+  // Initially these vectors were used in errors computation only. We now also use them for the spectrogram.
+  QVector<double> error_xs = {};
+  QVector<double> error_ys = {};
+  std::vector<double> model_function_values = {};
+  std::vector<double> estimator_values = {};
+  std::vector<std::vector<double>> error_domain = {};
+
+  screen_generation_frequency_ = 1;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -923,10 +930,13 @@ void MainWindow::on_pushButton_clicked() {
 
   std::vector<double> pt = {0, 0};
   contour_plot_->ShowColorMap(false);
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 105.0), QPen(QColor(0, 0, 0)));
+  //*
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), &error_xs, &error_ys, &estimator_values),
+                                       QPen(QColor(0, 0, 0)));
+  //*/
 
   // Set limit on axes.
-  contour_plot_->setAxesLimit(5);
+  contour_plot_->setAxesLimit(5); // This function doesn't work as the arguments suggest
 
   std::shared_ptr<distribution> targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
@@ -934,12 +944,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1693 (2D)";
-  QString pc_id = "sz195";
+  QString expNum = "1682-3 (2D)";
+  QString pc_id = "sz196";
 
-  /*
-  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString experiment_description = "Rio 2014 Temp-Hum, " + pc_id;
-  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString experiment_description = "Cracow 2020 Temp-Hum, " + pc_id;
+  //*
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
+  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -950,7 +960,7 @@ void MainWindow::on_pushButton_clicked() {
   bool should_compute_errors = false;
   //*/
 
-  //*
+  /*
   // p2 = 0.75p1 lub p2=0
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time); // Only to remove problems
   QString p2 = "0";
@@ -965,7 +975,10 @@ void MainWindow::on_pushButton_clicked() {
                );
 
   bool should_compute_errors = true;
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
+  /*
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, &error_xs, &error_ys,
+                                                            &model_function_values),
+                                       QPen(QColor(255, 0, 0)));
   //*/
 
   // After adding plots set contours and stuff.
@@ -1023,14 +1036,11 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.SetErrorsPrinting(should_compute_errors);
   QVector<int> initialDrawingSteps = {};
   //QVector<int> initialDrawingSteps = {1};
-  std::vector<double> model_function_values = {};
-  std::vector<double> estimator_values = {};
   double domain_area = 0;
-  std::vector<std::vector<double>> error_domain = {};
-  ErrorsCalculator errors_calculator(
-      &model_function_values, &estimator_values, &error_domain, &domain_area
-                                    );
+
+  ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
   int drawing_start_step = 0;
+  int errors_calculation_start_step = 1000;
 
   // Prepare image location.
   this->setWindowTitle("Experiment #" + expNum);
@@ -1053,17 +1063,28 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.performStep();
     log("Step performed.");
 
+    log("Estimator preparation.");
+    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    log("Estimator preparation finished.");
+
+    // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
+    if(step_number_ > std::min(drawing_start_step, errors_calculation_start_step)) {
+      log("Computing domains.");
+      error_xs = DESDAAlgorithm.getErrorDomain(0);
+      error_ys = DESDAAlgorithm.getErrorDomain(1);
+      error_domain = Generate2DPlotErrorDomain(error_xs, error_ys);
+      log("Computing values of domains.");
+      model_function_values = GetFunctionsValueOnDomain(densityFunction, error_domain);
+      estimator_values = GetFunctionsValueOnDomain(estimator.get(), error_domain);
+    }
+
     // Error calculation
     //*
-    if(step_number_ >= 1000 && should_compute_errors) {
+    if(step_number_ >= errors_calculation_start_step && should_compute_errors) {
       log("Error calculation started.");
       ++errorCalculationsNumber;
-      error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
+
       domain_area = Calculate2DDomainArea(error_domain);
-      model_function_values =
-          GetFunctionsValueOnDomain(densityFunction, error_domain);
-      estimator_values =
-          GetFunctionsValueOnDomain(estimator.get(), error_domain);
 
       //actual_l1 = errors_calculator.CalculateL1Error();
       actual_l2 = errors_calculator.CalculateL2Error();
@@ -1090,18 +1111,11 @@ void MainWindow::on_pushButton_clicked() {
 
       log("Drawing started.");
 
-      log("Estimator preparation.");
-      DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
-      log("Estimator preparation finished.");
-
       log("Texts updates.");
       plotUi.updateTexts();
 
       log("Replotting.");
       contour_plot_->replot();
-
-      log("Restoring weights.");
-      DESDAAlgorithm.restoreClustersCWeights();
 
       endTime = time(nullptr);
 
@@ -1114,6 +1128,9 @@ void MainWindow::on_pushButton_clicked() {
       log("Saved: " + QString::number(ui->widget_contour_plot_holder->grab().save(imageName)));
       log("Drawing finished.");
     }
+
+    log("Restoring weights.");
+    DESDAAlgorithm.restoreClustersCWeights();
 
     endTime = time(nullptr);
 
@@ -1155,10 +1172,9 @@ std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func,
   return values;
 }
 
-std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
+std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(const QVector<double> &xDomainValues,
+                                                                       const QVector<double> &yDomainValues) {
   std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
-  auto yDomainValues = DESDAAlgorithm->getErrorDomain(1);
 
   for(auto x : xDomainValues) {
     for(auto y : yDomainValues) {
