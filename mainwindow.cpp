@@ -896,7 +896,7 @@ void MainWindow::on_pushButton_clicked() {
   std::vector<double> estimator_values = {};
   std::vector<std::vector<double>> error_domain = {};
 
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
