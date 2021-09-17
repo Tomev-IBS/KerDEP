@@ -947,8 +947,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1707";
-  QString pc_id = "sz197";
+  QString expNum = "1708";
+  QString pc_id = "sz422";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 1000;
 
@@ -969,7 +969,7 @@ void MainWindow::on_pushButton_clicked() {
   //*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
-  QString p2 = "0.75";
+  QString p2 = "1";
 
   // Prepare the reader
   reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,55), p2.toDouble()));
@@ -977,7 +977,7 @@ void MainWindow::on_pushButton_clicked() {
   // Only to remove problems initialize the date
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
 
-  if(p2.toDouble() < 1e-10){
+  if(p2.toDouble() > 1e-10){
     p2=p2+"p1";
   }
 
