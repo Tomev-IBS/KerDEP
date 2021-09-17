@@ -882,7 +882,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -910,9 +910,10 @@ void MainWindow::on_pushButton_clicked() {
   }
   contourLevels += 0.155;
 
-  // Aaa
+  // Automatic dimension update
   if(ui->spinBox_dimensionsNumber->value() == 1){
-
+    ui->spinBox_dimensionsNumber->setValue(2);
+    ui->spinBox_dimensionsNumber->editingFinished();
   }
 
   // Add clusters_ to the estimator
@@ -946,8 +947,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1704";
-  QString pc_id = "sz195";
+  QString expNum = "1706";
+  QString pc_id = "sz130";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 1000;
 
@@ -968,17 +969,23 @@ void MainWindow::on_pushButton_clicked() {
   //*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
-  QString p2 = "0";
-  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time); // Only to remove problems
-
-  // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed input; 2D; p2=" + p2; QString expDesc = "assumed input 2D, p2=" + p2 + ", " + pc_id;
+  QString p2 = "0.5";
 
   // Prepare the reader
   reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,55), p2.toDouble()));
 
-  // Set limit on axes.
-  contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest
+  // Only to remove problems initialize the date
+  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
+
+  if(p2.toDouble() < 1e-10){
+    p2=p2+"p1";
+  }
+
+  // Multiple instructions in one line, for simplicity
+  QString experiment_description = "assumed input; 2D; p2=" + p2; QString expDesc = "assumed input 2D, p2=" + p2 + ", " + pc_id;
+
+  // Set limits on axes.
+  contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
 
   //*
   contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, &error_xs, &error_ys, &model_function_values), QPen(QColor(255, 0, 0)));
