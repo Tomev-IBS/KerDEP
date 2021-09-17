@@ -882,7 +882,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -947,8 +947,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1706";
-  QString pc_id = "sz130";
+  QString expNum = "1707";
+  QString pc_id = "sz197";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 1000;
 
@@ -969,7 +969,7 @@ void MainWindow::on_pushButton_clicked() {
   //*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
-  QString p2 = "0.5";
+  QString p2 = "0.75";
 
   // Prepare the reader
   reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,55), p2.toDouble()));
