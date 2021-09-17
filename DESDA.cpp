@@ -378,9 +378,9 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (1000);
+  double stepSize = (domainMaxValue - domainMinValue) / (100);
 
-  for(auto val = domainMinValue; val <= domainMaxValue; val += stepSize) {
+  for(auto val = domainMinValue; val < domainMaxValue; val += stepSize) {
     domain.push_back(val);
   }
 

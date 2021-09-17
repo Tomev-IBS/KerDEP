@@ -910,6 +910,11 @@ void MainWindow::on_pushButton_clicked() {
   }
   contourLevels += 0.155;
 
+  // Aaa
+  if(ui->spinBox_dimensionsNumber->value() == 1){
+
+  }
+
   // Add clusters_ to the estimator
   means_ = {std::make_shared<std::vector<double >>()};
   means_.back()->push_back(0);
@@ -935,21 +940,20 @@ void MainWindow::on_pushButton_clicked() {
                                        QPen(QColor(0, 0, 0)));
   //*/
 
-  // Set limit on axes.
-  contour_plot_->setAxesLimit(5); // This function doesn't work as the arguments suggest
-
   std::shared_ptr<distribution> targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
   std::vector<double> stDevsForDistribution = {1.0, 1.0};
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1690 (2D)";
-  QString pc_id = "sz260";
+  QString expNum = "1704";
+  QString pc_id = "sz195";
+  int drawing_start_step = 0;
+  int errors_calculation_start_step = 1000;
 
-  //*
-  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
-  //QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
+  /*
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
+  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -958,27 +962,26 @@ void MainWindow::on_pushButton_clicked() {
   reader_.reset(new TextDataReader(data_path, 2));
 
   bool should_compute_errors = false;
+
   //*/
 
-  /*
+  //*
   // p2 = 0.75p1 lub p2=0
-  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time); // Only to remove problems
+  bool should_compute_errors = true;
   QString p2 = "0";
+  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time); // Only to remove problems
 
+  // Multiple instructions in one line, for simplicity
   QString experiment_description = "assumed input; 2D; p2=" + p2; QString expDesc = "assumed input 2D, p2=" + p2 + ", " + pc_id;
 
-  reader_.reset(
-      new progressiveDistributionDataReader(targetDistribution.get(), 0,
-                                            0,
-                                            new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
-                                                                   55))
-               );
+  // Prepare the reader
+  reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,55), p2.toDouble()));
 
-  bool should_compute_errors = true;
-  /*
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, &error_xs, &error_ys,
-                                                            &model_function_values),
-                                       QPen(QColor(255, 0, 0)));
+  // Set limit on axes.
+  contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest
+
+  //*
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, &error_xs, &error_ys, &model_function_values), QPen(QColor(255, 0, 0)));
   //*/
 
   // After adding plots set contours and stuff.
@@ -1039,8 +1042,6 @@ void MainWindow::on_pushButton_clicked() {
   double domain_area = 0;
 
   ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
-  int drawing_start_step = 1120;
-  int errors_calculation_start_step = 1000;
 
   // Prepare image location.
   this->setWindowTitle("Experiment #" + expNum);

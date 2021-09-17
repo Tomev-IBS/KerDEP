@@ -12,7 +12,8 @@ class progressiveDistributionDataReader : public dataReader
 {
     public:
 
-        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay, distribution* alternativeSource);
+        progressiveDistributionDataReader(distribution *source, qreal progressionSize, int delay,
+                                          distribution* alternativeSource, const double &d2_speed_multiplier = 0);
 
         void getNextRawDatum(void *target);
         void gatherAttributesData(void *attributes);
@@ -25,9 +26,9 @@ class progressiveDistributionDataReader : public dataReader
     protected:
         distribution *sourceDistribution;
         qreal x_progression_size = 0.0;
-        qreal y_progression_size = 0.0;
-        int _delay = 0;
         int _currentIteration = 1; // PK always starts from 1.
+        int d2_speed_multiplier_;
+        int _delay;
 
         std::vector<std::string> attributesOrder;
         std::shared_ptr<distribution> _alternativeDistribution; // For non-random multimodals
