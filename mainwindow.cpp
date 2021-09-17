@@ -944,12 +944,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1682-2 (2D)";
-  QString pc_id = "sz196";
+  QString expNum = "1690 (2D)";
+  QString pc_id = "sz260";
 
   //*
-  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
-  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
+  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
+  //QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -1039,7 +1039,7 @@ void MainWindow::on_pushButton_clicked() {
   double domain_area = 0;
 
   ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
-  int drawing_start_step = 5590;
+  int drawing_start_step = 1120;
   int errors_calculation_start_step = 1000;
 
   // Prepare image location.
