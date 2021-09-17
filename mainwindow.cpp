@@ -944,7 +944,7 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1682-3 (2D)";
+  QString expNum = "1682-2 (2D)";
   QString pc_id = "sz196";
 
   //*
@@ -1039,7 +1039,7 @@ void MainWindow::on_pushButton_clicked() {
   double domain_area = 0;
 
   ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
-  int drawing_start_step = 0;
+  int drawing_start_step = 5590;
   int errors_calculation_start_step = 1000;
 
   // Prepare image location.
@@ -1067,8 +1067,11 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
     log("Estimator preparation finished.");
 
+    bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
+    bool draw_plot = step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step;
+
     // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
-    if(step_number_ > std::min(drawing_start_step, errors_calculation_start_step)) {
+    if(compute_errors || draw_plot) {
       log("Computing domains.");
       error_xs = DESDAAlgorithm.getErrorDomain(0);
       error_ys = DESDAAlgorithm.getErrorDomain(1);
@@ -1080,7 +1083,7 @@ void MainWindow::on_pushButton_clicked() {
 
     // Error calculation
     //*
-    if(step_number_ >= errors_calculation_start_step && should_compute_errors) {
+    if(compute_errors) {
       log("Error calculation started.");
       ++errorCalculationsNumber;
 
@@ -1107,7 +1110,7 @@ void MainWindow::on_pushButton_clicked() {
     }
 
     // Drawing
-    if(step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step){
+    if(draw_plot){
 
       log("Drawing started.");
 
