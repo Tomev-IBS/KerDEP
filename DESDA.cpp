@@ -35,6 +35,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _stepNumber = 1;
   _smoothingParameterEnhancer = 1;
 
+  prognosis_cluster_ = cluster(-1);
+
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
   }
@@ -107,11 +109,12 @@ void DESDA::performStep() {
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
+
+
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
   }
-
 
   _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
                      - _sgmKPSSParameters[_sgmKPSSPercent][1]);
@@ -142,15 +145,33 @@ void DESDA::performStep() {
   // Update clusters prognosis
   countKDEValuesOnClusters();
 
-  auto prognosis_errors = GetPrognosisErrors();
-  e_ = prognosis_errors.empty() ? 0 : prognosis_errors[0];
-  statistics_ = ComputeStatistics(prognosis_errors);
-  UpdateHypothesisResults();
+  if(stationarityTests.size() == 1) {
+    prognosis_cluster_._currentKDEValue = std::stod(_objects.back()->attributesValues["Val0"]);
+    qDebug() << "Value: " << prognosis_cluster_._currentKDEValue;
+  }
 
   updatePrognosisParameters();
   countDerivativeValuesOnClusters();
 
   updateMaxAbsDerivativeInCurrentStep();
+
+  while(prognosis_errors_.size() >= max_prognosis_error_clusters_){
+    prognosis_errors_.pop_back();
+  }
+
+  if(_stepNumber > 1){
+    prognosis_errors_.insert(prognosis_errors_.begin(),
+                             prognosis_cluster_.getLastPrediction() - prognosis_cluster_._currentKDEValue);
+    qDebug() << "Error: " << prognosis_errors_[0];
+  }
+
+  e_ = prognosis_errors_.empty() ? 0 : prognosis_errors_[0];
+  statistics_ = ComputeStatistics(prognosis_errors_);
+  UpdateHypothesisResults();
+
+  prognosis_cluster_.updatePrediction();
+  qDebug() << "Last prediction: " << prognosis_cluster_.getLastPrediction() << "\nParams: "
+            << prognosis_cluster_.predictionParameters;
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices) {
@@ -378,7 +399,7 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (100);
+  double stepSize = (domainMaxValue - domainMinValue) / (1000);
 
   for(auto val = domainMinValue; val < domainMaxValue; val += stepSize) {
     domain.push_back(val);

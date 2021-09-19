@@ -120,6 +120,8 @@ class DESDA
     void updateMaxAbsDerivativeInCurrentStep();
 
     // Prognosis error
+    cluster prognosis_cluster_;
+    std::vector<double> prognosis_errors_ = {};
     int max_prognosis_error_clusters_ = 1;
     vector<double> GetPrognosisErrors();
     double ComputePrognosisError(const std::vector<double> &errors) const;

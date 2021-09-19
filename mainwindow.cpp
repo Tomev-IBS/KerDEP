@@ -950,7 +950,7 @@ void MainWindow::on_pushButton_clicked() {
   QString expNum = "1708";
   QString pc_id = "sz422";
   int drawing_start_step = 0;
-  int errors_calculation_start_step = 1000;
+  int errors_calculation_start_step = 0;
 
   /*
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
@@ -1272,14 +1272,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, new assumed input, weighted plugin, T=1000, sz261";
+  QString expDesc = "DESDA, new assumed input, weighted plugin, prognosis delay, T=100, sz262";
   QString plot_description = "assumed input; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1701";
+  QString expNum = "1710";
 
   // Text data reader
   /*
