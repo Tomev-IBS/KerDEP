@@ -30,7 +30,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
       //x_progression_size = 0.0005;
-      x_progression_size = 0.001;
+      x_progression_size = 0.1;
       break;
     //case 200: // Added for faster q test
       //x_progression_size = 0.1;
@@ -55,12 +55,11 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       break;
   }
 
-  double v2_speed_multiplier_ = 0;
   sourceDistribution->increaseMeans(x_progression_size, 0);
   _alternativeDistribution->increaseMeans(x_progression_size, 0);
   if(fabs(d2_speed_multiplier_) > 1e-15) {
-    sourceDistribution->increaseMeans(x_progression_size * v2_speed_multiplier_, 1);
-    _alternativeDistribution->increaseMeans(x_progression_size * v2_speed_multiplier_, 1);
+    sourceDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 1);
+    _alternativeDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 1);
   }
 
   ++_currentIteration;
