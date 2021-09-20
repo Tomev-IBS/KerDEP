@@ -30,7 +30,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
       //x_progression_size = 0.0005;
-      x_progression_size = 0.1;
+      x_progression_size = 0.001;
       break;
     //case 200: // Added for faster q test
       //x_progression_size = 0.1;
