@@ -947,14 +947,14 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1708";
-  QString pc_id = "sz422";
+  QString expNum = "1712";
+  QString pc_id = "home";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
-  /*
-  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
-  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
+  //*
+  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
+  //QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -964,9 +964,12 @@ void MainWindow::on_pushButton_clicked() {
 
   bool should_compute_errors = false;
 
+  // Set limits on axes.
+  contour_plot_->setAxesLimit(0); // This function doesn't work as the arguments suggest.
+
   //*/
 
-  //*
+  /*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
   QString p2 = "1";
@@ -1272,14 +1275,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, new assumed input, weighted plugin, prognosis delay, T=100, sz262";
+  QString expDesc = "DESDA, assumed input, fixed statistics, prognosis delay 1, T=100, sz261";
   QString plot_description = "assumed input; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1710";
+  QString expNum = "1713";
 
   // Text data reader
   /*

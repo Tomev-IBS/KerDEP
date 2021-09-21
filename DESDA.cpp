@@ -27,7 +27,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
-  max_prognosis_error_clusters_ = _maxM;
+  max_prognosis_error_clusters_ = _minM;
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -147,7 +147,6 @@ void DESDA::performStep() {
 
   if(stationarityTests.size() == 1) {
     prognosis_cluster_._currentKDEValue = std::stod(_objects.back()->attributesValues["Val0"]);
-    qDebug() << "Value: " << prognosis_cluster_._currentKDEValue;
   }
 
   updatePrognosisParameters();
@@ -162,7 +161,6 @@ void DESDA::performStep() {
   if(_stepNumber > 1){
     prognosis_errors_.insert(prognosis_errors_.begin(),
                              prognosis_cluster_.getLastPrediction() - prognosis_cluster_._currentKDEValue);
-    qDebug() << "Error: " << prognosis_errors_[0];
   }
 
   e_ = prognosis_errors_.empty() ? 0 : prognosis_errors_[0];
@@ -170,8 +168,6 @@ void DESDA::performStep() {
   UpdateHypothesisResults();
 
   prognosis_cluster_.updatePrediction();
-  qDebug() << "Last prediction: " << prognosis_cluster_.getLastPrediction() << "\nParams: "
-            << prognosis_cluster_.predictionParameters;
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices) {
