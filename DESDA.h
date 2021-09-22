@@ -89,6 +89,8 @@ class DESDA
     int a001_ = 0;
     double x_t = 0; // Debug
     double x_t_minus_1_prog = 0; // Debug
+    double avg = 0;
+    double std = 0;
 
     const double r010_ = 1.64;
     const double r005_ = 1.96;

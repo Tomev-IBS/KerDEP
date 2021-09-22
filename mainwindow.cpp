@@ -1275,14 +1275,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, assumed input, additional labels, prognosis delay 1, T=100, sz261";
+  QString expDesc = "DESDA, assumed input, additional labels, prognosis delay 1, T=1000, sz262";
   QString plot_description = "assumed input; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1714";
+  QString expNum = "1715";
 
   // Text data reader
   /*
@@ -1393,10 +1393,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
   //*
-  AddDoubleLabelToPlot("X_(t-1)^1  = ", &(DESDAAlgorithm.x_t));
-  AddDoubleLabelToPlot("X_t        = " , &(DESDAAlgorithm.x_t_minus_1_prog));
+  AddDoubleLabelToPlot("X_(t-1)^1  = ", &(DESDAAlgorithm.x_t_minus_1_prog));
+  AddDoubleLabelToPlot("X_t        = " , &(DESDAAlgorithm.x_t));
   AddDoubleLabelToPlot("e_t        = ", &(DESDAAlgorithm.e_));
   AddDoubleLabelToPlot("S_t        = " , &(DESDAAlgorithm.statistics_));
+  AddDoubleLabelToPlot("avg        = ", &(DESDAAlgorithm.avg));
+  AddDoubleLabelToPlot("std        = " , &(DESDAAlgorithm.std));
   AddIntLabelToPlot("alfa_0.10  = ", &(DESDAAlgorithm.a010_));
   AddIntLabelToPlot("alfa_0.05  = ", &(DESDAAlgorithm.a005_));
   AddIntLabelToPlot("alfa_0.01  = ", &(DESDAAlgorithm.a001_));
