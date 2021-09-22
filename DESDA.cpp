@@ -109,8 +109,6 @@ void DESDA::performStep() {
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-
-
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
@@ -158,16 +156,13 @@ void DESDA::performStep() {
     prognosis_errors_.pop_back();
   }
 
-  if(_stepNumber > 1){
-    prognosis_errors_.insert(prognosis_errors_.begin(),
-                             prognosis_cluster_.getLastPrediction() - prognosis_cluster_._currentKDEValue);
-  }
+  prognosis_errors_.insert(prognosis_errors_.begin(),
+                           prognosis_cluster_.getLastPrediction() - prognosis_cluster_._currentKDEValue);
+
 
   e_ = prognosis_errors_.empty() ? 0 : prognosis_errors_[0];
   statistics_ = ComputeStatistics(prognosis_errors_);
   UpdateHypothesisResults();
-
-  prognosis_cluster_.updatePrediction();
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices) {
@@ -900,7 +895,7 @@ double DESDA::ComputePrognosisError(const vector<double> &errors) const {
 }
 
 double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
-  return average(errors) / stdev(errors);
+  return _stepNumber < 2 ? 0 : average(errors) / stdev(errors);
 }
 
 void DESDA::UpdateHypothesisResults() {
