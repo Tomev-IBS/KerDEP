@@ -109,9 +109,35 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "r         = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
   leftColumnText += "q         = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
   leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
+  // Statistics, added 7 X 2021
+  leftColumnText += "\n";
+  while(_DESDAAlgorithm->statistics_.size() < 2){
+    _DESDAAlgorithm->statistics_.push_back(0);
+  }
+  leftColumnText += "TS_1      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[0]);
+
+  if(_DESDAAlgorithm->statistics_[0] >= 0.3){
+    leftColumnText += "?";
+  }
+  if(_DESDAAlgorithm->statistics_[0] >= 0.5){
+    leftColumnText += "!";
+  }
+
+  leftColumnText += "\n";
+
+  leftColumnText += "TS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
+
+  if(_DESDAAlgorithm->statistics_[1] >= 0.3){
+    leftColumnText += "?";
+  }
+  if(_DESDAAlgorithm->statistics_[1] >= 0.5){
+    leftColumnText += "!";
+  }
+
+  leftColumnText += "\n";
 
   if(should_print_errors){
-    leftColumnText += "\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    leftColumnText += "\n\n\n\n\n\n\n\n\n\n\n";
     leftColumnText += "";
     leftColumnText += "estimated";
     //leftColumnText += "\n\n";

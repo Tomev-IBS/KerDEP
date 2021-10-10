@@ -83,12 +83,7 @@ class DESDA
 
     // Prognosis error
     double e_ = 0;
-    double statistics_ = 0;
-    int a010_ = 0;
-    int a005_ = 0;
-    int a001_ = 0;
-    double x_t = 0; // Debug
-    double x_t_minus_1_prog = 0; // Debug
+    std::vector<double> statistics_ = {};
     double avg = 0;
     double std = 0;
 
@@ -124,13 +119,15 @@ class DESDA
     void updateMaxAbsDerivativeInCurrentStep();
 
     // Prognosis error
+    std::vector<cluster> prognosis_clusters_ = {};
     cluster prognosis_cluster_;
-    std::vector<double> prognosis_errors_ = {};
+    std::vector<std::vector<double>> prognosis_errors_ = {};
     int max_prognosis_error_clusters_ = 1;
     vector<double> GetPrognosisErrors();
     double ComputePrognosisError(const std::vector<double> &errors) const;
     double ComputeStatistics(const std::vector<double> &errors) const;
-    void UpdateHypothesisResults();
+    vector<double> vals = {}; // DEBUG
+    vector<int> ms = {}; // DEBUG
 
     // Domain reduction
     std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);

@@ -866,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -882,7 +882,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -947,12 +947,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1712";
+  QString expNum = "1725";
   QString pc_id = "home";
-  int drawing_start_step = 0;
+  int drawing_start_step = 420;
   int errors_calculation_start_step = 0;
 
-  //*
+  /*
   QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
   //QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
@@ -969,7 +969,7 @@ void MainWindow::on_pushButton_clicked() {
 
   //*/
 
-  /*
+  //*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
   QString p2 = "1";
@@ -981,11 +981,11 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
 
   if(p2.toDouble() > 1e-10){
-    p2=p2+"p1";
+    p2=p2+"p_1";
   }
 
   // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed input; 2D; p2=" + p2; QString expDesc = "assumed input 2D, p2=" + p2 + ", " + pc_id;
+  QString experiment_description = "assumed input; 2D; p_2=" + p2; QString expDesc = "assumed input 2D, p_2=" + p2 + ", " + pc_id;
 
   // Set limits on axes.
   contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
@@ -1055,11 +1055,11 @@ void MainWindow::on_pushButton_clicked() {
 
   // Prepare image location.
   this->setWindowTitle("Experiment #" + expNum);
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   int steps_number = ui->lineEdit_iterationsNumber->text().toInt();
@@ -1239,7 +1239,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1275,14 +1275,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, assumed input, additional labels, prognosis delay 1, T=1000, sz262";
+  QString expDesc = "DESDA, assumed input, const v=0.99 for everything, T=100, home";
   QString plot_description = "assumed input; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1715";
+  QString expNum = "1724";
 
   // Text data reader
   /*
@@ -1330,11 +1330,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   this->setWindowTitle("Experiment #" + expNum);
 
-  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
@@ -1375,7 +1376,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel KPSSTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "KPSS         = 0");
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("sgmKPSS    = ", &DESDAAlgorithm._sgmKPSS);
+  AddDoubleLabelToPlot("sgmKPSS    =", &DESDAAlgorithm._sgmKPSS);
   label_vertical_offset_ += label_vertical_offset_step_;
 
   //AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
@@ -1387,21 +1388,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
   //label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("r          = ", &(DESDAAlgorithm._r));
-  AddDoubleLabelToPlot("q          = ", &(DESDAAlgorithm._quantileEstimator));
+  AddDoubleLabelToPlot("r          =", &(DESDAAlgorithm._r));
+  AddDoubleLabelToPlot("q          =", &(DESDAAlgorithm._quantileEstimator));
   AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
   label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
   //*
-  AddDoubleLabelToPlot("X_(t-1)^1  = ", &(DESDAAlgorithm.x_t_minus_1_prog));
-  AddDoubleLabelToPlot("X_t        = " , &(DESDAAlgorithm.x_t));
-  AddDoubleLabelToPlot("e_t        = ", &(DESDAAlgorithm.e_));
-  AddDoubleLabelToPlot("S_t        = " , &(DESDAAlgorithm.statistics_));
-  AddDoubleLabelToPlot("avg        = ", &(DESDAAlgorithm.avg));
-  AddDoubleLabelToPlot("std        = " , &(DESDAAlgorithm.std));
-  AddIntLabelToPlot("alfa_0.10  = ", &(DESDAAlgorithm.a010_));
-  AddIntLabelToPlot("alfa_0.05  = ", &(DESDAAlgorithm.a005_));
-  AddIntLabelToPlot("alfa_0.01  = ", &(DESDAAlgorithm.a001_));
+  QString signal_exclamation_points = "                    ";
+  plotLabel signal_exclamation_point_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                                           signal_exclamation_points);
+
+  AddDoubleLabelToPlot("TS_t       =" , &(DESDAAlgorithm.statistics_[0]));
+
   //label_vertical_offset_ += label_vertical_offset_step_;
 
   //label_vertical_offset_ += 3 * label_vertical_offset_step_;
@@ -1432,7 +1430,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   if(compute_errors) {
 
     //QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
-    QVector<QString> l2_labels = {"L2 = ", "L2 = ", "L2 = ", "L2 = ", "L2 = "};
+    QVector<QString> l2_labels = {"L2 =", "L2 =", "L2 =", "L2 =", "L2 ="};
     //QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
     //QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
 
@@ -1573,6 +1571,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
+      signal_exclamation_points = "                    ";
+
+      if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.3){
+        signal_exclamation_points += "!";
+      }
+
+      if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.5){
+        signal_exclamation_points += "!";
+      }
+
+      signal_exclamation_point_label.setText(signal_exclamation_points);
+
       for(auto i = 0; i < date_labels.size(); ++i) {
         date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
       }
@@ -1582,6 +1592,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
 
     dateTime = dateTime.addSecs(3600); // Bike sharing
   }

@@ -27,7 +27,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
-  max_prognosis_error_clusters_ = _maxM;
+  max_prognosis_error_clusters_ = _minM;
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -39,6 +39,8 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
 
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
+    prognosis_clusters_.push_back(cluster(-1));
+    prognosis_errors_.push_back(std::vector<double>());
   }
 
 }
@@ -126,7 +128,12 @@ void DESDA::performStep() {
   updateM();
   updateExaminedClustersIndices(); // For labels update
 
-  _v = _m > _clusters->size() ? 1.0 - 1.0 / _clusters->size() : 1.0 - 1.0 / _m;
+  // DEBUG
+  //ms.push_back(_m);
+  //qDebug() << "ms: " << ms;
+  // DEBUG
+
+  _v =  1.0 - 1.0 / _minM;
   cluster::_deactualizationParameter = _v;
 
   // Calculate smoothing parameters
@@ -143,8 +150,9 @@ void DESDA::performStep() {
   // Update clusters prognosis
   countKDEValuesOnClusters();
 
-  if(stationarityTests.size() == 1) {
-    prognosis_cluster_._currentKDEValue = std::stod(_objects.back()->attributesValues["Val0"]);
+  for(size_t i = 0; i < stationarityTests.size(); ++i){
+    std::string attr_key = "Val" + std::to_string(i);
+    prognosis_clusters_[i]._currentKDEValue = std::stod(_objects.back()->attributesValues[attr_key]);
   }
 
   updatePrognosisParameters();
@@ -152,21 +160,26 @@ void DESDA::performStep() {
 
   updateMaxAbsDerivativeInCurrentStep();
 
-  while(prognosis_errors_.size() >= max_prognosis_error_clusters_){
-    prognosis_errors_.pop_back();
+  statistics_.clear();
+
+  for(size_t i = 0; i < prognosis_errors_.size(); ++i){
+
+    while(prognosis_errors_[i].size() >= max_prognosis_error_clusters_){
+      prognosis_errors_[i].pop_back();
+    }
+
+    prognosis_errors_[i].insert(prognosis_errors_[i].begin(),
+                                prognosis_clusters_[i].getLastPrediction() - prognosis_clusters_[i]._currentKDEValue);
+
+
+    e_ = prognosis_errors_[i].empty() ? 0 : prognosis_errors_[i][0];
+    statistics_.push_back(ComputeStatistics(prognosis_errors_[i]));
+
+    avg = average(prognosis_errors_[i]);
+    std = stdev(prognosis_errors_[i]);
+
+    prognosis_cluster_.updatePrediction();
   }
-
-  prognosis_errors_.insert(prognosis_errors_.begin(),
-                           prognosis_cluster_.getLastPrediction() - prognosis_cluster_._currentKDEValue);
-
-
-  e_ = prognosis_errors_.empty() ? 0 : prognosis_errors_[0];
-  statistics_ = ComputeStatistics(prognosis_errors_);
-
-  avg = average(prognosis_errors_);
-  std = stdev(prognosis_errors_);
-
-  UpdateHypothesisResults();
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices) {
@@ -394,7 +407,7 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (1000);
+  double stepSize = (domainMaxValue - domainMinValue) / (100);
 
   for(auto val = domainMinValue; val < domainMaxValue; val += stepSize) {
     domain.push_back(val);
@@ -413,7 +426,7 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (1000);
+  double stepSize = (domainMaxValue - domainMinValue) / (100);
 
   for(auto val = domainMinValue; val <= domainMaxValue; val += stepSize) {
     domain.push_back(val);
@@ -901,15 +914,6 @@ double DESDA::ComputePrognosisError(const vector<double> &errors) const {
 double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
   return _stepNumber < 2 ? 0 : average(errors) / stdev(errors);
 }
-
-void DESDA::UpdateHypothesisResults() {
-  double statistics_module = fabs(statistics_);
-
-  a001_ = statistics_module > r001_ ? 0 : 1;
-  a005_ = statistics_module > r005_ ? 0 : 1;
-  a010_ = statistics_module > r010_ ? 0 : 1;
-}
-
 
 
 
