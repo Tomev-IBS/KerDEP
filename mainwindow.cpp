@@ -882,7 +882,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -947,8 +947,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1727 (DEDSTA 6)";
-  QString pc_id = "sz221";
+  QString expNum = "1727-2 (DEDSTA 6)";
+  QString pc_id = "sz222";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
