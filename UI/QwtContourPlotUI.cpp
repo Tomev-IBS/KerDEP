@@ -96,8 +96,8 @@ void QwtContourPlotUI::updateLeftColumnText()
   //leftColumnText += _levelsString;
   //leftColumnText += _seedString;
   leftColumnText += "\n";
-  leftColumnText += "KPSS      = " + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
-  leftColumnText += "sgmKPSS   = " + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
+  leftColumnText += "KPSS      =" + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
+  leftColumnText += "sgmKPSS   =" + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
   leftColumnText += "\n";
   //leftColumnText += _mKPSSString;
   //leftColumnText += _mMaxString;
@@ -106,8 +106,8 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "\n";
   //leftColumnText += "beta0 =" + formatNumberForDisplay(_DESDAAlgorithm->_beta0) + "\n";
   //leftColumnText += "\n";
-  leftColumnText += "r         = " + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
-  leftColumnText += "q         = " + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
+  leftColumnText += "r         =" + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
+  leftColumnText += "q         =" + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
   leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
   // Statistics, added 7 X 2021
   leftColumnText += "\n";
@@ -116,22 +116,20 @@ void QwtContourPlotUI::updateLeftColumnText()
   }
   leftColumnText += "TS_1      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[0]);
 
-  if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
-    leftColumnText += "?";
-  }
   if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.5){
-    leftColumnText += "!";
+    leftColumnText += " !";
+  } else if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
+    leftColumnText += " ?";
   }
 
   leftColumnText += "\n";
 
   leftColumnText += "TS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
 
-  if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
-    leftColumnText += "?";
-  }
   if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.5){
-    leftColumnText += "!";
+    leftColumnText += " !";
+  } else if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
+    leftColumnText += " ?";
   }
 
   leftColumnText += "\n";
@@ -201,7 +199,7 @@ void QwtContourPlotUI::updateColoredColumnText()
 QString QwtContourPlotUI::formatNumberForDisplay(const double& number)
 {
   // According to PK the number should be displayed as #.######
-  QString result = "";
+  QString result = " ";
 
   if(number < 0) result = "";
 
