@@ -980,12 +980,20 @@ void MainWindow::on_pushButton_clicked() {
   // Only to remove problems initialize the date
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
 
-  if(p2.toDouble() > 1e-10){
+  if(p2.size() > 1){
     p2=p2+"p_1";
   }
 
+  if(p2 == "1"){
+    p2 = "p1";
+  }
+
+  if(p2 == "0"){
+    p2 = "0";
+  }
+
   // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed input; 2D; p_2=" + p2; QString expDesc = "assumed input 2D, p_2=" + p2 + ", " + pc_id;
+  QString experiment_description = "assumed data stream; 2D; p_2=" + p2; QString expDesc = "assumed data stream 2D, p_2=" + p2 + ", " + pc_id;
 
   // Set limits on axes.
   contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
@@ -1275,8 +1283,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, assumed input, const v=0.99 for everything, T=100, home";
-  QString plot_description = "assumed input; 1D";
+  QString expDesc = "DESDA, assumed data stream, const v=0.99 for everything, T=100, home";
+  QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
@@ -1652,7 +1660,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
   QString expNum = "1668 (CK)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "assumed input, m = " + QString::number(number_of_cluster_kernels)
+  QString expDesc = "assumed data stream, m = " + QString::number(number_of_cluster_kernels)
                     + ",sz422, mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
   screen_generation_frequency_ = 10;
 
@@ -1926,7 +1934,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   QString expNum = "1667 (Thresholded Weighted Window WDE)";
   //QString expNum = "THRESHOLDED_WDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "assumed input, soft threshold, b=" + QString::number(number_of_elements_per_block) +
+  QString expDesc = "assumed data stream, soft threshold, b=" + QString::number(number_of_elements_per_block) +
                     ", omega=" + QString::number(weight_modifier) +
                     ", M=" + QString::number(maximal_number_of_coefficients);
   screen_generation_frequency_ = 10;
@@ -2213,7 +2221,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   QString expNum = "1666 (SOMKE)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "assumed input, fixed threshold, original training, sz002"
+  QString expDesc = "assumed data stream, fixed threshold, original training, sz002"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
