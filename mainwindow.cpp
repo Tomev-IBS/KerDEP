@@ -1398,7 +1398,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel signal_exclamation_point_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                                            signal_exclamation_points);
 
-  AddDoubleLabelToPlot("TS_t       =" , &(DESDAAlgorithm.statistics_[0]));
+  AddDoubleLabelToPlot("TS         =" , &(DESDAAlgorithm.statistics_[0]));
 
   //label_vertical_offset_ += label_vertical_offset_step_;
 
