@@ -429,8 +429,8 @@ unsigned long long MainWindow::MarkUncommonClusters() {
 }
 
 QString MainWindow::FormatNumberForDisplay(double number) {
-  // According to PK the number should be displayed as #.######
-  QString result = "";
+  // According to PK the number should be displayed as #.###
+  QString result = " ";
 
   if(number < 0) result = "";
 
@@ -1030,7 +1030,7 @@ void MainWindow::on_pushButton_clicked() {
       samplingAlgorithm,
       clusters_,
       ui->lineEdit_rarity->text().toDouble(), pluginRank
-  );
+                      );
 
   // Start the test
   step_number_ = 0;
@@ -1333,7 +1333,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       algorithm,
       clusters_,
       ui->lineEdit_rarity->text().toDouble(), pluginRank
-  );
+                      );
 
 
   this->setWindowTitle("Experiment #" + expNum);
@@ -1364,7 +1364,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ = 0.01;
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                        plot_description);
+                       plot_description);
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
@@ -1406,12 +1406,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel signal_exclamation_point_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                                            signal_exclamation_points);
 
-  AddDoubleLabelToPlot("TS         =" , &(DESDAAlgorithm.statistics_[0]));
+  //AddDoubleLabelToPlot("TS         =" , &(DESDAAlgorithm.statistics_[0]));
+  plotLabel statisticsTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "TS           = 0");
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   //label_vertical_offset_ += label_vertical_offset_step_;
 
   //label_vertical_offset_ += 3 * label_vertical_offset_step_;
-
 
   AddColorsLegendToPlot();
 
@@ -1559,8 +1560,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
     }
 
     if(drawing_start_step <= step_number_ &&
-    ( step_number_ % screen_generation_frequency_ == 0 ||
-      additionalScreensSteps.contains(step_number_))) {
+       ( step_number_ % screen_generation_frequency_ == 0 ||
+         additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
       kernel_prognosis_derivative_values_ =
@@ -1568,7 +1569,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
       // ============= LEFT SIDE UPDATE ================ //
 
-      KPSSTextLabel.setText("KPSS       = " + FormatNumberForDisplay(
+      KPSSTextLabel.setText("KPSS       =" + FormatNumberForDisplay(
           DESDAAlgorithm.getStationarityTestValue()));
 
       if(step_number_ >= drawing_start_step) {
@@ -1579,10 +1580,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
         label->updateText();
       }
 
-      signal_exclamation_points = "                    ";
+      signal_exclamation_points = "                   ";
+
+      statisticsTextLabel.setText("TS         =" + FormatNumberForDisplay(
+          DESDAAlgorithm.statistics_[0]));
 
       if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.3){
-        signal_exclamation_points += "!";
+        signal_exclamation_points += "?";
       }
 
       if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.5){
