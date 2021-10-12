@@ -178,7 +178,8 @@ void DESDA::performStep() {
     avg = average(prognosis_errors_[i]);
     std = stdev(prognosis_errors_[i]);
 
-    prognosis_cluster_.updatePrediction();
+    //prognosis_cluster_.updatePrediction();
+    prognosis_clusters_[i].updatePrediction();
   }
 
   _examinedClustersDerivatives.clear();
