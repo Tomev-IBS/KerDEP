@@ -1283,14 +1283,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DESDA, assumed data stream, const v=0.99 for everything, T=100, home";
+  QString expDesc = "DESDA, assumed data stream, T=100, sz220";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1724";
+  QString expNum = "1726 (1 DEDSTA)";
 
   // Text data reader
   /*
