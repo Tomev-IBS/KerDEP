@@ -981,7 +981,7 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
 
   if(p2.size() > 1){
-    p2=p2+"p_1";
+    p2=p2+"p1";
   }
 
   if(p2 == "1"){
@@ -993,7 +993,7 @@ void MainWindow::on_pushButton_clicked() {
   }
 
   // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed data stream; 2D; p_2=" + p2; QString expDesc = "assumed data stream 2D, p_2=" + p2 + ", " + pc_id;
+  QString experiment_description = "assumed data stream; 2D; p2=" + p2; QString expDesc = "assumed data stream 2D, p2=" + p2 + ", " + pc_id;
 
   // Set limits on axes.
   contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
