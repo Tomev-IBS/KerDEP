@@ -116,10 +116,10 @@ void QwtContourPlotUI::updateLeftColumnText()
   }
   leftColumnText += "TS_1      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[0]);
 
-  if(_DESDAAlgorithm->statistics_[0] >= 0.3){
+  if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
     leftColumnText += "?";
   }
-  if(_DESDAAlgorithm->statistics_[0] >= 0.5){
+  if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.5){
     leftColumnText += "!";
   }
 
@@ -127,10 +127,10 @@ void QwtContourPlotUI::updateLeftColumnText()
 
   leftColumnText += "TS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
 
-  if(_DESDAAlgorithm->statistics_[1] >= 0.3){
+  if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
     leftColumnText += "?";
   }
-  if(_DESDAAlgorithm->statistics_[1] >= 0.5){
+  if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.5){
     leftColumnText += "!";
   }
 
