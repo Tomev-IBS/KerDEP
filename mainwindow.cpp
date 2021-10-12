@@ -947,7 +947,7 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1728 (9a DEDSTA)";
+  QString expNum = "1729 (9a DEDSTA)";
   QString pc_id = "sz233";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
