@@ -81,7 +81,7 @@ double var(const std::vector<double> &v){
 
   for(auto val : v){ var += val; }
 
-  var *= var / n;
+  var *= -var / n;
 
   for(auto val : v){ var += val * val; }
 
@@ -153,6 +153,9 @@ void DESDA::performStep() {
   for(size_t i = 0; i < stationarityTests.size(); ++i){
     std::string attr_key = "Val" + std::to_string(i);
     prognosis_clusters_[i]._currentKDEValue = std::stod(_objects.back()->attributesValues[attr_key]);
+    // DEBUG //
+      //vals.push_back(std::stod(_objects.back()->attributesValues[attr_key]));
+    // DEBUG //
   }
 
   updatePrognosisParameters();
@@ -168,12 +171,22 @@ void DESDA::performStep() {
       prognosis_errors_[i].pop_back();
     }
 
-    prognosis_errors_[i].insert(prognosis_errors_[i].begin(),
-                                prognosis_clusters_[i].getLastPrediction() - prognosis_clusters_[i]._currentKDEValue);
+    if(_stepNumber != 1) {
+      prognosis_errors_[i].insert(prognosis_errors_[i].begin(),
+                                  prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction());
+    }
 
+    // DEBUG //
+      // qDebug() << prognosis_clusters_[i]._currentKDEValue << " - " << prognosis_clusters_[i].getLastPrediction() << " = " << prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction();
+      // errors.push_back(prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction());
+      // progs.push_back(prognosis_clusters_[i].getLastPrediction());
+    // DEBUG //
 
     e_ = prognosis_errors_[i].empty() ? 0 : prognosis_errors_[i][0];
     statistics_.push_back(ComputeStatistics(prognosis_errors_[i]));
+    // DEBUG //
+      // stats.push_back(statistics_[0]);
+    // DEBUG //
 
     avg = average(prognosis_errors_[i]);
     std = stdev(prognosis_errors_[i]);
@@ -194,6 +207,13 @@ void DESDA::performStep() {
 
   // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
+
+  // DEBUG //
+    //qDebug() << "Progs: " << progs;
+    //qDebug() << "Vals: " << vals;
+    //qDebug() << "Stats: " << stats;
+    //qDebug() << "\n\nErr: " << prognosis_errors_[0];
+  // DEBUG //
 
   ++_stepNumber;
 }
@@ -913,7 +933,15 @@ double DESDA::ComputePrognosisError(const vector<double> &errors) const {
 }
 
 double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
-  return _stepNumber < 2 ? 0 : average(errors) / stdev(errors);
+  if(errors.size() > 1){
+    // DEBUG //
+      // qDebug() << "Err:" << errors;
+      // qDebug() << "Avg: " << average(errors);
+      // qDebug() << "Std: " << stdev(errors);
+    // DEBUG //
+    return average(errors) / stdev(errors);
+  }
+  return 0;
 }
 
 

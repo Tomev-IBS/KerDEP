@@ -86,6 +86,12 @@ class DESDA
     std::vector<double> statistics_ = {};
     double avg = 0;
     double std = 0;
+    // DEBUG
+      //QVector<double> vals;
+      //QVector<double> progs;
+      //QVector<double> stats;
+      //QVector<double> errors;
+    // DEBUG
 
     const double r010_ = 1.64;
     const double r005_ = 1.96;
@@ -126,8 +132,6 @@ class DESDA
     vector<double> GetPrognosisErrors();
     double ComputePrognosisError(const std::vector<double> &errors) const;
     double ComputeStatistics(const std::vector<double> &errors) const;
-    vector<double> vals = {}; // DEBUG
-    vector<int> ms = {}; // DEBUG
 
     // Domain reduction
     std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);

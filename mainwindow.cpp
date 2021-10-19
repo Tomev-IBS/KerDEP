@@ -866,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1283,14 +1283,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DEDSTA, assumed data stream, T=100, sz220";
+  QString expDesc = "DEDSTA, assumed data stream, T=100, sz235";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1726 (1 DEDSTA)";
+  QString expNum = "1748 (TS Tests)";
 
   // Text data reader
   /*
@@ -1591,7 +1591,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
         signal_exclamation_points += "?";
       }
 
-      signal_exclamation_point_label.setText(signal_exclamation_points);
+      signal_exclamation_point_label.setText("");
 
       for(auto i = 0; i < date_labels.size(); ++i) {
         date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
