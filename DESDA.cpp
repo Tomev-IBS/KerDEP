@@ -27,7 +27,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
-  max_prognosis_error_clusters_ = _minM;
+  max_prognosis_error_clusters_ = 600;
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
@@ -177,7 +177,7 @@ void DESDA::performStep() {
     }
 
     // DEBUG //
-      // qDebug() << prognosis_clusters_[i]._currentKDEValue << " - " << prognosis_clusters_[i].getLastPrediction() << " = " << prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction();
+      qDebug() << prognosis_clusters_[i]._currentKDEValue << " - " << prognosis_clusters_[i].getLastPrediction() << " = " << prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction();
       // errors.push_back(prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction());
       // progs.push_back(prognosis_clusters_[i].getLastPrediction());
     // DEBUG //
@@ -428,7 +428,7 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (500);
+  double stepSize = (domainMaxValue - domainMinValue) / (100);
 
   for(auto val = domainMinValue; val < domainMaxValue; val += stepSize) {
     domain.push_back(val);
@@ -447,7 +447,7 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (500);
+  double stepSize = (domainMaxValue - domainMinValue) / (100);
 
   for(auto val = domainMinValue; val <= domainMaxValue; val += stepSize) {
     domain.push_back(val);

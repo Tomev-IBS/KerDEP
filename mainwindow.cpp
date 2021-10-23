@@ -866,7 +866,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -947,8 +947,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1729 (9a DEDSTA)";
-  QString pc_id = "sz233";
+  QString expNum = "1761 (9a DEDSTA with TS)";
+  QString pc_id = "sz234";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
@@ -981,11 +981,11 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
 
   if(p2.size() > 1){
-    p2=p2+"p1";
+    p2=p2+" p_1";
   }
 
   if(p2 == "1"){
-    p2 = "p1";
+    p2 = " p_1";
   }
 
   if(p2 == "0"){
@@ -993,7 +993,7 @@ void MainWindow::on_pushButton_clicked() {
   }
 
   // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed data stream; 2D; p2=" + p2; QString expDesc = "assumed data stream 2D, p2=" + p2 + ", " + pc_id;
+  QString experiment_description = "assumed data stream; 2D; p_2 = " + p2; QString expDesc = "assumed data stream 2D, p_2 = " + p2 + ", " + pc_id;
 
   // Set limits on axes.
   contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
@@ -1283,14 +1283,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs, 55))
                );
   bool compute_errors = true;
-  QString expDesc = "DEDSTA, assumed data stream, T=100, sz235";
+  QString expDesc = "DEDSTA, assumed data stream, T=100, Home";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1748 (TS Tests)";
+  QString expNum = "(Open MP Parallel KDE Tests)";
 
   // Text data reader
   /*

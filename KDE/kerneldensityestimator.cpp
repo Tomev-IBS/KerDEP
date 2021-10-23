@@ -116,21 +116,24 @@ double kernelDensityEstimator::getProductKernelValue(vector<double> *x)
 
 double kernelDensityEstimator::getProductValuesFromClusters(vector<double>* x)
 {
-  double result = 0.0, addend;
-  vector<double> sample;
-  int i = 0, index = 0;
+  double result = 0.0;
 
-  for(std::shared_ptr<cluster> c : clusters)
+  #pragma omp parallel for default(none) shared(x, kernels) reduction (+:result)
+  for(size_t i = 0; i < clusters.size(); ++i)
   {
-    addend = getProductKernelAddendFromClusterIndex(index++, x);
+    auto c = clusters[i];
+
+    double addend = getProductKernelAddendFromClusterIndex(i, x);
 
     if(_shouldConsiderWeights)
       addend *= c->getCWeight();
 
     if(clusters.size() == additionalMultipliers.size())
     {
-      addend *= additionalMultipliers[i++];
+      addend *= additionalMultipliers[i];
     }
+
+    i++;
 
     if(_shouldConsiderWeights)
     {

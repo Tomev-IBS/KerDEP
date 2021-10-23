@@ -116,21 +116,25 @@ void QwtContourPlotUI::updateLeftColumnText()
   }
   leftColumnText += "TS_1      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[0]);
 
+  /*
   if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.5){
     leftColumnText += " !";
   } else if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
     leftColumnText += " ?";
   }
+  */
 
   leftColumnText += "\n";
 
   leftColumnText += "TS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
 
+  /*
   if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.5){
     leftColumnText += " !";
   } else if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
     leftColumnText += " ?";
   }
+  */
 
   leftColumnText += "\n";
 
@@ -224,7 +228,7 @@ void QwtContourPlotUI::updateRightColumnText() {
   QString right_column_text = "";
 
   if(should_print_errors){
-    right_column_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nL2 = " + formatNumberForDisplay(*_L2Error);
+    right_column_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nL_2 = " + formatNumberForDisplay(*_L2Error);
   }
 
   right_column_.setText(right_column_text);
