@@ -8,7 +8,7 @@
 class normalDistribution : public distribution
 {
     public:
-        normalDistribution(int seed, vector<double>* means, vector<double>* stDevs, double maxMean);
+        normalDistribution(int seed, vector<double>* means, vector<double>* stDevs);
 
         void getValue(vector<double>* result);
         void increaseMeans(double addend, int index=-1);
@@ -19,8 +19,6 @@ class normalDistribution : public distribution
         vector<std::normal_distribution<double>*> distributions;
 
         matrix A;
-
-        double _maxMean = 0;
 
         void fillA(vector<vector<double> *> *covarianceMatrix);
 };

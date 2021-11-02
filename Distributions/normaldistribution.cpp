@@ -4,8 +4,8 @@
 #include <QDebug>
 
 normalDistribution::normalDistribution(int seed, vector<double> *means,
-                                       vector<double> *stDevs, double maxMean) :
-    means(means), stDevs(stDevs), _maxMean(maxMean)
+                                       vector<double> *stDevs) :
+    means(means), stDevs(stDevs)
 {
     generator = std::default_random_engine(seed);
 
@@ -51,19 +51,12 @@ void normalDistribution::increaseMeans(double addend, int index)
 {
   // Update mean at index, if it has been provided.
   if(index > -1 || means->size() > index){
-    if(means->at(index) < _maxMean){
-      (*means)[index] += addend;
-    }
-    return;
+    (*means)[index] += addend;
   }
 
   // Otherwise update all means
   for(size_t i = 0; i < means->size(); ++i)
   {
-    // TODO: FIXED THRESHOLD FOR RESEARCHES
-    if(means->at(i) < _maxMean)
-    {
-      (*means)[i] += addend;
-    }
+    (*means)[i] += addend;
   }
 }
