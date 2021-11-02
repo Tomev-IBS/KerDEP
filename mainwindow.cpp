@@ -559,8 +559,7 @@ distribution *MainWindow::GenerateTargetDistribution(
         std::shared_ptr<distribution>(
             new normalDistribution(seed,
                                    (*means)[functionIndex].get(),
-                                   (*stDevs)[functionIndex].get(),
-                                   maxMean)));
+                                   (*stDevs)[functionIndex].get())));
   }
 
   return new complexDistribution(seed, &elementalDistributions, &contributions);
@@ -947,14 +946,14 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1761 (9a DEDSTA with TS)";
-  QString pc_id = "sz234";
+  QString expNum = "1758-3 (6 DEDSTA with hinted TS, T=600)";
+  QString pc_id = "sz239";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
-  /*
-  QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
-  //QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
+  //*
+  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
+  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -969,13 +968,13 @@ void MainWindow::on_pushButton_clicked() {
 
   //*/
 
-  //*
+  /*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
   QString p2 = "0";
 
   // Prepare the reader
-  reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,55), p2.toDouble()));
+  reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution), p2.toDouble()));
 
   // Only to remove problems initialize the date
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
@@ -1280,7 +1279,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                             0,  // Delay
                                             new normalDistribution(seedString.toInt(),
                                                                    &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
   bool compute_errors = true;
   double p2 = 0.02;
@@ -1653,7 +1652,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                             progressionSize,
                                             0,  /* Delay */
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1921,7 +1920,7 @@ void MainWindow::Run1DExperimentWithWDE() {
                                             progressionSize,
                                             0,  /* Delay */
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -2202,7 +2201,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
                                             progressionSize,
                                             0,  /* Delay */
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -2668,7 +2667,7 @@ void MainWindow::RunAccuracyExperiment() {
                                               0,
                                               0,  // Delay
                                               new normalDistribution(seed, &alternativeDistributionMean,
-                                                                     &alternativeDistributionStDevs, 55))
+                                                                     &alternativeDistributionStDevs))
                  );
 
     reader_->gatherAttributesData(&attributes_data_);

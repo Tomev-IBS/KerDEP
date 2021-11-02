@@ -116,25 +116,25 @@ void QwtContourPlotUI::updateLeftColumnText()
   }
   leftColumnText += "TS_1      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[0]);
 
-  /*
-  if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.5){
+  //*
+  if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
     leftColumnText += " !";
-  } else if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
+  } else if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.2){
     leftColumnText += " ?";
   }
-  */
+  //*/
 
   leftColumnText += "\n";
 
   leftColumnText += "TS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
 
-  /*
-  if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.5){
+  //*
+  if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
     leftColumnText += " !";
-  } else if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
+  } else if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.2){
     leftColumnText += " ?";
   }
-  */
+  //*/
 
   leftColumnText += "\n";
 
