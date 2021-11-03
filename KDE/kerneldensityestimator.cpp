@@ -118,7 +118,7 @@ double kernelDensityEstimator::getProductValuesFromClusters(vector<double>* x)
 {
   double result = 0.0;
 
-  #pragma omp parallel for default(none) shared(x, kernels) reduction (+:result)
+  // #pragma omp parallel for default(none) shared(x, kernels) reduction (+:result)
   for(size_t i = 0; i < clusters.size(); ++i)
   {
     auto c = clusters[i];

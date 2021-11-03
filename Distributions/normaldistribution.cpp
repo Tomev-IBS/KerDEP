@@ -52,6 +52,7 @@ void normalDistribution::increaseMeans(double addend, int index)
   // Update mean at index, if it has been provided.
   if(index > -1 || means->size() > index){
     (*means)[index] += addend;
+    return;
   }
 
   // Otherwise update all means

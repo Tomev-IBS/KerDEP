@@ -881,7 +881,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1283,11 +1283,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
                );
   bool compute_errors = true;
   double p2 = 0.02;
-  QString expDesc = "DEDSTA, assumed data stream, p_2=" + QString::number(p2) + ", sz239";
+  QString expDesc = "DEDSTA, assumed data stream, p_2=" + QString::number(p2) + ", Home";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
-  QString path_length = QString::number(2 + p2 * 2000 + 0 + 1 + 0 + 5);
+  QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
   ui->lineEdit_maxX->setText(path_length);
   //*/
 
@@ -1341,10 +1341,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   this->setWindowTitle("Experiment #" + expNum);
 
-  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1588,13 +1588,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
       statisticsTextLabel.setText("TS         =" + FormatNumberForDisplay(
           DESDAAlgorithm.statistics_[0]));
 
-      if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.5){
+      if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.3){
         signal_exclamation_points += "!";
-      } else if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.3){
+      } else if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.2){
         signal_exclamation_points += "?";
       }
 
-      signal_exclamation_point_label.setText("");
+      signal_exclamation_point_label.setText(signal_exclamation_points);
 
       for(auto i = 0; i < date_labels.size(); ++i) {
         date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
