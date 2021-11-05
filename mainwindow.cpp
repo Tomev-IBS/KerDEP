@@ -1282,8 +1282,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs))
                );
   bool compute_errors = true;
-  double p2 = 0.02;
-  QString expDesc = "DEDSTA, assumed data stream, p_2=" + QString::number(p2) + ", Home";
+  double p2 = 0.001;
+  QString expDesc = "DEDSTA, assumed data stream, p_2=" + QString::number(p2) + ", sz234";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
@@ -1292,7 +1292,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1775 (Faster assumed data stream, p="+QString::number(p2)+")";
+  QString expNum = "1780 (Fixed Slower assumed data stream, p="+QString::number(p2)+")";
 
 
   // Text data reader
