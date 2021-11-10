@@ -554,12 +554,13 @@ distribution *MainWindow::GenerateTargetDistribution(
                                                                    static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
                              ->text().toDouble()
                      );
-
+    qDebug() << "Setting seed " << seed << ".";
     elementalDistributions.push_back(
         std::shared_ptr<distribution>(
             new normalDistribution(seed,
                                    (*means)[functionIndex].get(),
                                    (*stDevs)[functionIndex].get())));
+    seed += 1;
   }
 
   return new complexDistribution(seed, &elementalDistributions, &contributions);
@@ -946,12 +947,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1758-3 (6 DEDSTA with hinted TS, T=600)";
-  QString pc_id = "sz239";
+  QString expNum = "1786 (2D, Fixed Distribution Randomization)";
+  QString pc_id = "Home";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
-  //*
+  /*
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
   QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
@@ -968,10 +969,10 @@ void MainWindow::on_pushButton_clicked() {
 
   //*/
 
-  /*
+  //*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
-  QString p2 = "0";
+  QString p2 = "1";
 
   // Prepare the reader
   reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution), p2.toDouble()));
@@ -980,11 +981,11 @@ void MainWindow::on_pushButton_clicked() {
   QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
 
   if(p2.size() > 1){
-    p2=p2+" p_1";
+    p2=p2+"p_1";
   }
 
   if(p2 == "1"){
-    p2 = " p_1";
+    p2 = "p_1";
   }
 
   if(p2 == "0"){
@@ -1062,11 +1063,11 @@ void MainWindow::on_pushButton_clicked() {
 
   // Prepare image location.
   this->setWindowTitle("Experiment #" + expNum);
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
-  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   int steps_number = ui->lineEdit_iterationsNumber->text().toInt();
@@ -1282,7 +1283,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs))
                );
   bool compute_errors = true;
-  double p2 = 0.001;
+  double p2 = 0.1;
   QString expDesc = "DEDSTA, assumed data stream, p_2=" + QString::number(p2) + ", sz234";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
@@ -1292,7 +1293,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1780 (Fixed Slower assumed data stream, p="+QString::number(p2)+")";
+  QString expNum = "1783 (Faster assumed data stream, p="+QString::number(p2)+")";
 
 
   // Text data reader

@@ -17,6 +17,7 @@ class normalDistribution : public distribution
         vector<double>* means;
         vector<double>* stDevs;
         vector<std::normal_distribution<double>*> distributions;
+        vector<std::default_random_engine> generators;
 
         matrix A;
 

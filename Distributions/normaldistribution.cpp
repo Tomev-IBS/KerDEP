@@ -18,6 +18,13 @@ normalDistribution::normalDistribution(int seed, vector<double> *means,
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
 
     fillCholeskyDecompositionMatrix(&covarianceMatrix, &A);
+
+    qDebug() << A.size() << " is the size of A.";
+
+    for(size_t i = 0; i < A.size(); ++i){
+      auto s = seed + i;
+      generators.push_back(std::default_random_engine(s));
+    }
 }
 
 void normalDistribution::getValue(vector<double> *result)
@@ -25,10 +32,11 @@ void normalDistribution::getValue(vector<double> *result)
     // Generate vector Z of n values from random distribution
 
     vector<double> Z;
-    std::normal_distribution<double> normalDis(0,1);
 
-    for(size_t i = 0; i < A.size(); ++i)
-        Z.push_back(normalDis(generator));
+    for(size_t i = 0; i < A.size(); ++i) {
+      std::normal_distribution<double> normalDis(0,1);
+      Z.push_back(normalDis(generators[i]));
+    }
 
     // Generete result according to X = u + AZ
 

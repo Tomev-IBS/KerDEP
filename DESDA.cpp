@@ -177,7 +177,7 @@ void DESDA::performStep() {
     }
 
     // DEBUG //
-      qDebug() << prognosis_clusters_[i]._currentKDEValue << " - " << prognosis_clusters_[i].getLastPrediction() << " = " << prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction();
+      // qDebug() << prognosis_clusters_[i]._currentKDEValue << " - " << prognosis_clusters_[i].getLastPrediction() << " = " << prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction();
       // errors.push_back(prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction());
       // progs.push_back(prognosis_clusters_[i].getLastPrediction());
     // DEBUG //
