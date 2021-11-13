@@ -58,7 +58,7 @@ class DESDA
     int _trendsNumber = 0;
     std::vector<double> getRareElementsEnhancedKDEValues(const std::vector<vector<double>> *X, int dimension=0);
     std::vector<std::shared_ptr<cluster>> getAtypicalElements();
-    QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();
+    QVector<std::pair<std::vector<double>, double> > getAtypicalElementsValuesAndDerivatives();
 
     // General purpose
     int _sgmKPSSPercent = 25;

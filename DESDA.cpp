@@ -901,15 +901,20 @@ std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<st
  *
  * @return Vector of pairs of atypical elements values and their derivatives.
  */
-QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivatives() {
-  QVector<std::pair<double, double>> atypicalElementsValuesAndDerivatives = {};
+QVector<std::pair<std::vector<double>, double>> DESDA::getAtypicalElementsValuesAndDerivatives() {
+  QVector<std::pair<std::vector<double>, double>> atypicalElementsValuesAndDerivatives = {};
   auto atypicalElements = getAtypicalElements();
 
   for(auto a : atypicalElements) {
-    std::pair<double, double> valueDerivative = std::pair<double, double>(0, 0);
-    valueDerivative.first = std::stod(a->getObject()->attributesValues["Val0"]);
-    valueDerivative.second = a->_currentDerivativeValue;
-    atypicalElementsValuesAndDerivatives.push_back(valueDerivative);
+    std::pair<std::vector<double>, double> point_derivative = std::pair<std::vector<double>, double>({}, 0);
+
+    for(size_t i = 0; i < this->stationarityTests.size(); ++i) {
+      std::string attribute_name = "Val" + std::to_string(i);
+      point_derivative.first.push_back(std::stod(a->getObject()->attributesValues[attribute_name]));
+    }
+
+    point_derivative.second = a->_currentDerivativeValue;
+    atypicalElementsValuesAndDerivatives.push_back(point_derivative);
   }
 
   return atypicalElementsValuesAndDerivatives;

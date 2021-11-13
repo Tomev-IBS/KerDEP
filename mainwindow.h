@@ -7,10 +7,12 @@
 #include <vector>
 #include <unordered_map>
 #include <chrono>
+#include <deque> // Different kind of vector -- no need for copy constructors.
 
 #include "UI/plotLabel.h"
 
 #include "QCustomPlot/qcustomplot.h"
+#include <qwt_plot_curve.h>
 
 #include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/sample.h"
@@ -135,8 +137,8 @@ class MainWindow : public QMainWindow {
            l2_w_ = 0, l2_n_ = 0,
            sup_w_ = 0, sup_n_ = 0,
            mod_w_ = 0, mod_n_ = 0;
-    QVector<std::pair<double, double>>
-        atypical_elements_values_and_derivatives_ = {};
+    QVector<std::pair<std::vector<double>, double>>
+        atypical_elements_points_and_derivatives_ = {};
     double quantile_estimator_value_ = 0;
     std::shared_ptr<dataParser> parser_;
     std::shared_ptr<dataReader> reader_;
@@ -153,6 +155,7 @@ class MainWindow : public QMainWindow {
     void AddPlot(const QVector<qreal> *Y, const QPen &pen);
     void ResizePlot();
     unsigned long long MarkUncommonClusters();
+    void MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers);
     void FillStandardDeviations(
         vector<std::shared_ptr<vector<double>>> *stDevs);
     void FillMeans(vector<std::shared_ptr<vector<double>>> *means);
@@ -199,7 +202,6 @@ class MainWindow : public QMainWindow {
     static std::vector<std::vector<double>> Generate1DWindowedPlotErrorDomain(DESDA *DESDAAlgorithm);
     static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
     static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
-
 };
 
 

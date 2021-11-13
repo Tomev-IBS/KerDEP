@@ -45,6 +45,12 @@
 
 #include "UI/QwtContourPlotUI.h"
 
+
+#include <qwt_plot.h>
+#include <qwt_symbol.h>
+#include <qwt_legend.h>
+
+
 ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element) {
   auto newClusterKernel = new VarianceBasedClusterKernel(stream_element);
   return newClusterKernel;
@@ -268,7 +274,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_showUnusualClusters->isChecked()) {
-    atypical_elements_values_and_derivatives_ =
+    atypical_elements_points_and_derivatives_ =
         DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
     quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
     MarkUncommonClusters();
@@ -413,11 +419,11 @@ void MainWindow::ClearPlot() {
 }
 
 unsigned long long MainWindow::MarkUncommonClusters() {
-  for(auto x : atypical_elements_values_and_derivatives_) {
+  for(auto x : atypical_elements_points_and_derivatives_) {
     // Only works for distribution data
     auto verticalLine = new QCPItemLine(ui->widget_plot);
-    verticalLine->start->setCoords(x.first, 0);
-    verticalLine->end->setCoords(x.first, -quantile_estimator_value_);
+    verticalLine->start->setCoords(x.first[0], 0);
+    verticalLine->end->setCoords(x.first[0], -quantile_estimator_value_);
     if(x.second > 0)
       verticalLine->setPen(QPen(Qt::green));
     else
@@ -425,7 +431,27 @@ unsigned long long MainWindow::MarkUncommonClusters() {
     lines_on_plot_.push_back(verticalLine);
   }
 
-  return atypical_elements_values_and_derivatives_.size();
+  return atypical_elements_points_and_derivatives_.size();
+}
+
+void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers){
+  atypical_elements_points_and_derivatives_ = DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
+
+  QPolygonF new_trends;
+  QPolygonF vanishing_trends;
+
+  for(auto x : atypical_elements_points_and_derivatives_) {
+    // Only works for distribution data
+    if(x.second > 0) {
+      new_trends << QPointF(x.first[0], x.first[1]);
+    } else {
+      vanishing_trends << QPointF(x.first[0], x.first[1]);
+    }
+  }
+
+  uncommon_clusters_markers->at(0).setSamples(vanishing_trends);
+  uncommon_clusters_markers->at(1).setSamples(new_trends);
 }
 
 QString MainWindow::FormatNumberForDisplay(double number) {
@@ -889,6 +915,22 @@ void MainWindow::on_pushButton_clicked() {
 
   log("2D Experiment start.");
 
+  // Symbols
+  std::deque<QwtSymbol> uncommon_clusters_symbols;
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::red, 2), QSize(12, 12));
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::green, 2), QSize(12, 12));
+
+  std::deque<QwtPlotCurve> uncommon_clusters_markers;
+  for(size_t i = 0; i < 2; ++i){
+    uncommon_clusters_markers.emplace_back("");
+    uncommon_clusters_markers[i].setStyle(QwtPlotCurve::NoCurve);
+    uncommon_clusters_markers[i].setSymbol( &(uncommon_clusters_symbols[i]) );
+    uncommon_clusters_markers[i].attach(contour_plot_);
+  }
+
+  //curve.setSamples( points );
+  //curve.attach( contour_plot_ );
+
   // Initially these vectors were used in errors computation only. We now also use them for the spectrogram.
   QVector<double> error_xs = {};
   QVector<double> error_ys = {};
@@ -947,7 +989,7 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1786 (2D, Fixed Distribution Randomization)";
+  QString expNum = "2D Rare Elements TEST";
   QString pc_id = "Home";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
@@ -1056,7 +1098,6 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(should_compute_errors);
   QVector<int> initialDrawingSteps = {};
-  //QVector<int> initialDrawingSteps = {1};
   double domain_area = 0;
 
   ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
@@ -1136,6 +1177,11 @@ void MainWindow::on_pushButton_clicked() {
       log("Texts updates.");
       plotUi.updateTexts();
 
+      log("Marking rare elements.");
+      if(ui->checkBox_showUnusualClusters->isChecked()){
+        MarkUncommonClusters2D(&DESDAAlgorithm, &uncommon_clusters_markers);
+      }
+
       log("Replotting.");
       contour_plot_->replot();
 
@@ -1149,6 +1195,9 @@ void MainWindow::on_pushButton_clicked() {
       log("Image name: " + imageName);
       log("Saved: " + QString::number(ui->widget_contour_plot_holder->grab().save(imageName)));
       log("Drawing finished.");
+
+
+
     }
 
     log("Restoring weights.");
