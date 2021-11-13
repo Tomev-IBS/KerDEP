@@ -1296,7 +1296,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 1;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1322,7 +1322,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  //*
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1342,12 +1342,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1783 (Faster assumed data stream, p="+QString::number(p2)+")";
+  QString expNum = "1797 (Minneapolis, each step)";
 
 
   // Text data reader
-  /*
-  QString pc_id = "sz195";
+  //*
+  QString pc_id = "sz238";
   ui->lineEdit_iterationsNumber->setText("15000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
 
