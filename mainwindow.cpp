@@ -989,12 +989,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "2D Rare Elements TEST";
-  QString pc_id = "Home";
+  QString expNum = "1795 (6 DEDSTA, Hinted TS, Atypical)";
+  QString pc_id = "sz232";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
-  /*
+  //*
   //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
   QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
 
@@ -1011,7 +1011,7 @@ void MainWindow::on_pushButton_clicked() {
 
   //*/
 
-  //*
+  /*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
   QString p2 = "1";
@@ -1104,11 +1104,11 @@ void MainWindow::on_pushButton_clicked() {
 
   // Prepare image location.
   this->setWindowTitle("Experiment #" + expNum);
-  //QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
-  //QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
-  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   int steps_number = ui->lineEdit_iterationsNumber->text().toInt();
