@@ -474,6 +474,7 @@ void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlo
     }
   }
 
+  // On 0 we've got red +, on 1 we've got green +, on 2 we've got black X (for debug).
   uncommon_clusters_markers->at(0).setSamples(vanishing_trends);
   uncommon_clusters_markers->at(1).setSamples(new_trends);
 }
@@ -916,7 +917,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -932,7 +933,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1014,8 +1015,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "TEST RARE ELEMENTS 2D";
-  QString pc_id = "Home";
+  QString expNum = "1803 (6 DEDSTA, Hinted TS, Atypical)";
+  QString pc_id = "sz232";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
@@ -1414,10 +1415,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   this->setWindowTitle("Experiment #" + expNum);
 
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
   //QString driveDir = "D:\\Test\\"; // Test
-  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
