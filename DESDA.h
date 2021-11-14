@@ -101,6 +101,8 @@ class DESDA
     // Weighted C parameter
     bool compute_weighted_plugin = true;
 
+    std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
+
   protected:
 
     int _stepNumber = 0;
@@ -116,7 +118,6 @@ class DESDA
 
     void updateWeights();
     void updateExaminedClustersIndices();
-    std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
     std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
     void updatePrognosisParameters();

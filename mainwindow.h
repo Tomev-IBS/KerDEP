@@ -154,7 +154,7 @@ class MainWindow : public QMainWindow {
     void ClearPlot();
     void AddPlot(const QVector<qreal> *Y, const QPen &pen);
     void ResizePlot();
-    unsigned long long MarkUncommonClusters();
+    unsigned long long MarkUncommonClusters(DESDA *DESDAAlgorithm);
     void MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers);
     void FillStandardDeviations(
         vector<std::shared_ptr<vector<double>>> *stDevs);

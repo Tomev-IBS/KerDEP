@@ -170,6 +170,8 @@ qreal pluginSmoothingParameterCounter::countStandardDeviationEstimator()
 
     for(int i = 0; i < samples->size(); ++i)
     {
+      auto s = samples->at(i);
+      auto w = weights->at(i);
         V += qPow(samples->at(i) * weights->at(i), 2.0);
         substractor += samples->at(i) * weights->at(i);
     }
@@ -214,11 +216,11 @@ qreal pluginSmoothingParameterCounter::countH3(qreal h4)
   qreal h3 = 2.0; // In the original work there's -2, but it generates negative h.
   h3 *= countK8thDerivativeInPoint(0);
   h3 /= U;
-  if(! isNearlyEqual(h4, 0)){
+  if(! isNearlyEqual(h4, 0)) {
     h4 /= countCapitalC(10.0, h4);
-  }
-  else{
-    h3 /= countSmallC(10);
+  } else {
+    auto smallC = countSmallC(10);
+    h3 /= smallC;
   }
   h3 /= samples->size();
 

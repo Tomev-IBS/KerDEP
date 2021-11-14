@@ -274,10 +274,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_showUnusualClusters->isChecked()) {
-    atypical_elements_points_and_derivatives_ =
-        DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
-    quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
-    MarkUncommonClusters();
+    MarkUncommonClusters(DESDAAlgorithm);
   }
 
   // Draw plots
@@ -418,12 +415,27 @@ void MainWindow::ClearPlot() {
   lines_on_plot_.clear();
 }
 
-unsigned long long MainWindow::MarkUncommonClusters() {
+unsigned long long MainWindow::MarkUncommonClusters(DESDA *DESDAAlgorithm) {
+
+  atypical_elements_points_and_derivatives_ =
+      DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
+
+  // Last element
+  auto clusters = DESDAAlgorithm->getClustersForEstimator();
+
+  auto verticalLine = new QCPItemLine(ui->widget_plot);
+  verticalLine->start->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), 0);
+  verticalLine->end->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), -0.02);
+  verticalLine->setPen(QPen(Qt::black));
+  lines_on_plot_.push_back(verticalLine);
+
+  // Atypical
   for(auto x : atypical_elements_points_and_derivatives_) {
     // Only works for distribution data
     auto verticalLine = new QCPItemLine(ui->widget_plot);
     verticalLine->start->setCoords(x.first[0], 0);
-    verticalLine->end->setCoords(x.first[0], -quantile_estimator_value_);
+    verticalLine->end->setCoords(x.first[0], -0.01);
     if(x.second > 0)
       verticalLine->setPen(QPen(Qt::green));
     else
@@ -436,17 +448,29 @@ unsigned long long MainWindow::MarkUncommonClusters() {
 
 void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers){
   atypical_elements_points_and_derivatives_ = DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  auto considered_clusters = DESDAAlgorithm->getClustersForEstimator();
   quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
 
   QPolygonF new_trends;
   QPolygonF vanishing_trends;
 
+  // DEBUG ALL CLUSTERS
+  /*
+  QPolygonF all_clusters;
+
+  for(auto c : considered_clusters) {
+    all_clusters << QPointF(std::stod(c->getRepresentative()->attributesValues["Val0"]),
+                            std::stod(c->getRepresentative()->attributesValues["Val1"]));
+  }
+  uncommon_clusters_markers->at(2).setSamples(all_clusters);
+  // */
+
   for(auto x : atypical_elements_points_and_derivatives_) {
     // Only works for distribution data
     if(x.second > 0) {
-      new_trends << QPointF(x.first[0], x.first[1]);
-    } else {
       vanishing_trends << QPointF(x.first[0], x.first[1]);
+    } else {
+      new_trends << QPointF(x.first[0], x.first[1]);
     }
   }
 
@@ -919,9 +943,10 @@ void MainWindow::on_pushButton_clicked() {
   std::deque<QwtSymbol> uncommon_clusters_symbols;
   uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::red, 2), QSize(12, 12));
   uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::green, 2), QSize(12, 12));
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::XCross, QBrush(Qt::black), QPen(Qt::black, 1), QSize(12, 12));
 
   std::deque<QwtPlotCurve> uncommon_clusters_markers;
-  for(size_t i = 0; i < 2; ++i){
+  for(size_t i = 0; i < uncommon_clusters_symbols.size(); ++i){
     uncommon_clusters_markers.emplace_back("");
     uncommon_clusters_markers[i].setStyle(QwtPlotCurve::NoCurve);
     uncommon_clusters_markers[i].setSymbol( &(uncommon_clusters_symbols[i]) );
@@ -989,8 +1014,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1795 (6 DEDSTA, Hinted TS, Atypical)";
-  QString pc_id = "sz232";
+  QString expNum = "TEST RARE ELEMENTS 2D";
+  QString pc_id = "Home";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
@@ -1123,12 +1148,17 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.performStep();
     log("Step performed.");
 
+    bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
+    bool draw_plot = step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step;
+
+    if(ui->checkBox_showUnusualClusters->isChecked() && draw_plot){
+      log("Marking rare elements.");
+      MarkUncommonClusters2D(&DESDAAlgorithm, &uncommon_clusters_markers);
+    }
+
     log("Estimator preparation.");
     DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
     log("Estimator preparation finished.");
-
-    bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
-    bool draw_plot = step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step;
 
     // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
     if(compute_errors || draw_plot) {
@@ -1177,11 +1207,6 @@ void MainWindow::on_pushButton_clicked() {
       log("Texts updates.");
       plotUi.updateTexts();
 
-      log("Marking rare elements.");
-      if(ui->checkBox_showUnusualClusters->isChecked()){
-        MarkUncommonClusters2D(&DESDAAlgorithm, &uncommon_clusters_markers);
-      }
-
       log("Replotting.");
       contour_plot_->replot();
 
@@ -1195,8 +1220,6 @@ void MainWindow::on_pushButton_clicked() {
       log("Image name: " + imageName);
       log("Saved: " + QString::number(ui->widget_contour_plot_holder->grab().save(imageName)));
       log("Drawing finished.");
-
-
 
     }
 
@@ -1342,7 +1365,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1797 (Minneapolis, each step)";
+  QString expNum = "1802 (4 DEDSTA, 1D Cracow 2020, temp, each step)";
 
 
   // Text data reader
@@ -1351,9 +1374,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   ui->lineEdit_iterationsNumber->setText("15000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
 
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
-  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
-  std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
   reader_.reset(new TextDataReader(data_path));
@@ -1388,7 +1412,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ui->lineEdit_rarity->text().toDouble(), pluginRank
                       );
 
-
   this->setWindowTitle("Experiment #" + expNum);
 
   QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
@@ -1404,7 +1427,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
   ResizePlot();
 
   // Initial screen should only contain exp number (as requested).
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
   QString imageName = "";

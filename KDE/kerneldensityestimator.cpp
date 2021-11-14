@@ -125,25 +125,16 @@ double kernelDensityEstimator::getProductValuesFromClusters(vector<double>* x)
 
     double addend = getProductKernelAddendFromClusterIndex(i, x);
 
-    if(_shouldConsiderWeights)
+    if(_shouldConsiderWeights) {
       addend *= c->getCWeight();
-
-    if(clusters.size() == additionalMultipliers.size())
-    {
-      addend *= additionalMultipliers[i];
-    }
-
-    i++;
-
-    if(_shouldConsiderWeights)
-    {
       weight += c->getCWeight();
-    }
-    else
-    {
+    } else {
       weight += 1;
     }
 
+    if(clusters.size() == additionalMultipliers.size()) {
+      addend *= additionalMultipliers[i];
+    }
     result += addend;
   }
 
