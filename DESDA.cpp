@@ -700,12 +700,6 @@ double DESDA::getStationarityTestValue() {
   }
   // Max
   return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
-  // Euclidean
-  double sum = 0;
-  for(auto test_value : stationarityTestsValues){
-    sum += pow(test_value, 2);
-  }
-  return sqrt(sum);
 }
 
 void DESDA::prepareEstimatorForContourPlotDrawing() {
