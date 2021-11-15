@@ -917,7 +917,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -1366,7 +1366,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1802 (4 DEDSTA, 1D Cracow 2020, temp, each step)";
+  QString expNum = "1804 (FIXED 4 DEDSTA, 1D Cracow 2020, temp, each step)";
 
 
   // Text data reader
@@ -1550,7 +1550,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 1;
-  QVector<int> additionalScreensSteps = {};
+  QVector<int> additionalScreensSteps = {90, 99, 100, 101, 110};
 
   double error_domain_length = 0;
   double windowed_error_domain_length = 0;
