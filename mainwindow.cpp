@@ -1366,18 +1366,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1804 (FIXED 4 DEDSTA, 1D Cracow 2020, temp, each step)";
+  QString expNum = "1807 (3 DEDSTA, each step)";
 
 
   // Text data reader
   //*
-  QString pc_id = "sz238";
+  QString pc_id = "sz220";
   ui->lineEdit_iterationsNumber->setText("15000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
 
   //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
-  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
-  std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
