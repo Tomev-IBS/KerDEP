@@ -16,11 +16,10 @@ double KPSSStationarityTest::getTestsValue()
 
   double testValue = 0.0;
 
-  _l = round(4 * pow(T / 100, 0.25));
+  _l = round(4 * pow(T / 100.0, 0.25));
 
   calculateRegressionRests();
   testValue = getSumOfSquaredRegressionRests();
-  testValue /= T * T;
 
   testValue /= getLongRunVarianceEstimator();
 
@@ -91,7 +90,7 @@ double KPSSStationarityTest::getLongRunVarianceEstimator()
     estimator += 2 * esSum * getBarlettWindow(s, _l);
   }
 
-  estimator /= T;
+  estimator *= T;
 
   return estimator;
 }
