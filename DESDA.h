@@ -107,6 +107,7 @@ class DESDA
 
     int _stepNumber = 0;
     int _pluginRank = 2;
+    int error_domain_points_number_ = 500;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;

@@ -36,6 +36,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _smoothingParameterEnhancer = 1;
 
   prognosis_cluster_ = cluster(-1);
+  error_domain_points_number_ = 500;
 
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
@@ -271,12 +272,6 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator() {
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator() {
   return _clustersForWindowed;
-
-  std::vector<std::shared_ptr<cluster>> consideredClusters = {};
-
-  for(auto c : *_clusters) consideredClusters.push_back(c);
-
-  return consideredClusters;
 }
 
 /** DESDA::enhanceWeightsOfUncommonElements
@@ -436,7 +431,7 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (200);
+  double stepSize = (domainMaxValue - domainMinValue) / (error_domain_points_number_);
 
   for(auto val = domainMinValue; val < domainMaxValue; val += stepSize) {
     domain.push_back(val);
@@ -455,7 +450,7 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (200);
+  double stepSize = (domainMaxValue - domainMinValue) / (error_domain_points_number_);
 
   for(auto val = domainMinValue; val <= domainMaxValue; val += stepSize) {
     domain.push_back(val);
@@ -921,12 +916,16 @@ QVector<std::pair<std::vector<double>, double>> DESDA::getAtypicalElementsValues
   QVector<std::pair<std::vector<double>, double>> atypicalElementsValuesAndDerivatives = {};
   auto atypicalElements = getAtypicalElements();
 
-  //qDebug() << "ATYPICAL ELEMENTS KDE VALUES";
+
   /*
+  qDebug() << "ATYPICAL ELEMENTS KDE VALUES";
   for(auto v : atypicalElements){
     qDebug() << "\t" << v->_currentKDEValue;
   }
-  */
+  //*/
+
+  int negative_derivatives = 0;
+  int positive_derivatives = 0;
 
   for(auto a : atypicalElements) {
     std::pair<std::vector<double>, double> point_derivative = std::pair<std::vector<double>, double>({}, 0);
@@ -938,6 +937,16 @@ QVector<std::pair<std::vector<double>, double>> DESDA::getAtypicalElementsValues
 
     point_derivative.second = a->_currentDerivativeValue;
     atypicalElementsValuesAndDerivatives.push_back(point_derivative);
+
+    // DEBUG
+    /*
+    if(a->_currentDerivativeValue > 0){
+      ++positive_derivatives;
+    } else {
+      ++negative_derivatives;
+    }
+    // DEBUG
+    //*/
   }
 
   return atypicalElementsValuesAndDerivatives;

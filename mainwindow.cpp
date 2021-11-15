@@ -448,29 +448,28 @@ unsigned long long MainWindow::MarkUncommonClusters(DESDA *DESDAAlgorithm) {
 
 void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers){
   atypical_elements_points_and_derivatives_ = DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
-  auto considered_clusters = DESDAAlgorithm->getClustersForEstimator();
   quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
 
   QPolygonF new_trends;
   QPolygonF vanishing_trends;
 
-  // DEBUG ALL CLUSTERS
-  /*
-  QPolygonF all_clusters;
+  // Mark last cluster
+  if(screen_generation_frequency_ == 1) {
+    QPolygonF last_cluster_point;
+    auto last_cluster = DESDAAlgorithm->getClustersForEstimator()[0];
 
-  for(auto c : considered_clusters) {
-    all_clusters << QPointF(std::stod(c->getRepresentative()->attributesValues["Val0"]),
-                            std::stod(c->getRepresentative()->attributesValues["Val1"]));
+    last_cluster_point << QPointF(std::stod(last_cluster->getRepresentative()->attributesValues["Val0"]),
+                                  std::stod(last_cluster->getRepresentative()->attributesValues["Val1"]));
+
+    uncommon_clusters_markers->at(2).setSamples(last_cluster_point);
   }
-  uncommon_clusters_markers->at(2).setSamples(all_clusters);
-  // */
 
   for(auto x : atypical_elements_points_and_derivatives_) {
     // Only works for distribution data
     if(x.second > 0) {
-      vanishing_trends << QPointF(x.first[0], x.first[1]);
-    } else {
       new_trends << QPointF(x.first[0], x.first[1]);
+    } else {
+      vanishing_trends << QPointF(x.first[0], x.first[1]);
     }
   }
 
@@ -933,7 +932,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -944,7 +943,7 @@ void MainWindow::on_pushButton_clicked() {
   std::deque<QwtSymbol> uncommon_clusters_symbols;
   uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::red, 2), QSize(12, 12));
   uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::green, 2), QSize(12, 12));
-  uncommon_clusters_symbols.emplace_back(QwtSymbol::XCross, QBrush(Qt::black), QPen(Qt::black, 1), QSize(12, 12));
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::black, 2), QSize(24, 24));
 
   std::deque<QwtPlotCurve> uncommon_clusters_markers;
   for(size_t i = 0; i < uncommon_clusters_symbols.size(); ++i){
@@ -1015,8 +1014,9 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1803 (6 DEDSTA, Hinted TS, Atypical)";
-  QString pc_id = "sz232";
+  QString expNum = "1805 (6 DEDSTA, Hinted TS, Atypical)";
+  //QString pc_id = "sz232";
+  QString pc_id = "sz224";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
