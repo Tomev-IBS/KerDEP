@@ -422,13 +422,14 @@ unsigned long long MainWindow::MarkUncommonClusters(DESDA *DESDAAlgorithm) {
   quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
 
   // Last element
-  auto clusters = DESDAAlgorithm->getClustersForEstimator();
-
-  auto verticalLine = new QCPItemLine(ui->widget_plot);
-  verticalLine->start->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), 0);
-  verticalLine->end->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), -0.02);
-  verticalLine->setPen(QPen(Qt::black));
-  lines_on_plot_.push_back(verticalLine);
+  if(screen_generation_frequency_ == 1) {
+    auto clusters = DESDAAlgorithm->getClustersForEstimator();
+    auto verticalLine = new QCPItemLine(ui->widget_plot);
+    verticalLine->start->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), 0);
+    verticalLine->end->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), -0.02);
+    verticalLine->setPen(QPen(Qt::black));
+    lines_on_plot_.push_back(verticalLine);
+  }
 
   // Atypical
   for(auto x : atypical_elements_points_and_derivatives_) {
@@ -1014,15 +1015,15 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1805 (6 DEDSTA, Hinted TS, Atypical)";
+  QString expNum = "1805 (2D)";
   //QString pc_id = "sz232";
   QString pc_id = "sz224";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
   //*
-  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv"; QString expDesc = "Rio 2014 Temp-Hum, " + pc_id;
-  QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv"; QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id;
+  //QString expDesc = "Rio 2014 Temp-Hum, " + pc_id; QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -1366,7 +1367,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1807 (3 DEDSTA, each step)";
+  QString expNum = "1807";
 
 
   // Text data reader
@@ -1473,8 +1474,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //label_vertical_offset_ += label_vertical_offset_step_;
 
   AddDoubleLabelToPlot("r          =", &(DESDAAlgorithm._r));
-  AddDoubleLabelToPlot("q          =", &(DESDAAlgorithm._quantileEstimator));
+  //AddDoubleLabelToPlot("q          =", &(DESDAAlgorithm._quantileEstimator));
   AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
+  label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
   //*
@@ -1550,7 +1552,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 1;
-  QVector<int> additionalScreensSteps = {90, 99, 100, 101, 110};
+  QVector<int> additionalScreensSteps = {};
 
   double error_domain_length = 0;
   double windowed_error_domain_length = 0;
