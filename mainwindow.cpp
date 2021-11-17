@@ -1478,7 +1478,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //AddDoubleLabelToPlot("q          =", &(DESDAAlgorithm._quantileEstimator));
   AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
   label_vertical_offset_ += label_vertical_offset_step_;
-  label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
   //*
   QString signal_exclamation_points = "                    ";
