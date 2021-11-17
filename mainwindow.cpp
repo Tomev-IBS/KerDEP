@@ -1321,7 +1321,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1347,7 +1347,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1357,21 +1357,22 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs))
                );
   bool compute_errors = true;
-  double p2 = 0.1;
-  QString expDesc = "DEDSTA, assumed data stream, p_2=" + QString::number(p2) + ", sz234";
+  //double p2 = 0.1;
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed data stream,  sz221";
+  //QString expDesc = "assumed data stream,  sz221";
   QString plot_description = "assumed data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
-  QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
-  ui->lineEdit_maxX->setText(path_length);
+  //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
+  //ui->lineEdit_maxX->setText(path_length);
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "1807";
+  QString expNum = "1830";
 
 
   // Text data reader
-  //*
+  /*
   QString pc_id = "sz220";
   ui->lineEdit_iterationsNumber->setText("15000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
