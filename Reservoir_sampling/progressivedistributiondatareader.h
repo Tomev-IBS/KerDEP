@@ -27,7 +27,7 @@ class progressiveDistributionDataReader : public dataReader
         distribution *sourceDistribution;
         qreal x_progression_size = 0.0;
         int _currentIteration = 1; // PK always starts from 1.
-        int d2_speed_multiplier_;
+        double d2_speed_multiplier_;
         int _delay;
 
         std::vector<std::string> attributesOrder;
