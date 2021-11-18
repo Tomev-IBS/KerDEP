@@ -124,9 +124,7 @@ void QwtContourPlotUI::updateLeftColumnText()
   }
   //*/
 
-  leftColumnText += "\n\n";
-
-  leftColumnText += "TS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
+  leftColumnText += "\nTS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
 
   //*
   if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){

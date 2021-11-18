@@ -1023,7 +1023,8 @@ void MainWindow::on_pushButton_clicked() {
 
   //*
   //QString expDesc = "Rio 2014 Temp-Hum, " + pc_id; QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  QString expDesc = "TEST, " + pc_id; QString experiment_description = "TEST"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\2d_trend_v3.csv";
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -1642,8 +1643,15 @@ void MainWindow::Run1DExperimentWithDESDA() {
          additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
+      QVector<std::vector<double>> points_to_compute_derivative_on = {};
+
+      for(double val : drawable_domain_){
+        points_to_compute_derivative_on.push_back(std::vector<double>());
+        points_to_compute_derivative_on.back().push_back(val);
+      }
+
       kernel_prognosis_derivative_values_ =
-          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&drawable_domain_);
+          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&points_to_compute_derivative_on);
 
       // ============= LEFT SIDE UPDATE ================ //
 

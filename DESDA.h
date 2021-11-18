@@ -23,7 +23,7 @@ class DESDA
           double desiredRarity, double pluginRank=2);
 
     void performStep();
-    QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension=0);
+    QVector<double> getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension=0);
     std::vector<double> getEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension=0);
     std::vector<double> getWeightedKDEValues(const vector<vector<double>> *X, int dimension= 0);
     std::vector<double> getClustersWeights(const std::vector<std::shared_ptr<cluster>> &clusters);

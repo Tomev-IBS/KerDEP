@@ -352,10 +352,17 @@ void DESDA::updatePrognosisParameters() {
 void DESDA::countDerivativeValuesOnClusters() {
   // Get the domain. Formally only m would be needed, but it will not hurt
   // to count on whole domain.
-  QVector<double> domain = {};
+  QVector<std::vector<double>> domain = {};
 
-  for(auto c : *_clusters)
-    domain.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+  for(auto c : *_clusters){
+    domain.push_back(std::vector<double>());
+
+    domain.back().push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+
+    if(stationarityTests.size() > 1){
+      domain.back().push_back(std::stod(c->getObject()->attributesValues["Val1"]));
+    }
+  }
 
   auto derivativeValues = getKernelPrognosisDerivativeValues(&domain);
 
@@ -495,7 +502,7 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
   return smoothingParameters;
 }
 
-QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension) {
+QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension) {
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
   std::vector<double> prognosisCoefficients = {};
@@ -509,24 +516,30 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
     _estimatorDerivative->setSmoothingParameters({_smoothingParametersVector});
     _estimatorDerivative->setClusters(currentClusters);
 
-    std::string attributeKey =
-        (*_samplingAlgorithm->getAttributesList())[dimension];
-    std::vector<double> attributesValues =
-        getAttributesValuesFromClusters(currentClusters, dimension);
-    double domainMinValue =
-        getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
-    double domainMaxValue =
-        getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+    if(stationarityTests.size() == 1) {
 
-    for(qreal x: *X) {
-      if(x > domainMinValue && x < domainMaxValue) {
-        std::vector<double> pt = {x};
-        kernelPrognosisDerivativeValues.push_back(
-            _estimatorDerivative->getValue(&pt) * 1000 // For visibility
-                                                 );
+      std::string attributeKey =
+          (*_samplingAlgorithm->getAttributesList())[dimension];
+      std::vector<double> attributesValues =
+          getAttributesValuesFromClusters(currentClusters, dimension);
+      double domainMinValue =
+          getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
+      double domainMaxValue =
+          getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+      for(auto x: *X) {
+        if(x[0] > domainMinValue && x[0] < domainMaxValue) {
+          kernelPrognosisDerivativeValues.push_back(
+              _estimatorDerivative->getValue(&x) * 1000);// 1000 for visibility
+        }
+        else {
+          kernelPrognosisDerivativeValues.push_back(0);
+        }
       }
-      else {
-        kernelPrognosisDerivativeValues.push_back(0);
+    }
+    else {
+      for(auto x: *X) {
+        kernelPrognosisDerivativeValues.push_back(_estimatorDerivative->getValue(&x) * 1000); // 1000 for visibility
       }
     }
   }
