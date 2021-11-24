@@ -1015,16 +1015,15 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1805 (2D)";
-  //QString pc_id = "sz232";
-  QString pc_id = "sz224";
-  int drawing_start_step = 0;
+  QString expNum = "1838-A (2D)";
+  QString pc_id = "sz225";
+  int drawing_start_step = 6000;
   int errors_calculation_start_step = 0;
 
   //*
   //QString expDesc = "Rio 2014 Temp-Hum, " + pc_id; QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  //QString expDesc = "Cracow 2020 Temp-Hum, " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
-  QString expDesc = "TEST, " + pc_id; QString experiment_description = "TEST"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\2d_trend_v3.csv";
+  QString expDesc = "id=10, Cracow 2020 Temp-Hum, start=6000" + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //QString expDesc = "TEST, " + pc_id; QString experiment_description = "TEST"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\2d_trend_v3.csv";
 
   QTime data_start_time(0, 0, 0);
   QDateTime data_date_time(data_start_date, data_start_time);
@@ -1126,6 +1125,11 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(should_compute_errors);
   QVector<int> initialDrawingSteps = {};
+
+  for(size_t i = 500; i <= 6000; i += 500){
+    initialDrawingSteps.push_back(i);
+  }
+
   double domain_area = 0;
 
   ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
@@ -1152,7 +1156,7 @@ void MainWindow::on_pushButton_clicked() {
     log("Step performed.");
 
     bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
-    bool draw_plot = step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step;
+    bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step) || initialDrawingSteps.contains(step_number_);
 
     if(ui->checkBox_showUnusualClusters->isChecked() && draw_plot){
       log("Marking rare elements.");
