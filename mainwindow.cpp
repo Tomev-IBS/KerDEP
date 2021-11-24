@@ -1126,7 +1126,7 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.SetErrorsPrinting(should_compute_errors);
   QVector<int> initialDrawingSteps = {};
 
-  for(size_t i = 500; i <= 6000; i += 500){
+  for(size_t i = 500; i <= drawing_start_step; i += 500){
     initialDrawingSteps.push_back(i);
   }
 
