@@ -933,7 +933,7 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(0);
+  QTime dieTime= QTime::currentTime().addSecs(60);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
@@ -964,7 +964,7 @@ void MainWindow::on_pushButton_clicked() {
   std::vector<double> estimator_values = {};
   std::vector<std::vector<double>> error_domain = {};
 
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 1;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -1015,14 +1015,14 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1838-A (2D)";
-  QString pc_id = "sz225";
-  int drawing_start_step = 6000;
+  QString expNum = "1839-A (2D)";
+  QString pc_id = "sz234";
+  int drawing_start_step = 10000;
   int errors_calculation_start_step = 0;
 
   //*
   //QString expDesc = "Rio 2014 Temp-Hum, " + pc_id; QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  QString expDesc = "id=10, Cracow 2020 Temp-Hum, start=6000" + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  QString expDesc = "id=1, Cracow 2020 Temp-Hum, start="+QString::number(drawing_start_step) + ", " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
   //QString expDesc = "TEST, " + pc_id; QString experiment_description = "TEST"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\2d_trend_v3.csv";
 
   QTime data_start_time(0, 0, 0);
