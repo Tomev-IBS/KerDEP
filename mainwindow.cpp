@@ -504,7 +504,6 @@ void MainWindow::FillStandardDeviations(vector<std::shared_ptr<vector<double>>> 
 
   for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex) {
     stDevs->push_back(std::make_shared<vector<double>>());
-)
     for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex) {
       stDevs->back().get()->push_back
           (
