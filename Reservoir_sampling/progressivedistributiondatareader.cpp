@@ -21,9 +21,6 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
 
   sourceDistribution->getValue(targetPtr);
 
-  int bimodalMean = 5;
-  int trimodalMean = -5;
-
   // 26 III 2020 article formula
   // Stops at 0.5 + 6 + 3 + 1 = 10.5 without offset. Set maxX = 15.
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38

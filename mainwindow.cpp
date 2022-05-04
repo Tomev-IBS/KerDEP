@@ -1362,18 +1362,17 @@ void MainWindow::Run1DExperimentWithDESDA() {
                );
   bool compute_errors = true;
   //double p2 = 0.1;
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed data stream,  sz221";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed trimodal data stream,  home";
   //QString expDesc = "assumed data stream,  sz221";
-  QString plot_description = "assumed data stream; 1D";
+  QString plot_description = "assumed trimodal data stream; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
   //ui->lineEdit_maxX->setText(path_length);
   //*/
 
-  int drawing_start_step = 0;
-  QString expNum = "1830";
-
+  int drawing_start_step = 270;
+  QString expNum = "(inf sci rest 1)";
 
   // Text data reader
   /*
@@ -1423,8 +1422,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1599,7 +1598,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ >= 1 && compute_errors) {
+    if(step_number_ > drawing_start_step && compute_errors) {
 
       log("Getting windowed domain.");
       windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
@@ -1640,6 +1639,27 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
       ++numberOfErrorCalculations;
     }
+
+    //*
+    // Initialize the errors in initial counting
+    if(step_number_ == drawing_start_step){
+      l2_errors_sums.clear();
+      numberOfErrorCalculations = step_number_;
+
+      l2_errors_sums.push_back(0.076597);
+      l2_errors_sums.push_back(0.075997);
+      l2_errors_sums.push_back(0.075739);
+      l2_errors_sums.push_back(0.075644);
+      l2_errors_sums.push_back(0.075614);
+
+      for(size_t i = 0; i < errors_calculators.size(); ++i) {
+        *l2_errors[i] = l2_errors_sums[i];
+        l2_errors_sums[i] *= numberOfErrorCalculations;
+      }
+
+      ++numberOfErrorCalculations;
+    }
+    //*/
 
     if(drawing_start_step <= step_number_ &&
        ( step_number_ % screen_generation_frequency_ == 0 ||
@@ -1744,21 +1764,43 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
 
+  // Synthetic data reader
+  /*
+  QString expDesc = "assumed data stream, m = " + QString::number(number_of_cluster_kernels) + ", referencyjny";
+  bool compute_errors = true;
+  //*/
+
+\
+  // Text data reader
+  //*
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "k:\\Data\\cracow_2020_temp.csv"; QString expDesc = "CK, Cracow 2020 temperature, home"; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
+  //*/
+
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  QString expNum = "1668 (CK)";
+  QString expNum = "Cluster Kernels (inf_sci)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "assumed data stream, m = " + QString::number(number_of_cluster_kernels)
-                    + ",sz422, mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
-  screen_generation_frequency_ = 10;
+
+  screen_generation_frequency_ = 1;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "d:\\Tests\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1767,25 +1809,30 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
+  QTime startTime(0, 0, 0);
+  QDateTime dateTime(startDate, startTime);
+
   // Setting up the labels
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
+  plotLabel desc_label(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "assumed data stream; 1D");
+
+  verticalOffset += 2 * verticalStep;
+
+  QVector<plotLabel> date_labels = {};
+  //*
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, ""));
+    verticalOffset += verticalStep;
+  }
+  //*/
+
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   horizontalOffset, verticalOffset, "t     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  verticalOffset += 2 * verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "m     = ",
@@ -1803,6 +1850,14 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                                    horizontalOffset, verticalOffset, "sigma = ", &(sigma),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
 
+  label_vertical_offset_ = 0.75;
+  label_horizontal_offset_ = horizontalOffset;
+
+  AddConstantLabelToPlot("theoretical");
+  plot_labels_.back()->SetColor(model_plot_pen_.color());
+
+  AddConstantLabelToPlot("CK Estimator");
+  plot_labels_.back()->SetColor(kde_plot_pen_.color());
 
 
   //====================  SECOND COLUMN =================//
@@ -1813,38 +1868,15 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   //====================== ERRORS SUM ===================//
 
   horizontalOffset = 0.85;
-  verticalOffset = 0.01;
+  verticalOffset = 0.75 + verticalStep;
 
   plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-
-  /*
-  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-
-  verticalOffset += verticalStep;
-  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
-  verticalOffset += verticalStep;
-  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
-  verticalOffset += verticalStep;
-  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-  */
+  L2TextLabel.SetColor(kde_plot_pen_.color());
 
   FillDomain(&domain_, nullptr);
-  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
+  for(const auto &pt : domain_){
+    drawable_domain_.push_back(pt->at(0));
+  }
 
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
@@ -1852,11 +1884,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   int numberOfErrorCalculations = 0;
   QVector<int> additionalScreensSteps = {};
 
-  /*
-  for(int i = 990; i < 1011; ++i){
-      additionalScreensSteps.append(i);
-  }
-  */
+  for(int i = 990; i < 1011; ++i){ additionalScreensSteps.append(i); }
 
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
@@ -1887,7 +1915,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ >= 1000) {
+    if(step_number_ >= 1000 && compute_errors) {
       log("Getting error domain.");
       error_domain = CKAlgorithm.GetErrorDomain();
 
@@ -1918,34 +1946,21 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       log("Errors calculated.");
     }
 
-    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
+    if((step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_))  && (step_number_ > 11350)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
       // ============ SUMS =========== //
 
-      L2TextLabel
-          .setText("L2   =" + FormatNumberForDisplay(
-              l2_sum / numberOfErrorCalculations));
-      /*
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
+      double l2 = 0;
 
-      supTextLabel
-          .setText("sup  =" + FormatNumberForDisplay(
-              sup_sum / numberOfErrorCalculations));
-      modTextLabel
-          .setText("mod  =" + FormatNumberForDisplay(
-              mod_sum / numberOfErrorCalculations));
+      if(numberOfErrorCalculations > 0){
+        l2 = l2_sum / numberOfErrorCalculations;
+      }
 
-      L1aTextLabel
-          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
-      L2aTextLabel
-          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
-      supaTextLabel
-          .setText("supa =" + FormatNumberForDisplay(sup_w_));
-      modaTextLabel
-          .setText("moda =" + FormatNumberForDisplay(mod_w_));
-      */
+      L2TextLabel.setText("L2   =" + FormatNumberForDisplay(l2));
+
+      if(!compute_errors){
+        L2TextLabel.setText("");
+      }
 
       DrawPlots(&CKAlgorithm);
 
@@ -1953,6 +1968,10 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       sigma = CKAlgorithm.GetStandardDeviation();
 
       for(const auto &label : plotLabels) label->updateText();
+
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -1962,6 +1981,8 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
       QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600);
   }
 
   log("Animation finished.");
@@ -1969,7 +1990,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
 void MainWindow::Run1DExperimentWithWDE() {
   // TR TODO: This is basically the same as it is in Cluster Kernels... Initialization should
-  // be made an separate function.
+  //          be made an separate function.
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
   if(!CanAnimationBePerformed(dimensionsNumber)) return;
@@ -1984,6 +2005,12 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   step_number_ = 0;
   double sigma = 0;
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+  double weight_modifier = 0.99; // omega
+  unsigned int maximal_number_of_coefficients = 100; // M
+  unsigned int current_coefficients_number = 0; // #coef
+  int number_of_elements_per_block = 500; // b
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -2014,26 +2041,43 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-  log("Attributes data set.");
-
-  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  double weight_modifier = 0.95; // omega
-  unsigned int maximal_number_of_coefficients = 100; // M
-  unsigned int current_coefficients_number = 0; // #coef
-  int number_of_elements_per_block = 1000; // b
-
-  QString expNum = "1667 (Thresholded Weighted Window WDE)";
-  //QString expNum = "THRESHOLDED_WDE_TEST_1";
-  this->setWindowTitle("Experiment #" + expNum);
+  // Synthetic data
+  /*
   QString expDesc = "assumed data stream, soft threshold, b=" + QString::number(number_of_elements_per_block) +
                     ", omega=" + QString::number(weight_modifier) +
                     ", M=" + QString::number(maximal_number_of_coefficients);
-  screen_generation_frequency_ = 10;
+  QString plot_description = "assumed data stream; 1D";
+  bool compute_errors = true;
+  //*/
+
+  // Text data reader
+  //*
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "k:\\Data\\cracow_2020_temp.csv"; QString expDesc = "WDE, Cracow 2020 temperature, home"; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
+  //*/
+
+  log("Attributes data set.");
+
+  QString expNum = "WDE (inf_sci) (Thresholded Weighted Window WDE)";
+  //QString expNum = "THRESHOLDED_WDE_TEST_1";
+  this->setWindowTitle("Experiment #" + expNum);
+
+  screen_generation_frequency_ = 1;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "D:\\Tests\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -2043,85 +2087,81 @@ void MainWindow::Run1DExperimentWithWDE() {
   // Initial screen should only contain exp number (as requested).
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
+  QTime startTime(0, 0, 0);
+  QDateTime dateTime(startDate, startTime);
+
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+  label_vertical_offset_ = label_horizontal_offset_ = 0.01;
+
+  plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                       plot_description);
+
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
+  QVector<plotLabel> date_labels = {};
+  //*
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
+    label_vertical_offset_ += label_vertical_offset_step_;
+  }
+  //*/
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   label_horizontal_offset_, label_vertical_offset_, "t     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "b     = ",
+                                                   label_horizontal_offset_, label_vertical_offset_, "b     = ",
                                                    &(number_of_elements_per_block),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "M     = ",
+                                                   label_horizontal_offset_, label_vertical_offset_, "M     = ",
                                                    &(maximal_number_of_coefficients),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "#coef = ",
+                                                   label_horizontal_offset_, label_vertical_offset_, "omega = 0.99"));
+
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "#coef = ",
                                                    &(current_coefficients_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "omega = ", &(weight_modifier),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+  label_vertical_offset_ = 0.75;
+
+  AddConstantLabelToPlot("theoretical");
+  plot_labels_.back()->SetColor(model_plot_pen_.color());
+
+  AddConstantLabelToPlot("WDE Estimator");
+  plot_labels_.back()->SetColor(kde_plot_pen_.color());
 
 
   //====================  SECOND COLUMN =================//
 
-  horizontalOffset = 0.20;
-  verticalOffset = 0.01 + 9 * verticalStep;
+  label_horizontal_offset_ = 0.20;
+  label_vertical_offset_ = 0.01 + 9 * label_vertical_offset_step_;
 
   //====================== ERRORS SUM ===================//
 
-  horizontalOffset = 0.87;
-  verticalOffset = 0.01;
+  label_horizontal_offset_ = 0.85;
+  label_vertical_offset_ = 0.78;
 
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
+  plotLabel L2TextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "L2   = 0");
 
-  /*
-  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  if(!compute_errors){
+    L2TextLabel.setText("");
+  }
 
-
-  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
-  verticalOffset += verticalStep;
-  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
-  verticalOffset += verticalStep;
-  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-   */
+  L2TextLabel.SetColor(kde_plot_pen_.color());
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -2132,11 +2172,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   int numberOfErrorCalculations = 0;
   QVector<int> additionalScreensSteps = {};
 
-  /*
-  for(int i = 990; i < 1011; ++i){
-      additionalScreensSteps.append(i);
-  }
-  */
+  // for(int i = 990; i < 1011; ++i){ additionalScreensSteps.append(i);
 
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
@@ -2166,7 +2202,7 @@ void MainWindow::Run1DExperimentWithWDE() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ >= 1000) {
+    if(step_number_ >= 1000 && compute_errors) {
 
       log("Getting error domain.");
       error_domain = WDE_Algorithm.GetErrorDomain();
@@ -2201,41 +2237,28 @@ void MainWindow::Run1DExperimentWithWDE() {
       log("Errors calculated.");
     }
 
-    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
+    if((step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) && (step_number_ > 11350)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
-      L2TextLabel
-          .setText("L2   =" + FormatNumberForDisplay(
-              l2_sum / numberOfErrorCalculations));
+      double l2 = 0;
 
+      if(numberOfErrorCalculations > 0){ l2 = l2_sum / numberOfErrorCalculations; }
 
-      // ============ SUMS =========== //
-      /*
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
-      supTextLabel
-          .setText("sup  =" + FormatNumberForDisplay(
-              sup_sum / numberOfErrorCalculations));
-      modTextLabel
-          .setText("mod  =" + FormatNumberForDisplay(
-              mod_sum / numberOfErrorCalculations));
+      L2TextLabel.setText("L2   =" + FormatNumberForDisplay(  l2));
 
-      L1aTextLabel
-          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
-      L2aTextLabel
-          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
-      supaTextLabel
-          .setText("supa =" + FormatNumberForDisplay(sup_w_));
-      modaTextLabel
-          .setText("moda =" + FormatNumberForDisplay(mod_w_));
-      */
+      if(!compute_errors){
+        L2TextLabel.setText("");
+      }
 
       current_coefficients_number = WDE_Algorithm.GetCurrentCoefficientsNumber();
 
       DrawPlots(&WDE_Algorithm);
 
       for(const auto &label : plotLabels) label->updateText();
+
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -2245,6 +2268,8 @@ void MainWindow::Run1DExperimentWithWDE() {
       QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600);
   }
 
   log("Experiment finished!");
@@ -2265,6 +2290,19 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   step_number_ = 0;
   double sigma = 0;
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+  int neurons_number = 100;
+  int epochs_number = 3000;
+  int data_window_size = 500;
+  int max_number_of_som_seq_entries = 1;
+  double beta = 0;
+  double alpha = 1.0;
+
+  double sigma0 = 25.0;
+  double tau1 = 1000 / log(sigma0);
+  double tau2 = 1000.0;
+  double eta0 = 3.0;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -2293,36 +2331,50 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
 
-  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-  log("Attributes data set.");
+  // Synthetic data reader
+  /*
 
-  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  int neurons_number = 100;
-  int epochs_number = 3000;
-  int data_window_size = 500;
-  int max_number_of_som_seq_entries = 1;
-  double beta = 0;
-  double alpha = 1.0;
-
-  double sigma0 = 25.0;
-  double tau1 = 1000 / log(sigma0);
-  double tau2 = 1000.0;
-  double eta0 = 3.0;
-
-  QString expNum = "1666 (SOMKE)";
-  this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "assumed data stream, fixed threshold, original training, sz002"
+   QString expDesc = "assumed data stream, fixed threshold, original training, sz002"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
                     ", epochs_num= " + QString::number(epochs_number);
-  screen_generation_frequency_ = 10;
+
+   plot_description = "assumed data stream; 1D";
+
+   bool compute_errors = true;
+   // */
+
+  // Text data reader
+  //*
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "k:\\Data\\cracow_2020_temp.csv"; QString expDesc = "SOMKE, Cracow 2020 temperature, home"; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
+  //*/
+
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Attributes data set.");
+
+  QString expNum = "(inf_sci) (SOMKE)";
+  this->setWindowTitle("Experiment #" + expNum);
+
+  screen_generation_frequency_ = 1;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "D:\\Tests\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -2331,124 +2383,104 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
+  QTime startTime(0, 0, 0);
+  QDateTime dateTime(startDate, startTime);
+
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+  label_horizontal_offset_ = label_vertical_offset_ = 0.01;
+
+  plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                       plot_description);
+
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
+  QVector<plotLabel> date_labels = {};
+  //*
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
+    label_vertical_offset_ += label_vertical_offset_step_;
+  }
+  //*/
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   label_horizontal_offset_, label_vertical_offset_, "t     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "Neurons  = ", &(neurons_number),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  /*
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "Seq_max  = ",
-                                                   &(max_number_of_som_seq_entries),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
- */
-
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "win_size = ", &(data_window_size),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "epochs   = ", &(epochs_number),
+                                                   label_horizontal_offset_, label_vertical_offset_, "#neurons = ", &(neurons_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
 
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "beta     = ", &(beta),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+                                                   label_horizontal_offset_, label_vertical_offset_, "#epochs  = ", &(epochs_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
 
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "alpha    = ", &(alpha),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
-
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "sigma0   = ", &(sigma0),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+                                                   label_horizontal_offset_, label_vertical_offset_, "b        = ", &(data_window_size),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
 
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "eta0     = ", &(eta0),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
-
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "tau1     = ", &(tau1),
+                                                   label_horizontal_offset_, label_vertical_offset_, "beta     = ", &(beta),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
 
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "tau2     = ", &(tau2),
+                                                   label_horizontal_offset_, label_vertical_offset_, "alpha    =", &(alpha),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "sigma0   =", &(sigma0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "eta0     =", &(eta0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "tau1     =", &(tau1),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "tau2     =", &(tau2),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ = 0.75;
+
+  AddConstantLabelToPlot("theoretical");
+  plot_labels_.back()->SetColor(model_plot_pen_.color());
+
+  AddConstantLabelToPlot("SOMKE Estimator");
+  plot_labels_.back()->SetColor(kde_plot_pen_.color());
 
 
   //====================  SECOND COLUMN =================//
 
-  horizontalOffset = 0.20;
-  verticalOffset = 0.01 + 9 * verticalStep;
+  label_horizontal_offset_ = 0.20;
+  label_vertical_offset_ = 0.01 + 9 * label_vertical_offset_step_;
 
   //====================== ERRORS SUM ===================//
 
-  horizontalOffset = 0.87;
-  verticalOffset = 0.01;
+  label_horizontal_offset_ = 0.87;
+  label_vertical_offset_ = 0.75 + label_vertical_offset_step_;
 
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
-
-  /*
-
-  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-
-  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
-  verticalOffset += verticalStep;
-  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
-  verticalOffset += verticalStep;
-  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-   */
+  plotLabel L2TextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "L2   = 0");
+  L2TextLabel.SetColor(kde_plot_pen_.color());
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -2493,7 +2525,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ >= 1000) {
+    if(step_number_ >= 1000 && compute_errors){
 
       log("Getting error domain.");
       error_domain = somke_algorithm.divergence_domain_;
@@ -2515,14 +2547,14 @@ void MainWindow::Run1DExperimentWithSOMKE() {
           error_domain[error_domain.size() - 1][0] - error_domain[0][0];
 
       log("Calculating errors.");
-      l1_w_ = errors_calculator.CalculateL1Error();
+      //l1_w_ = errors_calculator.CalculateL1Error();
       l2_w_ = errors_calculator.CalculateL2Error();
-      sup_w_ = errors_calculator.CalculateSupError();
-      mod_w_ = errors_calculator.CalculateModError();
-      l1_sum += l1_w_;
+      //sup_w_ = errors_calculator.CalculateSupError();
+      //mod_w_ = errors_calculator.CalculateModError();
+      //l1_sum += l1_w_;
       l2_sum += l2_w_;
-      sup_sum += sup_w_;
-      mod_sum += mod_w_;
+      //sup_sum += sup_w_;
+      //mod_sum += mod_w_;
 
       ++numberOfErrorCalculations;
       log("Errors calculated.");
@@ -2533,33 +2565,23 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
       // ============ SUMS =========== //
 
-      L2TextLabel
-          .setText("L2   =" + FormatNumberForDisplay(
-              l2_sum / numberOfErrorCalculations));
-      /*
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
-      supTextLabel
-          .setText("sup  =" + FormatNumberForDisplay(
-              sup_sum / numberOfErrorCalculations));
-      modTextLabel
-          .setText("mod  =" + FormatNumberForDisplay(
-              mod_sum / numberOfErrorCalculations));
+      double l2 = 0;
 
-      L1aTextLabel
-          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
-      L2aTextLabel
-          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
-      supaTextLabel
-          .setText("supa =" + FormatNumberForDisplay(sup_w_));
-      modaTextLabel
-          .setText("moda =" + FormatNumberForDisplay(mod_w_));
-      */
+      if (numberOfErrorCalculations > 0){ l2 = l2_sum / numberOfErrorCalculations; };
+
+      L2TextLabel.setText("L2   =" + FormatNumberForDisplay(l2));
+
+      if(!compute_errors){
+        L2TextLabel.setText("");
+      }
 
       DrawPlots(&somke_algorithm);
 
       for(const auto &label : plotLabels) label->updateText();
+
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
@@ -2569,6 +2591,8 @@ void MainWindow::Run1DExperimentWithSOMKE() {
       QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600);
   }
 
   log("Experiment finished!");
