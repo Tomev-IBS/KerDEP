@@ -137,7 +137,7 @@ void QwtContourPlotUI::updateLeftColumnText()
   leftColumnText += "\n";
 
   if(should_print_errors){
-    leftColumnText += "\n\n\n\n\n\n\n\n\n\n\n";
+    leftColumnText += "\n\n\n\n\n\n\n\n\n\n\n\n";
     leftColumnText += "";
     leftColumnText += "estimated";
     //leftColumnText += "\n\n";
