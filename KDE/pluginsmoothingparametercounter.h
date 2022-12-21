@@ -13,7 +13,7 @@ class pluginSmoothingParameterCounter : public smoothingParameterCounter
 {
 public:
   pluginSmoothingParameterCounter();
-  pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank, QVector<qreal> *weights = nullptr);
+  pluginSmoothingParameterCounter(QVector<qreal> *samples, int rank, QVector<qreal> *weights = nullptr, int dimension = 1);
 
   double countSmoothingParameterValue();
 
@@ -31,6 +31,7 @@ private:
   QVector<qreal>* weights;
 
   int rank;
+  int _dimension;
 
   bool isNearlyEqual(double x, double y);
 

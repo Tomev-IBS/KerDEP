@@ -5,7 +5,7 @@
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(){}
 
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(
-    QVector<qreal> *samples, int rank, QVector<qreal> *weights) : samples(samples), rank(rank), weights(weights)
+    QVector<qreal> *samples, int rank, QVector<qreal> *weights, int dimension) : samples(samples), rank(rank), weights(weights), _dimension(dimension)
 {}
 
 double pluginSmoothingParameterCounter::countSmoothingParameterValue()
@@ -63,8 +63,8 @@ qreal pluginSmoothingParameterCounter::count1stRankPluginSmoothingParameter()
 
 qreal pluginSmoothingParameterCounter::count0RankPluginSmoothingParameter()
 {
-  // Calculation for normal kernel!
-  double h = pow(4 * M_PI / (3 * samples->size()), 0.2);
+  // Calculation for normal kernel! See Kulczycki2005 pg 64
+  double h = pow(_dimension * 4 * M_PI / (3 * samples->size()), 1 / (_dimension + 4));
   h *= countStandardDeviationEstimator();
   return h;
 }
