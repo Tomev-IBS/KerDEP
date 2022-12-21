@@ -922,9 +922,9 @@ void MainWindow::on_pushButton_start_clicked() {
   }
 
   //RunAccuracyExperiment();
-  Run1DExperimentWithDESDA();
+  //Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
-  //Run1DExperimentWithWDE();
+  Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
 }
 
@@ -963,7 +963,7 @@ void MainWindow::on_pushButton_clicked() {
   std::vector<double> estimator_values = {};
   std::vector<std::vector<double>> error_domain = {};
 
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
   int m0 = ui->lineEdit_sampleSize->text().toInt();
 
@@ -1014,12 +1014,12 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "1841-A (2D)";
-  QString pc_id = "sz232";
-  int drawing_start_step = 10000;
+  QString expNum = "R1 (2D)";
+  QString pc_id = "sz500-509";
+  int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
-  //*
+  /*
   QString expDesc = "Rio 2014 Temp-Hum, start=" + QString::number(drawing_start_step) + ", " + pc_id; QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
   //QString expDesc = "id=1, Cracow 2020 Temp-Hum, start="+QString::number(drawing_start_step) + ", " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
   //QString expDesc = "TEST, " + pc_id; QString experiment_description = "TEST"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\2d_trend_v3.csv";
@@ -1037,10 +1037,10 @@ void MainWindow::on_pushButton_clicked() {
 
   //*/
 
-  /*
+  //*
   // p2 = 0.75p1 lub p2=0
   bool should_compute_errors = true;
-  QString p2 = "1";
+  QString p2 = "0.5";
 
   // Prepare the reader
   reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution), p2.toDouble()));
@@ -1126,7 +1126,7 @@ void MainWindow::on_pushButton_clicked() {
   QVector<int> initialDrawingSteps = {};
 
   for(size_t i = 500; i <= drawing_start_step; i += 500){
-    initialDrawingSteps.push_back(i);
+    //initialDrawingSteps.push_back(i);
   }
 
   double domain_area = 0;
@@ -2042,16 +2042,17 @@ void MainWindow::Run1DExperimentWithWDE() {
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
   // Synthetic data
-  /*
-  QString expDesc = "assumed data stream, soft threshold, b=" + QString::number(number_of_elements_per_block) +
+  //*
+  QString expDesc = "assumed bimodal data stream, soft threshold, b=" + QString::number(number_of_elements_per_block) +
                     ", omega=" + QString::number(weight_modifier) +
                     ", M=" + QString::number(maximal_number_of_coefficients);
   QString plot_description = "assumed data stream; 1D";
   bool compute_errors = true;
+  QDate startDate(2013, 10, 1);
   //*/
 
   // Text data reader
-  //*
+  /*
   ui->lineEdit_iterationsNumber->setText("15000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
 
@@ -2067,11 +2068,11 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   log("Attributes data set.");
 
-  QString expNum = "WDE (inf_sci) (Thresholded Weighted Window WDE)";
+  QString expNum = "WDE (inf_sci bimodal) (Thresholded Weighted Window WDE)";
   //QString expNum = "THRESHOLDED_WDE_TEST_1";
   this->setWindowTitle("Experiment #" + expNum);
 
-  screen_generation_frequency_ = 1;
+  screen_generation_frequency_ = 1000;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
@@ -2202,7 +2203,7 @@ void MainWindow::Run1DExperimentWithWDE() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ >= 1000 && compute_errors) {
+    if(step_number_ >= 2 && compute_errors) {
 
       log("Getting error domain.");
       error_domain = WDE_Algorithm.GetErrorDomain();
@@ -2237,7 +2238,7 @@ void MainWindow::Run1DExperimentWithWDE() {
       log("Errors calculated.");
     }
 
-    if((step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) && (step_number_ > 11350)) {
+    if((step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
       double l2 = 0;

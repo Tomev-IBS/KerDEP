@@ -494,7 +494,12 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
       }
     }
 
-    pluginSmoothingParameterCounter counter(&samples, _pluginRank, &weights);
+    pluginSmoothingParameterCounter counter(
+        &samples,
+        _pluginRank,
+        &weights,
+        _samplingAlgorithm->getAttributesList()->size()
+      );
     smoothingParameters.push_back(counter.countSmoothingParameterValue()
                                   * _smoothingParameterEnhancer);
   }
