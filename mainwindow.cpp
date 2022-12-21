@@ -1126,7 +1126,7 @@ void MainWindow::on_pushButton_clicked() {
   QVector<int> initialDrawingSteps = {};
 
   for(size_t i = 500; i <= drawing_start_step; i += 500){
-    //initialDrawingSteps.push_back(i);
+    initialDrawingSteps.push_back(i);
   }
 
   double domain_area = 0;
