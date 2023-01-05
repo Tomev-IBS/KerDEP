@@ -23,6 +23,7 @@
 
 #include "Reservoir_sampling/distributiondataparser.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
+#include "Reservoir_sampling/sinusoidalDistributionDataReader.h"
 #include "Reservoir_sampling/textDataReader.h"
 
 #include "ClusterKernelWrappers/varianceBasedClusterKernel.h"
@@ -922,9 +923,9 @@ void MainWindow::on_pushButton_start_clicked() {
   }
 
   //RunAccuracyExperiment();
-  //Run1DExperimentWithDESDA();
+  Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
-  Run1DExperimentWithWDE();
+  //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
 }
 
@@ -1351,7 +1352,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  //*
+  /*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1360,19 +1361,41 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionMean,
                                                                    &alternativeDistributionStDevs))
                );
+  //*/
+
+  float periodsNumber = 1;
+
+  reader_.reset(
+      new sinusoidalDistributionDataReader(
+          targetDistribution.get(),
+          periodsNumber,
+          ui->lineEdit_iterationsNumber->text().toInt(),
+          new normalDistribution(seedString.toInt(),
+                                &alternativeDistributionMean,
+                                &alternativeDistributionStDevs),
+          0,
+          1000,
+          9000
+          )
+      );
+
+  //*
   bool compute_errors = true;
   //double p2 = 0.1;
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed trimodal data stream,  home";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", sine ("+QString::number(periodsNumber)+" periods)";
   //QString expDesc = "assumed data stream,  sz221";
-  QString plot_description = "assumed trimodal data stream; 1D";
+  QString plot_description = " sine (\"+QString::number(periodsNumber)+\" periods); 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
   //ui->lineEdit_maxX->setText(path_length);
   //*/
 
-  int drawing_start_step = 270;
-  QString expNum = "(inf sci rest 1)";
+  int drawing_start_step = 0;
+  QString expNum = "R7";
+  QString pcName = "sz5";
+
+  expDesc += ", " + pcName;
 
   // Text data reader
   /*
@@ -1646,11 +1669,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
       l2_errors_sums.clear();
       numberOfErrorCalculations = step_number_;
 
-      l2_errors_sums.push_back(0.076597);
-      l2_errors_sums.push_back(0.075997);
-      l2_errors_sums.push_back(0.075739);
-      l2_errors_sums.push_back(0.075644);
-      l2_errors_sums.push_back(0.075614);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
 
       for(size_t i = 0; i < errors_calculators.size(); ++i) {
         *l2_errors[i] = l2_errors_sums[i];

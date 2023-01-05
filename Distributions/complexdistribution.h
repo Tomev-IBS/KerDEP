@@ -13,6 +13,7 @@ class complexDistribution : public distribution
 
         void getValue(vector<double>* result);
         void increaseMeans(double addend, int index=-1);
+        void setMeans(double newMean, int index=-1);
 
     private:
         vector<std::shared_ptr<distribution>> elementalDistributions;

@@ -69,3 +69,17 @@ void normalDistribution::increaseMeans(double addend, int index)
     (*means)[i] += addend;
   }
 }
+
+void normalDistribution::setMeans(double newMean, int index) {
+  // Update mean at index, if it has been provided.
+  if(index > -1 || means->size() > index){
+    (*means)[index] = newMean;
+    return;
+  }
+
+  // Otherwise update all means
+  for(size_t i = 0; i < means->size(); ++i)
+  {
+    (*means)[i] = newMean;
+  }
+}

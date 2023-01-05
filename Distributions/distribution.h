@@ -11,6 +11,7 @@ class distribution
     public:
         virtual void getValue(vector<double>* result) = 0;
         virtual void increaseMeans(double addend, int index=-1) = 0;
+        virtual void setMeans(double newMean, int index=-1) = 0;
 
     protected:
 
