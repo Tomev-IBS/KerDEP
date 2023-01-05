@@ -22,7 +22,11 @@ void sinusoidalDistributionDataReader::getNextRawDatum(void *target) {
 
   sourceDistribution->getValue(targetPtr);
   if(_currentIteration > _sineStart && _currentIteration < _sineStop && _sineSteps > 0) {
-    double newMean = sin(_periodsNumber * (_currentIteration - _sineStart) * 2 * M_PI / _sineSteps);
+
+    // double pi = M_PI;  // This doesn't work on WIT for some reason.
+    double pi = 3.14;
+
+    double newMean = sin(_periodsNumber * (_currentIteration - _sineStart) * 2 * pi / _sineSteps);
 
     sourceDistribution->setMeans(newMean, 0);
     _alternativeDistribution->setMeans(newMean, 0);
