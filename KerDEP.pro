@@ -95,6 +95,7 @@ SOURCES     +=  main.cpp\
                 Reservoir_sampling/distributiondataparser.cpp \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/progressivedistributiondatareader.cpp \
+                  Reservoir_sampling/sinusoidalDistributionDataReader.cpp \
                 Reservoir_sampling/distributionDataSample.cpp \
                 KDE/weightedSilvermanSmoothingParameterCounter.cpp \
                 groupingThread/groupingThread.cpp \
@@ -165,6 +166,7 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributiondataparser.h \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.h \
                 Reservoir_sampling/progressivedistributiondatareader.h \
+                Reservoir_sampling/sinusoidalDistributionDataReader.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \

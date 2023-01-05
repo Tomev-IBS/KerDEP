@@ -1445,8 +1445,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
-  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
