@@ -17,6 +17,7 @@
 #include "UI/plotLabelIntDataPreparator.h"
 
 #include "Functions/complexfunction.h"
+#include "Distributions/alternatingSplittingDistribution.h"
 
 #include "Reservoir_sampling/biasedReservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/basicReservoirSamplingAlgorithm.h"
@@ -585,7 +586,8 @@ void MainWindow::FillDomain(QVector<std::shared_ptr<point>> *domain, std::shared
 
 distribution *MainWindow::GenerateTargetDistribution(
     vector<std::shared_ptr<vector<double>>> *means,
-    vector<std::shared_ptr<vector<double>>> *stDevs) {
+    vector<std::shared_ptr<vector<double>>> *stDevs,
+    double additionalMultiplier) {
 
   int seed = ui->lineEdit_seed->text().toInt();
   vector<double> contributions;
@@ -614,7 +616,7 @@ distribution *MainWindow::GenerateTargetDistribution(
     seed += 1;
   }
 
-  return new complexDistribution(seed, &elementalDistributions, &contributions);
+  return new alternatingSplittingDistribution(seed, &elementalDistributions, &contributions, additionalMultiplier);
 }
 
 reservoirSamplingAlgorithm *MainWindow::GenerateReservoirSamplingAlgorithm(dataReader *reader,
@@ -662,7 +664,8 @@ kernelDensityEstimator *MainWindow::GenerateKernelDensityEstimator(
 
 function *MainWindow::GenerateTargetFunction(
     vector<std::shared_ptr<vector<double>>> *means,
-    vector<std::shared_ptr<vector<double>>> *stDevs) {
+    vector<std::shared_ptr<vector<double>>> *stDevs,
+    double additionalMultiplier) {
   vector<double> contributions;
   vector<std::shared_ptr<function>> elementalFunctions;
   int targetFunctionElementsNumber = ui->tableWidget_targetFunctions
@@ -1343,8 +1346,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   derivative_estimator_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
   enhanced_kde_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
 
+  double evenDistributionsMultiplier = -1;  // 1 to standardowa "ścieżka zdrowia / życia"
+
   std::shared_ptr<distribution>
-      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_, evenDistributionsMultiplier));
   vector<double> alternativeDistributionMean = {0.0};
   vector<double> alternativeDistributionStDevs = {1.0};
   qreal progressionSize =
@@ -1352,7 +1357,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
+  //*
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
@@ -1362,7 +1367,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
                                                                    &alternativeDistributionStDevs))
                );
   //*/
-
+  /*//
   float periodsNumber = 1;
 
   reader_.reset(
@@ -1379,12 +1384,16 @@ void MainWindow::Run1DExperimentWithDESDA() {
           )
       );
 
-  //*
+
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", sine ("+QString::number(periodsNumber)+" periods)";
+  QString plot_description = " sine (" + QString::number(periodsNumber) + " periods); 1D";
+  //*/
   bool compute_errors = true;
   //double p2 = 0.1;
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", sine ("+QString::number(periodsNumber)+" periods)";
+
   //QString expDesc = "assumed data stream,  sz221";
-  QString plot_description = " sine (" + QString::number(periodsNumber) + " periods); 1D";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", splitting, v_1=v_2=0)";
+  QString plot_description = "splitting, v_1=v_2=0; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1392,8 +1401,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "R7";
-  QString pcName = "sz504";
+  QString expNum = "R11";
+  QString pcName = "sz508";
 
   expDesc += ", " + pcName;
 

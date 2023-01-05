@@ -91,6 +91,7 @@ SOURCES     +=  main.cpp\
                 Libraries/matrixoperationslibrary.cpp \
                 Functions/complexfunction.cpp \
                 Distributions/complexdistribution.cpp \
+                Distributions/alternatingSplittingDistribution.cpp \
                 Reservoir_sampling/biasedReservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/distributiondataparser.cpp \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.cpp \
@@ -159,6 +160,7 @@ HEADERS     +=  mainwindow.h \
                 Libraries/matrixoperationslibrary.h \
                 Functions/complexfunction.h \
                 Distributions/complexdistribution.h \
+                Distributions/alternatingSplittingDistribution.h \
                 Reservoir_sampling/biasedReservoirSamplingAlgorithm.h \
                 Reservoir_sampling/dataParser.h \
                 Reservoir_sampling/dataReader.h \

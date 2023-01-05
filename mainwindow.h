@@ -173,7 +173,8 @@ class MainWindow : public QMainWindow {
                     std::shared_ptr<point> *prototypePoint);
     distribution *GenerateTargetDistribution(
         vector<std::shared_ptr<vector<double>>> *means,
-        vector<std::shared_ptr<vector<double>>> *stDevs);
+        vector<std::shared_ptr<vector<double>>> *stDevs,
+        double additionalMultiplier=1);
     reservoirSamplingAlgorithm *GenerateReservoirSamplingAlgorithm(
         dataReader *reader,
         dataParser *parser);
@@ -181,7 +182,8 @@ class MainWindow : public QMainWindow {
         int dimensionsNumber);
     function *GenerateTargetFunction(
         vector<std::shared_ptr<vector<double>>> *means,
-        vector<std::shared_ptr<vector<double>>> *stDevs);
+        vector<std::shared_ptr<vector<double>>> *stDevs,
+        double additionalMultiplier=1);
     static int CanAnimationBePerformed(int dimensionsNumber);
     static QString FormatNumberForDisplay(double number);
     void on_pushButton_start_clicked();
