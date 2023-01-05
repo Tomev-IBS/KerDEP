@@ -1392,8 +1392,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //double p2 = 0.1;
 
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", splitting, v_1=v_2=0)";
-  QString plot_description = "splitting, v_1=v_2=0; 1D";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", splitting, v_1="+QString::number(evenDistributionsMultiplier)+"v_2)";
+  QString plot_description = "splitting, v_1="+QString::number(evenDistributionsMultiplier)+"v_2; 1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1401,8 +1401,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "R11";
-  QString pcName = "sz508";
+  QString expNum = "R12";
+  QString pcName = "sz511";
 
   expDesc += ", " + pcName;
 
