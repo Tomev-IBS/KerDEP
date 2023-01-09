@@ -25,5 +25,6 @@ void alternatingSplittingDistribution::increaseMeans(double addend, int index) {
 }
 
 int alternatingSplittingDistribution::randomizeDistributionIndex() {
-  return _generatedSamples++ % elementalDistributions.size();
+  return complexDistribution::randomizeDistributionIndex();
+  // return _generatedSamples++ % elementalDistributions.size();  // For alternation
 }
