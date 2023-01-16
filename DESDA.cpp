@@ -237,7 +237,7 @@ void DESDA::updateWeights() {
   }
 
   for(int i = 0; i < consideredClusters.size(); ++i) {
-    double newWeight = 2 * (1.0 - i * _sgmKPSS / m);
+    double newWeight = 2 * pow(1.0 - i * _sgmKPSS / m, 2);
     consideredClusters[i]->setCWeight(newWeight);
     for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
       _examinedClustersWStar.push_back(newWeight);
