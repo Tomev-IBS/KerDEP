@@ -15,11 +15,11 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> enchancedKDE,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
-             double desiredRarity, double pluginRank) :
+             double desiredRarity, double pluginRank, int sgmKPSSMultiplicity) :
     _samplingAlgorithm(samplingAlgorithm),
     _estimatorDerivative(estimatorDerivative), _estimator(estimator),
     _clusters(clusters), _r(desiredRarity),
-    _enhancedKDE(enchancedKDE), _pluginRank(pluginRank) {
+    _enhancedKDE(enchancedKDE), _pluginRank(pluginRank), _sgmKPSSMultiplicity(sgmKPSSMultiplicity) {
   _objects.clear();
 
   _maxM = _samplingAlgorithm->getReservoidMaxSize(); // _maxM should be like 1000 + 100 for every mode
@@ -117,8 +117,8 @@ void DESDA::performStep() {
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
   }
 
-  _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
-                     - _sgmKPSSParameters[_sgmKPSSPercent][1]);
+  _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSMultiplicity][0] * getStationarityTestValue()
+                     - _sgmKPSSParameters[_sgmKPSSMultiplicity][1]);
   // Beta0 update
   _beta0 = 2.0 / 3 * _sgmKPSS; // According to formula from 13 IV 2020
 
@@ -237,7 +237,7 @@ void DESDA::updateWeights() {
   }
 
   for(int i = 0; i < consideredClusters.size(); ++i) {
-    double newWeight = 2 * pow(1.0 - i * _sgmKPSS / m, 2);
+    double newWeight = 2 * pow(1.0 - i * _sgmKPSS / m, 1);
     consideredClusters[i]->setCWeight(newWeight);
     for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
       _examinedClustersWStar.push_back(newWeight);

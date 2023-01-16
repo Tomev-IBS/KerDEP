@@ -20,7 +20,7 @@ class DESDA
           std::shared_ptr<kernelDensityEstimator> enchancedKDE,
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
-          double desiredRarity, double pluginRank=2);
+          double desiredRarity, double pluginRank=2, int sgmKPSSMultiplicity = 7);
 
     void performStep();
     QVector<double> getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension=0);
@@ -149,6 +149,7 @@ class DESDA
 
     // Only one of these parameters should be left, but I need this for
     // more accurate experiments preparation.
+    /*
     std::map<int, std::vector<double>> _sgmKPSSParameters = {
       {10, {0.298, 2.417}}, {11, {0.329, 2.435}}, {12, {0.360, 2.466}},
       {13, {0.393, 2.487}}, {14, {0.423, 2.513}}, {15, {0.457, 2.535}},
@@ -161,6 +162,20 @@ class DESDA
       {34, {1.156, 3.051}}, {35, {1.196, 3.081}}, {36, {1.240, 3.113}},
       {37, {1.283, 3.145}}, {38, {1.327, 3.178}}, {39, {1.370, 3.209}},
       {40, {1.416, 3.243}}
+    };
+    */
+    // New parameters, for defense experiments
+    int _sgmKPSSMultiplicity = 7;
+    std::map<int, std::vector<double>> _sgmKPSSParameters = {
+        {9, {0.298, 2.417}},
+        {8, {0.625, 2.659}},
+        {7, {0.995, 2.932}},
+        {6, {1.416, 3.243}},
+        {5, {1.906, 3.606}},
+        {4, {2.502, 4.046}},
+        {3, {3.262, 4.608}},
+        {2, {4.322, 5.392}},
+        {1, {6.117, 6.718}}
     };
 };
 

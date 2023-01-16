@@ -21,6 +21,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
 
   sourceDistribution->getValue(targetPtr);
 
+  /*
   // 26 III 2020 article formula
   // Stops at 0.5 + 6 + 3 + 1 = 10.5 without offset. Set maxX = 15.
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38
@@ -50,6 +51,23 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
     //case 11001: // 2D
       x_progression_size = 0;
       break;
+  }
+  */
+  // Ziegler-Nichols 0-1-0-1 jumps
+  x_progression_size = 0;
+  switch(_currentIteration - 1) { // For exps with seed, remove later
+    case 2500:
+      x_progression_size = 1;
+    case 2501:
+      x_progression_size = 0;
+    case 5000:
+      x_progression_size = -1;
+    case 5001:
+      x_progression_size = 0;
+    case 7500:
+      x_progression_size = 1;
+    case 7501:
+      x_progression_size = 0;
   }
 
   sourceDistribution->increaseMeans(x_progression_size, 0);

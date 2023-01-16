@@ -1391,9 +1391,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   bool compute_errors = true;
   //double p2 = 0.1;
 
+  int ziegler_nichols_multiplicity = 1;
+
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", squared weights";
-  QString plot_description = "squared weights; 1D";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", Ziegler-Nichols, multiplicity="+QString::number(ziegler_nichols_multiplicity);
+  QString plot_description = "Ziegler-Nichols; multiplicity="+QString::number(ziegler_nichols_multiplicity)+" ;1D";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1401,8 +1403,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "R41";
-  QString pcName = "sz255";
+  QString expNum = "R"+QString::number(42 + ziegler_nichols_multiplicity);
+  QString pcName = "sz257";
 
   expDesc += ", " + pcName;
 
@@ -1440,14 +1442,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   derivative_estimator_->_shouldConsiderWeights = false;
 
-  int pluginRank = 3;
+  int pluginRank = 2;
   DESDA DESDAAlgorithm(
       estimator,
       derivative_estimator_,
       enhanced_kde_,
       algorithm,
       clusters_,
-      ui->lineEdit_rarity->text().toDouble(), pluginRank
+      ui->lineEdit_rarity->text().toDouble(), pluginRank, ziegler_nichols_multiplicity
                       );
 
   this->setWindowTitle("Experiment #" + expNum);
