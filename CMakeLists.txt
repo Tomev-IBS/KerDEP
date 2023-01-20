@@ -218,6 +218,14 @@ IF (EXISTS "k:\\Libs\\knnl\\include\\")
     set(knnl_include "k:\\Libs\\knnl\\include\\")
 ENDIF()
 
+IF (EXISTS "k:\\Libs\\armadillo-11.4.3\\include\\")
+    set(armadillo_include "k:\\Libs\\armadillo-11.4.3\\include\\")
+ENDIF()
+
+IF (EXISTS "y:\\armadillo-11.4.3\\include\\")
+    set(armadillo_include "y:\\armadillo-11.4.3\\include\\")
+ENDIF()
+
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
 include_directories(ClusterKernelsKDE/src/)
 include_directories(ClusterKernelsWrapper/)
@@ -238,3 +246,4 @@ target_link_libraries(KerDEP PRIVATE
 )
 
 target_include_directories(KerDEP PUBLIC ${knnl_include})
+target_include_directories(KerDEP PUBLIC ${armadillo_include})
