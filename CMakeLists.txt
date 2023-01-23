@@ -210,7 +210,7 @@ add_executable(KerDEP
         SOMKE/include/SOMKE/SOMSequenceEntry.h
         SOMKE/include/SOMKE/Kernel.h
         SOMKE/src/SOMKEAlgorithm.cpp
-        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h SOMKE/include/SOMKE/SOMKEMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h Reservoir_sampling/textDataReader.cpp Reservoir_sampling/textDataReader.h Reservoir_sampling/sinusoidalDistributionDataReader.cpp Reservoir_sampling/sinusoidalDistributionDataReader.h Distributions/alternatingSplittingDistribution.cpp Distributions/alternatingSplittingDistribution.h KDE/fftlscvBandwidthSelector.cpp KDE/fftlscvBandwidthSelector.h DataBinning/linearBinning.cpp DataBinning/linearBinning.h)
+        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h SOMKE/include/SOMKE/SOMKEMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h Reservoir_sampling/textDataReader.cpp Reservoir_sampling/textDataReader.h Reservoir_sampling/sinusoidalDistributionDataReader.cpp Reservoir_sampling/sinusoidalDistributionDataReader.h Distributions/alternatingSplittingDistribution.cpp Distributions/alternatingSplittingDistribution.h DataBinning/linearBinning.cpp DataBinning/linearBinning.h)
 
 include_directories(${QWT_INCLUDE_DIR})
 
