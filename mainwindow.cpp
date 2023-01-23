@@ -1403,8 +1403,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
-  QString expNum = "R57";
-  QString pcName = "sz274";
+  QString expNum = "R62";
+  QString pcName = "sz280";
 
   expDesc += ", " + pcName;
 
