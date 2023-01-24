@@ -27,15 +27,15 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
-      //x_progression_size = 0.0005;
-      x_progression_size = 0.001;
+      //x_progression_size = 0.001;
+      x_progression_size = 0.0005;
       break;
     // case 300: // Test
     case 2000: // 1D
     //case 5000: // 2D
       // x_progression_size = 0.1; // Test
       x_progression_size = 0.01; // Klasyczna + 30
-      // x_progression_size = 0.005; // Spowolniona + 15
+      x_progression_size = 0.005; // Spowolniona + 15
       // x_progression_size = 0.002; //  Leniwa + 6
       break;
     case 6000:
