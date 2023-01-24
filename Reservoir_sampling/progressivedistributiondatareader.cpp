@@ -22,20 +22,39 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   sourceDistribution->getValue(targetPtr);
 
 
+  switch(_currentIteration - 1) { // For exps with seed, remove later
+    case 0:
+      x_progression_size = 0;
+      //x_progression_size = 0.0005;
+      break;
+      // case 300: // Test
+    case 1000: // 1D
+      //case 5000: // 2D
+      x_progression_size = 0.005; // + 40
+      //x_progression_size = 0.05; // + 400
+      // x_progression_size = 0.1; // + 800
+      break;
+    case 9000:
+      //case 11001: // 2D
+      x_progression_size = 0;
+      break;
+  }
+
   // 26 III 2020 article formula
   // Stops at 0.5 + 6 + 3 + 1 = 10.5 without offset. Set maxX = 15.
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38
+  /*
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
-      //x_progression_size = 0.001;
-      x_progression_size = 0.0005;
+      x_progression_size = 0.001;
+      //x_progression_size = 0.0005;
       break;
     // case 300: // Test
     case 2000: // 1D
     //case 5000: // 2D
       // x_progression_size = 0.1; // Test
       x_progression_size = 0.01; // Klasyczna + 30
-      x_progression_size = 0.005; // Spowolniona + 15
+      //x_progression_size = 0.005; // Spowolniona + 15
       // x_progression_size = 0.002; //  Leniwa + 6
       break;
     case 6000:
@@ -52,6 +71,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       x_progression_size = 0;
       break;
   }
+  //*/
 
   // Ziegler-Nichols 0-1-0-1 jumps
   /*
@@ -76,7 +96,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       x_progression_size = 0;
       break;
   }
-  */
+  //*/
 
   sourceDistribution->increaseMeans(x_progression_size, 0);
   _alternativeDistribution->increaseMeans(x_progression_size, 0);
