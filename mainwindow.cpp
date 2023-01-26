@@ -1393,9 +1393,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int ziegler_nichols_multiplicity = 1;
 
+  QString m0_text = ui->lineEdit_sampleSize->text();
+
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed trimodal data stream; -9 - 0 - 6";
-  QString plot_description = "assumed trimodal data stream; -9 - 0 - 6";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed trimodal data stream, -9 - 0 - 6, m0="+m0_text;
+  QString plot_description = "assumed trimodal data stream; -9 - 0 - 6; m0=" + m0_text;
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);

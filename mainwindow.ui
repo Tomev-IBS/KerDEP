@@ -227,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-15</string>
+            <string>-14</string>
            </property>
           </widget>
          </item>
