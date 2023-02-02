@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.6)
 
 project(KerDEP LANGUAGES CXX)
 set(CMAKE_PREFIX_PATH "K:/Libs/Qt/5.15.0/mingw81_64/lib/cmake")
@@ -6,7 +6,6 @@ set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\")
 set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\lib\\")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
-
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -220,10 +219,7 @@ ENDIF()
 
 IF (EXISTS "k:\\Libs\\armadillo-11.4.3\\include\\")
     set(armadillo_include "k:\\Libs\\armadillo-11.4.3\\include\\")
-ENDIF()
-
-IF (EXISTS "y:\\armadillo-11.4.3\\include\\")
-    set(armadillo_include "y:\\armadillo-11.4.3\\include\\")
+    set(armadillo_lib "k:\\Libs\\armadillo-11.4.3\\examples\\lib_win64\\")
 ENDIF()
 
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
@@ -237,6 +233,9 @@ include_directories(Compressed_Cumulative_WDE_Wrappers/)
 include_directories(SOMKE/include/SOMKE/)
 include_directories(SOMKE/src/)
 
+target_include_directories(KerDEP PUBLIC ${knnl_include})
+target_include_directories(KerDEP PUBLIC ${armadillo_include})
+
 target_link_libraries(KerDEP PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::PrintSupport
@@ -245,5 +244,5 @@ target_link_libraries(KerDEP PRIVATE
         ${QWT_LIBRARY}
 )
 
-target_include_directories(KerDEP PUBLIC ${knnl_include})
-target_include_directories(KerDEP PUBLIC ${armadillo_include})
+
+

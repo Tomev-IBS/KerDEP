@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+
+
 kernelDensityEstimator::kernelDensityEstimator(
     vector<std::shared_ptr<vector<double>>>* samples,
     vector<double>* smoothingParameters,
@@ -141,6 +143,7 @@ double kernelDensityEstimator::getProductValuesFromClusters(vector<double>* x)
   return result;
 }
 
+/*
 int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c, vector<double> *smpl)
 {
   // This method assumes, that clustered sample has numerical values only
@@ -160,6 +163,24 @@ int kernelDensityEstimator::extractSampleFromCluster(std::shared_ptr<cluster> c,
   }
 
   return smpl->size();
+}
+ */
+
+vector<double> kernelDensityEstimator::extractSampleFromCluster(const std::shared_ptr<cluster> &c) const{
+// This method assumes, that clustered sample has numerical values only
+  vector<double> smpl = {};
+
+  if(c.get()->getObject().get() == nullptr) return smpl;
+
+  std::shared_ptr<sample> obj = c->getObject();
+  std::unordered_map<std::string, std::string> attrVals
+      = obj->attributesValues;
+
+  for(auto attribute: *(obj->attirbutesOrder)) {
+    smpl.push_back(std::stod(attrVals[attribute]));
+  }
+
+  return smpl;
 }
 
 double kernelDensityEstimator::getProductKernelAddendFromSample(vector<double> *sample, vector<double> *x)
@@ -208,10 +229,8 @@ double kernelDensityEstimator::getProductKernelAddendFromClusterIndex(int index,
 
   std::unique_ptr<vector<double>> tempValueHolder(new vector<double>());
 
-  vector<double> s;
+  vector<double> s = extractSampleFromCluster(clusters[index]);;
   vector<double> *sample = &s;
-
-  extractSampleFromCluster(clusters[index], sample);
 
   for(size_t i = 0; i < kernels.size(); ++i)
   {
@@ -288,4 +307,114 @@ void kernelDensityEstimator::addProductKernelsToTheList(vector<int> *kernelsIDs)
 int kernelDensityEstimator::partitionCharacteristicFunction(double carrier, double restriction)
 {
     return carrier >= restriction ? 1 : 0;
+}
+
+void kernelDensityEstimator::compute_covariance_matrix(){
+
+  std::vector<std::vector<double>> extracted_samples = {};
+
+  for(auto c : clusters){
+    extracted_samples.push_back(extractSampleFromCluster(c));
+  }
+
+  int dimension = extracted_samples[0].size();
+
+  _covarianceMatrix = mat(dimension, dimension);
+
+  for(int i = 0; i < dimension; ++i){
+    for(int j = 0; j <= i; ++j){
+      _covarianceMatrix(i,j)=_covarianceMatrix(j, i)=compute_weighted_covariance(i, j, extracted_samples);
+    }
+  }
+}
+
+double kernelDensityEstimator::compute_weighted_covariance(const int &i, const int &j, const vector<vector<double>> &data) const{
+  double covariance = 0;
+  double weights_sum = 0;
+
+  double i_mean = compute_weighted_mean(i, data);
+  double j_mean = compute_weighted_mean(j, data);
+
+  for(int k = 0; k < data.size(); ++k){
+    double weight = clusters[i]->getCWeight();
+    vector<double> datum = data[k];
+
+    covariance += weight * (datum[i] - i_mean) * (datum[j] - j_mean);
+
+    weights_sum += weight;
+  }
+
+  return covariance / weights_sum;
+}
+
+double kernelDensityEstimator::compute_weighted_mean(const int &i, const vector<vector<double>> &data) const{
+  double mean = 0;
+  double weights_sum = 0;
+
+  for(int j = 0; j < clusters.size(); ++j){
+    double weight = clusters[j]->getCWeight();
+    mean += data[j][i] * weight;
+    weights_sum += weight;
+  }
+
+  return mean / weights_sum;
+}
+
+void kernelDensityEstimator::updateCovarianceMatrix(){
+  if(clusters.size() < 2){
+    return;
+  }
+
+  compute_covariance_matrix();
+}
+
+double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
+  double value = 0;
+  double weights_sum = 0;
+
+
+//  vec x_vec = vec(x->size());
+//  for(int i = 0; i < x->size(); ++i){
+//    x_vec(i) = (*x)[i];
+//  }
+//
+
+  // I'll only implement radial 2D kernel. This project has to be rewritten anyway.
+  //mat cov_inv = _covarianceMatrix.i();
+
+  /*
+  for(auto c : clusters){
+
+    double weight = c->getCWeight();
+    weights_sum += weight;
+
+    vector<double> s = extractSampleFromCluster(c);
+    vec c_vec = vec(x->size());
+
+    for(int i = 0; i < x->size(); ++i){
+      c_vec(i) = s[i];
+    }
+
+    double kernel_value = 0;
+
+    //vec v = (x_vec - c_vec);
+
+    //kernel_value = exp(as_scalar(v.t() * cov_inv * v) * smoothingParameters[0]);
+
+    value += weight * kernel_value;
+  }
+
+
+  value /= weights_sum;
+
+  value /= pow(smoothingParameters[0], x->size());
+
+  value /= pow(2 * M_PI, - x->size() / 2);
+
+
+  value /= sqrt(det(_covarianceMatrix));
+*/
+
+  return value;
+
 }
