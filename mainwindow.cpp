@@ -1020,8 +1020,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R80 (2D); Radial Test";
-  QString pc_id = "sz258";
+  QString expNum = "R81 (2D); Radial Full Transform";
+  QString pc_id = "sz259";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 

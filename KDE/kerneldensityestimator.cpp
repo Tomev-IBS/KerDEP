@@ -331,8 +331,9 @@ void kernelDensityEstimator::compute_covariance_matrix(){
 
   for(int i = 0; i < dimension; ++i){
     for(int j = 0; j <= i; ++j){
-      if(i == j)  // Diagonal form, otherwise singularity problems occurs
-      _covarianceMatrix(i,j)=_covarianceMatrix(j, i)=compute_weighted_covariance(i, j, extracted_samples);
+      if(i == j || _full_transform){
+        _covarianceMatrix(i,j)=_covarianceMatrix(j, i)=compute_weighted_covariance(i, j, extracted_samples);
+      }
     }
   }
 }
@@ -370,7 +371,7 @@ double kernelDensityEstimator::compute_weighted_mean(const int &i, const vector<
 }
 
 void kernelDensityEstimator::updateCovarianceMatrix(){
-  if(clusters.size() < 2){
+  if(clusters.size() < 5){
     _covarianceMatrix = mat(2, 2, fill::eye);
   } else {
     compute_covariance_matrix();
@@ -405,9 +406,7 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
 
     vec v = (x_vec - c_vec) / smoothingParameters[0];
 
-    //qDebug() << "here";
     double kernel_value = exp(- 0.5 * as_scalar(v.t() * cov_inv * v));
-    //qDebug() << "there";
 
     value += weight * kernel_value;
   }
@@ -418,11 +417,7 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
 
   value *= pow(2 * M_PI, - double(x->size()) / 2);
 
-  //qDebug() << "\t" << value;
-
   value /= sqrt(det(_covarianceMatrix));
-
-  //qDebug() << value;
 
   return value;
 
