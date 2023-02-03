@@ -136,7 +136,8 @@ SOURCES     +=  main.cpp\
                 groupingThread/kMeansAlgorithm.cpp \
                 DESDA.cpp \
                 StationarityTests/kpssstationaritytest.cpp \
-                UI/plotLabel.cpp
+                UI/plotLabel.cpp \
+                KDE/WeightedCVBandwidthSelector.cpp
 
 HEADERS     +=  mainwindow.h \
                 Benchmarking/errorsCalculator.h \
@@ -239,7 +240,8 @@ HEADERS     +=  mainwindow.h \
                 DESDA.h \
                 StationarityTests/kpssstationaritytest.h \
                 StationarityTests/i_stationaritytest.h \
-                UI/plotLabel.h
+                UI/plotLabel.h \
+                KDE/WeightedCVBandwidthSelector.h
 
 FORMS       +=  mainwindow.ui
 
