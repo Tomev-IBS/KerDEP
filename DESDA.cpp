@@ -140,15 +140,17 @@ void DESDA::performStep() {
 
   // Calculate smoothing parameters
   compute_weighted_plugin = false;
-  _windowedSmoothingParametersVector = calculateH(*_clusters);
-  //_windowedSmoothingParametersVector = computeRadialH(*_clusters);
+  //_windowedSmoothingParametersVector = calculateH(*_clusters);
+  _windowedSmoothingParametersVector = computeRadialH(*_clusters);
   auto currentClusters = getClustersForEstimator();
 
   // Update weights
   updateWeights();
   compute_weighted_plugin = true;
-  _smoothingParametersVector = calculateH(currentClusters);
-  //_smoothingParametersVector = computeRadialH(currentClusters);
+  //_smoothingParametersVector = calculateH(currentClusters);
+  _smoothingParametersVector = computeRadialH(currentClusters);
+
+  qDebug() << "Radial h results: " << _smoothingParametersVector[0];
 
   // DEBUG
   /*
@@ -329,9 +331,13 @@ void DESDA::enhanceWeightsOfUncommonElements() {
 void DESDA::countKDEValuesOnClusters() {
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
-  _estimator->setClusters(consideredClusters);
 
+  _estimator->setClusters(consideredClusters);
   _estimator->setSmoothingParameters(_smoothingParametersVector);
+
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
 
   for(std::shared_ptr<cluster> c : *_clusters) {
     x.clear();
@@ -339,6 +345,7 @@ void DESDA::countKDEValuesOnClusters() {
       x.push_back(std::stod(c->getRepresentative()->attributesValues[attribute]));
     }
     double estimatorValueOnCluster = _estimator->getValue(&x);
+
     c->_currentKDEValue = estimatorValueOnCluster;
   }
 }
@@ -438,6 +445,12 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
       getClustersForEstimator();
   std::vector<double> attributesValues =
       getAttributesValuesFromClusters(currentClusters, dimension);
+
+  if(_smoothingParametersVector.size() == 1){
+    // Assume radial h
+    dimension = 0;
+  }
+
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
@@ -559,6 +572,10 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<std::vec
     _estimatorDerivative->setSmoothingParameters({_smoothingParametersVector});
     _estimatorDerivative->setClusters(currentClusters);
 
+    if(_estimatorDerivative->_radial){
+      _estimatorDerivative->updateCovarianceMatrix();
+    }
+
     if(stationarityTests.size() == 1) {
 
       std::string attributeKey =
@@ -606,6 +623,10 @@ std::vector<double> DESDA::getEnhancedKDEValues(const std::vector<std::vector<do
       getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+  if(_enhancedKDE->_radial){
+    _enhancedKDE->updateCovarianceMatrix();
+  }
 
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
@@ -677,6 +698,10 @@ vector<double> DESDA::getWindowKDEValues(const vector<vector<qreal>> *X, int dim
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
 
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
+
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
       windowKDEValues.push_back(_estimator->getValue(&x));
@@ -706,6 +731,10 @@ std::vector<double> DESDA::getKDEValues(const vector<vector<double>> *X, int dim
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
 
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
+
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
       KDEValues.push_back(_estimator->getValue(&x));
@@ -731,6 +760,10 @@ std::vector<double> DESDA::getWeightedKDEValues(const vector<vector<double>> *X,
       getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
 
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
@@ -823,6 +856,10 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters() {
 
   _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
   _enhancedKDE->_shouldConsiderWeights = true;
+
+  if(_enhancedKDE->_radial){
+    _enhancedKDE->updateCovarianceMatrix();
+  }
 
   for(auto i = 0; i < m; ++i) {
     auto c = consideredClusters[0];
@@ -943,6 +980,10 @@ std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<st
       getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+  if(_enhancedKDE->_radial){
+    _enhancedKDE->updateCovarianceMatrix();
+  }
 
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {

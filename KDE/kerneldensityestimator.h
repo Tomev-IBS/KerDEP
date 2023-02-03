@@ -20,7 +20,8 @@ enum estimatorsKernelsType {
 class kernelDensityEstimator : public function {
   public:
     kernelDensityEstimator(vector<std::shared_ptr<vector<double>>> *samples, vector<double> *smoothingParameter,
-                           vector<string> *carriersRestrictions, int kernelType, vector<int> *kernelsIDs);
+                           vector<string> *carriersRestrictions, int kernelType, vector<int> *kernelsIDs,
+                           const bool &radial = false);
     void setSamples(vector<std::shared_ptr<vector<double>>> *samples);
     unsigned long long setClusters(vector<std::shared_ptr<cluster> > clusters);
     int setSmoothingParameters(const vector<double> &smoothingParams);
@@ -29,10 +30,13 @@ class kernelDensityEstimator : public function {
     bool _shouldConsiderWeights = true;
     int getDimension();
     void updateSPModifyingParameters();
+
     // DEBUG ONLY
     bool _printClusters = false;
 
     // Radial kernel
+    bool _radial;
+
     void updateCovarianceMatrix();
     double getRadialKernelValue(vector<double>* x) const;
 
@@ -42,6 +46,7 @@ class kernelDensityEstimator : public function {
     double weight;
     vector<vector<double>> _spModifyingParameters;
     double _modificationIntensivity = 0.5;
+
     vector<double> getSParameter();
     vector<std::shared_ptr<vector<double>>> samples;
     vector<kernelPtr> kernels;
@@ -62,6 +67,7 @@ class kernelDensityEstimator : public function {
 
     // Radial kernel
     mat _covarianceMatrix;
+    mat cov_inv;
 
     void compute_covariance_matrix();
     [[nodiscard]] double compute_weighted_covariance(const int &i, const int &j, const vector<vector<double>> &data) const;

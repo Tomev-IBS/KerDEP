@@ -1,6 +1,7 @@
 #include "kerneldensityestimator.h"
 
 #include <cmath>
+#include <qdebug>
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -12,8 +13,8 @@ kernelDensityEstimator::kernelDensityEstimator(
     vector<double>* smoothingParameters,
     vector<string> *carriersRestrictions,
     int kernelType,
-    vector<int>* kernelsIDs)
-    : kernelType(kernelType){
+    vector<int>* kernelsIDs, const bool &radial)
+    : kernelType(kernelType), _radial(radial) {
 
     this->samples               = vector<std::shared_ptr<vector<double>>>(*samples);
     this->smoothingParameters   = vector<double>(*smoothingParameters);
@@ -65,6 +66,10 @@ double kernelDensityEstimator::getValue(vector<double>* x)
     {
         //qDebug() << "Argument is empty.";
         return -2.0;
+    }
+
+    if(_radial){
+      return getRadialKernelValue(x);
     }
 
     return getProductKernelValue(x);
@@ -326,6 +331,7 @@ void kernelDensityEstimator::compute_covariance_matrix(){
 
   for(int i = 0; i < dimension; ++i){
     for(int j = 0; j <= i; ++j){
+      if(i == j)  // Diagonal form, otherwise singularity problems occurs
       _covarianceMatrix(i,j)=_covarianceMatrix(j, i)=compute_weighted_covariance(i, j, extracted_samples);
     }
   }
@@ -365,10 +371,12 @@ double kernelDensityEstimator::compute_weighted_mean(const int &i, const vector<
 
 void kernelDensityEstimator::updateCovarianceMatrix(){
   if(clusters.size() < 2){
-    return;
+    _covarianceMatrix = mat(2, 2, fill::eye);
+  } else {
+    compute_covariance_matrix();
   }
 
-  compute_covariance_matrix();
+  cov_inv = _covarianceMatrix.i();
 }
 
 double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
@@ -383,8 +391,6 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
 
 
   // I'll only implement radial 2D kernel. This project has to be rewritten anyway.
-  mat cov_inv = _covarianceMatrix.i();
-
   for(auto c : clusters){
 
     double weight = c->getCWeight();
@@ -397,23 +403,26 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
       c_vec(i) = s[i];
     }
 
-    double kernel_value = 0;
+    vec v = (x_vec - c_vec) / smoothingParameters[0];
 
-    vec v = (x_vec - c_vec);
-
-    kernel_value = exp(as_scalar(v.t() * cov_inv * v) * smoothingParameters[0]);
+    //qDebug() << "here";
+    double kernel_value = exp(- 0.5 * as_scalar(v.t() * cov_inv * v));
+    //qDebug() << "there";
 
     value += weight * kernel_value;
   }
 
-
   value /= weights_sum;
 
-  value /= pow(smoothingParameters[0], x->size());
+  value /= pow(smoothingParameters[0], double(x->size()));
 
-  value /= pow(2 * M_PI, - x->size() / 2);
+  value *= pow(2 * M_PI, - double(x->size()) / 2);
+
+  //qDebug() << "\t" << value;
 
   value /= sqrt(det(_covarianceMatrix));
+
+  //qDebug() << value;
 
   return value;
 

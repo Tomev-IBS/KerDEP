@@ -179,7 +179,7 @@ class MainWindow : public QMainWindow {
         dataReader *reader,
         dataParser *parser);
     kernelDensityEstimator *GenerateKernelDensityEstimator(
-        int dimensionsNumber);
+        int dimensionsNumber, const bool &radial=false);
     function *GenerateTargetFunction(
         vector<std::shared_ptr<vector<double>>> *means,
         vector<std::shared_ptr<vector<double>>> *stDevs,

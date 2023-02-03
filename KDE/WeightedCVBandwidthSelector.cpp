@@ -1,6 +1,8 @@
 #include "WeightedCVBandwidthSelector.h"
 
 #include <cmath>
+#include <qdebug>
+
 #ifndef M_PI
   #define M_PI 3.14159265358979323846
 #endif
@@ -28,6 +30,8 @@ double WeightedCVBandwidthSelector::compute_bandwidth(const vector<vec> &data, c
   for(auto h : _tested_bandwidths){
       double g_val = g(h);
 
+      //qDebug() << "\th = " << h << ", g(h) = " << g_val;
+
       if(g_val < min_g_val){
         min_g_val = g_val;
         h_min = h;
@@ -47,7 +51,8 @@ double WeightedCVBandwidthSelector::g(const double &h) const{
     for(int j = 0; j < m; ++j){
       vec argument = _data[j] - _data[i];
       argument /= h;
-      g_value += _weights[i] * _weights[j] * G(argument);
+      //g_value += _weights[i] * _weights[j] * G(argument);
+      g_value += G(argument);
     }
   }
 
@@ -59,13 +64,23 @@ double WeightedCVBandwidthSelector::g(const double &h) const{
 }
 
 double WeightedCVBandwidthSelector::G(const vec &x){
-  return normal_kernel_squared_convolution_value(x) - 2 * normal_kernel_value(x);
+  double val = normal_kernel_squared_convolution_value(x);
+  val -= 2 * normal_kernel_value(x);
+  return val;
 }
 
 double WeightedCVBandwidthSelector::normal_kernel_value(const vec &x) {
-  return pow(2 * M_PI, - x.size() / 2) * exp(-as_scalar(x.t() * x) / 2);
+  return pow(2 * M_PI, - double(x.size()) / 2) * exp(-as_scalar(x.t() * x) / 2);
 }
 
 double WeightedCVBandwidthSelector::normal_kernel_squared_convolution_value(const vec &x) {
-  return pow(4 * M_PI, - x.size() / 2) * exp(- as_scalar(x.t() * x) / 4);
+  double ret_val = as_scalar(x.t() * x);
+  ret_val = - ret_val;
+  ret_val /= 4;
+  ret_val = exp(ret_val);
+
+  double s = x.size();
+
+  ret_val *= pow(4 * M_PI, - s / 2);
+  return ret_val;
 }
