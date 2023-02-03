@@ -7,8 +7,8 @@
 
 
 WeightedCVBandwidthSelector::WeightedCVBandwidthSelector() {
-  double h = 0.05;
-  double h_step = 0.05;
+  double h = 0.1;
+  double h_step = 0.1;
 
   while(h < 1.3){
     _tested_bandwidths.push_back(h);

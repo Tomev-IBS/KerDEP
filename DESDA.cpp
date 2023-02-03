@@ -1,5 +1,6 @@
 #include "DESDA.h"
 #include "KDE/pluginsmoothingparametercounter.h"
+#include "KDE/WeightedCVBandwidthSelector.h"
 
 #include <QTime>
 #include <QCoreApplication>
@@ -140,12 +141,14 @@ void DESDA::performStep() {
   // Calculate smoothing parameters
   compute_weighted_plugin = false;
   _windowedSmoothingParametersVector = calculateH(*_clusters);
+  //_windowedSmoothingParametersVector = computeRadialH(*_clusters);
   auto currentClusters = getClustersForEstimator();
 
   // Update weights
   updateWeights();
   compute_weighted_plugin = true;
   _smoothingParametersVector = calculateH(currentClusters);
+  //_smoothingParametersVector = computeRadialH(currentClusters);
 
   // DEBUG
   /*
@@ -467,7 +470,7 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
 }
 
 std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
-  int dimensionsNumber = _estimator->getDimension();
+  int dimensionsNumber = _samplingAlgorithm->getAttributesList()->size();
   std::vector<double> smoothingParameters = {};
 
   if(clusters.size() < 2) {
@@ -505,6 +508,41 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
   }
 
   return smoothingParameters;
+}
+
+std::vector<double> DESDA::computeRadialH(const std::vector<clusterPtr> &clusters) const{
+  int dimensionsNumber = _samplingAlgorithm->getAttributesList()->size();
+  std::vector<double> smoothingParameters = {};
+
+  if(clusters.size() < 2) {
+    return {1};
+  }
+
+  // Prepare the data
+  vector<vec> data = {};
+  vector<double> weights = {};
+
+  for(auto c : clusters){
+
+    data.push_back(vec(dimensionsNumber, fill::zeros));
+    int i = 0;
+
+    for(auto attribute: *_samplingAlgorithm->getAttributesList()){
+      data[data.size() - 1][i] = std::stod(c->getRepresentative()->attributesValues[attribute]);
+      ++i;
+    }
+
+    if(compute_weighted_plugin){
+      weights.push_back(c->getCWeight());
+    } else {
+      weights.push_back(1);
+    }
+
+  }
+
+  // Prepare counter
+  WeightedCVBandwidthSelector counter;
+  return {counter.compute_bandwidth(data, weights)};
 }
 
 QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension) {
