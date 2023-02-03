@@ -34,6 +34,12 @@ if(exists(y:/Code/)){
     LIBS += -L "y:/Qwt-6.1.5/lib/" -lqwt
 }
 
+INCLUDEPATH += k:/Libs/armadillo-11.4.3/include/
+
+LIBS += \
+    -Lk:/Libs/OpenBLAS_0.3.21/lib/ \
+    -llibopenblas
+
 
 INCLUDEPATH += $$PWD/ClusterKernelWrappers/
 

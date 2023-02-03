@@ -219,8 +219,10 @@ ENDIF()
 
 IF (EXISTS "k:\\Libs\\armadillo-11.4.3\\include\\")
     set(armadillo_include "k:\\Libs\\armadillo-11.4.3\\include\\")
-    set(armadillo_lib "k:\\Libs\\armadillo-11.4.3\\examples\\lib_win64\\")
 ENDIF()
+
+find_library(openblas_lib libopenblas HINTS "k:\\Libs\\OpenBLAS_0.3.21\\lib\\")
+message(STATUS ${openblas_lib})
 
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
 include_directories(ClusterKernelsKDE/src/)
@@ -242,6 +244,7 @@ target_link_libraries(KerDEP PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
         ${QWT_LIBRARY}
+        ${openblas_lib}
 )
 
 

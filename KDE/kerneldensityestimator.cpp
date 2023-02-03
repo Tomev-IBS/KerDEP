@@ -2,6 +2,9 @@
 
 #include <cmath>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 
 kernelDensityEstimator::kernelDensityEstimator(
@@ -373,16 +376,15 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
   double weights_sum = 0;
 
 
-//  vec x_vec = vec(x->size());
-//  for(int i = 0; i < x->size(); ++i){
-//    x_vec(i) = (*x)[i];
-//  }
-//
+  vec x_vec = vec(x->size());
+  for(int i = 0; i < x->size(); ++i){
+    x_vec(i) = (*x)[i];
+  }
+
 
   // I'll only implement radial 2D kernel. This project has to be rewritten anyway.
-  //mat cov_inv = _covarianceMatrix.i();
+  mat cov_inv = _covarianceMatrix.i();
 
-  /*
   for(auto c : clusters){
 
     double weight = c->getCWeight();
@@ -397,9 +399,9 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
 
     double kernel_value = 0;
 
-    //vec v = (x_vec - c_vec);
+    vec v = (x_vec - c_vec);
 
-    //kernel_value = exp(as_scalar(v.t() * cov_inv * v) * smoothingParameters[0]);
+    kernel_value = exp(as_scalar(v.t() * cov_inv * v) * smoothingParameters[0]);
 
     value += weight * kernel_value;
   }
@@ -411,9 +413,7 @@ double kernelDensityEstimator::getRadialKernelValue(vector<double>* x) const{
 
   value /= pow(2 * M_PI, - x->size() / 2);
 
-
   value /= sqrt(det(_covarianceMatrix));
-*/
 
   return value;
 
