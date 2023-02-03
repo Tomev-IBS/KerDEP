@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.6)
 
 project(KerDEP LANGUAGES CXX)
 set(CMAKE_PREFIX_PATH "K:/Libs/Qt/5.15.0/mingw81_64/lib/cmake")
@@ -6,7 +6,6 @@ set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\")
 set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\lib\\")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
-
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -210,7 +209,7 @@ add_executable(KerDEP
         SOMKE/include/SOMKE/SOMSequenceEntry.h
         SOMKE/include/SOMKE/Kernel.h
         SOMKE/src/SOMKEAlgorithm.cpp
-        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h SOMKE/include/SOMKE/SOMKEMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h Reservoir_sampling/textDataReader.cpp Reservoir_sampling/textDataReader.h Reservoir_sampling/sinusoidalDistributionDataReader.cpp Reservoir_sampling/sinusoidalDistributionDataReader.h Distributions/alternatingSplittingDistribution.cpp Distributions/alternatingSplittingDistribution.h DataBinning/linearBinning.cpp DataBinning/linearBinning.h)
+        SOMKEWrappers/somkeNormalKernel.cpp SOMKEWrappers/somkeNormalKernel.h SOMKE/include/SOMKE/SOMKEMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.h SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.cpp SOMKEWrappers/MergingStrategies/somkeFixedThresholdMergingStrategy.h Reservoir_sampling/textDataReader.cpp Reservoir_sampling/textDataReader.h Reservoir_sampling/sinusoidalDistributionDataReader.cpp Reservoir_sampling/sinusoidalDistributionDataReader.h Distributions/alternatingSplittingDistribution.cpp Distributions/alternatingSplittingDistribution.h DataBinning/linearBinning.cpp DataBinning/linearBinning.h KDE/WeightedCVBandwidthSelector.cpp KDE/WeightedCVBandwidthSelector.h)
 
 include_directories(${QWT_INCLUDE_DIR})
 
@@ -222,9 +221,8 @@ IF (EXISTS "k:\\Libs\\armadillo-11.4.3\\include\\")
     set(armadillo_include "k:\\Libs\\armadillo-11.4.3\\include\\")
 ENDIF()
 
-IF (EXISTS "y:\\armadillo-11.4.3\\include\\")
-    set(armadillo_include "y:\\armadillo-11.4.3\\include\\")
-ENDIF()
+find_library(openblas_lib libopenblas HINTS "k:\\Libs\\OpenBLAS_0.3.21\\lib\\")
+message(STATUS ${openblas_lib})
 
 include_directories(ClusterKernelsKDE/include/ClusterKernelsKDE/)
 include_directories(ClusterKernelsKDE/src/)
@@ -237,13 +235,17 @@ include_directories(Compressed_Cumulative_WDE_Wrappers/)
 include_directories(SOMKE/include/SOMKE/)
 include_directories(SOMKE/src/)
 
+target_include_directories(KerDEP PUBLIC ${knnl_include})
+target_include_directories(KerDEP PUBLIC ${armadillo_include})
+
 target_link_libraries(KerDEP PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::PrintSupport
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
         ${QWT_LIBRARY}
+        ${openblas_lib}
 )
 
-target_include_directories(KerDEP PUBLIC ${knnl_include})
-target_include_directories(KerDEP PUBLIC ${armadillo_include})
+
+

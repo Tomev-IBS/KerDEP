@@ -635,7 +635,7 @@ reservoirSamplingAlgorithm *MainWindow::GenerateReservoirSamplingAlgorithm(dataR
 }
 
 kernelDensityEstimator *MainWindow::GenerateKernelDensityEstimator(
-    int dimensionsNumber) {
+    int dimensionsNumber, const bool &radial) {
   vector<int> kernelsIDs;
   vector<double> smoothingParameters;
   vector<std::string> carriersRestrictions;
@@ -658,7 +658,8 @@ kernelDensityEstimator *MainWindow::GenerateKernelDensityEstimator(
       &smoothingParameters,
       &carriersRestrictions,
       PRODUCT,
-      &kernelsIDs
+      &kernelsIDs,
+      radial
                                    );
 }
 
@@ -936,12 +937,13 @@ void MainWindow::on_pushButton_clicked() {
 
   log("Start pushed!");
   // Delay so that
-  QTime dieTime= QTime::currentTime().addSecs(60);
+  QTime dieTime= QTime::currentTime().addSecs(0);
   while (QTime::currentTime() < dieTime) {
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
 
   log("2D Experiment start.");
+  bool radial = true;
 
   // Symbols
   std::deque<QwtSymbol> uncommon_clusters_symbols;
@@ -1001,7 +1003,7 @@ void MainWindow::on_pushButton_clicked() {
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
-      estimator(GenerateKernelDensityEstimator(2));
+      estimator(GenerateKernelDensityEstimator(2, radial));
 
   estimator->_shouldConsiderWeights = true;
 
@@ -1018,8 +1020,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R1 (2D)";
-  QString pc_id = "sz500-509";
+  QString expNum = "R80 (2D); Radial Test";
+  QString pc_id = "sz258";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
@@ -1092,8 +1094,8 @@ void MainWindow::on_pushButton_clicked() {
   int pluginRank = 3;
   groupingThread gt(&stored_medoids_, parser_);
 
-  derivative_estimator_.reset(GenerateKernelDensityEstimator(2));
-  enhanced_kde_.reset(GenerateKernelDensityEstimator(2));
+  derivative_estimator_.reset(GenerateKernelDensityEstimator(2, radial));
+  enhanced_kde_.reset(GenerateKernelDensityEstimator(2, radial));
 
   DESDA DESDAAlgorithm(
       estimator,

@@ -141,6 +141,7 @@ class DESDA
     double getDomainMaxValue(const std::vector<double> &values, double h);
 
     std::vector<double> calculateH(const std::vector<clusterPtr> &clusters);
+    std::vector<double> computeRadialH(const std::vector<clusterPtr> &clusters) const;
 
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();
