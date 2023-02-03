@@ -36,7 +36,7 @@ class kernelDensityEstimator : public function {
 
     // Radial kernel
     bool _radial;
-    bool _full_transform = true;
+    bool _full_transform = false;
 
     void updateCovarianceMatrix();
     double getRadialKernelValue(vector<double>* x) const;

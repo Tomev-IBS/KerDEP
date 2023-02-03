@@ -999,7 +999,7 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
 
   auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get(), 0.7);
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -1020,8 +1020,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R82 (2D); Radial; Full Transform; Correlation 0.7";
-  QString pc_id = "sz278";
+  QString expNum = "R83 (2D); Radial; Diagonal Transform; Correlation 0.7";
+  QString pc_id = "sz284";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
