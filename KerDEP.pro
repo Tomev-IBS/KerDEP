@@ -20,25 +20,39 @@ if(exists(k:/Libs/)){
     INCLUDEPATH += k:/Libs/Qwt-6.1.5/include/
     INCLUDEPATH += k:/Libs/Qwt-6.1.5/lib/
     INCLUDEPATH += k:/Libs/Qwt-6.1.5/
-    INCLUDEPATH += k:/Libs/boost_1_75_0/
-    INCLUDEPATH += k:/Libs/knnl/include/
     LIBS += -L "k:/Libs/Qwt-6.1.5/lib/" -lqwt
+
+    INCLUDEPATH += k:/Libs/boost_1_75_0/
+
+    INCLUDEPATH += k:/Libs/knnl/include/
+
+    INCLUDEPATH += k:/Libs/armadillo-11.4.3/include/
+
+    LIBS += \
+        -Lk:/Libs/OpenBLAS_0.3.21/lib/ \
+        -llibopenblas
 }
 
 if(exists(y:/Code/)){
     INCLUDEPATH += y:/Qwt-6.1.5/include/
     INCLUDEPATH += y:/Qwt-6.1.5/lib/
     INCLUDEPATH += y:/Qwt-6.1.5/
-    INCLUDEPATH += y:/boost_1_75_0/
-    INCLUDEPATH += y:/knnl/include/
     LIBS += -L "y:/Qwt-6.1.5/lib/" -lqwt
+
+    INCLUDEPATH += y:/boost_1_75_0/
+
+    INCLUDEPATH += y:/knnl/include/
+
+    INCLUDEPATH += y:/armadillo-11.4.3/include/
+
+    LIBS += \
+        -Ly:/OpenBLAS_0.3.21/lib/ \
+        -llibopenblas
 }
 
-INCLUDEPATH += k:/Libs/armadillo-11.4.3/include/
 
-LIBS += \
-    -Lk:/Libs/OpenBLAS_0.3.21/lib/ \
-    -llibopenblas
+
+
 
 
 INCLUDEPATH += $$PWD/ClusterKernelWrappers/
