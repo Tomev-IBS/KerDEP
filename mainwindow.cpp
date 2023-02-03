@@ -1020,8 +1020,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R81 (2D); Radial Full Transform";
-  QString pc_id = "sz259";
+  QString expNum = "R82 (2D); Radial; Full Transform; Correlation 0.7";
+  QString pc_id = "sz260";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
@@ -1067,7 +1067,7 @@ void MainWindow::on_pushButton_clicked() {
   }
 
   // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed data stream; 2D; p_2 = " + p2; QString expDesc = "assumed data stream 2D, p_2 = " + p2 + ", " + pc_id;
+  QString experiment_description = "assumed data stream; skewed normal; 2D; p_2 = " + p2; QString expDesc = "assumed data stream 2D, p_2 = " + p2 + ", " + pc_id;
 
   // Set limits on axes.
   contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.

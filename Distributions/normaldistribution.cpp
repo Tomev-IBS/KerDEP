@@ -13,6 +13,7 @@ normalDistribution::normalDistribution(int seed, vector<double> *means,
     //this->stDevs = vector<double>(*stDevs);
 
     double correlationCoefficient = 0;
+    correlationCoefficient = 0.7; // For correlation experiments
     matrix covarianceMatrix;
 
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
