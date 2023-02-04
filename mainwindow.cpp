@@ -943,7 +943,7 @@ void MainWindow::on_pushButton_clicked() {
   }
 
   log("2D Experiment start.");
-  bool radial = true;
+  bool radial = false;
 
   // Symbols
   std::deque<QwtSymbol> uncommon_clusters_symbols;
@@ -1020,8 +1020,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R83 (2D); Radial; Diagonal Transform; Correlation 0.7";
-  QString pc_id = "sz284";
+  QString expNum = "R84 (2D); Product; ; Correlation 0.7";
+  QString pc_id = "sz285";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 

@@ -140,17 +140,23 @@ void DESDA::performStep() {
 
   // Calculate smoothing parameters
   compute_weighted_plugin = false;
-  //_windowedSmoothingParametersVector = calculateH(*_clusters);
-  _windowedSmoothingParametersVector = computeRadialH(*_clusters);
+  if(_estimator->_radial){
+    _windowedSmoothingParametersVector = computeRadialH(*_clusters);
+  } else {
+    _windowedSmoothingParametersVector = calculateH(*_clusters);
+  }
+
   auto currentClusters = getClustersForEstimator();
 
   // Update weights
   updateWeights();
   compute_weighted_plugin = true;
-  //_smoothingParametersVector = calculateH(currentClusters);
-  _smoothingParametersVector = computeRadialH(currentClusters);
-
-  qDebug() << "Radial h results: " << _smoothingParametersVector[0];
+  if(_estimator->_radial) {
+    _smoothingParametersVector = computeRadialH(currentClusters);
+    qDebug() << "Radial h results: " << _smoothingParametersVector[0];
+  } else {
+    _smoothingParametersVector = calculateH(currentClusters);
+  }
 
   // DEBUG
   /*
