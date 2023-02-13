@@ -204,6 +204,8 @@ class MainWindow : public QMainWindow {
     static std::vector<std::vector<double>> Generate1DWindowedPlotErrorDomain(DESDA *DESDAAlgorithm);
     static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
     static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
+    // 3D exp
+    void run_3d_experiment();
 };
 
 

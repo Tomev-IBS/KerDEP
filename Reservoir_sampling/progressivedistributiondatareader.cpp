@@ -9,9 +9,10 @@
 
 progressiveDistributionDataReader::progressiveDistributionDataReader(distribution *source, double progressionSize,
                                                                      int delay, distribution *alternativeSource,
-                                                                     const double &d2_speed_multiplier) :
+                                                                     const double &d2_speed_multiplier,
+                                                                     const double &d3_speed_multiplier) :
     sourceDistribution(source), x_progression_size(progressionSize), _delay(delay),
-    d2_speed_multiplier_(d2_speed_multiplier) {
+    d2_speed_multiplier_(d2_speed_multiplier), d3_speed_multiplier_(d3_speed_multiplier) {
   _alternativeDistribution.reset(alternativeSource);
 }
 
@@ -103,6 +104,11 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   if(fabs(d2_speed_multiplier_) > 1e-15) {
     sourceDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 1);
     _alternativeDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 1);
+  }
+
+  if(fabs(d3_speed_multiplier_) > 1e-15) {
+    sourceDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 2);
+    _alternativeDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 2);
   }
 
   ++_currentIteration;

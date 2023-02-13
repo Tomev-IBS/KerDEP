@@ -927,10 +927,13 @@ void MainWindow::on_pushButton_start_clicked() {
   }
 
   //RunAccuracyExperiment();
-  Run1DExperimentWithDESDA();
+  //Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
+
+  run_3d_experiment();
+
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -2975,4 +2978,240 @@ void MainWindow::RunAccuracyExperiment() {
   log("Accuracy experiment finished.");
 }
 
+void MainWindow::run_3d_experiment() {
 
+  log("Start pushed!");
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(0);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
+  log("3D Experiment start.");
+  bool radial = false;
+
+  //curve.setSamples( points );
+  //curve.attach( contour_plot_ );
+
+  // Initially these vectors were used in errors computation only. We now also use them for the spectrogram.
+  QVector<double> error_xs = {};
+  QVector<double> error_ys = {};
+  QVector<double> error_zs = {};
+  std::vector<double> model_function_values = {};
+  std::vector<double> estimator_values = {};
+  std::vector<std::vector<double>> error_domain = {};
+
+  screen_generation_frequency_ = 10;
+  int seed = ui->lineEdit_seed->text().toInt();
+  int m0 = ui->lineEdit_sampleSize->text().toInt();
+
+  // Automatic dimension update
+  if(ui->spinBox_dimensionsNumber->value() == 1){
+    ui->spinBox_dimensionsNumber->setValue(3);
+    ui->spinBox_dimensionsNumber->editingFinished();
+  }
+
+  // Add clusters_ to the estimator
+  means_ = {std::make_shared<std::vector<double >>()};
+  means_.back()->push_back(0);
+  means_.back()->push_back(0);
+  means_.back()->push_back(0);
+
+  standard_deviations_ = {std::make_shared<std::vector<double >>()};
+  standard_deviations_.back()->push_back(1);
+  standard_deviations_.back()->push_back(1);
+  standard_deviations_.back()->push_back(1);
+
+  auto densityFunction =
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get(), 0);
+
+  // Create estimator object
+  std::shared_ptr<kernelDensityEstimator>
+      estimator(GenerateKernelDensityEstimator(3, radial));
+
+  estimator->_shouldConsiderWeights = true;
+
+  std::shared_ptr<distribution> targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  std::vector<double> meansForDistribution = {0, 0, 0};
+  std::vector<double> stDevsForDistribution = {1, 1, 1};
+
+  parser_.reset(new distributionDataParser(&attributes_data_));
+
+  QString expNum = "R100 (3D); Product";
+  QString pc_id = "home";
+  int drawing_start_step = 0;
+  int errors_calculation_start_step = 0;
+
+  bool should_compute_errors = true;
+
+  // Prepare the reader
+  reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution)));
+
+  // Only to remove problems initialize the date
+  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
+
+   // Multiple instructions in one line, for simplicity
+  QString experiment_description = "assumed data stream; 3D"; QString expDesc = "assumed data stream 3D, " + pc_id;
+
+  reader_->gatherAttributesData(&attributes_data_);
+  parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  reservoirSamplingAlgorithm *samplingAlgorithm =
+      GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
+
+  objects_.clear();
+  clusters_ = &stored_medoids_;
+  clusters_->clear();
+
+  int pluginRank = 3;
+  groupingThread gt(&stored_medoids_, parser_);
+
+  derivative_estimator_.reset(GenerateKernelDensityEstimator(2, radial));
+  enhanced_kde_.reset(GenerateKernelDensityEstimator(2, radial));
+
+  DESDA DESDAAlgorithm(
+      estimator,
+      derivative_estimator_,
+      enhanced_kde_,
+      samplingAlgorithm,
+      clusters_,
+      ui->lineEdit_rarity->text().toDouble(), pluginRank
+  );
+
+  // Start the test
+  step_number_ = 0;
+
+  time_t startTime, endTime;
+
+  l2_n_ = 0;
+  double actual_l2 = 0;
+  int errorCalculationsNumber = 0;
+  double sum_l2 = 0;
+
+  double domain_area = 0;
+
+  ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
+
+  // Prepare image location.
+  this->setWindowTitle("Experiment #" + expNum);
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  int steps_number = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Experiment started.");
+  for(step_number_ = 1; step_number_ <= steps_number; ++step_number_) {
+
+    log("New step.");
+    startTime = time(nullptr);
+
+    log("Performing new step.");
+    DESDAAlgorithm.performStep();
+    log("Step performed.");
+
+    bool compute_errors = (step_number_ >= errors_calculation_start_step) && should_compute_errors && (step_number_ % screen_generation_frequency_ == 0);
+    bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step);
+
+    log("Estimator preparation.");
+    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    log("Estimator preparation finished.");
+
+    // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
+    if(compute_errors || draw_plot) {
+      log("Computing domains.");
+      log(compute_errors);
+
+      error_xs = DESDAAlgorithm.getErrorDomain(0);
+      error_ys = DESDAAlgorithm.getErrorDomain(1);
+      error_zs = DESDAAlgorithm.getErrorDomain(2);
+
+      // 3D error domain generation
+      error_domain.clear();
+
+      for(auto x : error_xs){
+        for(auto y: error_ys){
+          for(auto z: error_zs){
+            error_domain.push_back({x, y, z});
+          }
+        }
+      }
+
+      log("Computing values of domains.");
+      model_function_values = GetFunctionsValueOnDomain(densityFunction, error_domain);
+      estimator_values = GetFunctionsValueOnDomain(estimator.get(), error_domain);
+      log("Values computation finished.");
+
+
+      log("Save data to file");
+      std::ofstream file;
+      std::string file_path = (dirPath + QString::number(step_number_) + ".csv").toStdString();
+
+      std::cout << "Saving to file: " << file_path << "\n";
+
+      file.open(file_path);
+
+      std::string lines = "";
+
+      for(int i = 0; i < model_function_values.size(); ++i){
+        lines +=
+            std::to_string(error_domain[i][0]) + ";" +
+            std::to_string(error_domain[i][1]) + ";" +
+            std::to_string(error_domain[i][2]) + ";" +
+            std::to_string(model_function_values[i]) + ";" +
+            std::to_string(estimator_values[i]) + "\n";
+      }
+
+      file << lines;
+      file.close();
+
+      log("Values saved.");
+    }
+
+    // Error calculation
+    //*
+    if(compute_errors) {
+      log("Error calculation started.");
+      //++errorCalculationsNumber;
+      errorCalculationsNumber = step_number_ / screen_generation_frequency_;
+
+      domain_area = Calculate2DDomainArea(error_domain);
+
+      auto zLen = error_domain[error_domain.size() - 1][2] - error_domain[0][2];
+
+      domain_area *= zLen;
+
+
+      actual_l2 = errors_calculator.CalculateL2Error();
+      sum_l2 += actual_l2;
+      l2_n_ = sum_l2 / errorCalculationsNumber;
+
+      log("Save data to file");
+
+      std::ofstream file;
+      file.open((dirPath + "errors" + ".csv").toStdString(), std::ios_base::app);
+      file << QString::number(l2_n_).toStdString() << "\n";
+      file.close();
+
+      log("Error calculation finished.");
+    }
+    //*/
+    if(should_compute_errors) {
+      densityFunction->setMeans(*means_.back().get());
+    }
+
+    log("Restoring weights.");
+    DESDAAlgorithm.restoreClustersCWeights();
+
+    endTime = time(nullptr);
+
+    data_date_time = data_date_time.addSecs(3600); // Add hour to the date
+
+    log("Step time: " + QString::number(endTime - startTime) + " s");
+  }
+
+  log("Done!");
+}
