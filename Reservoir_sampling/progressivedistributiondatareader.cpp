@@ -99,6 +99,9 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   }
   //*/
 
+  // Stationary
+  x_progression_size = 0;
+
   sourceDistribution->increaseMeans(x_progression_size, 0);
   _alternativeDistribution->increaseMeans(x_progression_size, 0);
   if(fabs(d2_speed_multiplier_) > 1e-15) {

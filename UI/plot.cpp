@@ -82,7 +82,9 @@ void Plot::setAxesLimit(const double &limit)
   }
   else{
     // Assumed input
-    setAxisScale(Qt::ZAxis, -5, 48, 10); setAxisTitle(Qt::ZAxis, ""); setAxisScale(Qt::XAxis, -5, 48, 10); setAxisTitle(Qt::XAxis, "");
+    //setAxisScale(Qt::ZAxis, -5, 48, 10); setAxisTitle(Qt::ZAxis, ""); setAxisScale(Qt::XAxis, -5, 48, 10); setAxisTitle(Qt::XAxis, "");
+    // Stationary input
+    setAxisScale(Qt::ZAxis, -5, 5, 10); setAxisTitle(Qt::ZAxis, ""); setAxisScale(Qt::XAxis, -5, 5, 10); setAxisTitle(Qt::XAxis, "");
   }
 }
 

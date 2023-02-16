@@ -1002,7 +1002,7 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
 
   auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get(), 0.7);
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get(), 0.0);
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
@@ -1023,8 +1023,8 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R84 (2D); Product; ; Correlation 0.7";
-  QString pc_id = "sz285";
+  QString expNum = "R101 (2D); Product;";
+  QString pc_id = "home";
   int drawing_start_step = 0;
   int errors_calculation_start_step = 0;
 
@@ -1070,7 +1070,7 @@ void MainWindow::on_pushButton_clicked() {
   }
 
   // Multiple instructions in one line, for simplicity
-  QString experiment_description = "assumed data stream; skewed normal; 2D; p_2 = " + p2; QString expDesc = "assumed data stream 2D, p_2 = " + p2 + ", " + pc_id;
+  QString experiment_description = "assumed stationary data stream"; QString expDesc = "assumed stationary 2D data stream, " + pc_id;
 
   // Set limits on axes.
   contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
@@ -1163,7 +1163,7 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.performStep();
     log("Step performed.");
 
-    bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
+    bool compute_errors = step_number_ > errors_calculation_start_step && should_compute_errors && step_number_ % screen_generation_frequency_ == 0;
     bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step) || initialDrawingSteps.contains(step_number_);
 
     if(ui->checkBox_showUnusualClusters->isChecked() && draw_plot){
