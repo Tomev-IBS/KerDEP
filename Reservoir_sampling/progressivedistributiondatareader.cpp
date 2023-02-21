@@ -107,8 +107,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   }
 
   if(fabs(d3_speed_multiplier_) > 1e-15) {
-    sourceDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 2);
-    _alternativeDistribution->increaseMeans(x_progression_size * d2_speed_multiplier_, 2);
+    sourceDistribution->increaseMeans(x_progression_size * d3_speed_multiplier_, 2);
+    _alternativeDistribution->increaseMeans(x_progression_size * d3_speed_multiplier_, 2);
   }
 
   ++_currentIteration;

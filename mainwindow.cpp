@@ -3037,10 +3037,10 @@ void MainWindow::run_3d_experiment() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  QString expNum = "R100 (3D); Product";
-  QString pc_id = "home";
-  int drawing_start_step = 0;
-  int errors_calculation_start_step = 0;
+  QString expNum = "R104 (3D); Product; x move only";
+  QString pc_id = "sz246";
+  int drawing_start_step = 1750;
+  int errors_calculation_start_step = drawing_start_step;
 
   bool should_compute_errors = true;
 
@@ -3086,7 +3086,7 @@ void MainWindow::run_3d_experiment() {
   l2_n_ = 0;
   double actual_l2 = 0;
   int errorCalculationsNumber = 0;
-  double sum_l2 = 0;
+  double sum_l2 = 0.0730053 * errors_calculation_start_step / 10;
 
   double domain_area = 0;
 
@@ -3113,7 +3113,7 @@ void MainWindow::run_3d_experiment() {
     DESDAAlgorithm.performStep();
     log("Step performed.");
 
-    bool compute_errors = (step_number_ >= errors_calculation_start_step) && should_compute_errors && (step_number_ % screen_generation_frequency_ == 0);
+    bool compute_errors = (step_number_ > errors_calculation_start_step) && should_compute_errors && (step_number_ % screen_generation_frequency_ == 0);
     bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step);
 
     log("Estimator preparation.");
