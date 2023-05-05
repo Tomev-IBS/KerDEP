@@ -37,7 +37,7 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _smoothingParameterEnhancer = 1;
 
   prognosis_cluster_ = cluster(-1);
-  error_domain_points_number_ = 50;
+  error_domain_points_number_ = 1001;
 
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
