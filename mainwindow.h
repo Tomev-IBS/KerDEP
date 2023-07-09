@@ -206,6 +206,7 @@ class MainWindow : public QMainWindow {
     static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
     // 3D exp
     void run_3d_experiment();
+    void on_toolButton_findDataStream_clicked();
 };
 
 

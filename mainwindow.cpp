@@ -1443,9 +1443,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+
   reader_.reset(new TextDataReader(data_path));
   bool compute_errors = false;
   //*/
+
+
+  if(this->ui->label_dataStream->text().toStdString() == "Not selected."){
+    log("Data stream not selected.");
+    return;
+  }
+
+  std::string data_path = this->ui->label_dataStream->text().toStdString();
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -3241,3 +3250,25 @@ void MainWindow::run_3d_experiment() {
 
   log("Done!");
 }
+
+
+void MainWindow::on_toolButton_findDataStream_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setViewMode(QFileDialog::Detail);
+
+    QStringList fileNames;
+    if (dialog.exec()) {
+        fileNames = dialog.selectedFiles();
+    }
+
+    if(fileNames.isEmpty()){
+        return;
+    }
+
+    QString fileName = fileNames[0];
+
+    this->ui->label_dataStream->setText(fileName);
+}
+
