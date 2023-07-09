@@ -1335,6 +1335,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   step_number_ = 0;
   screen_generation_frequency_ = 10;
+  int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1357,6 +1358,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_, evenDistributionsMultiplier));
   vector<double> alternativeDistributionMean = {0.0};
   vector<double> alternativeDistributionStDevs = {1.0};
+
   qreal progressionSize =
       ui->lineEdit_distributionProgression->text().toDouble();
 
@@ -1418,7 +1420,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //QString expDesc = "assumed data stream,  sz221";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed data stream, seed=" + seedString;
-  QString plot_description = "assumed data stream; seed="+seedString;
+  QString plot_description = "stationary data stream; seed="+seedString;
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1427,7 +1429,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
   QString expNum = "D" + seedString;
-  QString pcName = "sz250";
+  QString pcName = "local";
 
   expDesc += ", " + pcName;
 
@@ -1486,9 +1488,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   this->setWindowTitle("Experiment #" + expNum);
 
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
   //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1656,6 +1658,30 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &enhanced_kde_errors_calculator, &rare_elements_kde_errors_calculator
   };
 
+  std::string l2_errors_sum_file_path = QString(dirPath + "sum_l2_errors.txt").toStdString();
+  std::string avg_l2_errors_file_path = QString(dirPath + "avg_l2_errors.txt").toStdString();
+
+  std::ifstream inFile("avg_l2_errors_file_path");
+  numberOfErrorCalculations = std::count(std::istreambuf_iterator<char>(inFile),
+             std::istreambuf_iterator<char>(), '\n');
+
+  if(drawing_start_step > 0 && compute_errors) {
+    // Open the file with average l2 errors and load them into the list.
+
+
+    std::ifstream avg_l2_errors_file(l2_errors_sum_file_path);
+    if(avg_l2_errors_file.is_open()) {
+      std::string line;
+      while(std::getline(avg_l2_errors_file, line)) {
+        l2_errors_sums.push_back(std::stod(line) * numberOfErrorCalculations);
+      }
+      avg_l2_errors_file.close();
+    }
+    else {
+      log("Unable to open avg_l2_errors.txt file.");
+    }
+  }
+
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
@@ -1664,7 +1690,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ > drawing_start_step && compute_errors && step_number_ % screen_generation_frequency_ == 0) {
+    if(step_number_ > drawing_start_step && compute_errors && step_number_ % errorComputationFrequency == 0) {
 
       log("Getting windowed domain.");
       windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
@@ -1703,9 +1729,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
         //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
       }
 
-      QString filePath = "D:\\errors_seed=" + seedString + ".txt";
+      // Save averaged l2 errors to the file
+      //QString filePath = "D:\\errors_seed=" + seedString + ".txt";
+
       std::ofstream in;
-      in.open(filePath.toStdString(), std::ios_base::app);
+      in.open(avg_l2_errors_file_path, std::ios_base::app);
       for(size_t i = 0; i < errors_calculators.size(); ++i) {
         // qDebug() << i << ". " << target[0] << "\n";
         in << *l2_errors[i] << ";";
@@ -1713,29 +1741,16 @@ void MainWindow::Run1DExperimentWithDESDA() {
       in << "\n";
       in.close();
 
+      // Save the errors sum to the file
+      std::ofstream in2;
+      in2.open(l2_errors_sum_file_path);
+      for(size_t i = 0; i < errors_calculators.size(); ++i) {
+        in2 << l2_errors_sums[i] << "\n";
+      }
+      in2.close();
+
       ++numberOfErrorCalculations;
     }
-
-    //*
-    // Initialize the errors in initial counting
-    if(step_number_ == drawing_start_step){
-      l2_errors_sums.clear();
-      numberOfErrorCalculations = step_number_ / screen_generation_frequency_;
-
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-
-      for(size_t i = 0; i < errors_calculators.size(); ++i) {
-        *l2_errors[i] = l2_errors_sums[i];
-        l2_errors_sums[i] *= numberOfErrorCalculations;
-      }
-
-      //++numberOfErrorCalculations;
-    }
-    //*/
 
     if(drawing_start_step <= step_number_ &&
        ( step_number_ % screen_generation_frequency_ == 0 ||
