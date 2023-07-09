@@ -307,11 +307,16 @@ class SpectrogramData2 : public SpectrogramData {
 
     function *densityFunction;
 
-    SpectrogramData2(function *dFunction, float xy_interval_limit = 40.0)
-        : densityFunction(dFunction) {
-      setInterval(Qt::XAxis, QwtInterval(-xy_interval_limit, xy_interval_limit));
-      setInterval(Qt::YAxis, QwtInterval(-xy_interval_limit, xy_interval_limit));
-      setInterval(Qt::ZAxis, QwtInterval(0.0, 0.3));
+    SpectrogramData2(function *dFunction,
+                     QVector<double> *xs_error_domain,
+                     QVector<double> *ys_error_domain,
+                     std::vector<double> *values_on_domain)
+        : densityFunction(dFunction), xs_error_domain_(xs_error_domain), ys_error_domain_(ys_error_domain),
+          values_on_domain_(values_on_domain) {
+      // Not sure if interval setting is still needed
+      setInterval(Qt::XAxis, QwtInterval(-105, 105));
+      setInterval(Qt::YAxis, QwtInterval(-105, 105));
+      setInterval(Qt::ZAxis, QwtInterval(0.0, 1.5));
     }
 
     ~SpectrogramData2() {
@@ -319,16 +324,41 @@ class SpectrogramData2 : public SpectrogramData {
     }
 
     virtual double value(double x, double y) const {
-      std::vector<double> pt = {x, y};
 
-      if(densityFunction != nullptr) {
-        auto val = densityFunction->getValue(&pt);
+      auto closest_x_index = FindClosestIndex(x, xs_error_domain_);
+      auto closest_y_index = FindClosestIndex(y, ys_error_domain_);
 
-        return val;
+      if(closest_x_index == -1 || closest_y_index == -1){
+        return 0;
       }
-      else {
+
+      auto idx = closest_x_index * (ys_error_domain_->size()) + closest_y_index;
+      // NOTE: Do look how we construct the values on domain vector.
+      return values_on_domain_->at(idx);
+    }
+
+  protected:
+    QVector<double> *xs_error_domain_;
+    QVector<double> *ys_error_domain_;
+    std::vector<double> *values_on_domain_;
+
+    static long long FindClosestIndex(const double &value, QVector<double> *domain){
+      auto closest_iterator = std::lower_bound(domain->begin(), domain->end(), value);
+
+      // Indicate we're out of bounds
+      if(closest_iterator == domain->end() || value < domain->at(0)){
         return -1;
       }
+
+      if(closest_iterator + 1 == domain->end()){
+        return closest_iterator - domain->begin();
+      }
+
+      if(fabs(*(closest_iterator + 1) - value) < fabs(*closest_iterator - value)) {
+        closest_iterator += 1;
+      }
+
+      return closest_iterator - domain->begin();
     }
 };
 

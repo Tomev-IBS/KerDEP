@@ -67,6 +67,7 @@ void Plot::addQwtPlotSpectrogram(SpectrogramData *data, const QPen &pen)
   spectrograms.back()->setCachePolicy( QwtPlotRasterItem::PaintCache );
   spectrograms.back()->setDefaultContourPen(pen);
   spectrograms.back()->setData(data);
+
   if(show_color_map_) {
     spectrograms.back()->setColorMap(new ColorMap());
   }
@@ -75,19 +76,14 @@ void Plot::addQwtPlotSpectrogram(SpectrogramData *data, const QPen &pen)
 
 void Plot::setAxesLimit(const double &limit)
 {
-  // Only one argument, because it has to be square.
-
-  // First column - HORIZONTAL
-  //setAxisScale(Qt::ZAxis, -40, 40); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
-  //setAxisTitle(Qt::ZAxis, "Temperature [C]");
-  setAxisScale(Qt::ZAxis, -5, 55); // 25, 31, 51, for classical, slower and lazy paths. Pm 6 for v = 0
-  setAxisTitle(Qt::ZAxis, "");
-
-  // Second column - VERTICAL
-  setAxisScale(Qt::XAxis, -5, 55); // 11, 14, 24, for classical, slower and lazy paths. Pm 3 for v = 0
-  setAxisTitle(Qt::XAxis, "");
-  //setAxisScale(Qt::XAxis, 0, 100);
-  //setAxisTitle(Qt::XAxis, "Humidity [%]");
+  if(limit < 10){
+    // Temp-Hum
+    setAxisScale(Qt::ZAxis, -40, 40); setAxisTitle(Qt::ZAxis, "Temperature [C]"); setAxisScale(Qt::XAxis, 0, 100); setAxisTitle(Qt::XAxis, "Humidity [%]");
+  }
+  else{
+    // Assumed input
+    setAxisScale(Qt::ZAxis, -5, 48, 10); setAxisTitle(Qt::ZAxis, ""); setAxisScale(Qt::XAxis, -5, 48, 10); setAxisTitle(Qt::XAxis, "");
+  }
 }
 
 void Plot::showContour( bool on )

@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -227,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-5</string>
+            <string>-14</string>
            </property>
           </widget>
          </item>
@@ -241,7 +241,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>55</string>
+            <string>54</string>
            </property>
           </widget>
          </item>
@@ -306,8 +306,8 @@
         <property name="geometry">
          <rect>
           <x>390</x>
-          <y>10</y>
-          <width>531</width>
+          <y>80</y>
+          <width>541</width>
           <height>291</height>
          </rect>
         </property>
@@ -330,7 +330,7 @@
               <number>10</number>
              </property>
              <property name="value">
-              <number>2</number>
+              <number>1</number>
              </property>
             </widget>
            </item>
@@ -448,7 +448,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_iterationsNumber">
            <property name="text">
-            <string>15000</string>
+            <string>10000</string>
            </property>
           </widget>
          </item>
@@ -532,7 +532,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_seed">
            <property name="text">
-            <string>5625</string>
+            <string>1</string>
            </property>
           </widget>
          </item>
@@ -659,80 +659,20 @@
          </item>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="groupBox_4">
         <property name="geometry">
          <rect>
           <x>390</x>
-          <y>310</y>
-          <width>241</width>
-          <height>231</height>
+          <y>380</y>
+          <width>541</width>
+          <height>161</height>
          </rect>
         </property>
         <property name="title">
-         <string>Elements Shown</string>
+         <string>Plotted</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_10">
-         <item>
-          <widget class="QCheckBox" name="checkBox_showEstimatedPlot">
-           <property name="text">
-            <string>Estimated Plot (Red)</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checbox_showFullEstimator">
-           <property name="text">
-            <string>KDE Plot (Yellow)</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_showEstimationPlot">
-           <property name="text">
-            <string>Variable M Plot (Green)</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_showWeightedEstimationPlot">
-           <property name="text">
-            <string>Weights Plot (Cyan)</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_showUnusualClusters">
-           <property name="text">
-            <string>Atypical Objects</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
-           <property name="text">
-            <string>Derivative Plot (Orange)</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
+        <layout class="QGridLayout" name="gridLayout_2" columnminimumwidth="2,2,0">
+         <item row="0" column="2">
           <widget class="QCheckBox" name="checkBox_standarizedDerivative">
            <property name="text">
             <string>Standardized Derivative Plot (Brown)</string>
@@ -742,7 +682,77 @@
            </property>
           </widget>
          </item>
-         <item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="checkBox_REESEKDE">
+           <property name="text">
+            <string>DESDA Estimator (Black)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="checkBox_showEstimationPlot">
+           <property name="text">
+            <string>Variable M Plot (Green)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QCheckBox" name="checkBox_showUnusualClusters">
+           <property name="text">
+            <string>Atypical Objects</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="checbox_showFullEstimator">
+           <property name="text">
+            <string>KDE Plot (Yellow)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QCheckBox" name="checkBox_showWeightedEstimationPlot">
+           <property name="text">
+            <string>Weights Plot (Cyan)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QCheckBox" name="checkBox_kernelPrognosedPlot">
+           <property name="text">
+            <string>Derivative Plot (Orange)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="checkBox_showEstimatedPlot">
+           <property name="text">
+            <string>Estimated Plot (Red)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
           <widget class="QCheckBox" name="checkBox_sigmoidallyEnhancedKDE">
            <property name="text">
             <string>Prognosis Plot (Navy)</string>
@@ -752,13 +762,32 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="geometry">
+         <rect>
+          <x>390</x>
+          <y>10</y>
+          <width>541</width>
+          <height>66</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Data stream</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
-          <widget class="QCheckBox" name="checkBox_REESEKDE">
+          <widget class="QToolButton" name="toolButton_findDataStream">
            <property name="text">
-            <string>DESDA Estimator (Black)</string>
+            <string>...</string>
            </property>
-           <property name="checked">
-            <bool>true</bool>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_dataStream">
+           <property name="text">
+            <string>Not selected.</string>
            </property>
           </widget>
          </item>

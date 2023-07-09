@@ -4,8 +4,8 @@
 #include <QDebug>
 
 normalDistribution::normalDistribution(int seed, vector<double> *means,
-                                       vector<double> *stDevs, double maxMean) :
-    means(means), stDevs(stDevs), _maxMean(maxMean)
+                                       vector<double> *stDevs) :
+    means(means), stDevs(stDevs)
 {
     generator = std::default_random_engine(seed);
 
@@ -13,11 +13,19 @@ normalDistribution::normalDistribution(int seed, vector<double> *means,
     //this->stDevs = vector<double>(*stDevs);
 
     double correlationCoefficient = 0;
+    correlationCoefficient = 0.7; // For correlation experiments
     matrix covarianceMatrix;
 
     fillCovarianceMatrix(correlationCoefficient, stDevs, &covarianceMatrix);
 
     fillCholeskyDecompositionMatrix(&covarianceMatrix, &A);
+
+    qDebug() << A.size() << " is the size of A.";
+
+    for(size_t i = 0; i < A.size(); ++i){
+      auto s = seed + i;
+      generators.push_back(std::default_random_engine(s));
+    }
 }
 
 void normalDistribution::getValue(vector<double> *result)
@@ -25,10 +33,11 @@ void normalDistribution::getValue(vector<double> *result)
     // Generate vector Z of n values from random distribution
 
     vector<double> Z;
-    std::normal_distribution<double> normalDis(0,1);
 
-    for(size_t i = 0; i < A.size(); ++i)
-        Z.push_back(normalDis(generator));
+    for(size_t i = 0; i < A.size(); ++i) {
+      std::normal_distribution<double> normalDis(0,1);
+      Z.push_back(normalDis(generators[i]));
+    }
 
     // Generete result according to X = u + AZ
 
@@ -51,19 +60,27 @@ void normalDistribution::increaseMeans(double addend, int index)
 {
   // Update mean at index, if it has been provided.
   if(index > -1 || means->size() > index){
-    if(means->at(index) < _maxMean){
-      (*means)[index] += addend;
-    }
+    (*means)[index] += addend;
     return;
   }
 
   // Otherwise update all means
   for(size_t i = 0; i < means->size(); ++i)
   {
-    // TODO: FIXED THRESHOLD FOR RESEARCHES
-    if(means->at(i) < _maxMean)
-    {
-      (*means)[i] += addend;
-    }
+    (*means)[i] += addend;
+  }
+}
+
+void normalDistribution::setMeans(double newMean, int index) {
+  // Update mean at index, if it has been provided.
+  if(index > -1 || means->size() > index){
+    (*means)[index] = newMean;
+    return;
+  }
+
+  // Otherwise update all means
+  for(size_t i = 0; i < means->size(); ++i)
+  {
+    (*means)[i] = newMean;
   }
 }

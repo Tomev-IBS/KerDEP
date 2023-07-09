@@ -7,10 +7,12 @@
 #include <vector>
 #include <unordered_map>
 #include <chrono>
+#include <deque> // Different kind of vector -- no need for copy constructors.
 
 #include "UI/plotLabel.h"
 
 #include "QCustomPlot/qcustomplot.h"
+#include <qwt_plot_curve.h>
 
 #include "Reservoir_sampling/reservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/sample.h"
@@ -85,14 +87,15 @@ class MainWindow : public QMainWindow {
   private:
     // Pens for 1d plot
     const QPen model_plot_pen_ = QPen(Qt::red);
-    const QPen windowed_plot_pen_ = QPen(QColor(255, 220, 0));
+    //const QPen windowed_plot_pen_ = QPen(QColor(255, 220, 0));
+    const QPen windowed_plot_pen_ = QPen(QColor(255, 195, 0));
     const QPen kde_plot_pen_ = QPen(QColor(0, 255, 0));
     const QPen weighted_plot_pen_ = QPen(QColor(0, 255, 255));
     const QPen desda_kde_plot_pen_ = QPen(QColor(0, 0, 255));
     const QPen desda_rare_elements_kde_plot_pen_ = QPen(Qt::black, 2);
 
-    const QPen derivative_plot_pen_ = QPen(QColor(255, 165, 0)); // Orange
-    const QPen standardized_derivative_plot_pen_ = QPen(QColor(115, 65, 45)); // Yellow
+    const QPen derivative_plot_pen_ = QPen(QColor(185, 160, 130)); // Orange
+    const QPen standardized_derivative_plot_pen_ = QPen(QColor(110, 40, 0)); // Yellow
 
     void FillErrorIndicesColors();
 
@@ -134,8 +137,8 @@ class MainWindow : public QMainWindow {
            l2_w_ = 0, l2_n_ = 0,
            sup_w_ = 0, sup_n_ = 0,
            mod_w_ = 0, mod_n_ = 0;
-    QVector<std::pair<double, double>>
-        atypical_elements_values_and_derivatives_ = {};
+    QVector<std::pair<std::vector<double>, double>>
+        atypical_elements_points_and_derivatives_ = {};
     double quantile_estimator_value_ = 0;
     std::shared_ptr<dataParser> parser_;
     std::shared_ptr<dataReader> reader_;
@@ -151,7 +154,8 @@ class MainWindow : public QMainWindow {
     void ClearPlot();
     void AddPlot(const QVector<qreal> *Y, const QPen &pen);
     void ResizePlot();
-    unsigned long long MarkUncommonClusters();
+    unsigned long long MarkUncommonClusters(DESDA *DESDAAlgorithm);
+    void MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers);
     void FillStandardDeviations(
         vector<std::shared_ptr<vector<double>>> *stDevs);
     void FillMeans(vector<std::shared_ptr<vector<double>>> *means);
@@ -169,15 +173,17 @@ class MainWindow : public QMainWindow {
                     std::shared_ptr<point> *prototypePoint);
     distribution *GenerateTargetDistribution(
         vector<std::shared_ptr<vector<double>>> *means,
-        vector<std::shared_ptr<vector<double>>> *stDevs);
+        vector<std::shared_ptr<vector<double>>> *stDevs,
+        double additionalMultiplier=1);
     reservoirSamplingAlgorithm *GenerateReservoirSamplingAlgorithm(
         dataReader *reader,
         dataParser *parser);
     kernelDensityEstimator *GenerateKernelDensityEstimator(
-        int dimensionsNumber);
+        int dimensionsNumber, const bool &radial=false);
     function *GenerateTargetFunction(
         vector<std::shared_ptr<vector<double>>> *means,
-        vector<std::shared_ptr<vector<double>>> *stDevs);
+        vector<std::shared_ptr<vector<double>>> *stDevs,
+        double additionalMultiplier=1);
     static int CanAnimationBePerformed(int dimensionsNumber);
     static QString FormatNumberForDisplay(double number);
     void on_pushButton_start_clicked();
@@ -185,18 +191,22 @@ class MainWindow : public QMainWindow {
     void Run1DExperimentWithClusterKernels();
     void Run1DExperimentWithWDE();
     void Run1DExperimentWithSOMKE();
+    void RunAccuracyExperiment();
     void on_spinBox_dimensionsNumber_editingFinished();
     void on_pushButton_addTargetFunction_clicked();
     void on_pushButton_removeTargetFunction_clicked();
     void on_pushButton_clicked();
     void resizeEvent(QResizeEvent *event) override;
     // 2D Plot
-    static std::vector<std::vector<double>> Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm);
+    static std::vector<std::vector<double>> Generate2DPlotErrorDomain(const QVector<double> &xErrorDomain,
+                                                                      const QVector<double> &yErrorDomain);
     static std::vector<std::vector<double>> Generate1DPlotErrorDomain(DESDA *DESDAAlgorithm);
     static std::vector<std::vector<double>> Generate1DWindowedPlotErrorDomain(DESDA *DESDAAlgorithm);
     static double Calculate2DDomainArea(const std::vector<std::vector<double>> &domain);
     static std::vector<double> GetFunctionsValueOnDomain(function *func, const std::vector<std::vector<double>> &domain);
-
+    // 3D exp
+    void run_3d_experiment();
+    void on_toolButton_findDataStream_clicked();
 };
 
 

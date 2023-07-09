@@ -5,7 +5,8 @@
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(){}
 
 pluginSmoothingParameterCounter::pluginSmoothingParameterCounter(
-    QVector<qreal> *samples, int rank) : samples(samples), rank(rank){}
+    QVector<qreal> *samples, int rank, QVector<qreal> *weights, int dimension) : samples(samples), rank(rank), weights(weights), _dimension(dimension)
+{}
 
 double pluginSmoothingParameterCounter::countSmoothingParameterValue()
 {
@@ -62,8 +63,8 @@ qreal pluginSmoothingParameterCounter::count1stRankPluginSmoothingParameter()
 
 qreal pluginSmoothingParameterCounter::count0RankPluginSmoothingParameter()
 {
-  // Calculation for normal kernel!
-  double h = pow(4 * M_PI / (3 * samples->size()), 0.2);
+  // Calculation for normal kernel! See Kulczycki2005 pg 64
+  double h = pow(_dimension * 4 * M_PI / (3 * samples->size()), 1 / (_dimension + 4));
   h *= countStandardDeviationEstimator();
   return h;
 }
@@ -98,16 +99,18 @@ qreal pluginSmoothingParameterCounter::countCapitalC(int xsi, qreal smoothingPar
     }
 
     qreal C = 0.0;
+    double weights_sum = 0;
 
-    foreach(qreal xi, *samples)
-    {
-        foreach(qreal xj, *samples)
-        {
-            C += (this->*xsithKDerivative)((xi - xj)/smoothingParameter);
-        }
+    for(int i = 0; i < samples->size(); ++i){
+      qreal xi = samples->at(i);
+      for(int j = 0; j < samples->size(); ++j){
+        qreal xj = samples->at(j);
+        C += (this->*xsithKDerivative)((xi - xj)/smoothingParameter) * weights->at(j) * weights->at(i);
+      }
+      weights_sum += weights->at(i);
     }
 
-    C /= qPow(samples->size(), 2);
+    C /= qPow(weights_sum, 2);
     C /= qPow(smoothingParameter, xsi+1);
 
     return C;
@@ -165,10 +168,12 @@ qreal pluginSmoothingParameterCounter::countStandardDeviationEstimator()
 
     qreal substractor = 0.0, V = 0.0;
 
-    foreach(qreal sample, *samples)
+    for(int i = 0; i < samples->size(); ++i)
     {
-        V += qPow(sample, 2.0);
-        substractor += sample;
+      auto s = samples->at(i);
+      auto w = weights->at(i);
+        V += qPow(samples->at(i) * weights->at(i), 2.0);
+        substractor += samples->at(i) * weights->at(i);
     }
 
     V /= (samples->size() - 1);
@@ -211,11 +216,11 @@ qreal pluginSmoothingParameterCounter::countH3(qreal h4)
   qreal h3 = 2.0; // In the original work there's -2, but it generates negative h.
   h3 *= countK8thDerivativeInPoint(0);
   h3 /= U;
-  if(! isNearlyEqual(h4, 0)){
+  if(! isNearlyEqual(h4, 0)) {
     h4 /= countCapitalC(10.0, h4);
-  }
-  else{
-    h3 /= countSmallC(10);
+  } else {
+    auto smallC = countSmallC(10);
+    h3 /= smallC;
   }
   h3 /= samples->size();
 

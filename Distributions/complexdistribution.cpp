@@ -38,3 +38,10 @@ int complexDistribution::randomizeDistributionIndex()
 
     return distributionIndex;
 }
+
+void complexDistribution::setMeans(double newMean, int index) {
+  for(std::shared_ptr<distribution> elementalDistribution : elementalDistributions)
+  {
+    elementalDistribution->setMeans(newMean, index);
+  }
+}

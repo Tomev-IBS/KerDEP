@@ -3,7 +3,7 @@
 #include "QtMath"
 #include <QDebug>
 
-multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(vector<double> *means, vector<double> *stDevs, int covarianceCoefficient)
+multivariateNormalProbabilityDensityFunction::multivariateNormalProbabilityDensityFunction(vector<double> *means, vector<double> *stDevs, double covarianceCoefficient)
 {
     double correlationCoefficient = covarianceCoefficient;
     matrix covarianceMatrix;

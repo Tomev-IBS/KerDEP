@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <Benchmarking/errorsCalculator.h>
 #include <UI/plotLabelDoubleDataPreparator.h>
+#include "KDE/pluginsmoothingparametercounter.h"
 
 #include "kerDepCcWde.h"
 #include "kerDepWindowedWde.h"
@@ -16,12 +17,14 @@
 #include "UI/plotLabelIntDataPreparator.h"
 
 #include "Functions/complexfunction.h"
+#include "Distributions/alternatingSplittingDistribution.h"
 
 #include "Reservoir_sampling/biasedReservoirSamplingAlgorithm.h"
 #include "Reservoir_sampling/basicReservoirSamplingAlgorithm.h"
 
 #include "Reservoir_sampling/distributiondataparser.h"
 #include "Reservoir_sampling/progressivedistributiondatareader.h"
+#include "Reservoir_sampling/sinusoidalDistributionDataReader.h"
 #include "Reservoir_sampling/textDataReader.h"
 
 #include "ClusterKernelWrappers/varianceBasedClusterKernel.h"
@@ -43,6 +46,12 @@
 #include <QtGlobal>
 
 #include "UI/QwtContourPlotUI.h"
+
+
+#include <qwt_plot.h>
+#include <qwt_symbol.h>
+#include <qwt_legend.h>
+
 
 ClusterKernel *CreateNewVarianceBasedClusterKernel(ClusterKernelStreamElement *stream_element) {
   auto newClusterKernel = new VarianceBasedClusterKernel(stream_element);
@@ -267,10 +276,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_showUnusualClusters->isChecked()) {
-    atypical_elements_values_and_derivatives_ =
-        DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
-    quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
-    MarkUncommonClusters();
+    MarkUncommonClusters(DESDAAlgorithm);
   }
 
   // Draw plots
@@ -411,12 +417,28 @@ void MainWindow::ClearPlot() {
   lines_on_plot_.clear();
 }
 
-unsigned long long MainWindow::MarkUncommonClusters() {
-  for(auto x : atypical_elements_values_and_derivatives_) {
+unsigned long long MainWindow::MarkUncommonClusters(DESDA *DESDAAlgorithm) {
+
+  atypical_elements_points_and_derivatives_ =
+      DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
+
+  // Last element
+  if(screen_generation_frequency_ == 1) {
+    auto clusters = DESDAAlgorithm->getClustersForEstimator();
+    auto verticalLine = new QCPItemLine(ui->widget_plot);
+    verticalLine->start->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), 0);
+    verticalLine->end->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), -0.02);
+    verticalLine->setPen(QPen(Qt::black));
+    lines_on_plot_.push_back(verticalLine);
+  }
+
+  // Atypical
+  for(auto x : atypical_elements_points_and_derivatives_) {
     // Only works for distribution data
     auto verticalLine = new QCPItemLine(ui->widget_plot);
-    verticalLine->start->setCoords(x.first, 0);
-    verticalLine->end->setCoords(x.first, -quantile_estimator_value_);
+    verticalLine->start->setCoords(x.first[0], 0);
+    verticalLine->end->setCoords(x.first[0], -0.01);
     if(x.second > 0)
       verticalLine->setPen(QPen(Qt::green));
     else
@@ -424,12 +446,44 @@ unsigned long long MainWindow::MarkUncommonClusters() {
     lines_on_plot_.push_back(verticalLine);
   }
 
-  return atypical_elements_values_and_derivatives_.size();
+  return atypical_elements_points_and_derivatives_.size();
+}
+
+void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers){
+  atypical_elements_points_and_derivatives_ = DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
+
+  QPolygonF new_trends;
+  QPolygonF vanishing_trends;
+
+  // Mark last cluster
+  if(screen_generation_frequency_ == 1) {
+    QPolygonF last_cluster_point;
+    auto last_cluster = DESDAAlgorithm->getClustersForEstimator()[0];
+
+    last_cluster_point << QPointF(std::stod(last_cluster->getRepresentative()->attributesValues["Val0"]),
+                                  std::stod(last_cluster->getRepresentative()->attributesValues["Val1"]));
+
+    uncommon_clusters_markers->at(2).setSamples(last_cluster_point);
+  }
+
+  for(auto x : atypical_elements_points_and_derivatives_) {
+    // Only works for distribution data
+    if(x.second > 0) {
+      new_trends << QPointF(x.first[0], x.first[1]);
+    } else {
+      vanishing_trends << QPointF(x.first[0], x.first[1]);
+    }
+  }
+
+  // On 0 we've got red +, on 1 we've got green +, on 2 we've got black X (for debug).
+  uncommon_clusters_markers->at(0).setSamples(vanishing_trends);
+  uncommon_clusters_markers->at(1).setSamples(new_trends);
 }
 
 QString MainWindow::FormatNumberForDisplay(double number) {
-  // According to PK the number should be displayed as #.######
-  QString result = "";
+  // According to PK the number should be displayed as #.###
+  QString result = " ";
 
   if(number < 0) result = "";
 
@@ -452,7 +506,6 @@ void MainWindow::FillStandardDeviations(vector<std::shared_ptr<vector<double>>> 
 
   for(int functionIndex = 0; functionIndex < targetFunctionElementsNumber; ++functionIndex) {
     stDevs->push_back(std::make_shared<vector<double>>());
-
     for(int dimensionIndex = 0; dimensionIndex < dimensionsNumber; ++dimensionIndex) {
       stDevs->back().get()->push_back
           (
@@ -533,12 +586,14 @@ void MainWindow::FillDomain(QVector<std::shared_ptr<point>> *domain, std::shared
 
 distribution *MainWindow::GenerateTargetDistribution(
     vector<std::shared_ptr<vector<double>>> *means,
-    vector<std::shared_ptr<vector<double>>> *stDevs) {
+    vector<std::shared_ptr<vector<double>>> *stDevs,
+    double additionalMultiplier) {
+
   int seed = ui->lineEdit_seed->text().toInt();
   vector<double> contributions;
   vector<std::shared_ptr<distribution>> elementalDistributions;
 
-  //int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
+  //int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();_
   int targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
   //double maxMean = ui->lineEdit_distributionProgression->text().toDouble() *  3000;
@@ -552,16 +607,16 @@ distribution *MainWindow::GenerateTargetDistribution(
                                                                    static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))))
                              ->text().toDouble()
                      );
-
+    qDebug() << "Setting seed " << seed << ".";
     elementalDistributions.push_back(
         std::shared_ptr<distribution>(
             new normalDistribution(seed,
                                    (*means)[functionIndex].get(),
-                                   (*stDevs)[functionIndex].get(),
-                                   maxMean)));
+                                   (*stDevs)[functionIndex].get())));
+    seed += 1;
   }
 
-  return new complexDistribution(seed, &elementalDistributions, &contributions);
+  return new alternatingSplittingDistribution(seed, &elementalDistributions, &contributions, additionalMultiplier);
 }
 
 reservoirSamplingAlgorithm *MainWindow::GenerateReservoirSamplingAlgorithm(dataReader *reader,
@@ -580,7 +635,7 @@ reservoirSamplingAlgorithm *MainWindow::GenerateReservoirSamplingAlgorithm(dataR
 }
 
 kernelDensityEstimator *MainWindow::GenerateKernelDensityEstimator(
-    int dimensionsNumber) {
+    int dimensionsNumber, const bool &radial) {
   vector<int> kernelsIDs;
   vector<double> smoothingParameters;
   vector<std::string> carriersRestrictions;
@@ -603,13 +658,15 @@ kernelDensityEstimator *MainWindow::GenerateKernelDensityEstimator(
       &smoothingParameters,
       &carriersRestrictions,
       PRODUCT,
-      &kernelsIDs
+      &kernelsIDs,
+      radial
                                    );
 }
 
 function *MainWindow::GenerateTargetFunction(
     vector<std::shared_ptr<vector<double>>> *means,
-    vector<std::shared_ptr<vector<double>>> *stDevs) {
+    vector<std::shared_ptr<vector<double>>> *stDevs,
+    double additionalMultiplier) {
   vector<double> contributions;
   vector<std::shared_ptr<function>> elementalFunctions;
   int targetFunctionElementsNumber = ui->tableWidget_targetFunctions
@@ -861,14 +918,59 @@ void MainWindow::on_pushButton_removeTargetFunction_clicked() {
 }
 
 void MainWindow::on_pushButton_start_clicked() {
+
+  log("Start pushed!");
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(0);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
+  //RunAccuracyExperiment();
   Run1DExperimentWithDESDA();
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
+
+  //run_3d_experiment();
+
 }
 
 void MainWindow::on_pushButton_clicked() {
+
+  log("Start pushed!");
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(0);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
   log("2D Experiment start.");
+  bool radial = false;
+
+  // Symbols
+  std::deque<QwtSymbol> uncommon_clusters_symbols;
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::red, 2), QSize(12, 12));
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::green, 2), QSize(12, 12));
+  uncommon_clusters_symbols.emplace_back(QwtSymbol::Cross, QBrush(Qt::black), QPen(Qt::black, 2), QSize(24, 24));
+
+  std::deque<QwtPlotCurve> uncommon_clusters_markers;
+  for(size_t i = 0; i < uncommon_clusters_symbols.size(); ++i){
+    uncommon_clusters_markers.emplace_back("");
+    uncommon_clusters_markers[i].setStyle(QwtPlotCurve::NoCurve);
+    uncommon_clusters_markers[i].setSymbol( &(uncommon_clusters_symbols[i]) );
+    uncommon_clusters_markers[i].attach(contour_plot_);
+  }
+
+  //curve.setSamples( points );
+  //curve.attach( contour_plot_ );
+
+  // Initially these vectors were used in errors computation only. We now also use them for the spectrogram.
+  QVector<double> error_xs = {};
+  QVector<double> error_ys = {};
+  std::vector<double> model_function_values = {};
+  std::vector<double> estimator_values = {};
+  std::vector<std::vector<double>> error_domain = {};
 
   screen_generation_frequency_ = 10;
   int seed = ui->lineEdit_seed->text().toInt();
@@ -884,6 +986,12 @@ void MainWindow::on_pushButton_clicked() {
   }
   contourLevels += 0.155;
 
+  // Automatic dimension update
+  if(ui->spinBox_dimensionsNumber->value() == 1){
+    ui->spinBox_dimensionsNumber->setValue(2);
+    ui->spinBox_dimensionsNumber->editingFinished();
+  }
+
   // Add clusters_ to the estimator
   means_ = {std::make_shared<std::vector<double >>()};
   means_.back()->push_back(0);
@@ -893,32 +1001,21 @@ void MainWindow::on_pushButton_clicked() {
   standard_deviations_.back()->push_back(1);
   standard_deviations_.back()->push_back(1);
 
-  bool should_compute_errors = true;
-
   auto densityFunction =
-      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get());
-
-  if(should_compute_errors) {
-    contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, -10.0), QPen(QColor(255, 0, 0)));
-  }
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get(), 0.7);
 
   // Create estimator object
   std::shared_ptr<kernelDensityEstimator>
-      estimator(GenerateKernelDensityEstimator(2));
+      estimator(GenerateKernelDensityEstimator(2, radial));
 
   estimator->_shouldConsiderWeights = true;
 
   std::vector<double> pt = {0, 0};
   contour_plot_->ShowColorMap(false);
-  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), 105.0), QPen(QColor(0, 0, 0)));
-
-  // After adding plots set contours and stuff.
-  contour_plot_->setContours(contourLevels);
-  contour_plot_->showContour(true);
-  contour_plot_->setAlpha(0); // Set alpha to 0 for lack of coloring
-
-  // Set limit on axes.
-  contour_plot_->setAxesLimit(5);
+  //*
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(estimator.get(), &error_xs, &error_ys, &estimator_values),
+                                       QPen(QColor(0, 0, 0)));
+  //*/
 
   std::shared_ptr<distribution> targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
   std::vector<double> meansForDistribution = {0.0, 0.0};
@@ -926,22 +1023,66 @@ void MainWindow::on_pushButton_clicked() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
-  /*
-  //std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
-  std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  QString expNum = "R84 (2D); Product; ; Correlation 0.7";
+  QString pc_id = "sz285";
+  int drawing_start_step = 0;
+  int errors_calculation_start_step = 0;
 
+  /*
+  QString expDesc = "Rio 2014 Temp-Hum, start=" + QString::number(drawing_start_step) + ", " + pc_id; QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity"; QDate data_start_date(2013, 10, 1); std::string data_path = "y:\\Data\\rio_2014_temp_humidity.csv";
+  //QString expDesc = "id=1, Cracow 2020 Temp-Hum, start="+QString::number(drawing_start_step) + ", " + pc_id; QString experiment_description = "Cracow; 2020; temperature-humidity"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\cracow_2020_temp_humidity.csv";
+  //QString expDesc = "TEST, " + pc_id; QString experiment_description = "TEST"; QDate data_start_date(2019, 10, 1); std::string data_path = "y:\\Data\\2d_trend_v3.csv";
+
+  QTime data_start_time(0, 0, 0);
+  QDateTime data_date_time(data_start_date, data_start_time);
+
+  ui->lineEdit_iterationsNumber->setText("15000");
   reader_.reset(new TextDataReader(data_path, 2));
+
+  bool should_compute_errors = false;
+
+  // Set limits on axes.
+  contour_plot_->setAxesLimit(0); // This function doesn't work as the arguments suggest.
+
   //*/
 
   //*
-  reader_.reset(
-      new progressiveDistributionDataReader(targetDistribution.get(), 0,
-                                            0,
-                                            new normalDistribution(0, &meansForDistribution, &stDevsForDistribution,
-                                                                   55))
-               );
+  // p2 = 0.75p1 lub p2=0
+  bool should_compute_errors = true;
+  QString p2 = "0.5";
 
+  // Prepare the reader
+  reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution), p2.toDouble()));
+
+  // Only to remove problems initialize the date
+  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
+
+  if(p2.size() > 1){
+    p2=p2+"p_1";
+  }
+
+  if(p2 == "1"){
+    p2 = "p_1";
+  }
+
+  if(p2 == "0"){
+    p2 = "0";
+  }
+
+  // Multiple instructions in one line, for simplicity
+  QString experiment_description = "assumed data stream; skewed normal; 2D; p_2 = " + p2; QString expDesc = "assumed data stream 2D, p_2 = " + p2 + ", " + pc_id;
+
+  // Set limits on axes.
+  contour_plot_->setAxesLimit(20); // This function doesn't work as the arguments suggest.
+
+  //*
+  contour_plot_->addQwtPlotSpectrogram(new SpectrogramData2(densityFunction, &error_xs, &error_ys, &model_function_values), QPen(QColor(255, 0, 0)));
   //*/
+
+  // After adding plots set contours and stuff.
+  contour_plot_->setContours(contourLevels);
+  contour_plot_->showContour(true);
+  contour_plot_->setAlpha(0); // Set alpha to 0 for lack of coloring
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -956,19 +1097,17 @@ void MainWindow::on_pushButton_clicked() {
   int pluginRank = 3;
   groupingThread gt(&stored_medoids_, parser_);
 
-  derivative_estimator_.reset(GenerateKernelDensityEstimator(2));
-  enhanced_kde_.reset(GenerateKernelDensityEstimator(2));
+  derivative_estimator_.reset(GenerateKernelDensityEstimator(2, radial));
+  enhanced_kde_.reset(GenerateKernelDensityEstimator(2, radial));
 
   DESDA DESDAAlgorithm(
       estimator,
       derivative_estimator_,
       enhanced_kde_,
-      ui->lineEdit_weightModifier->text().toDouble(),
       samplingAlgorithm,
       clusters_,
-      &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), pluginRank
-  );
+                      );
 
   // Start the test
   step_number_ = 0;
@@ -986,19 +1125,6 @@ void MainWindow::on_pushButton_clicked() {
   int errorCalculationsNumber = 0;
   double sum_l1 = 0, sum_l2 = 0, sum_sup = 0, sum_mod = 0;
 
-  //QDate data_start_date(2013, 10, 1); // Rio
-  //QDate data_start_date(2016, 10, 1); // Metro
-  QDate data_start_date(2019, 10, 1); // Cracow
-  QTime data_start_time(0, 0, 0);
-  QDateTime data_date_time(data_start_date, data_start_time);
-
-  // p2 = 0.75p1 lub p2=0
-  QString p2 = "1p1";
-
-  //QString experiment_description = "Rio de Janeiro; 2014; temperature-humidity";
-  //QString experiment_description = "Cracow; 2020; temperature-humidity";
-  QString experiment_description = "assumed input; p2=" + p2;
-
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
                           &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
@@ -1006,45 +1132,24 @@ void MainWindow::on_pushButton_clicked() {
   plotUi.attach(contour_plot_);
   plotUi.updateTexts();
   plotUi.SetErrorsPrinting(should_compute_errors);
-  QVector<int> initialDrawingSteps = {1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
-  //QVector<int> initialDrawingSteps = {1};
-  std::vector<double> model_function_values = {};
-  std::vector<double> estimator_values = {};
+  QVector<int> initialDrawingSteps = {};
+
+  for(size_t i = 500; i <= drawing_start_step; i += 500){
+    initialDrawingSteps.push_back(i);
+  }
+
   double domain_area = 0;
-  std::vector<std::vector<double>> error_domain = {};
-  ErrorsCalculator errors_calculator(
-      &model_function_values, &estimator_values, &error_domain, &domain_area
-                                    );
+
+  ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
 
   // Prepare image location.
-  QString expNum = "1607 (2D)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc =
-      "assumed input 2D, p2=" + p2 + ", sz474";
-      //"Rio 2014 Temp-Hum, sz003";
-      //"Cracow 2020 Temp-Hum, sz129";
   QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "D:\\Test\\"; // Home
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
-  // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
-                        ""
-                        "  assumed input  \n 2D p2=" + p2);
-                        //"  Cracow\n   temp.-humidity");
-                        //"  Rio de Janeiro\n   temp.-humidity");
-  expNumLabel.setFont(QFont("Courier New", 110));
-
-  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
-  // Initial screen generated.
 
   int steps_number = ui->lineEdit_iterationsNumber->text().toInt();
 
@@ -1058,56 +1163,67 @@ void MainWindow::on_pushButton_clicked() {
     DESDAAlgorithm.performStep();
     log("Step performed.");
 
+    bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
+    bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step) || initialDrawingSteps.contains(step_number_);
+
+    if(ui->checkBox_showUnusualClusters->isChecked() && draw_plot){
+      log("Marking rare elements.");
+      MarkUncommonClusters2D(&DESDAAlgorithm, &uncommon_clusters_markers);
+    }
+
+    log("Estimator preparation.");
+    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    log("Estimator preparation finished.");
+
+    // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
+    if(compute_errors || draw_plot) {
+      log("Computing domains.");
+      error_xs = DESDAAlgorithm.getErrorDomain(0);
+      error_ys = DESDAAlgorithm.getErrorDomain(1);
+      error_domain = Generate2DPlotErrorDomain(error_xs, error_ys);
+      log("Computing values of domains.");
+      model_function_values = GetFunctionsValueOnDomain(densityFunction, error_domain);
+      estimator_values = GetFunctionsValueOnDomain(estimator.get(), error_domain);
+    }
+
+    // Error calculation
+    //*
+    if(compute_errors) {
+      log("Error calculation started.");
+      ++errorCalculationsNumber;
+
+      domain_area = Calculate2DDomainArea(error_domain);
+
+      //actual_l1 = errors_calculator.CalculateL1Error();
+      actual_l2 = errors_calculator.CalculateL2Error();
+      //actual_sup = errors_calculator.CalculateSupError();
+      //actual_mod = errors_calculator.CalculateModError();
+      //sum_l1 += actual_l1;
+      sum_l2 += actual_l2;
+      //sum_sup += actual_sup;
+      //sum_mod = actual_mod;
+
+      //l1_n_ = sum_l1 / errorCalculationsNumber;
+      l2_n_ = sum_l2 / errorCalculationsNumber;
+      //sup_n_ = sum_sup / errorCalculationsNumber;
+      //mod_n_ = sum_mod / errorCalculationsNumber;
+      log("Error calculation finished.");
+    }
+    //*/
+    if(should_compute_errors) {
+      densityFunction->setMeans(*means_.back().get());
+    }
+
     // Drawing
-    if(step_number_ % screen_generation_frequency_ == 0 ||
-       initialDrawingSteps.contains(step_number_)) {
+    if(draw_plot){
 
       log("Drawing started.");
-
-      log("Estimator preparation.");
-      DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
-      log("Estimator preparation finished.");
-      // Error calculation
-
-      //*
-      if(step_number_ >= 1000 && should_compute_errors) {
-        log("Error calculation started.");
-        ++errorCalculationsNumber;
-        error_domain = Generate2DPlotErrorDomain(&DESDAAlgorithm);
-        domain_area = Calculate2DDomainArea(error_domain);
-        model_function_values =
-            GetFunctionsValueOnDomain(densityFunction, error_domain);
-        estimator_values =
-            GetFunctionsValueOnDomain(estimator.get(), error_domain);
-
-        //actual_l1 = errors_calculator.CalculateL1Error();
-        actual_l2 = errors_calculator.CalculateL2Error();
-        //actual_sup = errors_calculator.CalculateSupError();
-        //actual_mod = errors_calculator.CalculateModError();
-        //sum_l1 += actual_l1;
-        sum_l2 += actual_l2;
-        //sum_sup += actual_sup;
-        //sum_mod = actual_mod;
-
-        //l1_n_ = sum_l1 / errorCalculationsNumber;
-        l2_n_ = sum_l2 / errorCalculationsNumber;
-        //sup_n_ = sum_sup / errorCalculationsNumber;
-        //mod_n_ = sum_mod / errorCalculationsNumber;
-        log("Error calculation finished.");
-      }
-      //*/
-      if(should_compute_errors) {
-        densityFunction->setMeans(*means_.back().get());
-      }
 
       log("Texts updates.");
       plotUi.updateTexts();
 
       log("Replotting.");
       contour_plot_->replot();
-
-      log("Restoring weights.");
-      DESDAAlgorithm.restoreClustersCWeights();
 
       endTime = time(nullptr);
 
@@ -1119,11 +1235,11 @@ void MainWindow::on_pushButton_clicked() {
       log("Image name: " + imageName);
       log("Saved: " + QString::number(ui->widget_contour_plot_holder->grab().save(imageName)));
       log("Drawing finished.");
+
     }
 
-    if(step_number_ == 10) {
-      initialDrawingSteps.clear();  // To reduce comparisons for drawing.
-    }
+    log("Restoring weights.");
+    DESDAAlgorithm.restoreClustersCWeights();
 
     endTime = time(nullptr);
 
@@ -1165,10 +1281,9 @@ std::vector<double> MainWindow::GetFunctionsValueOnDomain(function *func,
   return values;
 }
 
-std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(DESDA *DESDAAlgorithm) {
+std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(const QVector<double> &xDomainValues,
+                                                                       const QVector<double> &yDomainValues) {
   std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
-  auto yDomainValues = DESDAAlgorithm->getErrorDomain(1);
 
   for(auto x : xDomainValues) {
     for(auto y : yDomainValues) {
@@ -1216,6 +1331,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("KDE animation started.");
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
+  log("Experiment started.");
 
   step_number_ = 0;
   screen_generation_frequency_ = 10;
@@ -1235,8 +1351,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
   derivative_estimator_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
   enhanced_kde_.reset(GenerateKernelDensityEstimator(dimensionsNumber));
 
+  double evenDistributionsMultiplier = 1;  // 1 to standardowa "ścieżka zdrowia / życia"
+
   std::shared_ptr<distribution>
-      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+      targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_, evenDistributionsMultiplier));
   vector<double> alternativeDistributionMean = {0.0};
   vector<double> alternativeDistributionStDevs = {1.0};
   qreal progressionSize =
@@ -1249,23 +1367,94 @@ void MainWindow::Run1DExperimentWithDESDA() {
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
                                             0,  // Delay
-                                            new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                            new normalDistribution(seedString.toInt(),
+                                                                   &alternativeDistributionMean,
+                                                                   &alternativeDistributionStDevs))
                );
+
+  std::vector<double> target;
+
+  // Save datastream.
+  /*
+  std::ofstream in;
+  in.open("D:\\stream.txt");
+  for(int i = 0; i < 10000; ++i){
+    reader_->getNextRawDatum(&target);
+    // qDebug() << i << ". " << target[0] << "\n";
+    in << target[0] << "\n";
+  }
+  in.close();
+   */
+
+
+  //*/
+  /*//
+  float periodsNumber = 1;
+
+  reader_.reset(
+      new sinusoidalDistributionDataReader(
+          targetDistribution.get(),
+          periodsNumber,
+          ui->lineEdit_iterationsNumber->text().toInt(),
+          new normalDistribution(seedString.toInt(),
+                                &alternativeDistributionMean,
+                                &alternativeDistributionStDevs),
+          0,
+          1000,
+          9000
+          )
+      );
+
+
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", sine ("+QString::number(periodsNumber)+" periods)";
+  QString plot_description = " sine (" + QString::number(periodsNumber) + " periods); 1D";
+  //*/
   bool compute_errors = true;
+  //double p2 = 0.1;
+
+  int ziegler_nichols_multiplicity = 1;
+
+  QString m0_text = ui->lineEdit_sampleSize->text();
+
+  //QString expDesc = "assumed data stream,  sz221";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed data stream, seed=" + seedString;
+  QString plot_description = "assumed data stream; seed="+seedString;
+  QDate startDate(2019, 10, 1); // It's not used anyway.
+  ui->checkBox_showEstimatedPlot->setChecked(true);
+  //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
+  //ui->lineEdit_maxX->setText(path_length);
   //*/
 
+  int drawing_start_step = 0;
+  QString expNum = "D" + seedString;
+  QString pcName = "sz250";
+
+  expDesc += ", " + pcName;
 
   // Text data reader
   /*
-  //std::string data_path = "y:\\Data\\rio_2014_temp.csv";
-  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv";
-  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv";
-  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv";
-  std::string data_path = "y:\\Data\\cracow_2020_humidity.csv";
+  QString pc_id = "sz220";
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+
   reader_.reset(new TextDataReader(data_path));
   bool compute_errors = false;
   //*/
+
+
+  if(this->ui->label_dataStream->text().toStdString() == "Not selected."){
+    log("Data stream not selected.");
+    return;
+  }
+
+  std::string data_path = this->ui->label_dataStream->text().toStdString();
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1283,36 +1472,26 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   clusters_ = &stored_medoids_;
 
-  weightedSilvermanSmoothingParameterCounter smoothingParamCounter(clusters_, 0);
-
   derivative_estimator_->_shouldConsiderWeights = false;
 
-  int pluginRank = 3;
+  int pluginRank = 2;
   DESDA DESDAAlgorithm(
       estimator,
       derivative_estimator_,
       enhanced_kde_,
-      ui->lineEdit_weightModifier->text().toDouble(),
       algorithm,
       clusters_,
-      &stored_medoids_,
       ui->lineEdit_rarity->text().toDouble(), pluginRank
-  );
+                      );
 
-  QString expNum = "1600";
   this->setWindowTitle("Experiment #" + expNum);
-  //QString expDesc = "DESDA, Minneapolis 2017 Temperature, sz129";
-  //QString expDesc = "DESDA, Rio 2014 humidity, sz130";
-  //QString expDesc = "DESDA, Cracow 2020 humidity, sz195";
-  //QString expDesc = "DESDA, Cracow 2020 temperature, sz022";
-  //QString expDesc = "DESDA, Rio 2014 temperature, sz003";
-  QString expDesc = "DESDA, assumed input, sz002";
 
-  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
-  //QString driveDir = "D:\\Test\\"; // Test
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
+  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
-  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
 
@@ -1320,29 +1499,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   ResizePlot();
 
   // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0, 0.1,
-                        //"     Minneapolis\n    temperature  ");
-                        //"     Rio de Janeiro\n    temperature  ");
-                        //"     Cracow\n    temperature  ");
-                        //"     Cracow\n      humidity  ");
-                        //"     Rio 2014\n      humidity  ");
-                        "  assumed input  \n    1D");
-  expNumLabel.setFont(QFont("Courier New", 110));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
-
-  // Exps with days
-  // Rio 2014 Experiment
-  //QDate startDate(2013, 10, 1);
-  // Metro Minneapolis 2017 Experiment
-  //QDate startDate(2016, 10, 1);
-  // Cracow 2020 Experiment
-  QDate startDate(2019, 10, 1);
+  QString imageName = "";
 
   QTime startTime(0, 0, 0);
   QDateTime dateTime(startDate, startTime);
@@ -1352,12 +1511,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   label_vertical_offset_ = 0.01;
 
   plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
-                        //"Rio de Janeiro; 2014; humidity");
-                        //"Cracow; 2020; humidity");
-                        //"Rio de Janeiro; 2014; temperature");
-                        //"Minneapolis; 2017; temperature");
-                        //"Cracow; 2020; temperature");
-                        "assumed input; 1D");
+                       plot_description);
   label_vertical_offset_ += label_vertical_offset_step_;
   label_vertical_offset_ += label_vertical_offset_step_;
 
@@ -1377,7 +1531,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel KPSSTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "KPSS         = 0");
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("sgmKPSS    = ", &DESDAAlgorithm._sgmKPSS);
+  AddDoubleLabelToPlot("sgmKPSS    =", &DESDAAlgorithm._sgmKPSS);
   label_vertical_offset_ += label_vertical_offset_step_;
 
   //AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
@@ -1389,11 +1543,23 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
   //label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("r          = ", &(DESDAAlgorithm._r));
-  AddDoubleLabelToPlot("q          = ", &(DESDAAlgorithm._quantileEstimator));
+  AddDoubleLabelToPlot("r          =", &(DESDAAlgorithm._r));
+  //AddDoubleLabelToPlot("q          =", &(DESDAAlgorithm._quantileEstimator));
   AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
+  label_vertical_offset_ += label_vertical_offset_step_;
   //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
-  label_vertical_offset_ += 5 * label_vertical_offset_step_;
+  //*
+  QString signal_exclamation_points = "                    ";
+  plotLabel signal_exclamation_point_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                                           signal_exclamation_points);
+
+  //AddDoubleLabelToPlot("TS         =" , &(DESDAAlgorithm.statistics_[0]));
+  plotLabel statisticsTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "TS           = 0");
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  //label_vertical_offset_ += label_vertical_offset_step_;
+
+  //label_vertical_offset_ += 3 * label_vertical_offset_step_;
 
   AddColorsLegendToPlot();
 
@@ -1404,7 +1570,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //==================== ERRORS SUM =================//
 
-  label_horizontal_offset_ = 0.865;
+  label_horizontal_offset_ = 0.875;
   label_vertical_offset_ = 0.01;
 
   QVector<double> l1_errors_sums = {};
@@ -1420,7 +1586,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   if(compute_errors) {
 
     //QVector<QString> l1_labels = {"L1_w  = ", "L1_m  = ", "L1_d  = ", "L1_p  = ", "L1_n  = "};
-    QVector<QString> l2_labels = {"L^2 = ", "L^2 = ", "L^2 = ", "L^2 = ", "L^2 = "};
+    QVector<QString> l2_labels = {"L2 =", "L2 =", "L2 =", "L2 =", "L2 ="};
     //QVector<QString> sup_labels = {"sup_w = ", "sup_m = ", "sup_d = ", "sup_p = ", "sup_n = "};
     //QVector<QString> mod_labels = {"mod_w = ", "mod_m = ", "mod_d = ", "mod_p = ", "mod_n = "};
 
@@ -1490,7 +1656,6 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &enhanced_kde_errors_calculator, &rare_elements_kde_errors_calculator
   };
 
-
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
@@ -1498,67 +1663,120 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
-       || additionalScreensSteps.contains(step_number_)) {
+    // Error calculations
+    if(step_number_ > drawing_start_step && compute_errors && step_number_ % screen_generation_frequency_ == 0) {
+
+      log("Getting windowed domain.");
+      windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
+      log("Getting non-windowed domain.");
+      error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
+
+      log("Getting model plot on windowed.");
+      windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
+      log("Getting KDE plot on windowed.");
+      windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on lesser elements.");
+      less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
+      log("Getting weighted KDE plot.");
+      weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
+      log("Getting sgm KDE plot.");
+      enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
+      log("Getting rare KDE plot.");
+      rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
+
+      error_domain_length = error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+      windowed_error_domain_length =
+          windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
+
+      //AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
+      AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
+      //AddSupErrorsToSum(errors_calculators, sup_errors_sums);
+      //AddModErrorsToSum(errors_calculators, mod_errors_sums);
+
+      for(size_t i = 0; i < errors_calculators.size(); ++i) {
+        //*l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
+        *l2_errors[i] = l2_errors_sums[i] / numberOfErrorCalculations;
+        //*sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
+        //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
+      }
+
+      QString filePath = "D:\\errors_seed=" + seedString + ".txt";
+      std::ofstream in;
+      in.open(filePath.toStdString(), std::ios_base::app);
+      for(size_t i = 0; i < errors_calculators.size(); ++i) {
+        // qDebug() << i << ". " << target[0] << "\n";
+        in << *l2_errors[i] << ";";
+      }
+      in << "\n";
+      in.close();
+
+      ++numberOfErrorCalculations;
+    }
+
+    //*
+    // Initialize the errors in initial counting
+    if(step_number_ == drawing_start_step){
+      l2_errors_sums.clear();
+      numberOfErrorCalculations = step_number_ / screen_generation_frequency_;
+
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+      l2_errors_sums.push_back(0);
+
+      for(size_t i = 0; i < errors_calculators.size(); ++i) {
+        *l2_errors[i] = l2_errors_sums[i];
+        l2_errors_sums[i] *= numberOfErrorCalculations;
+      }
+
+      //++numberOfErrorCalculations;
+    }
+    //*/
+
+    if(drawing_start_step <= step_number_ &&
+       ( step_number_ % screen_generation_frequency_ == 0 ||
+         additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
-      kernel_prognosis_derivative_values_ =
-          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&drawable_domain_);
+      QVector<std::vector<double>> points_to_compute_derivative_on = {};
 
-      // Error calculations
-      if(step_number_ >= 1000 && compute_errors) {
-
-        log("Getting windowed domain.");
-        windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
-        log("Getting non-windowed domain.");
-        error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
-
-        log("Getting model plot on windowed.");
-        windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
-        log("Getting KDE plot on windowed.");
-        windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on lesser elements.");
-        less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
-        log("Getting weighted KDE plot.");
-        weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
-        log("Getting sgm KDE plot.");
-        enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
-        log("Getting rare KDE plot.");
-        rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
-
-        error_domain_length = error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-        windowed_error_domain_length =
-            windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
-
-        //AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
-        AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
-        //AddSupErrorsToSum(errors_calculators, sup_errors_sums);
-        //AddModErrorsToSum(errors_calculators, mod_errors_sums);
-
-        for(size_t i = 0; i < errors_calculators.size(); ++i){
-          //*l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
-          *l2_errors[i] = l2_errors_sums[i] / numberOfErrorCalculations;
-          //*sup_errors[i] = sup_errors_sums[i] / numberOfErrorCalculations;
-          //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
-        }
-
-        ++numberOfErrorCalculations;
+      for(double val : drawable_domain_){
+        points_to_compute_derivative_on.push_back(std::vector<double>());
+        points_to_compute_derivative_on.back().push_back(val);
       }
+
+      kernel_prognosis_derivative_values_ =
+          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&points_to_compute_derivative_on);
 
       // ============= LEFT SIDE UPDATE ================ //
 
-      KPSSTextLabel.setText("KPSS       = " + FormatNumberForDisplay(
+      KPSSTextLabel.setText("KPSS       =" + FormatNumberForDisplay(
           DESDAAlgorithm.getStationarityTestValue()));
 
-      DrawPlots(&DESDAAlgorithm);
+      if(step_number_ >= drawing_start_step) {
+        DrawPlots(&DESDAAlgorithm);
+      }
 
-      for(const auto &label : plot_labels_){
+      for(const auto &label : plot_labels_) {
         label->updateText();
       }
 
+      signal_exclamation_points = "                   ";
+
+      statisticsTextLabel.setText("TS         =" + FormatNumberForDisplay(
+          DESDAAlgorithm.statistics_[0]));
+
+      if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.3){
+        signal_exclamation_points += "!";
+      } else if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.2){
+        signal_exclamation_points += "?";
+      }
+
+      signal_exclamation_point_label.setText(signal_exclamation_points);
 
       for(auto i = 0; i < date_labels.size(); ++i) {
         date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
@@ -1566,12 +1784,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
-
-      if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
-
       imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
 
     dateTime = dateTime.addSecs(3600); // Bike sharing
   }
@@ -1618,63 +1834,81 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                             progressionSize,
                                             0,  /* Delay */
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  // Synthetic data reader
+  /*
+  QString expDesc = "assumed data stream, m = " + QString::number(number_of_cluster_kernels) + ", referencyjny";
+  bool compute_errors = true;
+  //*/
+
+\
+  // Text data reader
+  //*
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "k:\\Data\\cracow_2020_temp.csv"; QString expDesc = "CK, Cracow 2020 temperature, home"; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
+  //*/
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
   log("Attributes data set.");
 
   int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  QString expNum = "1386 (CK)";
+  QString expNum = "Cluster Kernels (inf_sci)";
   this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=0, m = " + QString::number(number_of_cluster_kernels)
-                    + ", mean-var-resampling, weighted list-based algorithm, weighted StDev, updated h coefficient, alpha=0.01";
-  screen_generation_frequency_ = 10;
+
+  screen_generation_frequency_ = 1;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
-  //QString driveDir = "D:\\Test\\"; // Home
-  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\"; // Home
+  //QString driveDir = "Y:\\"; // WIT PCs after update
   //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "d:\\Tests\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();
 
-  // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
+  QTime startTime(0, 0, 0);
+  QDateTime dateTime(startDate, startTime);
 
   // Setting up the labels
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
+  plotLabel desc_label(ui->widget_plot, horizontalOffset, verticalOffset,
+                       "assumed data stream; 1D");
+
+  verticalOffset += 2 * verticalStep;
+
+  QVector<plotLabel> date_labels = {};
+  //*
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, horizontalOffset, verticalOffset, ""));
+    verticalOffset += verticalStep;
+  }
+  //*/
+
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   horizontalOffset, verticalOffset, "t     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  verticalOffset += 2 * verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
                                                    horizontalOffset, verticalOffset, "m     = ",
@@ -1692,6 +1926,14 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                                    horizontalOffset, verticalOffset, "sigma = ", &(sigma),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
 
+  label_vertical_offset_ = 0.75;
+  label_horizontal_offset_ = horizontalOffset;
+
+  AddConstantLabelToPlot("theoretical");
+  plot_labels_.back()->SetColor(model_plot_pen_.color());
+
+  AddConstantLabelToPlot("CK Estimator");
+  plot_labels_.back()->SetColor(kde_plot_pen_.color());
 
 
   //====================  SECOND COLUMN =================//
@@ -1702,34 +1944,15 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   //====================== ERRORS SUM ===================//
 
   horizontalOffset = 0.85;
-  verticalOffset = 0.01;
-
-  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  verticalOffset = 0.75 + verticalStep;
 
   plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
-  verticalOffset += verticalStep;
-  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
-  verticalOffset += verticalStep;
-  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  L2TextLabel.SetColor(kde_plot_pen_.color());
 
   FillDomain(&domain_, nullptr);
-  for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
+  for(const auto &pt : domain_){
+    drawable_domain_.push_back(pt->at(0));
+  }
 
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
@@ -1737,11 +1960,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   int numberOfErrorCalculations = 0;
   QVector<int> additionalScreensSteps = {};
 
-  /*
-  for(int i = 990; i < 1011; ++i){
-      additionalScreensSteps.append(i);
-  }
-  */
+  for(int i = 990; i < 1011; ++i){ additionalScreensSteps.append(i); }
 
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
@@ -1759,7 +1978,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   double sup_sum = 0;
   double mod_sum = 0;
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
@@ -1771,66 +1990,53 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-    if(step_number_ % screen_generation_frequency_ == 0 || step_number_ < 10
-       || additionalScreensSteps.contains(step_number_)) {
+    // Error calculations
+    if(step_number_ >= 1000 && compute_errors) {
+      log("Getting error domain.");
+      error_domain = CKAlgorithm.GetErrorDomain();
+
+      log("Getting model plot on windowed.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on windowed.");
+      kde_values = CKAlgorithm.GetKDEValuesOnDomain(error_domain);
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+      log("Calculating domain length.");
+
+      error_domain_length =
+          error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+      log("Calculating errors.");
+      l1_w_ = errors_calculator.CalculateL1Error();
+      l2_w_ = errors_calculator.CalculateL2Error();
+      sup_w_ = errors_calculator.CalculateSupError();
+      mod_w_ = errors_calculator.CalculateModError();
+      l1_sum += l1_w_;
+      l2_sum += l2_w_;
+      sup_sum += sup_w_;
+      mod_sum += mod_w_;
+
+      ++numberOfErrorCalculations;
+      log("Errors calculated.");
+    }
+
+    if((step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_))  && (step_number_ > 11350)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
-
-      // Error calculations
-      if(step_number_ >= 1) {
-
-        log("Getting error domain.");
-        error_domain = CKAlgorithm.GetErrorDomain();
-
-        log("Getting model plot on windowed.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on windowed.");
-        kde_values = CKAlgorithm.GetKDEValuesOnDomain(error_domain);
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-
-        log("Calculating domain length.");
-
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-
-        log("Calculating errors.");
-        l1_w_ = errors_calculator.CalculateL1Error();
-        l2_w_ = errors_calculator.CalculateL2Error();
-        sup_w_ = errors_calculator.CalculateSupError();
-        mod_w_ = errors_calculator.CalculateModError();
-        l1_sum += l1_w_;
-        l2_sum += l2_w_;
-        sup_sum += sup_w_;
-        mod_sum += mod_w_;
-
-        ++numberOfErrorCalculations;
-        log("Errors calculated.");
-      }
-
       // ============ SUMS =========== //
 
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
-      L2TextLabel
-          .setText("L2   =" + FormatNumberForDisplay(
-              l2_sum / numberOfErrorCalculations));
-      supTextLabel
-          .setText("sup  =" + FormatNumberForDisplay(
-              sup_sum / numberOfErrorCalculations));
-      modTextLabel
-          .setText("mod  =" + FormatNumberForDisplay(
-              mod_sum / numberOfErrorCalculations));
+      double l2 = 0;
 
-      L1aTextLabel
-          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
-      L2aTextLabel
-          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
-      supaTextLabel
-          .setText("supa =" + FormatNumberForDisplay(sup_w_));
-      modaTextLabel
-          .setText("moda =" + FormatNumberForDisplay(mod_w_));
+      if(numberOfErrorCalculations > 0){
+        l2 = l2_sum / numberOfErrorCalculations;
+      }
+
+      L2TextLabel.setText("L2   =" + FormatNumberForDisplay(l2));
+
+      if(!compute_errors){
+        L2TextLabel.setText("");
+      }
 
       DrawPlots(&CKAlgorithm);
 
@@ -1839,14 +2045,20 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
       for(const auto &label : plotLabels) label->updateText();
 
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
+
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      imageName = dirPath + QString::number(step_number_) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600);
   }
 
   log("Animation finished.");
@@ -1854,7 +2066,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
 void MainWindow::Run1DExperimentWithWDE() {
   // TR TODO: This is basically the same as it is in Cluster Kernels... Initialization should
-  // be made an separate function.
+  //          be made an separate function.
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
   if(!CanAnimationBePerformed(dimensionsNumber)) return;
@@ -1869,6 +2081,12 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   step_number_ = 0;
   double sigma = 0;
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+  double weight_modifier = 0.99; // omega
+  unsigned int maximal_number_of_coefficients = 100; // M
+  unsigned int current_coefficients_number = 0; // #coef
+  int number_of_elements_per_block = 500; // b
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1891,7 +2109,7 @@ void MainWindow::Run1DExperimentWithWDE() {
                                             progressionSize,
                                             0,  /* Delay */
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
@@ -1899,26 +2117,44 @@ void MainWindow::Run1DExperimentWithWDE() {
 
   int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-  log("Attributes data set.");
-
-  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  double weight_modifier = 0.95; // omega
-  unsigned int maximal_number_of_coefficients = 100; // M
-  unsigned int current_coefficients_number = 0; // #coef
-  int number_of_elements_per_block = 1000; // b
-
-  QString expNum = "1491 TEST (Thresholded Weighted Window WDE)";
-  //QString expNum = "THRESHOLDED_WDE_TEST_1";
-  this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, soft threshold, b=" + QString::number(number_of_elements_per_block) +
+  // Synthetic data
+  //*
+  QString expDesc = "assumed bimodal data stream, soft threshold, b=" + QString::number(number_of_elements_per_block) +
                     ", omega=" + QString::number(weight_modifier) +
                     ", M=" + QString::number(maximal_number_of_coefficients);
-  screen_generation_frequency_ = 10;
+  QString plot_description = "assumed data stream; 1D";
+  bool compute_errors = true;
+  QDate startDate(2013, 10, 1);
+  //*/
+
+  // Text data reader
+  /*
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "k:\\Data\\cracow_2020_temp.csv"; QString expDesc = "WDE, Cracow 2020 temperature, home"; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
+  //*/
+
+  log("Attributes data set.");
+
+  QString expNum = "WDE (inf_sci bimodal) (Thresholded Weighted Window WDE)";
+  //QString expNum = "THRESHOLDED_WDE_TEST_1";
+  this->setWindowTitle("Experiment #" + expNum);
+
+  screen_generation_frequency_ = 1000;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
   //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "D:\\Tests\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
@@ -1926,91 +2162,83 @@ void MainWindow::Run1DExperimentWithWDE() {
   ResizePlot();
 
   // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
+  QTime startTime(0, 0, 0);
+  QDateTime dateTime(startDate, startTime);
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+  label_vertical_offset_ = label_horizontal_offset_ = 0.01;
+
+  plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                       plot_description);
+
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
+  QVector<plotLabel> date_labels = {};
+  //*
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
+    label_vertical_offset_ += label_vertical_offset_step_;
+  }
+  //*/
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   label_horizontal_offset_, label_vertical_offset_, "t     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "b     = ",
+                                                   label_horizontal_offset_, label_vertical_offset_, "b     = ",
                                                    &(number_of_elements_per_block),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "M     = ",
+                                                   label_horizontal_offset_, label_vertical_offset_, "M     = ",
                                                    &(maximal_number_of_coefficients),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "#coef = ",
+                                                   label_horizontal_offset_, label_vertical_offset_, "omega = 0.99"));
+
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "#coef = ",
                                                    &(current_coefficients_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "omega = ", &(weight_modifier),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+  label_vertical_offset_ = 0.75;
+
+  AddConstantLabelToPlot("theoretical");
+  plot_labels_.back()->SetColor(model_plot_pen_.color());
+
+  AddConstantLabelToPlot("WDE Estimator");
+  plot_labels_.back()->SetColor(kde_plot_pen_.color());
 
 
   //====================  SECOND COLUMN =================//
 
-  horizontalOffset = 0.20;
-  verticalOffset = 0.01 + 9 * verticalStep;
+  label_horizontal_offset_ = 0.20;
+  label_vertical_offset_ = 0.01 + 9 * label_vertical_offset_step_;
 
   //====================== ERRORS SUM ===================//
 
-  horizontalOffset = 0.87;
-  verticalOffset = 0.01;
+  label_horizontal_offset_ = 0.85;
+  label_vertical_offset_ = 0.78;
 
-  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  plotLabel L2TextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "L2   = 0");
 
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  if(!compute_errors){
+    L2TextLabel.setText("");
+  }
 
-  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
-  verticalOffset += verticalStep;
-  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
-  verticalOffset += verticalStep;
-  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  L2TextLabel.SetColor(kde_plot_pen_.color());
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -2019,13 +2247,9 @@ void MainWindow::Run1DExperimentWithWDE() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 0;
-  QVector<int> additionalScreensSteps = {1};
+  QVector<int> additionalScreensSteps = {};
 
-  /*
-  for(int i = 990; i < 1011; ++i){
-      additionalScreensSteps.append(i);
-  }
-  */
+  // for(int i = 990; i < 1011; ++i){ additionalScreensSteps.append(i);
 
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
@@ -2043,7 +2267,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   double sup_sum = 0;
   double mod_sum = 0;
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
@@ -2054,65 +2278,54 @@ void MainWindow::Run1DExperimentWithWDE() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
-    if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
+    // Error calculations
+    if(step_number_ >= 2 && compute_errors) {
+
+      log("Getting error domain.");
+      error_domain = WDE_Algorithm.GetErrorDomain();
+
+      log("Getting model plot on windowed.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on windowed.");
+      wde_values = WDE_Algorithm.GetEstimatorValuesOnDomain(error_domain);
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+      log("Calculating domain length.");
+
+      error_domain_length =
+          error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+      log("Calculating errors.");
+      l2_w_ = errors_calculator.CalculateL2Error();
+      l2_sum += l2_w_;
+
+      /*
+      l1_w_ = errors_calculator.CalculateL1Error();
+      sup_w_ = errors_calculator.CalculateSupError();
+      mod_w_ = errors_calculator.CalculateModError();
+      l1_sum += l1_w_;
+      sup_sum += sup_w_;
+      mod_sum += mod_w_;
+      */
+
+      ++numberOfErrorCalculations;
+      log("Errors calculated.");
+    }
+
+    if((step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
-      // Error calculations
-      if(step_number_ >= 1000) {
+      double l2 = 0;
 
-        log("Getting error domain.");
-        error_domain = WDE_Algorithm.GetErrorDomain();
+      if(numberOfErrorCalculations > 0){ l2 = l2_sum / numberOfErrorCalculations; }
 
-        log("Getting model plot on windowed.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on windowed.");
-        wde_values = WDE_Algorithm.GetEstimatorValuesOnDomain(error_domain);
+      L2TextLabel.setText("L2   =" + FormatNumberForDisplay(  l2));
 
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-
-        log("Calculating domain length.");
-
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-
-        log("Calculating errors.");
-        l1_w_ = errors_calculator.CalculateL1Error();
-        l2_w_ = errors_calculator.CalculateL2Error();
-        sup_w_ = errors_calculator.CalculateSupError();
-        mod_w_ = errors_calculator.CalculateModError();
-        l1_sum += l1_w_;
-        l2_sum += l2_w_;
-        sup_sum += sup_w_;
-        mod_sum += mod_w_;
-
-        ++numberOfErrorCalculations;
-        log("Errors calculated.");
+      if(!compute_errors){
+        L2TextLabel.setText("");
       }
-
-      // ============ SUMS =========== //
-
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
-      L2TextLabel
-          .setText("L2   =" + FormatNumberForDisplay(
-              l2_sum / numberOfErrorCalculations));
-      supTextLabel
-          .setText("sup  =" + FormatNumberForDisplay(
-              sup_sum / numberOfErrorCalculations));
-      modTextLabel
-          .setText("mod  =" + FormatNumberForDisplay(
-              mod_sum / numberOfErrorCalculations));
-
-      L1aTextLabel
-          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
-      L2aTextLabel
-          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
-      supaTextLabel
-          .setText("supa =" + FormatNumberForDisplay(sup_w_));
-      modaTextLabel
-          .setText("moda =" + FormatNumberForDisplay(mod_w_));
 
       current_coefficients_number = WDE_Algorithm.GetCurrentCoefficientsNumber();
 
@@ -2120,14 +2333,20 @@ void MainWindow::Run1DExperimentWithWDE() {
 
       for(const auto &label : plotLabels) label->updateText();
 
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
+
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      imageName = dirPath + QString::number(step_number_) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600);
   }
 
   log("Experiment finished!");
@@ -2142,12 +2361,25 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
   // Log that application started generating KDE
   // Standard seed was 5625.
-  log("KDE animation with WDE started.");
+  log("KDE animation with SOMKE started.");
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
   step_number_ = 0;
   double sigma = 0;
+
+  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
+  int neurons_number = 100;
+  int epochs_number = 3000;
+  int data_window_size = 500;
+  int max_number_of_som_seq_entries = 1;
+  double beta = 0;
+  double alpha = 1.0;
+
+  double sigma0 = 25.0;
+  double tau1 = 1000 / log(sigma0);
+  double tau2 = 1000.0;
+  double eta0 = 3.0;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -2170,171 +2402,162 @@ void MainWindow::Run1DExperimentWithSOMKE() {
                                             progressionSize,
                                             0,  /* Delay */
                                             new normalDistribution(seedString.toInt(), &alternativeDistributionMean,
-                                                                   &alternativeDistributionStDevs, 55))
+                                                                   &alternativeDistributionStDevs))
                );
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
 
-  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
 
-  log("Attributes data set.");
+  // Synthetic data reader
+  /*
 
-  int sampleSize = ui->lineEdit_sampleSize->text().toInt();
-  int neurons_number = 100;
-  int epochs_number = 3000;
-  int data_window_size = 500;
-  int max_number_of_som_seq_entries = 1;
-  double beta = 0;
-  double alpha = 1.0;
-
-  double sigma0 = 25.0;
-  double tau1 = 1000 / log(sigma0);
-  double tau2 = 1000.0;
-  double eta0 = 3.0;
-
-  QString expNum = "1497 (SOMKE)";
-  this->setWindowTitle("Experiment #" + expNum);
-  QString expDesc = "v=tor klasyczny, fixed threshold, original training"
+   QString expDesc = "assumed data stream, fixed threshold, original training, sz002"
                     ", max_entries=" + QString::number(max_number_of_som_seq_entries) +
                     ", neurons_num=" + QString::number(neurons_number) +
                     ", window_size=" + QString::number(data_window_size) +
                     ", epochs_num= " + QString::number(epochs_number);
-  screen_generation_frequency_ = 10;
+
+   plot_description = "assumed data stream; 1D";
+
+   bool compute_errors = true;
+   // */
+
+  // Text data reader
+  //*
+  ui->lineEdit_iterationsNumber->setText("15000");
+  ui->checkBox_showEstimatedPlot->setChecked(false);
+
+  //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  std::string data_path = "k:\\Data\\cracow_2020_temp.csv"; QString expDesc = "SOMKE, Cracow 2020 temperature, home"; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
+  reader_.reset(new TextDataReader(data_path));
+  bool compute_errors = false;
+  //*/
+
+  int stepsNumber = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Attributes data set.");
+
+  QString expNum = "(inf_sci) (SOMKE)";
+  this->setWindowTitle("Experiment #" + expNum);
+
+  screen_generation_frequency_ = 1;
 
   //QString driveDir = "\\\\beabourg\\private\\"; // WIT PCs
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\Doktorat\\"; // Home
   //QString driveDir = "Y:\\"; // WIT PCs after update
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString driveDir = "D:\\Tests\\";
   QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " ("
                     + expDesc + ")\\";
 
   ClearPlot();
   ResizePlot();
 
-  // Initial screen should only contain exp number (as requested).
-  plotLabel expNumLabel(ui->widget_plot, 0.02, 0.25, "Exp." + expNum);
-  expNumLabel.setFont(QFont("Courier New", 250));
-
   if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-  QString imageName = dirPath + QString::number(0) + ".png";
-
-  log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
-  expNumLabel.setText("");
+  QTime startTime(0, 0, 0);
+  QDateTime dateTime(startDate, startTime);
 
   QVector<std::shared_ptr<plotLabel>> plotLabels = {};
-  double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
+  label_horizontal_offset_ = label_vertical_offset_ = 0.01;
+
+  plotLabel desc_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
+                       plot_description);
+
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
+
+  QVector<plotLabel> date_labels = {};
+  //*
+  if(!compute_errors) {
+    date_labels.push_back(plotLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, ""));
+    label_vertical_offset_ += label_vertical_offset_step_;
+  }
+  //*/
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "i     = ", &step_number_,
+                                                   label_horizontal_offset_, label_vertical_offset_, "t     = ", &step_number_,
                                                    std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
 
-  plotLabels.push_back(std::make_shared<plotLabel>(MainWindow::ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "iw    = "
-                                                                                     + QString::number(
-                                                                                         screen_generation_frequency_)));
-  verticalOffset += verticalStep;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "seed  = " + seedString));
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "Neurons  = ", &(neurons_number),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  /*
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "Seq_max  = ",
-                                                   &(max_number_of_som_seq_entries),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
- */
-
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "win_size = ", &(data_window_size),
-                                                   std::make_shared<plotLabelIntDataPreparator>()));
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "epochs   = ", &(epochs_number),
+                                                   label_horizontal_offset_, label_vertical_offset_, "#neurons = ", &(neurons_number),
                                                    std::make_shared<plotLabelIntDataPreparator>()));
 
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "beta     = ", &(beta),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+                                                   label_horizontal_offset_, label_vertical_offset_, "#epochs  = ", &(epochs_number),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
 
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "alpha    = ", &(alpha),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
-
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "sigma0   = ", &(sigma0),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+                                                   label_horizontal_offset_, label_vertical_offset_, "b        = ", &(data_window_size),
+                                                   std::make_shared<plotLabelIntDataPreparator>()));
 
-  verticalOffset += verticalStep;
-
-  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "eta0     = ", &(eta0),
-                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
-
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += 2 * label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "tau1     = ", &(tau1),
+                                                   label_horizontal_offset_, label_vertical_offset_, "beta     = ", &(beta),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
 
-  verticalOffset += verticalStep;
+  label_vertical_offset_ += label_vertical_offset_step_;
 
   plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
-                                                   horizontalOffset, verticalOffset, "tau2     = ", &(tau2),
+                                                   label_horizontal_offset_, label_vertical_offset_, "alpha    =", &(alpha),
                                                    std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "sigma0   =", &(sigma0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "eta0     =", &(eta0),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "tau1     =", &(tau1),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ += label_vertical_offset_step_;
+
+  plotLabels.push_back(std::make_shared<plotLabel>(ui->widget_plot,
+                                                   label_horizontal_offset_, label_vertical_offset_, "tau2     =", &(tau2),
+                                                   std::make_shared<plotLabelDoubleDataPreparator>()));
+
+  label_vertical_offset_ = 0.75;
+
+  AddConstantLabelToPlot("theoretical");
+  plot_labels_.back()->SetColor(model_plot_pen_.color());
+
+  AddConstantLabelToPlot("SOMKE Estimator");
+  plot_labels_.back()->SetColor(kde_plot_pen_.color());
 
 
   //====================  SECOND COLUMN =================//
 
-  horizontalOffset = 0.20;
-  verticalOffset = 0.01 + 9 * verticalStep;
+  label_horizontal_offset_ = 0.20;
+  label_vertical_offset_ = 0.01 + 9 * label_vertical_offset_step_;
 
   //====================== ERRORS SUM ===================//
 
-  horizontalOffset = 0.87;
-  verticalOffset = 0.01;
+  label_horizontal_offset_ = 0.87;
+  label_vertical_offset_ = 0.75 + label_vertical_offset_step_;
 
-  plotLabel L1TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L1aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L1a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel L2TextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2   = 0");
-  verticalOffset += verticalStep;
-  plotLabel L2aTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "L2a  = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel supTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "sup  = 0");
-  verticalOffset += verticalStep;
-  plotLabel supaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "supa = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
-
-  plotLabel modTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "mod  = 0");
-  verticalOffset += verticalStep;
-  plotLabel modaTextLabel(ui->widget_plot, horizontalOffset, verticalOffset, "moda = 0");
-  verticalOffset += verticalStep;
-  verticalOffset += verticalStep;
+  plotLabel L2TextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "L2   = 0");
+  L2TextLabel.SetColor(kde_plot_pen_.color());
 
   FillDomain(&domain_, nullptr);
   for(const auto &pt : domain_) drawable_domain_.push_back(pt->at(0));
@@ -2343,7 +2566,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   QCoreApplication::processEvents();
 
   int numberOfErrorCalculations = 0;
-  QVector<int> additionalScreensSteps = {1};
+  QVector<int> additionalScreensSteps = {};
 
   /*
   for(int i = 990; i < 1011; ++i){
@@ -2367,7 +2590,7 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   double sup_sum = 0;
   double mod_sum = 0;
 
-  for(step_number_ = 1; step_number_ < stepsNumber; ++step_number_) {
+  for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
     Point stream_value = {};
     reader_->getNextRawDatum(&stream_value);
@@ -2378,81 +2601,75 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
+    // Error calculations
+    if(step_number_ >= 1000 && compute_errors){
+
+      log("Getting error domain.");
+      error_domain = somke_algorithm.divergence_domain_;
+
+      log("Getting model plot on windowed.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      log("Getting KDE plot on windowed.");
+      somke_values = {};
+      for(auto pt : error_domain) {
+        somke_values.push_back(somke_algorithm.GetValue(pt));
+      }
+
+      log("Getting model plot.");
+      model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+
+      log("Calculating domain length.");
+
+      error_domain_length =
+          error_domain[error_domain.size() - 1][0] - error_domain[0][0];
+
+      log("Calculating errors.");
+      //l1_w_ = errors_calculator.CalculateL1Error();
+      l2_w_ = errors_calculator.CalculateL2Error();
+      //sup_w_ = errors_calculator.CalculateSupError();
+      //mod_w_ = errors_calculator.CalculateModError();
+      //l1_sum += l1_w_;
+      l2_sum += l2_w_;
+      //sup_sum += sup_w_;
+      //mod_sum += mod_w_;
+
+      ++numberOfErrorCalculations;
+      log("Errors calculated.");
+    }
+
     if(step_number_ % screen_generation_frequency_ == 0 || additionalScreensSteps.contains(step_number_)) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
 
-      // Error calculations
-      if(step_number_ >= 1000) {
-
-        log("Getting error domain.");
-        error_domain = somke_algorithm.divergence_domain_;
-
-        log("Getting model plot on windowed.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-        log("Getting KDE plot on windowed.");
-        somke_values = {};
-        for(auto pt : error_domain) {
-          somke_values.push_back(somke_algorithm.GetValue(pt));
-        }
-
-        log("Getting model plot.");
-        model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
-
-        log("Calculating domain length.");
-
-        error_domain_length =
-            error_domain[error_domain.size() - 1][0] - error_domain[0][0];
-
-        log("Calculating errors.");
-        l1_w_ = errors_calculator.CalculateL1Error();
-        l2_w_ = errors_calculator.CalculateL2Error();
-        sup_w_ = errors_calculator.CalculateSupError();
-        mod_w_ = errors_calculator.CalculateModError();
-        l1_sum += l1_w_;
-        l2_sum += l2_w_;
-        sup_sum += sup_w_;
-        mod_sum += mod_w_;
-
-        ++numberOfErrorCalculations;
-        log("Errors calculated.");
-      }
-
       // ============ SUMS =========== //
 
-      L1TextLabel
-          .setText("L1   =" + FormatNumberForDisplay(
-              l1_sum / numberOfErrorCalculations));
-      L2TextLabel
-          .setText("L2   =" + FormatNumberForDisplay(
-              l2_sum / numberOfErrorCalculations));
-      supTextLabel
-          .setText("sup  =" + FormatNumberForDisplay(
-              sup_sum / numberOfErrorCalculations));
-      modTextLabel
-          .setText("mod  =" + FormatNumberForDisplay(
-              mod_sum / numberOfErrorCalculations));
+      double l2 = 0;
 
-      L1aTextLabel
-          .setText("L1a  =" + FormatNumberForDisplay(l1_w_));
-      L2aTextLabel
-          .setText("L2a  =" + FormatNumberForDisplay(l2_w_));
-      supaTextLabel
-          .setText("supa =" + FormatNumberForDisplay(sup_w_));
-      modaTextLabel
-          .setText("moda =" + FormatNumberForDisplay(mod_w_));
+      if (numberOfErrorCalculations > 0){ l2 = l2_sum / numberOfErrorCalculations; };
+
+      L2TextLabel.setText("L2   =" + FormatNumberForDisplay(l2));
+
+      if(!compute_errors){
+        L2TextLabel.setText("");
+      }
 
       DrawPlots(&somke_algorithm);
 
       for(const auto &label : plotLabels) label->updateText();
+
+      for(auto i = 0; i < date_labels.size(); ++i) {
+        date_labels[i].setText(QLocale(QLocale::English).toString(dateTime, "dd MMM yyyy, hh:mm"));
+      }
 
       ui->widget_plot->replot();
       QCoreApplication::processEvents();
 
       if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
 
-      imageName = dirPath + QString::number(step_number_) + ".png";
+      QString imageName = dirPath + QString::number(step_number_) + ".png";
       log("Image saved: " + QString::number(ui->widget_plot->savePng(imageName, 0, 0, 1, -1)));
     }
+
+    dateTime = dateTime.addSecs(3600);
   }
 
   log("Experiment finished!");
@@ -2595,4 +2812,463 @@ void MainWindow::AddErrorLabelToPlot(const QString &label, double *value) {
   label_vertical_offset_ += label_vertical_offset_step_;
 }
 
+void MainWindow::RunAccuracyExperiment() {
+
+  auto max_seeds = 1000;
+  //vector<double> samples_numbers = {5, 10, 100, 500, 1000}; // Test
+  vector<double> samples_numbers = {50, 100, 1000, 5000, 10000};
+
+  int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
+
+  FillMeans(&means_);
+  FillStandardDeviations(&standard_deviations_);
+
+  vector<double> alternativeDistributionMean = {0.0};
+  vector<double> alternativeDistributionStDevs = {1.0};
+
+  vector<double> l1_sums = {0, 0, 0, 0, 0};
+  vector<double> l2_sums = {0, 0, 0, 0, 0};
+  vector<double> sup_sums = {0, 0, 0, 0, 0};
+
+  // Seed = 0 is the same as Seed = 0
+  for(auto seed = 1; seed <= max_seeds; ++seed){
+
+    int samples_number_index = 0;
+
+    srand(seed);
+    ui->lineEdit_seed->setText(QString::number(seed));
+
+    target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
+
+    std::shared_ptr<kernelDensityEstimator>
+        estimator(GenerateKernelDensityEstimator(dimensionsNumber));
+    estimator->_shouldConsiderWeights = false;
+
+    std::shared_ptr<distribution>
+        targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+
+    parser_.reset(new distributionDataParser(&attributes_data_));
+
+    reader_.reset(
+        new progressiveDistributionDataReader(targetDistribution.get(),
+                                              0,
+                                              0,  // Delay
+                                              new normalDistribution(seed, &alternativeDistributionMean,
+                                                                     &alternativeDistributionStDevs))
+                 );
+
+    reader_->gatherAttributesData(&attributes_data_);
+    parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+    reservoirSamplingAlgorithm *algorithm =
+        GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
+
+    objects_.clear();
+    stored_medoids_.clear();
+
+    double min_val = NAN;
+    double max_val = NAN;
+
+    double mean = 0;
+    QVector<double> samples = {};
+
+    for(double samples_number : samples_numbers) {
+
+      while(stored_medoids_.size() < samples_number) {
+        auto sample_number = stored_medoids_.size() + 1;
+        algorithm->performSingleStep(&objects_, sample_number);
+
+        std::shared_ptr<cluster> newCluster =
+            std::shared_ptr<cluster>(new cluster(sample_number, objects_.back()));
+        newCluster->setTimestamp(sample_number);
+
+        stored_medoids_.push_back(newCluster);
+
+        double val = stod(objects_[sample_number - 1]->attributesValues["Val0"]);
+
+        if(isnan(min_val)){
+          min_val = max_val = val;
+        }
+
+        if(val > max_val) {
+          max_val = val;
+        }
+
+        if(val < min_val) {
+          min_val = val;
+        }
+
+        samples.push_back(val);
+        mean += val;
+      }
+
+      double std = 0;
+      mean /= samples_number;
+
+      for(auto val : samples) {
+        std = (val - mean) * (val - mean);
+      }
+
+      std /= samples_number;
+      std = sqrt(std);
+
+      pluginSmoothingParameterCounter counter(&samples, 3);
+      auto h = counter.countSmoothingParameterValue();
+
+      estimator->setSmoothingParameters({h});
+      estimator->setClusters(stored_medoids_);
+
+      double domain_length = max_val - min_val;
+      std::vector<std::vector<double>> error_domain = {};
+      double stepSize = domain_length / (1000);
+
+      for(auto val = min_val; val <= max_val; val += stepSize) {
+        error_domain.push_back({val});
+      }
+
+      std::vector<double> model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
+      std::vector<double> kde_values = {};
+
+      for(auto pt : error_domain) {
+        kde_values.push_back(estimator->getValue(&pt));
+      }
+
+      std::vector<double> x = {0.0};
+      qDebug() << "\tEstimator check: KDE(0) = " << estimator->getValue(&x);
+      qDebug() << "\t L1: " << l1_sums;
+      qDebug() << "\t L1: " << l2_sums;
+      qDebug() << "\t L1: " << sup_sums;
+
+      ErrorsCalculator errors_calculator(&model_values, &kde_values, &error_domain, &domain_length);
+
+      l1_sums[samples_number_index] += errors_calculator.CalculateL1Error();
+      l2_sums[samples_number_index] += errors_calculator.CalculateL2Error();
+      sup_sums[samples_number_index] += errors_calculator.CalculateSupError();
+
+      ++samples_number_index;
+    }
+
+    qDebug() << "Saving to file.";
+
+    std::ofstream outfile;
+
+    outfile.open("results.txt");
+
+    outfile << "Seed " << seed << "\n\tl1_sums = [";
+
+    for(auto val : l1_sums){
+      outfile << val << ", ";
+    }
+
+    outfile << "]\n\tl2_sums = [";
+
+    for(auto val : l2_sums){
+      outfile << val << ", ";
+    }
+
+    outfile << "]\n\tSup = [";
+
+    for(auto val : sup_sums){
+      outfile << val << ", ";
+    }
+
+    outfile << "]";
+
+    outfile.close();
+  }
+
+  std::ofstream outfile;
+
+  // Average errors
+  for(auto i = 0; i < samples_numbers.size(); ++i){
+    l1_sums[i] /= max_seeds;
+    l2_sums[i] /= max_seeds;
+    sup_sums[i] /= max_seeds;
+  }
+
+  outfile.open("results.txt"); // append instead of overwrite
+
+  outfile << "Results\n\tl1_sums = [";
+
+  for(auto val : l1_sums){
+    outfile << val << ", ";
+  }
+
+  outfile << "]\n\tl2_sums = [";
+
+  for(auto val : l2_sums){
+    outfile << val << ", ";
+  }
+
+  outfile << "]\n\tSup = [";
+
+  for(auto val : sup_sums){
+    outfile << val << ", ";
+  }
+
+  outfile << "]";
+
+  outfile.close();
+
+  log("Accuracy experiment finished.");
+}
+
+void MainWindow::run_3d_experiment() {
+
+  log("Start pushed!");
+  // Delay so that
+  QTime dieTime= QTime::currentTime().addSecs(0);
+  while (QTime::currentTime() < dieTime) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
+  log("3D Experiment start.");
+  bool radial = false;
+
+  //curve.setSamples( points );
+  //curve.attach( contour_plot_ );
+
+  // Initially these vectors were used in errors computation only. We now also use them for the spectrogram.
+  QVector<double> error_xs = {};
+  QVector<double> error_ys = {};
+  QVector<double> error_zs = {};
+  std::vector<double> model_function_values = {};
+  std::vector<double> estimator_values = {};
+  std::vector<std::vector<double>> error_domain = {};
+
+  screen_generation_frequency_ = 10;
+  int seed = ui->lineEdit_seed->text().toInt();
+  int m0 = ui->lineEdit_sampleSize->text().toInt();
+
+  // Automatic dimension update
+  if(ui->spinBox_dimensionsNumber->value() == 1){
+    ui->spinBox_dimensionsNumber->setValue(3);
+    ui->spinBox_dimensionsNumber->editingFinished();
+  }
+
+  // Add clusters_ to the estimator
+  means_ = {std::make_shared<std::vector<double >>()};
+  means_.back()->push_back(0);
+  means_.back()->push_back(0);
+  means_.back()->push_back(0);
+
+  standard_deviations_ = {std::make_shared<std::vector<double >>()};
+  standard_deviations_.back()->push_back(1);
+  standard_deviations_.back()->push_back(1);
+  standard_deviations_.back()->push_back(1);
+
+  auto densityFunction =
+      new multivariateNormalProbabilityDensityFunction(means_.back().get(), standard_deviations_.back().get(), 0);
+
+  // Create estimator object
+  std::shared_ptr<kernelDensityEstimator>
+      estimator(GenerateKernelDensityEstimator(3, radial));
+
+  estimator->_shouldConsiderWeights = true;
+
+  std::shared_ptr<distribution> targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_));
+  std::vector<double> meansForDistribution = {0, 0, 0};
+  std::vector<double> stDevsForDistribution = {1, 1, 1};
+
+  parser_.reset(new distributionDataParser(&attributes_data_));
+
+  QString expNum = "R104 (3D); Product; x move only";
+  QString pc_id = "sz246";
+  int drawing_start_step = 1750;
+  int errors_calculation_start_step = drawing_start_step;
+
+  bool should_compute_errors = true;
+
+  // Prepare the reader
+  reader_.reset(new progressiveDistributionDataReader(targetDistribution.get(), 0,0, new normalDistribution(0, &meansForDistribution, &stDevsForDistribution)));
+
+  // Only to remove problems initialize the date
+  QTime data_start_time(0, 0, 0); QDate data_start_date(2019, 10, 1); QDateTime data_date_time(data_start_date, data_start_time);
+
+   // Multiple instructions in one line, for simplicity
+  QString experiment_description = "assumed data stream; 3D"; QString expDesc = "assumed data stream 3D, " + pc_id;
+
+  reader_->gatherAttributesData(&attributes_data_);
+  parser_->setAttributesOrder(reader_->getAttributesOrder());
+
+  reservoirSamplingAlgorithm *samplingAlgorithm =
+      GenerateReservoirSamplingAlgorithm(reader_.get(), parser_.get());
+
+  objects_.clear();
+  clusters_ = &stored_medoids_;
+  clusters_->clear();
+
+  int pluginRank = 3;
+  groupingThread gt(&stored_medoids_, parser_);
+
+  derivative_estimator_.reset(GenerateKernelDensityEstimator(2, radial));
+  enhanced_kde_.reset(GenerateKernelDensityEstimator(2, radial));
+
+  DESDA DESDAAlgorithm(
+      estimator,
+      derivative_estimator_,
+      enhanced_kde_,
+      samplingAlgorithm,
+      clusters_,
+      ui->lineEdit_rarity->text().toDouble(), pluginRank
+  );
+
+  // Start the test
+  step_number_ = 0;
+
+  time_t startTime, endTime;
+
+  l2_n_ = 0;
+  double actual_l2 = 0;
+  int errorCalculationsNumber = 0;
+  double sum_l2 = 0.0730053 * errors_calculation_start_step / 10;
+
+  double domain_area = 0;
+
+  ErrorsCalculator errors_calculator(&model_function_values, &estimator_values, &error_domain, &domain_area);
+
+  // Prepare image location.
+  this->setWindowTitle("Experiment #" + expNum);
+  QString driveDir = "Y:\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Test\\"; // Home
+  //QString driveDir = "d:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\";
+  QString dirPath = driveDir + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
+  //QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
+  if(!QDir(dirPath).exists()) QDir().mkdir(dirPath);
+
+  int steps_number = ui->lineEdit_iterationsNumber->text().toInt();
+
+  log("Experiment started.");
+  for(step_number_ = 1; step_number_ <= steps_number; ++step_number_) {
+
+    log("New step.");
+    startTime = time(nullptr);
+
+    log("Performing new step.");
+    DESDAAlgorithm.performStep();
+    log("Step performed.");
+
+    bool compute_errors = (step_number_ > errors_calculation_start_step) && should_compute_errors && (step_number_ % screen_generation_frequency_ == 0);
+    bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step);
+
+    log("Estimator preparation.");
+    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    log("Estimator preparation finished.");
+
+    // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
+    if(compute_errors || draw_plot) {
+      log("Computing domains.");
+      log(compute_errors);
+
+      error_xs = DESDAAlgorithm.getErrorDomain(0);
+      error_ys = DESDAAlgorithm.getErrorDomain(1);
+      error_zs = DESDAAlgorithm.getErrorDomain(2);
+
+      // 3D error domain generation
+      error_domain.clear();
+
+      for(auto x : error_xs){
+        for(auto y: error_ys){
+          for(auto z: error_zs){
+            error_domain.push_back({x, y, z});
+          }
+        }
+      }
+
+      log("Computing values of domains.");
+      model_function_values = GetFunctionsValueOnDomain(densityFunction, error_domain);
+      estimator_values = GetFunctionsValueOnDomain(estimator.get(), error_domain);
+      log("Values computation finished.");
+
+
+      log("Save data to file");
+      std::ofstream file;
+      std::string file_path = (dirPath + QString::number(step_number_) + ".csv").toStdString();
+
+      std::cout << "Saving to file: " << file_path << "\n";
+
+      file.open(file_path);
+
+      std::string lines = "";
+
+      for(int i = 0; i < model_function_values.size(); ++i){
+        lines +=
+            std::to_string(error_domain[i][0]) + ";" +
+            std::to_string(error_domain[i][1]) + ";" +
+            std::to_string(error_domain[i][2]) + ";" +
+            std::to_string(model_function_values[i]) + ";" +
+            std::to_string(estimator_values[i]) + "\n";
+      }
+
+      file << lines;
+      file.close();
+
+      log("Values saved.");
+    }
+
+    // Error calculation
+    //*
+    if(compute_errors) {
+      log("Error calculation started.");
+      //++errorCalculationsNumber;
+      errorCalculationsNumber = step_number_ / screen_generation_frequency_;
+
+      domain_area = Calculate2DDomainArea(error_domain);
+
+      auto zLen = error_domain[error_domain.size() - 1][2] - error_domain[0][2];
+
+      domain_area *= zLen;
+
+
+      actual_l2 = errors_calculator.CalculateL2Error();
+      sum_l2 += actual_l2;
+      l2_n_ = sum_l2 / errorCalculationsNumber;
+
+      log("Save data to file");
+
+      std::ofstream file;
+      file.open((dirPath + "errors" + ".csv").toStdString(), std::ios_base::app);
+      file << QString::number(l2_n_).toStdString() << "\n";
+      file.close();
+
+      log("Error calculation finished.");
+    }
+    //*/
+    if(should_compute_errors) {
+      densityFunction->setMeans(*means_.back().get());
+    }
+
+    log("Restoring weights.");
+    DESDAAlgorithm.restoreClustersCWeights();
+
+    endTime = time(nullptr);
+
+    data_date_time = data_date_time.addSecs(3600); // Add hour to the date
+
+    log("Step time: " + QString::number(endTime - startTime) + " s");
+  }
+
+  log("Done!");
+}
+
+
+void MainWindow::on_toolButton_findDataStream_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setViewMode(QFileDialog::Detail);
+
+    QStringList fileNames;
+    if (dialog.exec()) {
+        fileNames = dialog.selectedFiles();
+    }
+
+    if(fileNames.isEmpty()){
+        return;
+    }
+
+    QString fileName = fileNames[0];
+
+    this->ui->label_dataStream->setText(fileName);
+}
 

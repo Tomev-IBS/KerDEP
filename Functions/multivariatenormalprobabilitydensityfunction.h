@@ -7,7 +7,7 @@
 class multivariateNormalProbabilityDensityFunction : public function
 {
     public:
-        multivariateNormalProbabilityDensityFunction(vector<double>* means, vector<double>* stDevs, int covarianceCoefficient = 0);
+        multivariateNormalProbabilityDensityFunction(vector<double>* means, vector<double>* stDevs, double covarianceCoefficient = 0);
 
         double getValue(point* arguments);
         void setMeans(const vector<double> &newMeans);

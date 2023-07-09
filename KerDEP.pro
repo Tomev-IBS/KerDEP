@@ -20,19 +20,39 @@ if(exists(k:/Libs/)){
     INCLUDEPATH += k:/Libs/Qwt-6.1.5/include/
     INCLUDEPATH += k:/Libs/Qwt-6.1.5/lib/
     INCLUDEPATH += k:/Libs/Qwt-6.1.5/
-    INCLUDEPATH += k:/Libs/boost_1_75_0/
-    INCLUDEPATH += k:/Libs/knnl/include/
     LIBS += -L "k:/Libs/Qwt-6.1.5/lib/" -lqwt
+
+    INCLUDEPATH += k:/Libs/boost_1_75_0/
+
+    INCLUDEPATH += k:/Libs/knnl/include/
+
+    INCLUDEPATH += k:/Libs/armadillo-11.4.3/include/
+
+    LIBS += \
+        -Lk:/Libs/OpenBLAS_0.3.21/lib/ \
+        -llibopenblas
 }
 
 if(exists(y:/Code/)){
-    INCLUDEPATH += c:/Qwt-6.1.5/include/
-    INCLUDEPATH += c:/Qwt-6.1.5/lib/
-    INCLUDEPATH += c:/Qwt-6.1.5/
+    INCLUDEPATH += y:/Qwt-6.1.5/include/
+    INCLUDEPATH += y:/Qwt-6.1.5/lib/
+    INCLUDEPATH += y:/Qwt-6.1.5/
+    LIBS += -L "y:/Qwt-6.1.5/lib/" -lqwt
+
     INCLUDEPATH += y:/boost_1_75_0/
+
     INCLUDEPATH += y:/knnl/include/
-    LIBS += -L "c/Qwt-6.1.5/lib/" -lqwt
+
+    INCLUDEPATH += y:/armadillo-11.4.3/include/
+
+    LIBS += \
+        -Ly:/OpenBLAS_0.3.21/lib/ \
+        -llibopenblas
 }
+
+
+
+
 
 
 INCLUDEPATH += $$PWD/ClusterKernelWrappers/
@@ -69,7 +89,6 @@ SOURCES     +=  main.cpp\
                 Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp \
                 Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp \
                 Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp \
-                DESDAReservoir.cpp \
                 Reservoir_sampling/textDataReader.cpp \
                 SOMKE/src/SOMKEAlgorithm.cpp \
                 SOMKEWrappers/MergingStrategies/somkeFixedMemoryMergingStrategy.cpp \
@@ -92,10 +111,12 @@ SOURCES     +=  main.cpp\
                 Libraries/matrixoperationslibrary.cpp \
                 Functions/complexfunction.cpp \
                 Distributions/complexdistribution.cpp \
+                Distributions/alternatingSplittingDistribution.cpp \
                 Reservoir_sampling/biasedReservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/distributiondataparser.cpp \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.cpp \
                 Reservoir_sampling/progressivedistributiondatareader.cpp \
+                  Reservoir_sampling/sinusoidalDistributionDataReader.cpp \
                 Reservoir_sampling/distributionDataSample.cpp \
                 KDE/weightedSilvermanSmoothingParameterCounter.cpp \
                 groupingThread/groupingThread.cpp \
@@ -115,7 +136,8 @@ SOURCES     +=  main.cpp\
                 groupingThread/kMeansAlgorithm.cpp \
                 DESDA.cpp \
                 StationarityTests/kpssstationaritytest.cpp \
-                UI/plotLabel.cpp
+                UI/plotLabel.cpp \
+                KDE/WeightedCVBandwidthSelector.cpp
 
 HEADERS     +=  mainwindow.h \
                 Benchmarking/errorsCalculator.h \
@@ -142,7 +164,6 @@ HEADERS     +=  mainwindow.h \
                 Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h \
                 Compressed_Cumulative_WDE_Wrappers/math_helpers.h \
                 Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h \
-                DESDAReservoir.h \
                 QCustomPlot/qcustomplot.h \
                 Functions/function.h \
                 KDE/kerneldensityestimator.h \
@@ -160,6 +181,7 @@ HEADERS     +=  mainwindow.h \
                 Libraries/matrixoperationslibrary.h \
                 Functions/complexfunction.h \
                 Distributions/complexdistribution.h \
+                Distributions/alternatingSplittingDistribution.h \
                 Reservoir_sampling/biasedReservoirSamplingAlgorithm.h \
                 Reservoir_sampling/dataParser.h \
                 Reservoir_sampling/dataReader.h \
@@ -167,6 +189,7 @@ HEADERS     +=  mainwindow.h \
                 Reservoir_sampling/distributiondataparser.h \
                 Reservoir_sampling/basicReservoirSamplingAlgorithm.h \
                 Reservoir_sampling/progressivedistributiondatareader.h \
+                Reservoir_sampling/sinusoidalDistributionDataReader.h \
                 Reservoir_sampling/distributionDataSample.h \
                 KDE/smoothingParameterCounter.h \
                 KDE/weightedSilvermanSmoothingParameterCounter.h \
@@ -217,7 +240,8 @@ HEADERS     +=  mainwindow.h \
                 DESDA.h \
                 StationarityTests/kpssstationaritytest.h \
                 StationarityTests/i_stationaritytest.h \
-                UI/plotLabel.h
+                UI/plotLabel.h \
+                KDE/WeightedCVBandwidthSelector.h
 
 FORMS       +=  mainwindow.ui
 

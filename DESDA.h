@@ -18,14 +18,12 @@ class DESDA
     DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
           std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
           std::shared_ptr<kernelDensityEstimator> enchancedKDE,
-          double weightModifier,
           reservoirSamplingAlgorithm *samplingAlgorithm,
           std::vector<std::shared_ptr<cluster>> *clusters,
-          std::vector<std::shared_ptr<cluster>> *storedMedoids,
-          double desiredRarity, double pluginRank=2);
+          double desiredRarity, double pluginRank=2, int sgmKPSSMultiplicity = 7);
 
     void performStep();
-    QVector<double> getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension=0);
+    QVector<double> getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension=0);
     std::vector<double> getEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension=0);
     std::vector<double> getWeightedKDEValues(const vector<vector<double>> *X, int dimension= 0);
     std::vector<double> getClustersWeights(const std::vector<std::shared_ptr<cluster>> &clusters);
@@ -33,9 +31,6 @@ class DESDA
     vector<double> getWindowKDEValues(const vector<vector<double>> *X, int dimension=0);
     std::vector<double> getKDEValues(const std::vector<std::vector<double>> *X, int dimension=0);
 
-    double getAverageOfFirstMSampleValues(int M);
-    double getStdDevOfFirstMSampleValues(int M);
-    cluster getEmECluster();
     double getStationarityTestValue();
 
     // 2D Plot changes
@@ -43,14 +38,7 @@ class DESDA
     std::vector<double> _unmodifiedCWeightsOfClusters = {};
     void restoreClustersCWeights();
 
-    stationarityTestPtr stationarityTest;
     std::vector<stationarityTestPtr> stationarityTests = {};
-
-    double _u_i = 0.0;
-
-    // Prediction
-    double _avg = 0;
-    double _stDev = 1;
 
     // New prediction
     double _beta0 = 0.7;
@@ -63,11 +51,6 @@ class DESDA
 
     int _kpssM = 0; // m_Eta
 
-    // From 31 XI 2019 mail
-    // Delta update parameters
-    double _s = -4.0;
-    double _mu = 1000;
-
     // Rare elements
     double _r = 0.05;
     double _quantileEstimator = 0;
@@ -75,20 +58,14 @@ class DESDA
     int _trendsNumber = 0;
     std::vector<double> getRareElementsEnhancedKDEValues(const std::vector<vector<double>> *X, int dimension=0);
     std::vector<std::shared_ptr<cluster>> getAtypicalElements();
-    QVector<std::pair<double, double> > getAtypicalElementsValuesAndDerivatives();
+    QVector<std::pair<std::vector<double>, double> > getAtypicalElementsValuesAndDerivatives();
 
     // General purpose
     int _sgmKPSSPercent = 25;
     double _sgmKPSS = 0;
 
-    // Analysis
-    double getMaxAbsAOnLastKPSSMSteps();
-
     /** According to 2020 first article **/
     std::vector<int> _examinedClustersIndices = {};
-    std::vector<double> _maxAbsAs = {};
-    std::vector<double> _maxAbsDerivatives = {};
-    std::vector<double> _examinedClustersAs = {};
     std::vector<double> _examinedClustersDerivatives = {};
     std::vector<double> _examinedClustersWStar = {};
     std::vector<double> _examinedClustersWStar2 = {};
@@ -98,24 +75,39 @@ class DESDA
     QVector<double> getErrorDomain(int dimension=0);
     QVector<double> getWindowedErrorDomain(int dimension=0);
 
-    double _averageMaxDerivativeValueInLastMASteps = 0;
     double _maxAbsDerivativeValueInCurrentStep = 0;
-    int _mA = 100;
 
     std::vector<double> _smoothingParametersVector;
     std::vector<double> _windowedSmoothingParametersVector;
     double _smoothingParameterEnhancer;
 
+    // Prognosis error
+    double e_ = 0;
+    std::vector<double> statistics_ = {};
+    double avg = 0;
+    double std = 0;
+    // DEBUG
+      //QVector<double> vals;
+      //QVector<double> progs;
+      //QVector<double> stats;
+      //QVector<double> errors;
+    // DEBUG
+
+    const double r010_ = 1.64;
+    const double r005_ = 1.96;
+    const double r001_ = 2.58;
+
+
+    // Weighted C parameter
+    bool compute_weighted_plugin = true;
+
+    std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
+
   protected:
 
     int _stepNumber = 0;
-    int _numberOfClustersForGrouping = 100;
-    int _medoidsNumber = 50;
     int _pluginRank = 2;
-
-    double _weightModifier = 0.0;
-    double _smoothingParameterMultiplier = 1.0;
-    double _positionalSecondGradeEstimator = 0.0;
+    int error_domain_points_number_ = 500;
 
     std::shared_ptr<kernelDensityEstimator> _estimator;
     std::shared_ptr<kernelDensityEstimator> _estimatorDerivative;
@@ -125,27 +117,23 @@ class DESDA
     std::vector<std::shared_ptr<cluster>> _clustersForWindowed;
     std::vector<std::shared_ptr<sample>> _objects;
 
-    std::vector<std::shared_ptr<cluster>> *_storedMedoids;
-    std::vector<std::shared_ptr<cluster>> _uncommonClusters;
-
-    // Random deletion
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> dist;
-    double _d = 0;
-
     void updateWeights();
     void updateExaminedClustersIndices();
-    std::vector<std::shared_ptr<cluster>> getClustersForEstimator();
     std::vector<std::shared_ptr<cluster>> getClustersForWindowedEstimator();
     void countKDEValuesOnClusters();
     void updatePrognosisParameters();
     void countDerivativeValuesOnClusters();
     void updateM();
-    void updateMaxAbsAVector();
-    double getCurrentMaxAbsA();
-    void updateMaxAbsDerivativeVector();
-    double getCurrentMaxAbsDerivativeValue();
     void updateMaxAbsDerivativeInCurrentStep();
+
+    // Prognosis error
+    std::vector<cluster> prognosis_clusters_ = {};
+    cluster prognosis_cluster_;
+    std::vector<std::vector<double>> prognosis_errors_ = {};
+    int max_prognosis_error_clusters_ = 1;
+    vector<double> GetPrognosisErrors();
+    double ComputePrognosisError(const std::vector<double> &errors) const;
+    double ComputeStatistics(const std::vector<double> &errors) const;
 
     // Domain reduction
     std::vector<double> getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster>> clusters, int dimension=0);
@@ -153,6 +141,7 @@ class DESDA
     double getDomainMaxValue(const std::vector<double> &values, double h);
 
     std::vector<double> calculateH(const std::vector<clusterPtr> &clusters);
+    std::vector<double> computeRadialH(const std::vector<clusterPtr> &clusters) const;
 
     void enhanceWeightsOfUncommonElements();
     std::vector<double> getVectorOfAcceleratedKDEValuesOnClusters();
@@ -161,6 +150,7 @@ class DESDA
 
     // Only one of these parameters should be left, but I need this for
     // more accurate experiments preparation.
+    /*
     std::map<int, std::vector<double>> _sgmKPSSParameters = {
       {10, {0.298, 2.417}}, {11, {0.329, 2.435}}, {12, {0.360, 2.466}},
       {13, {0.393, 2.487}}, {14, {0.423, 2.513}}, {15, {0.457, 2.535}},
@@ -173,6 +163,20 @@ class DESDA
       {34, {1.156, 3.051}}, {35, {1.196, 3.081}}, {36, {1.240, 3.113}},
       {37, {1.283, 3.145}}, {38, {1.327, 3.178}}, {39, {1.370, 3.209}},
       {40, {1.416, 3.243}}
+    };
+    */
+    // New parameters, for defense experiments
+    int _sgmKPSSMultiplicity = 7;
+    std::map<int, std::vector<double>> _sgmKPSSParameters = {
+        {9, {0.298, 2.417}},
+        {8, {0.625, 2.659}},
+        {7, {0.995, 2.932}},
+        {6, {1.416, 3.243}},
+        {5, {1.906, 3.606}},
+        {4, {2.502, 4.046}},
+        {3, {3.262, 4.608}},
+        {2, {4.322, 5.392}},
+        {1, {6.117, 6.718}}
     };
 };
 

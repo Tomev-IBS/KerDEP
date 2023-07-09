@@ -20,9 +20,12 @@ class QwtContourPlotUI
     void SetErrorsPrinting(const bool &should_print_errors);
   private:
     QwtText _leftColumnText;
-    QwtText _coloredColumn;
-    QwtPlotTextLabel _coloredColumnLabel;
+    QwtText colored_column_text_;
+    QwtText right_column_;
+
+    QwtPlotTextLabel colored_column_label_;
     QwtPlotTextLabel _leftColumnLabel;
+    QwtPlotTextLabel right_column_label_;
 
     bool should_print_errors = true;
 
@@ -48,6 +51,7 @@ class QwtContourPlotUI
     DESDA *_DESDAAlgorithm;
 
     void updateLeftColumnText();
+    void updateColoredColumnText();
     void updateRightColumnText();
     QString formatNumberForDisplay(const double& number);
 };

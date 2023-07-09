@@ -1,5 +1,6 @@
 #include "DESDA.h"
 #include "KDE/pluginsmoothingparametercounter.h"
+#include "KDE/WeightedCVBandwidthSelector.h"
 
 #include <QTime>
 #include <QCoreApplication>
@@ -13,15 +14,13 @@
 DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
              std::shared_ptr<kernelDensityEstimator> enchancedKDE,
-             double weightModifier,
              reservoirSamplingAlgorithm *samplingAlgorithm,
              std::vector<std::shared_ptr<cluster> > *clusters,
-             std::vector<std::shared_ptr<cluster> > *storedMedoids,
-             double desiredRarity, double pluginRank) :
-    _weightModifier(weightModifier), _samplingAlgorithm(samplingAlgorithm),
+             double desiredRarity, double pluginRank, int sgmKPSSMultiplicity) :
+    _samplingAlgorithm(samplingAlgorithm),
     _estimatorDerivative(estimatorDerivative), _estimator(estimator),
-    _clusters(clusters), _storedMedoids(storedMedoids), _r(desiredRarity),
-    _enhancedKDE(enchancedKDE), _pluginRank(pluginRank) {
+    _clusters(clusters), _r(desiredRarity),
+    _enhancedKDE(enchancedKDE), _pluginRank(pluginRank), _sgmKPSSMultiplicity(sgmKPSSMultiplicity) {
   _objects.clear();
 
   _maxM = _samplingAlgorithm->getReservoidMaxSize(); // _maxM should be like 1000 + 100 for every mode
@@ -29,19 +28,23 @@ DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
   _m = _maxM;
 
   _minM = _maxM / 10; // This works for both 2D and 1D experiments with default settings.
+  max_prognosis_error_clusters_ = 600;
   _kpssM = 600; // This is independent of maxM. Normally 500.
 
   _sgmKPSS = -1;
   _sgmKPSSPercent = 30;
   _stepNumber = 1;
-  _smoothingParameterEnhancer = 0.9;
+  _smoothingParameterEnhancer = 1;
+
+  prognosis_cluster_ = cluster(-1);
+  error_domain_points_number_ = 1001;
 
   for(int i = 0; i < estimator->getDimension(); ++i) {
     stationarityTests.push_back(std::make_shared<KPSSStationarityTest>(_kpssM));
+    prognosis_clusters_.push_back(cluster(-1));
+    prognosis_errors_.push_back(std::vector<double>());
   }
 
-  generator = std::default_random_engine(5625); // Seed should be as in UI, can be passed to constructor
-  dist = std::uniform_real_distribution<double>(0.0, 1.0);
 }
 
 int sgn(double val) {
@@ -56,40 +59,11 @@ double sum(std::vector<double> vals) {
   return valsSum;
 }
 
-double absSum(std::vector<double> vals) {
-  double valsSum = 0.0;
-
-  for(auto val : vals) valsSum += fabs(val);
-
-  return valsSum;
-}
-
-double stDev(std::vector<double> vals) {
-  int m = vals.size();
-
-  if(m < 2) return 1.0;
-
-  double sigma = 0.0;
-
-  sigma = sum(vals);
-  sigma *= sigma / m;
-
-  double sqrSum = 0;
-
-  for(auto val : vals) sqrSum += val * val;
-
-  sigma = sqrSum - sigma;
-
-  sigma /= m - 1;
-
-  return std::sqrt(sigma);
-}
-
 double sigmoid(double x) {
   return 1.0 / (1.0 + exp(-x));
 }
 
-double average(std::vector<double> values) {
+double average(const std::vector<double> &values) {
   double average = 0;
 
   for(auto val : values)
@@ -100,7 +74,28 @@ double average(std::vector<double> values) {
   return average;
 }
 
+double var(const std::vector<double> &v){
+  auto n = v.size();
+
+  if(n < 2) { return 0; }
+
+  double var = 0;
+
+  for(auto val : v){ var += val; }
+
+  var *= -var / n;
+
+  for(auto val : v){ var += val * val; }
+
+  return var / (n - 1);
+}
+
+double stdev(const std::vector<double> &v){
+  return std::pow(var(v), 0.5);
+}
+
 void DESDA::performStep() {
+
   // Making place for new cluster
   while(_clustersForWindowed.size() >= _maxM) {
     _clustersForWindowed.pop_back();
@@ -118,31 +113,13 @@ void DESDA::performStep() {
       std::shared_ptr<cluster>(new cluster(_stepNumber, _objects.back()));
   newCluster->setTimestamp(_stepNumber);
 
-  // KPSS count
-  /*
-  std::vector<double> values = {};
-
-
-  for(size_t i = 0; i < newCluster->dimension(); ++i){
-    values.push_back(stod(newCluster->getObject()->attributesValues["Val" + std::to_string(i)]));
-  }
-
-  for(size_t i = 0; i < _clusters->size() && values.size() < _kpssM; ++i) {
-    auto c = (*_clusters)[i];
-    values.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
-  }
-   */
-
   for(int i = 0; i < stationarityTests.size(); ++i) {
     std::string attribute = (*newCluster->getObject()->attirbutesOrder)[i];
     stationarityTests[i]->addNewSample(std::stod(newCluster->getObject()->attributesValues[attribute]));
   }
 
-
-  _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSPercent][0] * getStationarityTestValue()
-                     - _sgmKPSSParameters[_sgmKPSSPercent][1]);
-  _d = _sgmKPSS;
-
+  _sgmKPSS = sigmoid(_sgmKPSSParameters[_sgmKPSSMultiplicity][0] * getStationarityTestValue()
+                     - _sgmKPSSParameters[_sgmKPSSMultiplicity][1]);
   // Beta0 update
   _beta0 = 2.0 / 3 * _sgmKPSS; // According to formula from 13 IV 2020
 
@@ -153,42 +130,110 @@ void DESDA::performStep() {
   updateM();
   updateExaminedClustersIndices(); // For labels update
 
-  _v = _m > _clusters->size() ? 1.0 - 1.0 / _clusters->size() : 1.0 - 1.0 / _m;
+  // DEBUG
+  //ms.push_back(_m);
+  //qDebug() << "ms: " << ms;
+  // DEBUG
+
+  _v =  1.0 - 1.0 / _minM;
   cluster::_deactualizationParameter = _v;
 
-  // Calculate smoothing parameterers
-  _windowedSmoothingParametersVector = calculateH(*_clusters);
+  // Calculate smoothing parameters
+  compute_weighted_plugin = false;
+  if(_estimator->_radial){
+    _windowedSmoothingParametersVector = computeRadialH(*_clusters);
+  } else {
+    _windowedSmoothingParametersVector = calculateH(*_clusters);
+  }
+
   auto currentClusters = getClustersForEstimator();
-  _smoothingParametersVector = calculateH(currentClusters);
 
   // Update weights
   updateWeights();
+  compute_weighted_plugin = true;
+  if(_estimator->_radial) {
+    _smoothingParametersVector = computeRadialH(currentClusters);
+    qDebug() << "Radial h results: " << _smoothingParametersVector[0];
+  } else {
+    _smoothingParametersVector = calculateH(currentClusters);
+  }
+
+  // DEBUG
+  /*
+  for(auto c : currentClusters){
+    qDebug() << "Cluster: " << std::stod(c->getRepresentative()->attributesValues["Val0"]) << ", w = " << c->getCWeight();
+  }
+  //*/
+  // DEBUG
 
   qDebug() << "Reservoir size in step " << _stepNumber
            << " is: " << currentClusters.size() << ".";
 
   // Update clusters prognosis
   countKDEValuesOnClusters();
+
+  for(size_t i = 0; i < stationarityTests.size(); ++i){
+    std::string attr_key = "Val" + std::to_string(i);
+    prognosis_clusters_[i]._currentKDEValue = std::stod(_objects.back()->attributesValues[attr_key]);
+    // DEBUG //
+      //vals.push_back(std::stod(_objects.back()->attributesValues[attr_key]));
+    // DEBUG //
+  }
+
   updatePrognosisParameters();
   countDerivativeValuesOnClusters();
-
-  // Update a
-  updateMaxAbsAVector();
-  updateMaxAbsDerivativeVector();
   updateMaxAbsDerivativeInCurrentStep();
+
+  statistics_.clear();
+
+  for(size_t i = 0; i < prognosis_errors_.size(); ++i){
+
+    while(prognosis_errors_[i].size() >= max_prognosis_error_clusters_){
+      prognosis_errors_[i].pop_back();
+    }
+
+    if(_stepNumber != 1) {
+      prognosis_errors_[i].insert(prognosis_errors_[i].begin(),
+                                  prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction());
+    }
+
+    // DEBUG //
+      // qDebug() << prognosis_clusters_[i]._currentKDEValue << " - " << prognosis_clusters_[i].getLastPrediction() << " = " << prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction();
+      // errors.push_back(prognosis_clusters_[i]._currentKDEValue - prognosis_clusters_[i].getLastPrediction());
+      // progs.push_back(prognosis_clusters_[i].getLastPrediction());
+    // DEBUG //
+
+    e_ = prognosis_errors_[i].empty() ? 0 : prognosis_errors_[i][0];
+    statistics_.push_back(ComputeStatistics(prognosis_errors_[i]));
+    // DEBUG //
+      // stats.push_back(statistics_[0]);
+    // DEBUG //
+
+    avg = average(prognosis_errors_[i]);
+    std = stdev(prognosis_errors_[i]);
+
+    //prognosis_cluster_.updatePrediction();
+    prognosis_clusters_[i].updatePrediction();
+  }
 
   _examinedClustersDerivatives.clear();
   for(auto index : _examinedClustersIndices) {
     if(index < 0) {
       _examinedClustersDerivatives.push_back(0);
-    }
-    else {
+    } else {
       _examinedClustersDerivatives.push_back(currentClusters[index]->_currentDerivativeValue);
     }
   }
 
   // Update uncommon elements
   _r = 0.01 + 0.09 * _sgmKPSS;
+
+  // DEBUG //
+    //qDebug() << "Progs: " << progs;
+    //qDebug() << "Vals: " << vals;
+    //qDebug() << "Stats: " << stats;
+    //qDebug() << "\n\nErr: " << prognosis_errors_[0];
+  // DEBUG //
 
   ++_stepNumber;
 }
@@ -203,7 +248,7 @@ void DESDA::updateWeights() {
   }
 
   for(int i = 0; i < consideredClusters.size(); ++i) {
-    double newWeight = 2 * (1.0 - i * _sgmKPSS / m);
+    double newWeight = 2 * pow(1.0 - i * _sgmKPSS / m, 1);
     consideredClusters[i]->setCWeight(newWeight);
     for(int j = 0; j < std::count(_examinedClustersIndices.begin(), _examinedClustersIndices.end(), i); ++j)
       _examinedClustersWStar.push_back(newWeight);
@@ -238,12 +283,6 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator() {
 
 std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator() {
   return _clustersForWindowed;
-
-  std::vector<std::shared_ptr<cluster>> consideredClusters = {};
-
-  for(auto c : *_clusters) consideredClusters.push_back(c);
-
-  return consideredClusters;
 }
 
 /** DESDA::enhanceWeightsOfUncommonElements
@@ -298,9 +337,13 @@ void DESDA::enhanceWeightsOfUncommonElements() {
 void DESDA::countKDEValuesOnClusters() {
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
-  _estimator->setClusters(consideredClusters);
 
+  _estimator->setClusters(consideredClusters);
   _estimator->setSmoothingParameters(_smoothingParametersVector);
+
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
 
   for(std::shared_ptr<cluster> c : *_clusters) {
     x.clear();
@@ -308,6 +351,7 @@ void DESDA::countKDEValuesOnClusters() {
       x.push_back(std::stod(c->getRepresentative()->attributesValues[attribute]));
     }
     double estimatorValueOnCluster = _estimator->getValue(&x);
+
     c->_currentKDEValue = estimatorValueOnCluster;
   }
 }
@@ -324,10 +368,17 @@ void DESDA::updatePrognosisParameters() {
 void DESDA::countDerivativeValuesOnClusters() {
   // Get the domain. Formally only m would be needed, but it will not hurt
   // to count on whole domain.
-  QVector<double> domain = {};
+  QVector<std::vector<double>> domain = {};
 
-  for(auto c : *_clusters)
-    domain.push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+  for(auto c : *_clusters){
+    domain.push_back(std::vector<double>());
+
+    domain.back().push_back(std::stod(c->getObject()->attributesValues["Val0"]));
+
+    if(stationarityTests.size() > 1){
+      domain.back().push_back(std::stod(c->getObject()->attributesValues["Val1"]));
+    }
+  }
 
   auto derivativeValues = getKernelPrognosisDerivativeValues(&domain);
 
@@ -343,54 +394,6 @@ void DESDA::updateM() {
   _m = _m < _minM ? _minM : _m;
   _m = _clusters->size() < _m ? _clusters->size() : _m;
   _m = _m > _maxM ? _maxM : _m;
-}
-
-/** DESDA::updateMaxAbsAVector
- * @brief Updates vector of absolute values of a. This vector should store _maxM
- * values at most and it's values should be counted on all stored clusters (as
- * all of them have their predictions updated.
- */
-void DESDA::updateMaxAbsAVector() {
-  // Add new value
-  _maxAbsAs.insert(_maxAbsAs.begin(), getCurrentMaxAbsA());
-
-  // Ensure size is as expected
-  while(_maxAbsAs.size() > _maxM) _maxAbsAs.pop_back();
-}
-
-/** DESDA::getCurrentMaxAbsA
-* @brief Finds and returns current maximal value of abs(a) of all clusters.
-* @return Current maximal values of abs(a) of all clusters.
-*/
-double DESDA::getCurrentMaxAbsA() {
-  if(_clusters->size() < 0) return -1; // Should not happen.
-  double maxA = fabs((*_clusters)[0]->predictionParameters[1]);
-  for(auto c : *_clusters) {
-    double currentA = fabs(c->predictionParameters[1]);
-    maxA = currentA > maxA ? currentA : maxA;
-  }
-
-  return maxA;
-}
-
-void DESDA::updateMaxAbsDerivativeVector() {
-  // Add new value.
-  _maxAbsDerivatives.insert(_maxAbsDerivatives.begin(),
-                            getCurrentMaxAbsDerivativeValue());
-  // Ensure size is proper.
-  while(_maxAbsDerivatives.size() > _maxM) _maxAbsDerivatives.pop_back();
-}
-
-double DESDA::getCurrentMaxAbsDerivativeValue() {
-  if(_clusters->size() < 0) return -1; // Should not happen.
-  double maxAbsDerivative = fabs((*_clusters)[0]->_currentDerivativeValue);
-  for(auto c : *_clusters) {
-    double currentDerivative = fabs(c->_currentDerivativeValue);
-    maxAbsDerivative =
-        currentDerivative > maxAbsDerivative ? currentDerivative : maxAbsDerivative;
-  }
-
-  return maxAbsDerivative;
 }
 
 void DESDA::updateMaxAbsDerivativeInCurrentStep() {
@@ -448,12 +451,18 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
       getClustersForEstimator();
   std::vector<double> attributesValues =
       getAttributesValuesFromClusters(currentClusters, dimension);
+
+  if(_smoothingParametersVector.size() == 1){
+    // Assume radial h
+    dimension = 0;
+  }
+
   double domainMinValue = getDomainMinValue(attributesValues, _smoothingParametersVector[dimension]);
   double domainMaxValue = getDomainMaxValue(attributesValues, _smoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (1000);
+  double stepSize = (domainMaxValue - domainMinValue) / (error_domain_points_number_);
 
-  for(auto val = domainMinValue; val <= domainMaxValue; val += stepSize) {
+  for(auto val = domainMinValue; val < domainMaxValue; val += stepSize) {
     domain.push_back(val);
   }
 
@@ -470,7 +479,7 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[dimension]);
   QVector<double> domain = {};
-  double stepSize = (domainMaxValue - domainMinValue) / (1000);
+  double stepSize = (domainMaxValue - domainMinValue) / (error_domain_points_number_);
 
   for(auto val = domainMinValue; val <= domainMaxValue; val += stepSize) {
     domain.push_back(val);
@@ -480,10 +489,10 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
 }
 
 std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
-  int dimensionsNumber = _estimator->getDimension();
+  int dimensionsNumber = _samplingAlgorithm->getAttributesList()->size();
   std::vector<double> smoothingParameters = {};
 
-  if(clusters.size() == 1) {
+  if(clusters.size() < 2) {
     for(int i = 0; i < dimensionsNumber; ++i) {
       smoothingParameters.push_back(1);
     }
@@ -492,13 +501,27 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
 
   // Plugin method.
   QVector<qreal> samples = {};
+  QVector<qreal> weights = {};
 
   for(auto attribute: *_samplingAlgorithm->getAttributesList()) {
     samples.clear();
     for(auto c: clusters) {
+
       samples.append(std::stod(c->getRepresentative()->attributesValues[attribute]));
+
+      if(compute_weighted_plugin){
+        weights.append(c->getCWeight());
+      } else {
+        weights.append(1);
+      }
     }
-    pluginSmoothingParameterCounter counter(&samples, _pluginRank);
+
+    pluginSmoothingParameterCounter counter(
+        &samples,
+        _pluginRank,
+        &weights,
+        _samplingAlgorithm->getAttributesList()->size()
+      );
     smoothingParameters.push_back(counter.countSmoothingParameterValue()
                                   * _smoothingParameterEnhancer);
   }
@@ -506,7 +529,42 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
   return smoothingParameters;
 }
 
-QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *X, int dimension) {
+std::vector<double> DESDA::computeRadialH(const std::vector<clusterPtr> &clusters) const{
+  int dimensionsNumber = _samplingAlgorithm->getAttributesList()->size();
+  std::vector<double> smoothingParameters = {};
+
+  if(clusters.size() < 2) {
+    return {1};
+  }
+
+  // Prepare the data
+  vector<vec> data = {};
+  vector<double> weights = {};
+
+  for(auto c : clusters){
+
+    data.push_back(vec(dimensionsNumber, fill::zeros));
+    int i = 0;
+
+    for(auto attribute: *_samplingAlgorithm->getAttributesList()){
+      data[data.size() - 1][i] = std::stod(c->getRepresentative()->attributesValues[attribute]);
+      ++i;
+    }
+
+    if(compute_weighted_plugin){
+      weights.push_back(c->getCWeight());
+    } else {
+      weights.push_back(1);
+    }
+
+  }
+
+  // Prepare counter
+  WeightedCVBandwidthSelector counter;
+  return {counter.compute_bandwidth(data, weights)};
+}
+
+QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension) {
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
   std::vector<double> prognosisCoefficients = {};
@@ -520,24 +578,34 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<qreal> *
     _estimatorDerivative->setSmoothingParameters({_smoothingParametersVector});
     _estimatorDerivative->setClusters(currentClusters);
 
-    std::string attributeKey =
-        (*_samplingAlgorithm->getAttributesList())[dimension];
-    std::vector<double> attributesValues =
-        getAttributesValuesFromClusters(currentClusters, dimension);
-    double domainMinValue =
-        getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
-    double domainMaxValue =
-        getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+    if(_estimatorDerivative->_radial){
+      _estimatorDerivative->updateCovarianceMatrix();
+    }
 
-    for(qreal x: *X) {
-      if(x > domainMinValue && x < domainMaxValue) {
-        std::vector<double> pt = {x};
-        kernelPrognosisDerivativeValues.push_back(
-            _estimatorDerivative->getValue(&pt) * 10000 // For visibility
-                                                 );
+    if(stationarityTests.size() == 1) {
+
+      std::string attributeKey =
+          (*_samplingAlgorithm->getAttributesList())[dimension];
+      std::vector<double> attributesValues =
+          getAttributesValuesFromClusters(currentClusters, dimension);
+      double domainMinValue =
+          getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
+      double domainMaxValue =
+          getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+      for(auto x: *X) {
+        if(x[0] > domainMinValue && x[0] < domainMaxValue) {
+          kernelPrognosisDerivativeValues.push_back(
+              _estimatorDerivative->getValue(&x) * 1000);// 1000 for visibility
+        }
+        else {
+          kernelPrognosisDerivativeValues.push_back(0);
+        }
       }
-      else {
-        kernelPrognosisDerivativeValues.push_back(0);
+    }
+    else {
+      for(auto x: *X) {
+        kernelPrognosisDerivativeValues.push_back(_estimatorDerivative->getValue(&x) * 1000); // 1000 for visibility
       }
     }
   }
@@ -561,6 +629,10 @@ std::vector<double> DESDA::getEnhancedKDEValues(const std::vector<std::vector<do
       getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+  if(_enhancedKDE->_radial){
+    _enhancedKDE->updateCovarianceMatrix();
+  }
 
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
@@ -620,6 +692,7 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
 vector<double> DESDA::getWindowKDEValues(const vector<vector<qreal>> *X, int dimension) {
   vector<double> windowKDEValues = {};
   auto currentClusters = getClustersForWindowedEstimator();
+
   _estimator->setClusters(currentClusters);
   _estimator->setSmoothingParameters({_windowedSmoothingParametersVector});
   _estimator->_shouldConsiderWeights = false;
@@ -630,6 +703,10 @@ vector<double> DESDA::getWindowKDEValues(const vector<vector<qreal>> *X, int dim
       getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
 
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
@@ -660,6 +737,10 @@ std::vector<double> DESDA::getKDEValues(const vector<vector<double>> *X, int dim
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
 
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
+
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
       KDEValues.push_back(_estimator->getValue(&x));
@@ -686,6 +767,10 @@ std::vector<double> DESDA::getWeightedKDEValues(const vector<vector<double>> *X,
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
 
+  if(_estimator->_radial){
+    _estimator->updateCovarianceMatrix();
+  }
+
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
       weightedKDEValues.push_back(_estimator->getValue(&x));
@@ -698,44 +783,6 @@ std::vector<double> DESDA::getWeightedKDEValues(const vector<vector<double>> *X,
   return weightedKDEValues;
 }
 
-double DESDA::getAverageOfFirstMSampleValues(int M) {
-  double avg = 0;
-  int m0 = std::min(M, (int) _clusters->size());
-
-  for(int i = 0; i < m0; ++i)
-    avg += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-
-  return avg / m0;
-}
-
-double DESDA::getStdDevOfFirstMSampleValues(int M) {
-  int m0 = std::min(M, (int) _clusters->size());
-
-  if(m0 == 1) return 1;
-
-  double avgME = 0;
-
-  // Counting average
-  for(int i = 0; i < m0; ++i) {
-    avgME += std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-  }
-
-  avgME /= m0;
-
-  // Counting var
-  double val, var = 0;
-
-  for(int i = 0; i < m0; ++i) {
-    val = std::stod(_clusters->at(i)->getObject()->attributesValues["Val0"]);
-    var += pow(val - avgME, 2);
-  }
-
-  var /= m0 - 1;
-
-  _stDev = pow(var, 0.5);
-  return _stDev;
-}
-
 double DESDA::getStationarityTestValue() {
   std::vector<double> stationarityTestsValues = {};
   for(auto test: stationarityTests) {
@@ -743,12 +790,6 @@ double DESDA::getStationarityTestValue() {
   }
   // Max
   return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
-  // Euclidean
-  double sum = 0;
-  for(auto test_value : stationarityTestsValues){
-    sum += pow(test_value, 2);
-  }
-  return sqrt(sum);
 }
 
 void DESDA::prepareEstimatorForContourPlotDrawing() {
@@ -779,16 +820,25 @@ std::vector<clusterPtr> DESDA::getAtypicalElements() {
   auto AKDEValues = getVectorOfAcceleratedKDEValuesOnClusters();
   auto sortedIndicesValues = getSortedAcceleratedKDEValues(AKDEValues);
   recountQuantileEstimatorValue(sortedIndicesValues);
+  auto considered_clusters = getClustersForEstimator();
   std::vector<clusterPtr> atypicalElements = {};
 
   _trendsNumber = 0;
 
+  // qDebug() << "Quantile estimator:" << _quantileEstimator;
+
   for(int i = 0; i < sortedIndicesValues.size(); ++i) {
+
+    //qDebug() << sortedIndicesValues[i].second;
+
     if(_quantileEstimator > sortedIndicesValues[i].second) {
-      atypicalElements.push_back((*_clusters)[sortedIndicesValues[i].first]);
-      if((*_clusters)[sortedIndicesValues[i].first]->_currentDerivativeValue > 0){
+      atypicalElements.push_back((considered_clusters)[sortedIndicesValues[i].first]);
+      if((considered_clusters)[sortedIndicesValues[i].first]->_currentDerivativeValue > 0){
         ++_trendsNumber;
       }
+    }
+    else{
+      break;
     }
   }
 
@@ -810,12 +860,17 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters() {
   std::vector<double> AKDEValues = {};
   auto m = consideredClusters.size();
 
+  _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
+  _enhancedKDE->_shouldConsiderWeights = true;
+
+  if(_enhancedKDE->_radial){
+    _enhancedKDE->updateCovarianceMatrix();
+  }
+
   for(auto i = 0; i < m; ++i) {
     auto c = consideredClusters[0];
     consideredClusters.erase(consideredClusters.begin(), consideredClusters.begin() + 1);
     _enhancedKDE->setClusters(consideredClusters);
-    _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
-    _enhancedKDE->_shouldConsiderWeights = true;
 
     for(auto attribute : *c->getRepresentative()->attirbutesOrder) {
       x.push_back(std::stod(c->getRepresentative()->attributesValues[attribute]));
@@ -851,6 +906,11 @@ std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const 
 
   std::reverse(indexesValues.begin(), indexesValues.end());
 
+  //qDebug() << "VALS";
+  //for(auto val : indexesValues){
+  //  qDebug() << val;
+  //}
+
   return indexesValues;
 }
 
@@ -863,16 +923,14 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
   if(mr < 0.5) {
     _quantileEstimator = sortedIndicesValues[0].second;
 
-    if(_quantileEstimator < 1e-6) {
-      qDebug() << "mr = " << mr;
-      qDebug() << "Sorted indices values (using 0):";
+    if(_quantileEstimator < 1e-15) {
+      //qDebug() << "mr = " << mr;
+      //qDebug() << "Sorted indices values (using 0):";
       for(auto pair: sortedIndicesValues) {
         auto attrVals = _clusters->at(pair.first)->getRepresentative()->attributesValues;
         //std::vector<double> pt = {std::stod(attrVals["Val0"]), std::stod(attrVals["Val1"])};
         std::vector<double> pt = {std::stod(attrVals["Val0"])};
-        qDebug() << "\ti: " << pair.first << ", x: " << pt[0] << ", y: " << pt[1]
-                 << ", remembered value: " << pair.second
-                 << ", estimator value: " << _estimator->getValue(&pt);
+        //qDebug() << "\ti: " << pair.first << ", x: " << pt[0] << ", y: " << pt[1] << ", remembered value: " << pair.second << ", estimator value: " << _estimator->getValue(&pt);
       }
     }
 
@@ -887,7 +945,7 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
   _quantileEstimator +=
       (0.5 - i + mr) * sortedIndicesValues[i].second; // Remember that indices in the formulas start from 1.
 
-  if(_quantileEstimator < 1e-6) {
+  if(_quantileEstimator < 1e-15) {
     qDebug() << "mr = " << mr;
     qDebug() << "Sorted indices values (using " << i - 1 << "and" << i << "):";
     for(auto pair: sortedIndicesValues) {
@@ -907,8 +965,8 @@ std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<st
   auto currentClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(currentClusters);
 
-  enhanceWeightsOfUncommonElements();
   sigmoidallyEnhanceClustersWeights(&currentClusters);
+  enhanceWeightsOfUncommonElements();
 
   _enhancedKDE->setClusters(currentClusters);
   _enhancedKDE->setSmoothingParameters({_smoothingParametersVector});
@@ -928,6 +986,10 @@ std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<st
       getDomainMinValue(attributesValues, _windowedSmoothingParametersVector[0]);
   double domainMaxValue =
       getDomainMaxValue(attributesValues, _windowedSmoothingParametersVector[0]);
+
+  if(_enhancedKDE->_radial){
+    _enhancedKDE->updateCovarianceMatrix();
+  }
 
   for(auto x: *X) {
     if(x[dimension] > domainMinValue && x[dimension] < domainMaxValue) {
@@ -953,24 +1015,75 @@ std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<st
  *
  * @return Vector of pairs of atypical elements values and their derivatives.
  */
-QVector<std::pair<double, double>> DESDA::getAtypicalElementsValuesAndDerivatives() {
-  QVector<std::pair<double, double>> atypicalElementsValuesAndDerivatives = {};
+QVector<std::pair<std::vector<double>, double>> DESDA::getAtypicalElementsValuesAndDerivatives() {
+  QVector<std::pair<std::vector<double>, double>> atypicalElementsValuesAndDerivatives = {};
   auto atypicalElements = getAtypicalElements();
 
+
+  /*
+  qDebug() << "ATYPICAL ELEMENTS KDE VALUES";
+  for(auto v : atypicalElements){
+    qDebug() << "\t" << v->_currentKDEValue;
+  }
+  //*/
+
+  int negative_derivatives = 0;
+  int positive_derivatives = 0;
+
   for(auto a : atypicalElements) {
-    std::pair<double, double> valueDerivative = std::pair<double, double>(0, 0);
-    valueDerivative.first = std::stod(a->getObject()->attributesValues["Val0"]);
-    valueDerivative.second = a->_currentDerivativeValue;
-    atypicalElementsValuesAndDerivatives.push_back(valueDerivative);
+    std::pair<std::vector<double>, double> point_derivative = std::pair<std::vector<double>, double>({}, 0);
+
+    for(size_t i = 0; i < this->stationarityTests.size(); ++i) {
+      std::string attribute_name = "Val" + std::to_string(i);
+      point_derivative.first.push_back(std::stod(a->getObject()->attributesValues[attribute_name]));
+    }
+
+    point_derivative.second = a->_currentDerivativeValue;
+    atypicalElementsValuesAndDerivatives.push_back(point_derivative);
+
+    // DEBUG
+    /*
+    if(a->_currentDerivativeValue > 0){
+      ++positive_derivatives;
+    } else {
+      ++negative_derivatives;
+    }
+    // DEBUG
+    //*/
   }
 
   return atypicalElementsValuesAndDerivatives;
 }
 
-double DESDA::getMaxAbsAOnLastKPSSMSteps() {
-  if(_maxAbsAs.size() < _kpssM)
-    return *(std::max_element(_maxAbsAs.begin(), _maxAbsAs.end()));
+vector<double> DESDA::GetPrognosisErrors() {
 
-  return *(std::max_element(_maxAbsAs.begin() + _maxAbsAs.size() - _kpssM, _maxAbsAs.end()));
+  int last_examined_cluster_number = std::min(int(_clustersForWindowed.size()), max_prognosis_error_clusters_);
+
+  vector<double> errors;
+
+  for(int i = 1; i < last_examined_cluster_number; ++i){
+    errors.push_back((_clustersForWindowed)[i]->getLastPrediction() - (_clustersForWindowed)[i]->_currentKDEValue);
+  }
+
+  return errors;
 }
+
+double DESDA::ComputePrognosisError(const vector<double> &errors) const {
+  return average(errors);
+}
+
+double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
+  if(errors.size() > 1){
+    // DEBUG //
+      // qDebug() << "Err:" << errors;
+      // qDebug() << "Avg: " << average(errors);
+      // qDebug() << "Std: " << stdev(errors);
+    // DEBUG //
+    return average(errors) / stdev(errors);
+  }
+  return 0;
+}
+
+
+
 

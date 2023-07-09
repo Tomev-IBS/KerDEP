@@ -6,7 +6,7 @@
 class plotLabelDoubleDataPreparator : public i_plotLabelDataPreparator
 {
 public:
-  plotLabelDoubleDataPreparator(const unsigned int &decimal_numbers= 3, const bool &possibly_negative = false);
+  plotLabelDoubleDataPreparator(const unsigned int &decimal_numbers= 3, const bool &possibly_negative = true);
   QString prepareValue(void *value) override;
 protected:
   QString formatNumberForDisplay(double number);
