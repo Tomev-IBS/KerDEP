@@ -1455,7 +1455,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*
   QString pc_id = "local";
   //ui->lineEdit_iterationsNumber->setText("5000");
-  ui->checkBox_showEstimatedPlot->setChecked(false);
+  //ui->checkBox_showEstimatedPlot->setChecked(false);
 
   //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
   //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");

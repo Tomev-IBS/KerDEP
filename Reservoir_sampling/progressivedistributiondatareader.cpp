@@ -47,14 +47,14 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   //*
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
-      x_progression_size = 0.001;
+      //x_progression_size = 0.001;
       //x_progression_size = 0.0005;
       break;
     // case 300: // Test
     case 2000: // 1D
     //case 5000: // 2D
       // x_progression_size = 0.1; // Test
-      x_progression_size = 0.01; // Klasyczna + 30
+      //x_progression_size = 0.01; // Klasyczna + 30
       //x_progression_size = 0.005; // Spowolniona + 15
       // x_progression_size = 0.002; //  Leniwa + 6
       break;
@@ -73,6 +73,8 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
       break;
   }
   //*/
+
+  x_progression_size = 0;
 
   // Ziegler-Nichols 0-1-0-1 jumps
   /*
