@@ -1445,7 +1445,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString stream_num = "1";
+  QString stream_num = "3";
   QString expNum = "A" + stream_num + "_" + seedString;
   QString pcName = "sz274-275";
 
