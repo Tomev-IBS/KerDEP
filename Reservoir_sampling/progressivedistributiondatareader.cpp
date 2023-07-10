@@ -76,7 +76,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
 
   switch(_currentIteration - 1) {
     case 3000:
-      x_progression_size = 0.002;
+      x_progression_size = 0.005;
       break;
     case 4000:
       x_progression_size = 0;

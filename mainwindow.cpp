@@ -931,7 +931,7 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("5000");
   int n_seeds = 100;
-  int stream_number = 3;
+  int stream_number = 4;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -1435,8 +1435,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", v=0.002 data stream, seed=" + seedString;
-  QString plot_description = "v=0.002 data stream";
+  QString streamDesc = "v=0.002";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
+  QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1445,15 +1446,15 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString stream_num = "3";
+  QString stream_num = "4";
   QString expNum = "A" + stream_num + "_" + seedString;
-  QString pcName = "sz274-275";
+  QString pcName = "sz276-277";
 
   expDesc += ", " + pcName;
 
   // Text data reader
   //*
-  QString pc_id = "sz274-275";
+  QString pc_id = pcName;
   //ui->lineEdit_iterationsNumber->setText("5000");
   //ui->checkBox_showEstimatedPlot->setChecked(false);
 
