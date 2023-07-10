@@ -929,13 +929,14 @@ void MainWindow::on_pushButton_start_clicked() {
   //RunAccuracyExperiment();
 
   // Set number of iterations
-  //this->ui->lineEdit_iterationsNumber->setText("5000");
-  int n_seeds = 1;
+  this->ui->lineEdit_iterationsNumber->setText("5000");
+  int n_seeds = 100;
+  int stream_number = 1;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seed; seed > 0; --seed){  // Reversed loop for other experiments.
     ui->lineEdit_seed->setText(QString::number(seed)); // Default seed.
-    //ui->label_dataStream->setText("path_to_stream")
+    ui->label_dataStream->setText("y:\\data\\stream_1\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
     Run1DExperimentWithDESDA();
   }
 
@@ -1349,7 +1350,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 1000;
   int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
@@ -1434,8 +1435,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", linear data stream, seed=" + seedString;
-  QString plot_description = "linear data stream";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", stationary data stream, seed=" + seedString;
+  QString plot_description = "stationary data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1444,8 +1445,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-
-  QString expNum = "A" + seedString;
+  QString stream_num = "1";
+  QString expNum = "A" + stream_num + "_" + seedString;
   QString pcName = "local";
 
   expDesc += ", " + pcName;
@@ -1507,8 +1508,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
-  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
