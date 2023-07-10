@@ -931,7 +931,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("100");
-  int n_seeds = 5;
+  int n_seeds = 6;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
     ui->lineEdit_seed->setText(QString::number(seed));
@@ -1705,6 +1705,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
     }
   }
 
+  // Check if the final figure is already in the folder
+  QString final_figure_path = dirPath + QString::number(stepsNumber) + ".png";
+  if(drawing_start_step > 0 && compute_errors) {
+      if(std::ifstream(final_figure_path.toStdString())) {
+      log("Final figure already exists. Skipping.");
+      return;
+      }
+  }
 
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
 
