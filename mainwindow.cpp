@@ -1335,6 +1335,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   step_number_ = 0;
   screen_generation_frequency_ = 10;
+  int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1357,6 +1358,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       targetDistribution(GenerateTargetDistribution(&means_, &standard_deviations_, evenDistributionsMultiplier));
   vector<double> alternativeDistributionMean = {0.0};
   vector<double> alternativeDistributionStDevs = {1.0};
+
   qreal progressionSize =
       ui->lineEdit_distributionProgression->text().toDouble();
 
@@ -1417,8 +1419,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", assumed data stream, seed=" + seedString;
-  QString plot_description = "assumed data stream; seed="+seedString;
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", linear data stream, seed=" + seedString;
+  QString plot_description = "linear data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1426,28 +1428,25 @@ void MainWindow::Run1DExperimentWithDESDA() {
   //*/
 
   int drawing_start_step = 0;
+
+
   QString expNum = "D" + seedString;
-  QString pcName = "sz250";
+  QString pcName = "local";
 
   expDesc += ", " + pcName;
 
   // Text data reader
-  /*
-  QString pc_id = "sz220";
-  ui->lineEdit_iterationsNumber->setText("15000");
+  //*
+  QString pc_id = "local";
+  ui->lineEdit_iterationsNumber->setText("5000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
 
   //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
-  std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
+  //std::string data_path = "y:\\Data\\rio_2014_temp.csv"; QString expDesc = "DESDA, Rio 2014 temperature, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; temperature"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\cracow_2020_temp.csv"; QString expDesc = "DESDA, Cracow 2020 temperature, " + pc_id; QString plot_description = "Cracow; 2020; temperature"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\minneapolis_2017_temperature.csv"; QString expDesc = "DESDA, Minneapolis 2017 Temperature, " + pc_id; QString plot_description = "Minneapolis; 2017; temperature"; QDate startDate(2016, 10, 1); ui->lineEdit_maxX->setText("40"); ui->lineEdit_minX->setText("-40");
   //std::string data_path = "y:\\Data\\rio_2014_humidity.csv"; QString expDesc = "DESDA, Rio 2014 humidity, " + pc_id; QString plot_description = "Rio de Janeiro; 2014; humidity"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
   //std::string data_path = "y:\\Data\\cracow_2020_humidity.csv"; QString expDesc = "DESDA, Cracow 2020 humidity, " + pc_id; QString plot_description = "Cracow; 2020; humidity"; QDate startDate(2019, 10, 1); ui->lineEdit_maxX->setText("100"); ui->lineEdit_minX->setText("0");
-
-  reader_.reset(new TextDataReader(data_path));
-  bool compute_errors = false;
-  //*/
-
 
   if(this->ui->label_dataStream->text().toStdString() == "Not selected."){
     log("Data stream not selected.");
@@ -1455,6 +1454,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
   }
 
   std::string data_path = this->ui->label_dataStream->text().toStdString();
+
+  reader_.reset(new TextDataReader(data_path));
+  //bool compute_errors = false;
+  //*/
+
 
   reader_->gatherAttributesData(&attributes_data_);
   parser_->setAttributesOrder(reader_->getAttributesOrder());
@@ -1486,9 +1490,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   this->setWindowTitle("Experiment #" + expNum);
 
-  QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
+  //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
   //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1656,6 +1660,39 @@ void MainWindow::Run1DExperimentWithDESDA() {
       &enhanced_kde_errors_calculator, &rare_elements_kde_errors_calculator
   };
 
+  std::string l2_errors_sum_file_path = QString(dirPath + "sum_l2_errors.txt").toStdString();
+  std::string avg_l2_errors_file_path = QString(dirPath + "avg_l2_errors.txt").toStdString();
+
+  std::ifstream inFile(avg_l2_errors_file_path);
+  numberOfErrorCalculations = std::count(std::istreambuf_iterator<char>(inFile),
+             std::istreambuf_iterator<char>(), '\n');
+
+
+  drawing_start_step = numberOfErrorCalculations * errorComputationFrequency;
+
+  if(drawing_start_step > 0 && compute_errors) {
+    // Open the file with average l2 errors and load them into the list.
+
+    qDebug() << "Loading errors.";
+
+    std::ifstream l2_errors_sums_file(l2_errors_sum_file_path);
+    if(l2_errors_sums_file.is_open()) {
+      l2_errors_sums.clear();
+      std::string line;
+      while(std::getline(l2_errors_sums_file, line)) {
+        qDebug() << QString::fromStdString(line);
+        l2_errors_sums.push_back(std::stod(line));
+        qDebug() << "Loaded error: " << l2_errors_sums.back();
+      }
+      l2_errors_sums_file.close();
+    }
+    else {
+      log("Unable to open avg_l2_errors.txt file.");
+    }
+  }
+
+  for(size_t i = 0; i < errors_calculators.size(); ++i) { qDebug() << l2_errors_sums[i]; }
+
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
     clock_t executionStartTime = clock();
 
@@ -1664,7 +1701,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ > drawing_start_step && compute_errors && step_number_ % screen_generation_frequency_ == 0) {
+    if(step_number_ > drawing_start_step && compute_errors && step_number_ % errorComputationFrequency == 0) {
+
+      ++numberOfErrorCalculations;
 
       log("Getting windowed domain.");
       windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
@@ -1691,10 +1730,14 @@ void MainWindow::Run1DExperimentWithDESDA() {
       windowed_error_domain_length =
           windowed_error_domain[windowed_error_domain.size() - 1][0] - windowed_error_domain[0][0];
 
+      //for(size_t i = 0; i < errors_calculators.size(); ++i) { qDebug() << l2_errors_sums[i]; }
+
       //AddL1ErrorsToSum(errors_calculators, l1_errors_sums);
       AddL2ErrorsToSum(errors_calculators, l2_errors_sums);
       //AddSupErrorsToSum(errors_calculators, sup_errors_sums);
       //AddModErrorsToSum(errors_calculators, mod_errors_sums);
+
+      //for(size_t i = 0; i < errors_calculators.size(); ++i) { qDebug() << l2_errors_sums[i]; }
 
       for(size_t i = 0; i < errors_calculators.size(); ++i) {
         //*l1_errors[i] = l1_errors_sums[i] / numberOfErrorCalculations;
@@ -1703,9 +1746,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
         //*mod_errors[i] = mod_errors_sums[i] / numberOfErrorCalculations;
       }
 
-      QString filePath = "D:\\errors_seed=" + seedString + ".txt";
+      // Save averaged l2 errors to the file
       std::ofstream in;
-      in.open(filePath.toStdString(), std::ios_base::app);
+      in.open(avg_l2_errors_file_path, std::ios_base::app);
       for(size_t i = 0; i < errors_calculators.size(); ++i) {
         // qDebug() << i << ". " << target[0] << "\n";
         in << *l2_errors[i] << ";";
@@ -1713,31 +1756,19 @@ void MainWindow::Run1DExperimentWithDESDA() {
       in << "\n";
       in.close();
 
-      ++numberOfErrorCalculations;
-    }
-
-    //*
-    // Initialize the errors in initial counting
-    if(step_number_ == drawing_start_step){
-      l2_errors_sums.clear();
-      numberOfErrorCalculations = step_number_ / screen_generation_frequency_;
-
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-      l2_errors_sums.push_back(0);
-
+      // Save the errors sum to the file
+      std::ofstream in2;
+      in2.open(l2_errors_sum_file_path);
       for(size_t i = 0; i < errors_calculators.size(); ++i) {
-        *l2_errors[i] = l2_errors_sums[i];
-        l2_errors_sums[i] *= numberOfErrorCalculations;
+        in2 << l2_errors_sums[i] << "\n";
       }
+      in2.close();
 
-      //++numberOfErrorCalculations;
+
     }
-    //*/
 
-    if(drawing_start_step <= step_number_ &&
+    // Drawing
+    if(drawing_start_step < step_number_ &&
        ( step_number_ % screen_generation_frequency_ == 0 ||
          additionalScreensSteps.contains(step_number_))) {
       log("Drawing in step number " + QString::number(step_number_) + ".");
@@ -1829,6 +1860,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  // TODO TR: Target function has still to be specified via changes in the code. Deal with it later.
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
