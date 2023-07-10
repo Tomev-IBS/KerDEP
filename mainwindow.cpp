@@ -927,7 +927,18 @@ void MainWindow::on_pushButton_start_clicked() {
   }
 
   //RunAccuracyExperiment();
-  Run1DExperimentWithDESDA();
+
+  // Set number of iterations
+  //this->ui->lineEdit_iterationsNumber->setText("5000");
+  int n_seeds = 1;
+
+  for(int seed = 1; seed < n_seeds + 1; ++seed){
+  //for(int seed = n_seed; seed > 0; --seed){  // Reversed loop for other experiments.
+    ui->lineEdit_seed->setText(QString::number(seed)); // Default seed.
+    //ui->label_dataStream->setText("path_to_stream")
+    Run1DExperimentWithDESDA();
+  }
+
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
   //Run1DExperimentWithSOMKE();
@@ -1320,6 +1331,10 @@ std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
 
 
 void MainWindow::Run1DExperimentWithDESDA() {
+
+  ui->widget_plot->clearGraphs();
+  stored_medoids_.clear();
+
   int dimensionsNumber = ui->tableWidget_dimensionKernels->rowCount();
 
   if(!CanAnimationBePerformed(dimensionsNumber)) return;
@@ -1430,7 +1445,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   int drawing_start_step = 0;
 
 
-  QString expNum = "D" + seedString;
+  QString expNum = "A" + seedString;
   QString pcName = "local";
 
   expDesc += ", " + pcName;
@@ -1438,7 +1453,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   // Text data reader
   //*
   QString pc_id = "local";
-  ui->lineEdit_iterationsNumber->setText("5000");
+  //ui->lineEdit_iterationsNumber->setText("5000");
   ui->checkBox_showEstimatedPlot->setChecked(false);
 
   //std::string data_path = "y:\\Data\\kde_test_faster.csv"; QString expDesc = "DESDA, KDE_test, " + pc_id; QString plot_description = "KDE Test"; QDate startDate(2013, 10, 1); ui->lineEdit_maxX->setText("105"); ui->lineEdit_minX->setText("-5");
@@ -1680,9 +1695,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
       l2_errors_sums.clear();
       std::string line;
       while(std::getline(l2_errors_sums_file, line)) {
-        qDebug() << QString::fromStdString(line);
         l2_errors_sums.push_back(std::stod(line));
-        qDebug() << "Loaded error: " << l2_errors_sums.back();
       }
       l2_errors_sums_file.close();
     }
@@ -1691,9 +1704,17 @@ void MainWindow::Run1DExperimentWithDESDA() {
     }
   }
 
-  for(size_t i = 0; i < errors_calculators.size(); ++i) { qDebug() << l2_errors_sums[i]; }
+  // Check if the final figure is already in the folder
+  QString final_figure_path = dirPath + QString::number(stepsNumber) + ".png";
+  if(drawing_start_step > 0 && compute_errors) {
+      if(std::ifstream(final_figure_path.toStdString())) {
+      log("Final figure already exists. Skipping.");
+      return;
+      }
+  }
 
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
+
     clock_t executionStartTime = clock();
 
     DESDAAlgorithm.performStep();
