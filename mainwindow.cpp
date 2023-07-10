@@ -928,17 +928,16 @@ void MainWindow::on_pushButton_start_clicked() {
 
   //RunAccuracyExperiment();
 
-
   // Set number of iterations
-  this->ui->lineEdit_iterationsNumber->setText("100");
-  int n_seeds = 6;
+  //this->ui->lineEdit_iterationsNumber->setText("5000");
+  int n_seeds = 1;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
-    ui->lineEdit_seed->setText(QString::number(seed));
-    ui->label_dataStream->setText("d:\\Tests\\TR Badania\\data\\stream_2\\stream_2_" + QString::number(seed) + ".csv");
+  //for(int seed = n_seed; seed > 0; --seed){  // Reversed loop for other experiments.
+    ui->lineEdit_seed->setText(QString::number(seed)); // Default seed.
+    //ui->label_dataStream->setText("path_to_stream")
     Run1DExperimentWithDESDA();
   }
-
 
   //Run1DExperimentWithClusterKernels();
   //Run1DExperimentWithWDE();
