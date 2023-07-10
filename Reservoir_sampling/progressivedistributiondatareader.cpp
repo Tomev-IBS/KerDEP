@@ -74,7 +74,16 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   }
   //*/
 
-  x_progression_size = 0;
+  switch(_currentIteration - 1) {
+    case 3000:
+      x_progression_size = 0.001;
+      break;
+    case 4000:
+      x_progression_size = 0;
+      break;
+  }
+
+  //x_progression_size = 0;
 
   // Ziegler-Nichols 0-1-0-1 jumps
   /*
