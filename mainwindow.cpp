@@ -931,12 +931,12 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("5000");
   int n_seeds = 100;
-  int stream_number = 2;
+  int stream_number = 3;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
     ui->lineEdit_seed->setText(QString::number(seed)); // Default seed.
-    ui->label_dataStream->setText("y:\\data\\stream_1\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
+    ui->label_dataStream->setText("y:\\data\\stream_" + QString::number(stream_number) + "\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
     Run1DExperimentWithDESDA();
   }
 
@@ -1435,8 +1435,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed data stream,  sz221";
-  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", v=0.001 data stream, seed=" + seedString;
-  QString plot_description = "v=0.001 data stream";
+  QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", v=0.002 data stream, seed=" + seedString;
+  QString plot_description = "v=0.002 data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
   ui->checkBox_showEstimatedPlot->setChecked(true);
   //QString path_length = QString::number(2 + p2 * 4000 + 0 + 1 + 0 + 5);
@@ -1447,13 +1447,13 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString stream_num = "1";
   QString expNum = "A" + stream_num + "_" + seedString;
-  QString pcName = "sz272-273";
+  QString pcName = "sz274-275";
 
   expDesc += ", " + pcName;
 
   // Text data reader
   //*
-  QString pc_id = "sz272-273";
+  QString pc_id = "sz274-275";
   //ui->lineEdit_iterationsNumber->setText("5000");
   //ui->checkBox_showEstimatedPlot->setChecked(false);
 
