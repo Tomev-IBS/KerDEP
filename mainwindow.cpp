@@ -1860,6 +1860,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
 
   parser_.reset(new distributionDataParser(&attributes_data_));
 
+  // TODO TR: Target function has still to be specified via changes in the code. Deal with it later.
   reader_.reset(
       new progressiveDistributionDataReader(targetDistribution.get(),
                                             progressionSize,
