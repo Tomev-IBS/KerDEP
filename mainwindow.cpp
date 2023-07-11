@@ -931,7 +931,7 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("5000");
   int n_seeds = 100;
-  int stream_number = 5;
+  int stream_number = 6;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -1446,9 +1446,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString stream_num = "5";
+  QString stream_num = "6";
   QString expNum = "A" + stream_num + "_" + seedString;
-  QString pcName = "sz278-279";
+  QString pcName = "sz280-281";
 
   expDesc += ", " + pcName;
 
@@ -1721,7 +1721,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
     switch(step_number_){
       case 1000:
-        x_progression = 0.01;
+        x_progression = 0.02;
         break;
       case 4000:
         x_progression = 0;
