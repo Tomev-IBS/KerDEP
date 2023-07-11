@@ -1717,6 +1717,19 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
 
+    double x_progression = 0;
+
+    switch(step_number_){
+      case 1000:
+        x_progression = 0.005;
+        break;
+      case 4000:
+        x_progression = 0;
+        break;
+    }
+
+    means_[0]->at(0) += x_progression;
+
     clock_t executionStartTime = clock();
 
     DESDAAlgorithm.performStep();

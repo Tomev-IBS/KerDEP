@@ -44,7 +44,7 @@ void progressiveDistributionDataReader::getNextRawDatum(void *target) {
   // 26 III 2020 article formula
   // Stops at 0.5 + 6 + 3 + 1 = 10.5 without offset. Set maxX = 15.
   // 0.2 + 30 + 3 + 1 = 34.2 // Dla klasycznej. maxX = 38
-  //*
+  /*
   switch(_currentIteration - 1) { // For exps with seed, remove later
     case 0:
       //x_progression_size = 0.001;
