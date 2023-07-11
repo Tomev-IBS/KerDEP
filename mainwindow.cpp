@@ -931,7 +931,7 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("5000");
   int n_seeds = 100;
-  int stream_number = 7;
+  int stream_number = 8;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -1435,7 +1435,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed data stream,  sz221";
-  QString streamDesc = "4 unit steps";
+  QString streamDesc = "2 unit steps";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
@@ -1446,9 +1446,9 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString stream_num = "7";
+  QString stream_num = "8";
   QString expNum = "A" + stream_num + "_" + seedString;
-  QString pcName = "sz282-283";
+  QString pcName = "sz284-285";
 
   expDesc += ", " + pcName;
 
@@ -1726,22 +1726,10 @@ void MainWindow::Run1DExperimentWithDESDA() {
       case 1001:
         x_progression = 0;
         break;
-      case 2000:
-        x_progression = -1;
-        break;
-      case 2001:
-        x_progression = 0;
-        break;
       case 3000:
-        x_progression = 1;
+        x_progression = -1;
         break;
       case 3001:
-        x_progression = 0;
-        break;
-      case 4000:
-        x_progression = -1;
-        break;
-      case 4001:
         x_progression = 0;
         break;
     }
