@@ -522,6 +522,9 @@ void MainWindow::FillStandardDeviations(vector<std::shared_ptr<vector<double>>> 
 }
 
 void MainWindow::FillMeans(vector<std::shared_ptr<vector<double>>> *means) {
+
+  means->clear();
+
   int dimensionsNumber = ui->spinBox_dimensionsNumber->value(),
       targetFunctionElementsNumber = ui->tableWidget_targetFunctions->rowCount();
 
@@ -1350,13 +1353,15 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 1000;
+  screen_generation_frequency_ = 10;
   int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
   FillMeans(&means_);
   FillStandardDeviations(&standard_deviations_);
+
+  qDebug() << means_.size();
 
   target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
@@ -1509,8 +1514,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
-  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
@@ -1715,12 +1720,17 @@ void MainWindow::Run1DExperimentWithDESDA() {
       }
   }
 
+  // Debug
+  compute_errors = false;
+  ui->checkBox_kernelPrognosedPlot->toggle(); ui->checbox_showFullEstimator->toggle();
+
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
 
     double x_progression = 0;
 
     if(step_number_ >= 1000 && step_number_ <= 4000){
-      means_[0]->at(0) += sin(2 * 2 * 3.14 * (step_number_ - 1000) / 3000);
+      means_[0]->at(0) = sin(2 * 2 * 3.14 * (step_number_ - 1000) / 3000);
+      //means_[0]->at(0) += 0.1;
     }
 
     clock_t executionStartTime = clock();
