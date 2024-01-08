@@ -1353,7 +1353,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 1000;
   int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
@@ -1453,7 +1453,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString stream_num = "0";
   QString expNum = "A" + stream_num + "_" + seedString;
-  QString pcName = "sz248-249";
+  QString pcName = "sz";
 
   expDesc += ", " + pcName;
 
