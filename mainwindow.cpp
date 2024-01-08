@@ -932,9 +932,9 @@ void MainWindow::on_pushButton_start_clicked() {
   //RunAccuracyExperiment();
 
   // Set number of iterations
-  this->ui->lineEdit_iterationsNumber->setText("5000");
+  this->ui->lineEdit_iterationsNumber->setText("10000");
   int n_seeds = 100;
-  int stream_number = 12;
+  int stream_number = 0;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -1439,8 +1439,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString m0_text = ui->lineEdit_sampleSize->text();
 
-  //QString expDesc = "assumed data stream,  sz221";
-  QString streamDesc = "sin 2t";
+  //QString expDesc = "assumed data stream,  1D";
+  QString streamDesc = "assumed data stream,  1D";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
@@ -1451,7 +1451,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   int drawing_start_step = 0;
 
-  QString stream_num = "12";
+  QString stream_num = "0";
   QString expNum = "A" + stream_num + "_" + seedString;
   QString pcName = "sz248-249";
 
@@ -1728,9 +1728,18 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
     double x_progression = 0;
 
-    if(step_number_ >= 1000 && step_number_ <= 4000){
-      means_[0]->at(0) = sin(2 * 2 * 3.14 * (step_number_ - 1000) / 3000);
-      //means_[0]->at(0) += 0.1;
+    //if(step_number_ >= 1000 && step_number_ <= 4000){
+    //  means_[0]->at(0) = sin(2 * 2 * 3.14 * (step_number_ - 1000) / 3000);
+    //}
+
+    if(step_number_ <= 2000){
+      means_[0]->at(0) += 0.001;
+    }
+    if(step_number_ > 2000 && step_number_ <= 6000){
+      means_[0]->at(0) += 0.01;
+    }
+    if(step_number_ == 8000){
+      means_[0]->at(0) += 1;
     }
 
     clock_t executionStartTime = clock();
@@ -1740,6 +1749,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
+    //*
     if(step_number_ > drawing_start_step && compute_errors && step_number_ % errorComputationFrequency == 0) {
 
       ++numberOfErrorCalculations;
@@ -1805,6 +1815,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
 
     }
+    //*/
 
     // Drawing
     if(drawing_start_step < step_number_ &&
