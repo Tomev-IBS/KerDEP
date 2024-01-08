@@ -1721,7 +1721,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   }
 
   // Debug
-  compute_errors = false;
+  // compute_errors = false;
   ui->checkBox_kernelPrognosedPlot->toggle(); ui->checbox_showFullEstimator->toggle();
 
   for(step_number_ = 1; step_number_ <= stepsNumber; ++step_number_) {
