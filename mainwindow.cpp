@@ -1439,8 +1439,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   QString m0_text = ui->lineEdit_sampleSize->text();
 
-  //QString expDesc = "assumed data stream,  1D";
-  QString streamDesc = "assumed data stream,  1D";
+  //QString expDesc = "assumed 1D";
+  QString streamDesc = "assumed 1D";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
@@ -1514,8 +1514,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\"; // Home
   //QString driveDir = "D:\\OneDrive - Instytut Badań Systemowych Polskiej Akademii Nauk\\TR Badania\\"; // Home
-  QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
-  //QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
+  //QString driveDir = "D:\\Tests\\TR Badania\\"; // Test
+  QString driveDir = "Y:\\TR Badania\\"; // WIT PCs after update
 
   QString dirPath = driveDir + "Eksperyment " + expNum + " (" + expDesc + ")\\";
   //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
