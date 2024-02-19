@@ -1411,7 +1411,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 1000;
   int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
