@@ -934,9 +934,7 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
   int n_seeds = 100;
-  int stream_number = 13;
-
-
+  int stream_number = 14;
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -1415,8 +1413,8 @@ void MainWindow::Run1DExperimentWithDESDA() {
   int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
-  SetBimodalTargetFunction();
-  //SetTrimodalTargetFunction();
+  //SetBimodalTargetFunction();
+  SetTrimodalTargetFunction();
 
   FillMeans(&means_);
   FillStandardDeviations(&standard_deviations_);
@@ -1500,7 +1498,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed 1D";
-  QString streamDesc = "assumed bimodal";
+  QString streamDesc = "assumed trimodal";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
