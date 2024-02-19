@@ -126,10 +126,7 @@ void log(const QString &msg) {
 
 void MainWindow::testNewFunctionalities() {
   log("Start test.");
-  //log("Nothing to test.");
-  log("Setting trimodal target function");
-  //SetBimodalTargetFunction();
-  SetTrimodalTargetFunction();
+  log("Nothing to test.");
   log("Finish test.");
 }
 
@@ -944,7 +941,8 @@ void MainWindow::on_pushButton_start_clicked() {
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
     ui->lineEdit_seed->setText(QString::number(seed)); // Default seed.
-    ui->label_dataStream->setText("y:\\data\\stream_" + QString::number(stream_number) + "\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
+    //ui->label_dataStream->setText("y:\\data\\stream_" + QString::number(stream_number) + "\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
+    ui->label_dataStream->setText("k:\\Coding\\Python\\Poligon\\Articles\\IBS_PhD\\streams\\stream_13\\""\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
     Run1DExperimentWithDESDA();
   }
 
@@ -1340,6 +1338,7 @@ std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
 
 
 void MainWindow::SetBimodalTargetFunction(){
+    // 0.6 N(0, 1) + 0.4 N(5, 1)
     ui->pushButton_addTargetFunction->click();
     // log("Klikłem");
 
@@ -1360,6 +1359,7 @@ void MainWindow::SetBimodalTargetFunction(){
 }
 
 void MainWindow::SetTrimodalTargetFunction(){
+    // 0.4 N(0, 1) + 0.3 N(5, 1) + 0.3 N(-5, 1)
     ui->pushButton_addTargetFunction->click();
     ui->pushButton_addTargetFunction->click();
 
@@ -1411,10 +1411,12 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("Experiment started.");
 
   step_number_ = 0;
-  screen_generation_frequency_ = 1000;
+  screen_generation_frequency_ = 10;
   int errorComputationFrequency = 10;
 
   srand(static_cast<unsigned int>(seedString.toInt()));
+  SetBimodalTargetFunction();
+  //SetTrimodalTargetFunction();
 
   FillMeans(&means_);
   FillStandardDeviations(&standard_deviations_);
@@ -1498,7 +1500,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed 1D";
-  QString streamDesc = "assumed 2D";
+  QString streamDesc = "assumed bimodal";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
@@ -1510,7 +1512,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   int drawing_start_step = 0;
 
   QString stream_num = "0";
-  QString expNum = "A" + stream_num + "_" + seedString;
+  QString expNum = "B" + stream_num + "_" + seedString;
   QString pcName = "sz";
 
   expDesc += ", " + pcName;
