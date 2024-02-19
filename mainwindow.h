@@ -105,6 +105,10 @@ class MainWindow : public QMainWindow {
     Plot *contour_plot_ = nullptr;
     std::vector<QCPAbstractItem *> lines_on_plot_;
 
+    // Set default multi-modal target distributions
+    void SetBimodalTargetFunction();
+    void SetTrimodalTargetFunction();
+
     long long start = 0;
     int screen_generation_frequency_ = 1;
     // Default settings

@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.6)
 
 project(KerDEP LANGUAGES CXX)
-set(CMAKE_PREFIX_PATH "K:/Libs/Qt/5.15.0/mingw81_64/lib/cmake")
-set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\")
-set(CMAKE_PREFIX_PATH "D:\\Qwt-6.1.5\\lib\\")
+set(CMAKE_PREFIX_PATH "D:/Qwt-6.1.5/lib/")
+list(PREPEND CMAKE_PREFIX_PATH "k:/Libs/Qt/5.15.2/mingw81_64/lib/\;")
+message("Printing CMAKE_PREFIX_PATH")
+message(${CMAKE_PREFIX_PATH})
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -40,8 +41,28 @@ message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 message(STATUS "Boost_VERSION: ${Boost_VERSION}")
 
-find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Gui Core printsupport REQUIRED)
+IF(EXISTS k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake)
+    # set(Qt5_ROOT k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake)
+    # set(CMAKE_MODULE_PATH k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake/)
+    list(PREPEND CMAKE_MODULE_PATH "k:\\Libs\\Qt\\5.15.2\\mingw81_64\\lib\\cmake\\\;")
+    list(PREPEND CMAKE_MODULE_PATH "k:\\Libs\\Qt\\5.15.2\\mingw81_64\\lib\\cmake\\Qt5\\\;")
+    list(PREPEND CMAKE_MODULE_PATH "k:\\Libs\\Qt\\5.15.2\\mingw81_64\\lib\\\;")
+    set(Qt5_DIR k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake)
+ENDIF()
+
+message("Printing CMAKE_MODULE_PATH")
+message(${CMAKE_MODULE_PATH})
+message("Done")
+
+find_package(Qt5 COMPONENTS Widgets Gui Core printsupport REQUIRED)
+# find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Gui Core printsupport REQUIRED PATH_SUFFIXES "k:/Libs/Qt/mingw81_64/lib/cmake/")
+
+# Nothing works, CMAKE sucks.
+# set(Qt5_CONFIG "k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake/Qt5/Qt5Config.cmake")
+set(Qt5Core_CONFIG "k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Core/Qt5CoreConfig.cmake")
+set(Qt5Widgets_CONFIG "k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Widgets/Qt5WidgetsConfig.cmake")
+set(Qt5Gui_CONFIG "k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Gui/Qt5GuiConfig.cmake")
+set(Qt5printsupport_CONFIG "k:/Libs/Qt/5.15.2/mingw81_64/lib/cmake/Qt5PrintSupport/Qt5PrintSupportConfig.cmake")
 
 message(" ------------- QT STATUS -----------------")
 message("   -- Qt${QT_VERSION_MAJOR} PATH             = " ${Qt5_CONFIG})
@@ -239,10 +260,10 @@ target_include_directories(KerDEP PUBLIC ${knnl_include})
 target_include_directories(KerDEP PUBLIC ${armadillo_include})
 
 target_link_libraries(KerDEP PRIVATE
-        Qt${QT_VERSION_MAJOR}::Widgets
-        Qt${QT_VERSION_MAJOR}::PrintSupport
-        Qt${QT_VERSION_MAJOR}::Core
-        Qt${QT_VERSION_MAJOR}::Gui
+        Qt5::Widgets
+        Qt5::PrintSupport
+        Qt5::Core
+        Qt5::Gui
         ${QWT_LIBRARY}
         ${openblas_lib}
 )

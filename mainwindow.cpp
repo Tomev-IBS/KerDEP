@@ -126,7 +126,10 @@ void log(const QString &msg) {
 
 void MainWindow::testNewFunctionalities() {
   log("Start test.");
-  log("Nothing to test.");
+  //log("Nothing to test.");
+  log("Setting trimodal target function");
+  //SetBimodalTargetFunction();
+  SetTrimodalTargetFunction();
   log("Finish test.");
 }
 
@@ -934,7 +937,9 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
   int n_seeds = 100;
-  int stream_number = 0;
+  int stream_number = 13;
+
+
 
   for(int seed = 1; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -1334,6 +1339,59 @@ std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
 }
 
 
+void MainWindow::SetBimodalTargetFunction(){
+    ui->pushButton_addTargetFunction->click();
+    // log("Klikłem");
+
+    auto meansTablePointer =
+        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(0,
+                                                                                 static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex)));
+    (dynamic_cast<QLineEdit *>(meansTablePointer->cellWidget(0, 0)))->setText("5.0");
+
+    //log("Ustaiwam drugie.");
+
+    dynamic_cast<QLineEdit *>(
+        ui->tableWidget_targetFunctions
+            ->cellWidget(0, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))
+        )->setText(QString::number(40));
+
+    UpdateLastContribution();
+    // log("Działa");
+}
+
+void MainWindow::SetTrimodalTargetFunction(){
+    ui->pushButton_addTargetFunction->click();
+    ui->pushButton_addTargetFunction->click();
+
+    //log("Klikłem");
+
+    auto meansTablePointer =
+        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(0,
+                                                                                 static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex)));
+    (dynamic_cast<QLineEdit *>(meansTablePointer->cellWidget(0, 0)))->setText("5.0");
+
+    meansTablePointer =
+        dynamic_cast<QTableWidget *>(ui->tableWidget_targetFunctions->cellWidget(1,
+                                                                                 static_cast<int>(TargetFunctionSettingsColumns::kMeanColumnIndex)));
+
+    (dynamic_cast<QLineEdit *>(meansTablePointer->cellWidget(0, 0)))->setText("-5.0");
+
+    //log("Ustaiwam drugie.");
+
+    dynamic_cast<QLineEdit *>(
+        ui->tableWidget_targetFunctions
+            ->cellWidget(0, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))
+        )->setText(QString::number(30));
+
+    dynamic_cast<QLineEdit *>(
+        ui->tableWidget_targetFunctions
+            ->cellWidget(1, static_cast<int>(TargetFunctionSettingsColumns::kContributionColumnIndex))
+        )->setText(QString::number(30));
+
+    UpdateLastContribution();
+    // log("Działa");
+}
+
 void MainWindow::Run1DExperimentWithDESDA() {
 
   ui->widget_plot->clearGraphs();
@@ -1440,7 +1498,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   QString m0_text = ui->lineEdit_sampleSize->text();
 
   //QString expDesc = "assumed 1D";
-  QString streamDesc = "assumed 1D";
+  QString streamDesc = "assumed 2D";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   QString plot_description = streamDesc + " data stream";
   QDate startDate(2019, 10, 1); // It's not used anyway.
