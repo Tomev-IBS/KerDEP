@@ -1824,7 +1824,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   QString expNum = "CK" + QString::number(stream_number) + "_" + seedString;
   this->setWindowTitle("Experiment #" + expNum);
 
-  QString streamDesc = "assumed trimodal";
+  QString streamDesc = "assumed";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   expDesc += ", " + pcName;
 
@@ -1859,7 +1859,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   double horizontalOffset = 0.01, verticalOffset = 0.01, verticalStep = 0.03;
 
   plotLabel desc_label(ui->widget_plot, horizontalOffset, verticalOffset,
-                       "assumed data stream; 1D");
+                       streamDesc + " data stream; 1D");
 
   verticalOffset += 2 * verticalStep;
 
