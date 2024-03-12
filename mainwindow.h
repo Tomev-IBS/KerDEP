@@ -63,6 +63,8 @@ class MainWindow : public QMainWindow {
     ~MainWindow() override;
 
   protected:
+    QString pcName = "sz";
+    int stream_number = 0;
     int step_number_ = 0;
     QVector<std::shared_ptr<point>> domain_;
     QVector<double> drawable_domain_;
@@ -77,12 +79,10 @@ class MainWindow : public QMainWindow {
     void AddDoubleLabelToPlot(const QString &label, double *value);
     void AddIntLabelToPlot(const QString &label, int *value);
     void AddConstantLabelToPlot(const QString &label);
-    void AddL1ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
-    void AddL2ErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
-    void AddSupErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
-    void AddModErrorsToSum(QVector<ErrorsCalculator*> &errors_calculators, QVector<double> &errors_sums);
     void AddColorsLegendToPlot();
 
+    void set_paths(QString expNum, QString expDesc);
+    void update_theoretical_density();
 
   private:
     // Pens for 1d plot
@@ -96,6 +96,12 @@ class MainWindow : public QMainWindow {
 
     const QPen derivative_plot_pen_ = QPen(QColor(185, 160, 130)); // Orange
     const QPen standardized_derivative_plot_pen_ = QPen(QColor(110, 40, 0)); // Yellow
+
+    // Paths
+    QString drive;
+    QString dirPath;
+    std::string l2_errors_sum_file_path;
+    std::string avg_l2_errors_file_path;
 
     void FillErrorIndicesColors();
 
@@ -137,10 +143,24 @@ class MainWindow : public QMainWindow {
     // Prediction
     QVector<double> kernel_prognosis_derivative_values_;
     // Errors
-    double l1_w_ = 0, l1_n_ = 0,
-           l2_w_ = 0, l2_n_ = 0,
-           sup_w_ = 0, sup_n_ = 0,
-           mod_w_ = 0, mod_n_ = 0;
+    int numberOfErrorCalculations = 1;
+
+    QVector<double> l1_errors_sums = {};
+    QVector<double> l2_errors_sums = {};
+    QVector<double> sup_errors_sums = {};
+    QVector<double> mod_errors_sums = {};
+
+    QVector<double_ptr> l1_errors = {};
+    QVector<double_ptr> l2_errors = {};
+    QVector<double_ptr> sup_errors = {};
+    QVector<double_ptr> mod_errors = {};
+
+    QVector<ErrorsCalculator*> errors_calculators = {};
+
+    void clear_errors();
+    void compute_errors();
+
+    //
     QVector<std::pair<std::vector<double>, double>>
         atypical_elements_points_and_derivatives_ = {};
     double quantile_estimator_value_ = 0;
