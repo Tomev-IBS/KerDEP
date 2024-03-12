@@ -1357,7 +1357,7 @@ void MainWindow::SetBimodalTargetFunction(){
     // log("Działa");
 
     // Update the plot bounds
-    ui->lineEdit_maxX->setText("10");
+    ui->lineEdit_maxX->setText("53");
     ui->lineEdit_minX->setText("-5");
 }
 
@@ -1395,7 +1395,7 @@ void MainWindow::SetTrimodalTargetFunction(){
     // log("Działa");
 
     // Update the plot bounds
-    ui->lineEdit_maxX->setText("10");
+    ui->lineEdit_maxX->setText("53");
     ui->lineEdit_minX->setText("-10");
 }
 
