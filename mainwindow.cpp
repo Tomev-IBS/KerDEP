@@ -934,6 +934,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
+  pcName = "sz";
   int n_seeds = 10;
   stream_number = 0;
 
@@ -1354,6 +1355,10 @@ void MainWindow::SetBimodalTargetFunction(){
 
     UpdateLastContribution();
     // log("Działa");
+
+    // Update the plot bounds
+    ui->lineEdit_maxX->setText("10");
+    ui->lineEdit_minX->setText("-5");
 }
 
 void MainWindow::SetTrimodalTargetFunction(){
@@ -1388,6 +1393,10 @@ void MainWindow::SetTrimodalTargetFunction(){
 
     UpdateLastContribution();
     // log("Działa");
+
+    // Update the plot bounds
+    ui->lineEdit_maxX->setText("10");
+    ui->lineEdit_minX->setText("-10");
 }
 
 void MainWindow::Run1DExperimentWithDESDA() {
