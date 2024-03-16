@@ -935,10 +935,10 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
   pcName = "sz";
-  screen_generation_frequency_ = 10;
+  screen_generation_frequency_ = 1000;
   error_computation_frequency_ = 10;
   int n_seeds = 20;
-  stream_number = 0;
+  stream_number = 13;
 
   for(int seed = n_seeds - 19; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
