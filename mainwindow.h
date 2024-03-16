@@ -116,7 +116,8 @@ class MainWindow : public QMainWindow {
     void SetTrimodalTargetFunction();
 
     long long start = 0;
-    int screen_generation_frequency_ = 1;
+    int screen_generation_frequency_ = 10;
+    int error_computation_frequency_ = 10;
     // Default settings
     const qreal kMaxX = 999.0;
     const qreal kMinX = -999.0;

@@ -935,6 +935,8 @@ void MainWindow::on_pushButton_start_clicked() {
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
   pcName = "sz";
+  screen_generation_frequency_ = 10;
+  error_computation_frequency_ = 10;
   int n_seeds = 20;
   stream_number = 0;
 
@@ -1416,11 +1418,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   log("KDE animation started.");
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
-  log("Experiment started.");
-
-  step_number_ = 0;
-  screen_generation_frequency_ = 1000;
-  int errorComputationFrequency = 10;
+  log("Experiment started.");  
 
   srand(static_cast<unsigned int>(seedString.toInt()));
 
@@ -1647,7 +1645,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   numberOfErrorCalculations = std::count(std::istreambuf_iterator<char>(inFile),
              std::istreambuf_iterator<char>(), '\n');
 
-  drawing_start_step = numberOfErrorCalculations * errorComputationFrequency;
+  drawing_start_step = numberOfErrorCalculations * error_computation_frequency_;
 
   if(drawing_start_step > 0 && should_compute_errors) {
     // Open the file with average l2 errors and load them into the list.
@@ -1689,7 +1687,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
     // Error calculations
     //*
-    if(step_number_ > drawing_start_step && should_compute_errors && step_number_ % errorComputationFrequency == 0) {
+    if(step_number_ > drawing_start_step && should_compute_errors && step_number_ % error_computation_frequency_ == 0) {
 
       ++numberOfErrorCalculations;
 
@@ -1802,11 +1800,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
 
-  screen_generation_frequency_ = 1000;
-  int errorComputationFrequency = 10;
-
   int number_of_cluster_kernels = 100;
-  step_number_ = 0;
   double h = 1;
   double sigma = 0;
 
@@ -1938,7 +1932,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
                                          std::istreambuf_iterator<char>(), '\n');
 
   int drawing_start_step = 0;
-  drawing_start_step = numberOfErrorCalculations * errorComputationFrequency;
+  drawing_start_step = numberOfErrorCalculations * error_computation_frequency_;
 
   if(drawing_start_step > 0 && should_compute_errors) {
       // Open the file with average l2 errors and load them into the list.
@@ -1979,7 +1973,7 @@ void MainWindow::Run1DExperimentWithClusterKernels() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ > drawing_start_step && should_compute_errors && step_number_ % errorComputationFrequency == 0) {
+    if(step_number_ > drawing_start_step && should_compute_errors && step_number_ % error_computation_frequency_ == 0) {
       log("Getting error domain.");
       error_domain = CKAlgorithm.GetErrorDomain();
       log("Getting model plot on windowed.");
@@ -2060,9 +2054,6 @@ void MainWindow::Run1DExperimentWithWDE() {
   log("KDE animation with WDE started.");
   log("Seed: " + seedString);
   log("Sample size: " + ui->lineEdit_sampleSize->text());
-
-  screen_generation_frequency_ = 1000;
-  int errorComputationFrequency = 10;
 
   double weight_modifier = 0.99; // omega
   unsigned int maximal_number_of_coefficients = 100; // M
@@ -2211,7 +2202,7 @@ void MainWindow::Run1DExperimentWithWDE() {
                                          std::istreambuf_iterator<char>(), '\n');
 
   int drawing_start_step = 0;
-  drawing_start_step = numberOfErrorCalculations * errorComputationFrequency;
+  drawing_start_step = numberOfErrorCalculations * error_computation_frequency_;
 
   if(drawing_start_step > 0 && should_compute_errors) {
       // Open the file with average l2 errors and load them into the list.
@@ -2251,7 +2242,7 @@ void MainWindow::Run1DExperimentWithWDE() {
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
     // Error calculations
-    if(step_number_ > drawing_start_step && should_compute_errors && step_number_ % errorComputationFrequency == 0) {
+    if(step_number_ > drawing_start_step && should_compute_errors && step_number_ % error_computation_frequency_ == 0) {
 
       log("Getting error domain.");
       error_domain = WDE_Algorithm.GetErrorDomain();
