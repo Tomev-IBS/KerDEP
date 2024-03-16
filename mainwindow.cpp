@@ -99,10 +99,6 @@ MainWindow::MainWindow(QWidget *parent) :
   SetupPlot();
   SetupKernelsTable();
 
-  // Set target function
-  //SetBimodalTargetFunction();
-  //SetTrimodalTargetFunction();
-
   testNewFunctionalities();
 
   // Set font
@@ -931,6 +927,10 @@ void MainWindow::on_pushButton_start_clicked() {
   }
 
   //RunAccuracyExperiment();
+
+  // Set target function
+  SetBimodalTargetFunction();
+  //SetTrimodalTargetFunction();
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
