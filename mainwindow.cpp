@@ -2194,6 +2194,9 @@ void MainWindow::Run1DExperimentWithWDE() {
   ErrorsCalculator errors_calculator(
       &model_values, &wde_values, &error_domain, &error_domain_length
                                     );
+
+  errors_calculators = {&errors_calculator};
+
   std::ifstream inFile(avg_l2_errors_file_path);
   numberOfErrorCalculations = std::count(std::istreambuf_iterator<char>(inFile),
                                          std::istreambuf_iterator<char>(), '\n');
@@ -2486,8 +2489,6 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   ui->widget_plot->replot();
   QCoreApplication::processEvents();
 
-  int numberOfErrorCalculations = 0;
-
   double error_domain_length = 0;
   std::vector<std::vector<double>> error_domain = {};
   std::vector<double> model_values = {};
@@ -2496,6 +2497,8 @@ void MainWindow::Run1DExperimentWithSOMKE() {
   ErrorsCalculator errors_calculator(
       &model_values, &somke_values, &error_domain, &error_domain_length
                                     );
+
+  errors_calculators = {&errors_calculator};
 
   std::ifstream inFile(avg_l2_errors_file_path);
   numberOfErrorCalculations = std::count(std::istreambuf_iterator<char>(inFile),
@@ -2552,14 +2555,14 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
         double minX = ui->lineEdit_minX->text().toDouble();
         double maxX = ui->lineEdit_maxX->text().toDouble();
-        int domainDensity = ui->lineEdit_domainDensity->text().toInt();
+        int error_points = 1000;
 
-        double error_domain_step = (maxX - minX) / domainDensity;
+        double error_domain_step = (maxX - minX) / error_points;
 
         error_domain = {};
         double domain_value = minX;
 
-        while(error_domain.size() < domainDensity + 1){
+        while(error_domain.size() < error_points + 1){
             error_domain.push_back({domain_value});
             domain_value += error_domain_step;
         }
@@ -3233,7 +3236,7 @@ void MainWindow::update_theoretical_density(){
 
 void MainWindow::set_paths(QString expNum, QString expDesc){
     //drive = "D:\\";
-    //drive = "Y:\\"; // WIT PCs after update
+    drive = "Y:\\"; // WIT PCs after update
 
     dirPath = drive + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
     //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
