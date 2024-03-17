@@ -930,7 +930,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   // Set target function
   //SetBimodalTargetFunction();
-  SetTrimodalTargetFunction();
+  //SetTrimodalTargetFunction();
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
@@ -2546,6 +2546,25 @@ void MainWindow::Run1DExperimentWithSOMKE() {
 
       log("Getting error domain.");
       error_domain = somke_algorithm.divergence_domain_;
+
+      // Failsafe, if divergence domain was not yet computed
+      if(error_domain.empty()){
+
+        double minX = ui->lineEdit_minX->text().toDouble();
+        double maxX = ui->lineEdit_maxX->text().toDouble();
+        int domainDensity = ui->lineEdit_domainDensity->text().toInt();
+
+        double error_domain_step = (maxX - minX) / domainDensity;
+
+        error_domain = {};
+        double domain_value = minX;
+
+        while(error_domain.size() < domainDensity + 1){
+            error_domain.push_back({domain_value});
+            domain_value += error_domain_step;
+        }
+      }
+
       log("Getting model plot on windowed.");
       model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
       log("Getting KDE plot on windowed.");
@@ -3214,7 +3233,7 @@ void MainWindow::update_theoretical_density(){
 
 void MainWindow::set_paths(QString expNum, QString expDesc){
     //drive = "D:\\";
-    drive = "Y:\\"; // WIT PCs after update
+    //drive = "Y:\\"; // WIT PCs after update
 
     dirPath = drive + "TR Badania\\Eksperyment " + expNum + " (" + expDesc + ")\\";
     //QString dirPath = driveDir + "Badania PK\\Eksperyment " + expNum + " (" + expDesc + ")\\";
