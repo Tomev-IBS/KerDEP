@@ -929,8 +929,8 @@ void MainWindow::on_pushButton_start_clicked() {
   //RunAccuracyExperiment();
 
   // Set target function
-  SetBimodalTargetFunction();
-  //SetTrimodalTargetFunction();
+  //SetBimodalTargetFunction();
+  SetTrimodalTargetFunction();
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
