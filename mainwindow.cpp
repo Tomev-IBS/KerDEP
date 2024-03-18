@@ -929,8 +929,8 @@ void MainWindow::on_pushButton_start_clicked() {
   //RunAccuracyExperiment();
 
   // Set target function
-  SetBimodalTargetFunction();
-  // SetTrimodalTargetFunction();
+  //SetBimodalTargetFunction();
+  SetTrimodalTargetFunction();
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
@@ -938,7 +938,7 @@ void MainWindow::on_pushButton_start_clicked() {
   screen_generation_frequency_ = 1000;
   error_computation_frequency_ = 10;
   int n_seeds = 20;
-  stream_number = 13;
+  stream_number = 14;
 
   for(int seed = n_seeds - 19; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -2072,7 +2072,7 @@ void MainWindow::Run1DExperimentWithWDE() {
   QString expNum = "WDE" + QString::number(stream_number) + "_" + seedString;
   this->setWindowTitle("Experiment #" + expNum);
 
-  QString streamDesc = "assumed bimodal";
+  QString streamDesc = "assumed trimodal";
   QString expDesc = "id=" + QString::number(screen_generation_frequency_) + ", "+streamDesc+" data stream, seed=" + seedString;
   expDesc += ", " + pcName;
 
