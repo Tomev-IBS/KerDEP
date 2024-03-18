@@ -930,7 +930,7 @@ void MainWindow::on_pushButton_start_clicked() {
 
   // Set target function
   //SetBimodalTargetFunction();
-  SetTrimodalTargetFunction();
+  // SetTrimodalTargetFunction();
 
   // Set number of iterations
   this->ui->lineEdit_iterationsNumber->setText("10000");
@@ -938,7 +938,7 @@ void MainWindow::on_pushButton_start_clicked() {
   screen_generation_frequency_ = 1000;
   error_computation_frequency_ = 10;
   int n_seeds = 20;
-  stream_number = 14;
+  stream_number = 0;
 
   for(int seed = n_seeds - 19; seed < n_seeds + 1; ++seed){
   //for(int seed = n_seeds; seed > 0; --seed){  // Reversed loop for other experiments.
@@ -947,8 +947,8 @@ void MainWindow::on_pushButton_start_clicked() {
     //ui->label_dataStream->setText("k:\\Coding\\Python\\Poligon\\Articles\\IBS_PhD\\streams\\stream_13\\""\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
     //Run1DExperimentWithDESDA();
     //Run1DExperimentWithClusterKernels();
-    //Run1DExperimentWithWDE();
-    Run1DExperimentWithSOMKE();
+    Run1DExperimentWithWDE();
+    //Run1DExperimentWithSOMKE();
   }
 
   //run_3d_experiment();
