@@ -10,8 +10,8 @@
 #include <UI/plotLabelDoubleDataPreparator.h>
 #include "KDE/pluginsmoothingparametercounter.h"
 
-#include "kerDepCcWde.h"
-#include "kerDepWindowedWde.h"
+#include "DEDSTACcWde.h"
+#include "DEDSTAWindowedWde.h"
 
 #include "UI/plotLabel.h"
 #include "UI/plotLabelIntDataPreparator.h"
@@ -111,8 +111,8 @@ void MainWindow::FillErrorIndicesColors() {
   error_indices_colors.push_back(windowed_plot_pen_.color());
   error_indices_colors.push_back(kde_plot_pen_.color());
   error_indices_colors.push_back(weighted_plot_pen_.color());
-  error_indices_colors.push_back(desda_kde_plot_pen_.color());
-  error_indices_colors.push_back(desda_rare_elements_kde_plot_pen_.color());
+  error_indices_colors.push_back(DEDSTA_kde_plot_pen_.color());
+  error_indices_colors.push_back(DEDSTA_rare_elements_kde_plot_pen_.color());
 }
 
 MainWindow::~MainWindow() {
@@ -170,7 +170,7 @@ void MainWindow::SetupKernelsTable() {
   RefreshTargetFunctionTable();
 }
 
-void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
+void MainWindow::DrawPlots(DEDSTA *DEDSTAAlgorithm) {
   ClearPlot();
   ResizePlot();
 
@@ -190,7 +190,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate m=m0 estimator plot
   if(ui->checbox_showFullEstimator->isChecked()) {
-    auto windowed_estimator_values = DESDAAlgorithm->getWindowKDEValues(&drawable_domain);
+    auto windowed_estimator_values = DEDSTAAlgorithm->getWindowKDEValues(&drawable_domain);
     auto windowed_estimator_y = QVector<double>(windowed_estimator_values.begin(),
                                                 windowed_estimator_values.end());
 
@@ -203,7 +203,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate variable m estimator plot
   if(ui->checkBox_showEstimationPlot->isChecked()) {
-    auto less_elements_estimator_values = DESDAAlgorithm->getKDEValues(&drawable_domain);
+    auto less_elements_estimator_values = DEDSTAAlgorithm->getKDEValues(&drawable_domain);
     auto less_elements_estimator_y = QVector<double>(less_elements_estimator_values.begin(),
                                                      less_elements_estimator_values.end());
 
@@ -216,7 +216,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate weights estimator plot
   if(ui->checkBox_showWeightedEstimationPlot->isChecked()) {
-    auto weighted_estimator_values = DESDAAlgorithm->getWeightedKDEValues(&drawable_domain);
+    auto weighted_estimator_values = DEDSTAAlgorithm->getWeightedKDEValues(&drawable_domain);
     auto weighted_estimator_y = QVector<double>(weighted_estimator_values.begin(),
                                                 weighted_estimator_values.end());
 
@@ -229,7 +229,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
 
   // Generate plot for prognosis estimator
   if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()) {
-    auto prognosis_enhanced_plot_values = DESDAAlgorithm->getEnhancedKDEValues(&drawable_domain);
+    auto prognosis_enhanced_plot_values = DEDSTAAlgorithm->getEnhancedKDEValues(&drawable_domain);
     auto prognosis_enhanced_plot_y = QVector<double>(prognosis_enhanced_plot_values.begin(),
                                                      prognosis_enhanced_plot_values.end());
 
@@ -237,12 +237,12 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
       drawable_domain_[i] += replace_constant;
     }
 
-    AddPlot(&prognosis_enhanced_plot_y, desda_kde_plot_pen_);
+    AddPlot(&prognosis_enhanced_plot_y, DEDSTA_kde_plot_pen_);
   }
 
   // Generate plot for atypical estimator
   if(ui->checkBox_REESEKDE->isChecked()) {
-    auto rare_elements_enhanced_plot_values = DESDAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain);
+    auto rare_elements_enhanced_plot_values = DEDSTAAlgorithm->getRareElementsEnhancedKDEValues(&drawable_domain);
     auto rare_elements_enhanced_plot_y = QVector<double>(rare_elements_enhanced_plot_values.begin(),
                                                          rare_elements_enhanced_plot_values.end());
 
@@ -250,7 +250,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
       drawable_domain_[i] += replace_constant;
     }
 
-    AddPlot(&rare_elements_enhanced_plot_y, desda_rare_elements_kde_plot_pen_);
+    AddPlot(&rare_elements_enhanced_plot_y, DEDSTA_rare_elements_kde_plot_pen_);
   }
 
   // Generate prognosis derivative plot
@@ -277,7 +277,7 @@ void MainWindow::DrawPlots(DESDA *DESDAAlgorithm) {
   }
 
   if(ui->checkBox_showUnusualClusters->isChecked()) {
-    MarkUncommonClusters(DESDAAlgorithm);
+    MarkUncommonClusters(DEDSTAAlgorithm);
   }
 
   // Draw plots
@@ -310,7 +310,7 @@ void MainWindow::DrawPlots(EnhancedClusterKernelAlgorithm *CKAlgorithm) {
   }
 }
 
-void MainWindow::DrawPlots(KerDEP_CC_WDE *WDEAlgorithm) {
+void MainWindow::DrawPlots(DEDSTA_CC_WDE *WDEAlgorithm) {
   ClearPlot();
   ResizePlot();
 
@@ -418,15 +418,15 @@ void MainWindow::ClearPlot() {
   lines_on_plot_.clear();
 }
 
-unsigned long long MainWindow::MarkUncommonClusters(DESDA *DESDAAlgorithm) {
+unsigned long long MainWindow::MarkUncommonClusters(DEDSTA *DEDSTAAlgorithm) {
 
   atypical_elements_points_and_derivatives_ =
-      DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
-  quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
+      DEDSTAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  quantile_estimator_value_ = DEDSTAAlgorithm->_quantileEstimator;
 
   // Last element
   if(screen_generation_frequency_ == 1) {
-    auto clusters = DESDAAlgorithm->getClustersForEstimator();
+    auto clusters = DEDSTAAlgorithm->getClustersForEstimator();
     auto verticalLine = new QCPItemLine(ui->widget_plot);
     verticalLine->start->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), 0);
     verticalLine->end->setCoords(std::stod(clusters[0]->getRepresentative()->attributesValues["Val0"]), -0.02);
@@ -450,9 +450,9 @@ unsigned long long MainWindow::MarkUncommonClusters(DESDA *DESDAAlgorithm) {
   return atypical_elements_points_and_derivatives_.size();
 }
 
-void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers){
-  atypical_elements_points_and_derivatives_ = DESDAAlgorithm->getAtypicalElementsValuesAndDerivatives();
-  quantile_estimator_value_ = DESDAAlgorithm->_quantileEstimator;
+void MainWindow::MarkUncommonClusters2D(DEDSTA *DEDSTAAlgorithm, std::deque<QwtPlotCurve> *uncommon_clusters_markers){
+  atypical_elements_points_and_derivatives_ = DEDSTAAlgorithm->getAtypicalElementsValuesAndDerivatives();
+  quantile_estimator_value_ = DEDSTAAlgorithm->_quantileEstimator;
 
   QPolygonF new_trends;
   QPolygonF vanishing_trends;
@@ -460,7 +460,7 @@ void MainWindow::MarkUncommonClusters2D(DESDA *DESDAAlgorithm, std::deque<QwtPlo
   // Mark last cluster
   if(screen_generation_frequency_ == 1) {
     QPolygonF last_cluster_point;
-    auto last_cluster = DESDAAlgorithm->getClustersForEstimator()[0];
+    auto last_cluster = DEDSTAAlgorithm->getClustersForEstimator()[0];
 
     last_cluster_point << QPointF(std::stod(last_cluster->getRepresentative()->attributesValues["Val0"]),
                                   std::stod(last_cluster->getRepresentative()->attributesValues["Val1"]));
@@ -945,7 +945,7 @@ void MainWindow::on_pushButton_start_clicked() {
     ui->lineEdit_seed->setText(QString::number(seed)); // Default seed.
     ui->label_dataStream->setText("y:\\data\\stream_" + QString::number(stream_number) + "\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
     //ui->label_dataStream->setText("k:\\Coding\\Python\\Poligon\\Articles\\IBS_PhD\\streams\\stream_13\\""\\stream_" + QString::number(stream_number) + "_" + QString::number(seed) +  ".csv");
-    //Run1DExperimentWithDESDA();
+    //Run1DExperimentWithDEDSTA();
     //Run1DExperimentWithClusterKernels();
     Run1DExperimentWithWDE();
     //Run1DExperimentWithSOMKE();
@@ -1117,7 +1117,7 @@ void MainWindow::on_pushButton_clicked() {
   derivative_estimator_.reset(GenerateKernelDensityEstimator(2, radial));
   enhanced_kde_.reset(GenerateKernelDensityEstimator(2, radial));
 
-  DESDA DESDAAlgorithm(
+  DEDSTA DEDSTAAlgorithm(
       estimator,
       derivative_estimator_,
       enhanced_kde_,
@@ -1143,7 +1143,7 @@ void MainWindow::on_pushButton_clicked() {
   double sum_l2 = 0;
 
   QwtContourPlotUI plotUi(&step_number_, screen_generation_frequency_, seed,
-                          &DESDAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
+                          &DEDSTAAlgorithm, &l1_n_, &l2_n_, &sup_n_, &mod_n_,
                           &actual_l1, &actual_l2, &actual_sup, &actual_mod,
                           &data_date_time, &level_multipliers, experiment_description);
   plotUi.attach(contour_plot_);
@@ -1177,7 +1177,7 @@ void MainWindow::on_pushButton_clicked() {
     startTime = time(nullptr);
 
     log("Performing new step.");
-    DESDAAlgorithm.performStep();
+    DEDSTAAlgorithm.performStep();
     log("Step performed.");
 
     bool compute_errors = step_number_ >= errors_calculation_start_step && should_compute_errors;
@@ -1185,18 +1185,18 @@ void MainWindow::on_pushButton_clicked() {
 
     if(ui->checkBox_showUnusualClusters->isChecked() && draw_plot){
       log("Marking rare elements.");
-      MarkUncommonClusters2D(&DESDAAlgorithm, &uncommon_clusters_markers);
+      MarkUncommonClusters2D(&DEDSTAAlgorithm, &uncommon_clusters_markers);
     }
 
     log("Estimator preparation.");
-    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    DEDSTAAlgorithm.prepareEstimatorForContourPlotDrawing();
     log("Estimator preparation finished.");
 
     // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
     if(compute_errors || draw_plot) {
       log("Computing domains.");
-      error_xs = DESDAAlgorithm.getErrorDomain(0);
-      error_ys = DESDAAlgorithm.getErrorDomain(1);
+      error_xs = DEDSTAAlgorithm.getErrorDomain(0);
+      error_ys = DEDSTAAlgorithm.getErrorDomain(1);
       error_domain = Generate2DPlotErrorDomain(error_xs, error_ys);
       log("Computing values of domains.");
       model_function_values = GetFunctionsValueOnDomain(densityFunction, error_domain);
@@ -1256,7 +1256,7 @@ void MainWindow::on_pushButton_clicked() {
     }
 
     log("Restoring weights.");
-    DESDAAlgorithm.restoreClustersCWeights();
+    DEDSTAAlgorithm.restoreClustersCWeights();
 
     endTime = time(nullptr);
 
@@ -1312,9 +1312,9 @@ std::vector<std::vector<double>> MainWindow::Generate2DPlotErrorDomain(const QVe
 }
 
 std::vector<std::vector<double>> MainWindow::Generate1DPlotErrorDomain(
-    DESDA *DESDAAlgorithm) {
+    DEDSTA *DEDSTAAlgorithm) {
   std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getErrorDomain(0);
+  auto xDomainValues = DEDSTAAlgorithm->getErrorDomain(0);
 
   for(auto x : xDomainValues) {
     domainValues.push_back({x});
@@ -1324,9 +1324,9 @@ std::vector<std::vector<double>> MainWindow::Generate1DPlotErrorDomain(
 }
 
 std::vector<std::vector<double>> MainWindow::Generate1DWindowedPlotErrorDomain(
-    DESDA *DESDAAlgorithm) {
+    DEDSTA *DEDSTAAlgorithm) {
   std::vector<point> domainValues = {};
-  auto xDomainValues = DESDAAlgorithm->getWindowedErrorDomain();
+  auto xDomainValues = DEDSTAAlgorithm->getWindowedErrorDomain();
 
   for(auto x : xDomainValues) {
     domainValues.push_back({x});
@@ -1399,7 +1399,7 @@ void MainWindow::SetTrimodalTargetFunction(){
     ui->lineEdit_minX->setText("-10");
 }
 
-void MainWindow::Run1DExperimentWithDESDA() {
+void MainWindow::Run1DExperimentWithDEDSTA() {
 
   ui->widget_plot->clearGraphs();
   stored_medoids_.clear();
@@ -1479,7 +1479,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
   derivative_estimator_->_shouldConsiderWeights = false;
 
   int pluginRank = 2;
-  DESDA DESDAAlgorithm(
+  DEDSTA DEDSTAAlgorithm(
       estimator,
       derivative_estimator_,
       enhanced_kde_,
@@ -1523,29 +1523,29 @@ void MainWindow::Run1DExperimentWithDESDA() {
   plotLabel KPSSTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "KPSS         = 0");
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("sgmKPSS    =", &DESDAAlgorithm._sgmKPSS);
+  AddDoubleLabelToPlot("sgmKPSS    =", &DEDSTAAlgorithm._sgmKPSS);
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  //AddConstantLabelToPlot("mKPSS = " + QString::number(DESDAAlgorithm._kpssM));
-  AddIntLabelToPlot("m          = ", &(DESDAAlgorithm._m));
-  //AddConstantLabelToPlot("m_min      = " + QString::number(DESDAAlgorithm._minM));
+  //AddConstantLabelToPlot("mKPSS = " + QString::number(DEDSTAAlgorithm._kpssM));
+  AddIntLabelToPlot("m          = ", &(DEDSTAAlgorithm._m));
+  //AddConstantLabelToPlot("m_min      = " + QString::number(DEDSTAAlgorithm._minM));
   //AddConstantLabelToPlot("m_0        = " + ui->lineEdit_sampleSize->text());
   label_vertical_offset_ += label_vertical_offset_step_;
 
-  //AddDoubleLabelToPlot("beta0 = ", &(DESDAAlgorithm._beta0));
+  //AddDoubleLabelToPlot("beta0 = ", &(DEDSTAAlgorithm._beta0));
   //label_vertical_offset_ += label_vertical_offset_step_;
 
-  AddDoubleLabelToPlot("r          =", &(DESDAAlgorithm._r));
-  //AddDoubleLabelToPlot("q          =", &(DESDAAlgorithm._quantileEstimator));
-  AddIntLabelToPlot("#atypical  = ", &(DESDAAlgorithm._rareElementsNumber));
+  AddDoubleLabelToPlot("r          =", &(DEDSTAAlgorithm._r));
+  //AddDoubleLabelToPlot("q          =", &(DEDSTAAlgorithm._quantileEstimator));
+  AddIntLabelToPlot("#atypical  = ", &(DEDSTAAlgorithm._rareElementsNumber));
   label_vertical_offset_ += label_vertical_offset_step_;
-  //AddIntLabelToPlot("trend = ", &(DESDAAlgorithm._trendsNumber));
+  //AddIntLabelToPlot("trend = ", &(DEDSTAAlgorithm._trendsNumber));
   //*
   QString signal_exclamation_points = "                    ";
   plotLabel signal_exclamation_point_label(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_,
                                            signal_exclamation_points);
 
-  //AddDoubleLabelToPlot("TS         =" , &(DESDAAlgorithm.statistics_[0]));
+  //AddDoubleLabelToPlot("TS         =" , &(DEDSTAAlgorithm.statistics_[0]));
   plotLabel statisticsTextLabel(ui->widget_plot, label_horizontal_offset_, label_vertical_offset_, "TS           = 0");
   label_vertical_offset_ += label_vertical_offset_step_;
 
@@ -1678,7 +1678,7 @@ void MainWindow::Run1DExperimentWithDESDA() {
 
     update_theoretical_density();
 
-    DESDAAlgorithm.performStep();
+    DEDSTAAlgorithm.performStep();
 
     target_function_.reset(GenerateTargetFunction(&means_, &standard_deviations_));
 
@@ -1689,25 +1689,25 @@ void MainWindow::Run1DExperimentWithDESDA() {
       ++numberOfErrorCalculations;
 
       log("Getting windowed domain.");
-      windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DESDAAlgorithm);
+      windowed_error_domain = Generate1DWindowedPlotErrorDomain(&DEDSTAAlgorithm);
       log("Getting non-windowed domain.");
-      error_domain = Generate1DPlotErrorDomain(&DESDAAlgorithm);
+      error_domain = Generate1DPlotErrorDomain(&DEDSTAAlgorithm);
 
       log("Getting model plot on windowed.");
       windowed_model_values = GetFunctionsValueOnDomain(target_function_.get(), windowed_error_domain);
       log("Getting KDE plot on windowed.");
-      windowed_kde_values = DESDAAlgorithm.getWindowKDEValues(&windowed_error_domain);
+      windowed_kde_values = DEDSTAAlgorithm.getWindowKDEValues(&windowed_error_domain);
 
       log("Getting model plot.");
       model_values = GetFunctionsValueOnDomain(target_function_.get(), error_domain);
       log("Getting KDE plot on lesser elements.");
-      less_elements_kde_values = DESDAAlgorithm.getKDEValues(&error_domain);
+      less_elements_kde_values = DEDSTAAlgorithm.getKDEValues(&error_domain);
       log("Getting weighted KDE plot.");
-      weighted_kde_values = DESDAAlgorithm.getWeightedKDEValues(&error_domain);
+      weighted_kde_values = DEDSTAAlgorithm.getWeightedKDEValues(&error_domain);
       log("Getting sgm KDE plot.");
-      enhanced_kde_values = DESDAAlgorithm.getEnhancedKDEValues(&error_domain);
+      enhanced_kde_values = DEDSTAAlgorithm.getEnhancedKDEValues(&error_domain);
       log("Getting rare KDE plot.");
-      rare_elements_kde_values = DESDAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
+      rare_elements_kde_values = DEDSTAAlgorithm.getRareElementsEnhancedKDEValues(&error_domain);
 
       error_domain_length = error_domain[error_domain.size() - 1][0] - error_domain[0][0];
       windowed_error_domain_length =
@@ -1744,15 +1744,15 @@ void MainWindow::Run1DExperimentWithDESDA() {
       }
 
       kernel_prognosis_derivative_values_ =
-          DESDAAlgorithm.getKernelPrognosisDerivativeValues(&points_to_compute_derivative_on);
+          DEDSTAAlgorithm.getKernelPrognosisDerivativeValues(&points_to_compute_derivative_on);
 
       // ============= LEFT SIDE UPDATE ================ //
 
       KPSSTextLabel.setText("KPSS       =" + FormatNumberForDisplay(
-          DESDAAlgorithm.getStationarityTestValue()));
+          DEDSTAAlgorithm.getStationarityTestValue()));
 
       if(step_number_ >= drawing_start_step) {
-        DrawPlots(&DESDAAlgorithm);
+        DrawPlots(&DEDSTAAlgorithm);
       }
 
       for(const auto &label : plot_labels_) {
@@ -1762,11 +1762,11 @@ void MainWindow::Run1DExperimentWithDESDA() {
       signal_exclamation_points = "                   ";
 
       statisticsTextLabel.setText("TS         =" + FormatNumberForDisplay(
-          DESDAAlgorithm.statistics_[0]));
+          DEDSTAAlgorithm.statistics_[0]));
 
-      if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.3){
+      if(fabs(DEDSTAAlgorithm.statistics_[0]) >= 0.3){
         signal_exclamation_points += "!";
-      } else if(fabs(DESDAAlgorithm.statistics_[0]) >= 0.2){
+      } else if(fabs(DEDSTAAlgorithm.statistics_[0]) >= 0.2){
         signal_exclamation_points += "?";
       }
 
@@ -2721,12 +2721,12 @@ void MainWindow::AddColorsLegendToPlot() {
 
   if(ui->checkBox_sigmoidallyEnhancedKDE->isChecked()){
     AddConstantLabelToPlot("prediction (Sec. 3.3)");
-    plot_labels_.back()->SetColor(desda_kde_plot_pen_.color());
+    plot_labels_.back()->SetColor(DEDSTA_kde_plot_pen_.color());
   }
 
   if(ui->checkBox_REESEKDE->isChecked()){
     AddConstantLabelToPlot("atypical   (Sec. 3.4)");
-    plot_labels_.back()->SetColor(desda_rare_elements_kde_plot_pen_.color());
+    plot_labels_.back()->SetColor(DEDSTA_rare_elements_kde_plot_pen_.color());
   }
 
   if(ui->checkBox_kernelPrognosedPlot->isChecked()){
@@ -3039,7 +3039,7 @@ void MainWindow::run_3d_experiment() {
   derivative_estimator_.reset(GenerateKernelDensityEstimator(2, radial));
   enhanced_kde_.reset(GenerateKernelDensityEstimator(2, radial));
 
-  DESDA DESDAAlgorithm(
+  DEDSTA DEDSTAAlgorithm(
       estimator,
       derivative_estimator_,
       enhanced_kde_,
@@ -3079,14 +3079,14 @@ void MainWindow::run_3d_experiment() {
     startTime = time(nullptr);
 
     log("Performing new step.");
-    DESDAAlgorithm.performStep();
+    DEDSTAAlgorithm.performStep();
     log("Step performed.");
 
     bool compute_errors = (step_number_ > errors_calculation_start_step) && should_compute_errors && (step_number_ % screen_generation_frequency_ == 0);
     bool draw_plot = (step_number_ % screen_generation_frequency_ == 0 && step_number_ >= drawing_start_step);
 
     log("Estimator preparation.");
-    DESDAAlgorithm.prepareEstimatorForContourPlotDrawing();
+    DEDSTAAlgorithm.prepareEstimatorForContourPlotDrawing();
     log("Estimator preparation finished.");
 
     // NOTE: We use error domain for spectrogram generation! That's why we compute the domain and values outside the if.
@@ -3094,9 +3094,9 @@ void MainWindow::run_3d_experiment() {
       log("Computing domains.");
       log(compute_errors);
 
-      error_xs = DESDAAlgorithm.getErrorDomain(0);
-      error_ys = DESDAAlgorithm.getErrorDomain(1);
-      error_zs = DESDAAlgorithm.getErrorDomain(2);
+      error_xs = DEDSTAAlgorithm.getErrorDomain(0);
+      error_ys = DEDSTAAlgorithm.getErrorDomain(1);
+      error_zs = DEDSTAAlgorithm.getErrorDomain(2);
 
       // 3D error domain generation
       error_domain.clear();
@@ -3173,7 +3173,7 @@ void MainWindow::run_3d_experiment() {
     }
 
     log("Restoring weights.");
-    DESDAAlgorithm.restoreClustersCWeights();
+    DEDSTAAlgorithm.restoreClustersCWeights();
 
     endTime = time(nullptr);
 

@@ -5,8 +5,8 @@
 // It also ignores the contributions and samples from the elementary distributions in the order they were given.
 //
 
-#ifndef KERDEP_ALTERNATINGSPLITTINGDISTRIBUTION_H
-#define KERDEP_ALTERNATINGSPLITTINGDISTRIBUTION_H
+#ifndef DEDSTA_ALTERNATINGSPLITTINGDISTRIBUTION_H
+#define DEDSTA_ALTERNATINGSPLITTINGDISTRIBUTION_H
 
 #include "complexdistribution.h"
 
@@ -25,4 +25,4 @@ class alternatingSplittingDistribution : public complexDistribution{
 
 };
 
-#endif //KERDEP_ALTERNATINGSPLITTINGDISTRIBUTION_H
+#endif //DEDSTA_ALTERNATINGSPLITTINGDISTRIBUTION_H

@@ -1,5 +1,5 @@
-#ifndef KERDEP_VARIANCEBASEDCLUSTERKERNEL_H
-#define KERDEP_VARIANCEBASEDCLUSTERKERNEL_H
+#ifndef DEDSTA_VARIANCEBASEDCLUSTERKERNEL_H
+#define DEDSTA_VARIANCEBASEDCLUSTERKERNEL_H
 
 #include "ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernel.h"
 #include "ClusterKernelWrappers/epanecznikowKernelRealValuedFunction.h"
@@ -28,4 +28,4 @@ class VarianceBasedClusterKernel : public ClusterKernel {
     Point bandwidth_ = {};
 };
 
-#endif //KERDEP_VARIANCEBASEDCLUSTERKERNEL_H
+#endif //DEDSTA_VARIANCEBASEDCLUSTERKERNEL_H

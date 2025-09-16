@@ -2,8 +2,8 @@
 // Created by tomev on 1/4/2023.
 //
 
-#ifndef KERDEP_SINUSOIDALDISTRIBUTIONDATAREADER_H
-#define KERDEP_SINUSOIDALDISTRIBUTIONDATAREADER_H
+#ifndef DEDSTA_SINUSOIDALDISTRIBUTIONDATAREADER_H
+#define DEDSTA_SINUSOIDALDISTRIBUTIONDATAREADER_H
 
 #include "Reservoir_sampling/dataReader.h"
 #include "Distributions/distribution.h"
@@ -45,4 +45,4 @@ class sinusoidalDistributionDataReader : public dataReader
 };
 
 
-#endif //KERDEP_SINUSOIDALDISTRIBUTIONDATAREADER_H
+#endif //DEDSTA_SINUSOIDALDISTRIBUTIONDATAREADER_H

@@ -1,5 +1,5 @@
-#ifndef KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H
-#define KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H
+#ifndef DEDSTA_ENHANCEDCLUSTERKERNELALGORITHM_H
+#define DEDSTA_ENHANCEDCLUSTERKERNELALGORITHM_H
 
 #include "WeightedUnivariateListBasedClusterKernelAlgorithm.h"
 
@@ -17,4 +17,4 @@ class EnhancedClusterKernelAlgorithm : public WeightedUnivariateListBasedCluster
     double GetBandwidth();
 };
 
-#endif //KERDEP_ENHANCEDCLUSTERKERNELALGORITHM_H
+#endif //DEDSTA_ENHANCEDCLUSTERKERNELALGORITHM_H

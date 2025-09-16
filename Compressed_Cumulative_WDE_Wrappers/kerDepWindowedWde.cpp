@@ -2,15 +2,15 @@
 // Created by Tomev on 25/01/2021.
 //
 
-#include "kerDepWindowedWde.h"
+#include "DEDSTAWindowedWde.h"
 
-KerDEPWindowedWDE::KerDEPWindowedWDE(const unsigned int &maximal_number_of_empirical_coefficients,
+DEDSTAWindowedWDE::DEDSTAWindowedWDE(const unsigned int &maximal_number_of_empirical_coefficients,
                                      const double &weights_modifier_,
                                      WaveletDensityEstimator *(*wde_factory_method)(const vector<double> &),
-                                     const unsigned int &block_size) : KerDEP_CC_WDE(
+                                     const unsigned int &block_size) : DEDSTA_CC_WDE(
     maximal_number_of_empirical_coefficients, weights_modifier_, wde_factory_method, block_size) {}
 
-void KerDEPWindowedWDE::PerformStep(point *pt) {
+void DEDSTAWindowedWDE::PerformStep(point *pt) {
 
   block.push_back((*pt)[0]);
 

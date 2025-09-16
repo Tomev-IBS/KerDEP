@@ -1,5 +1,5 @@
-#ifndef KERDEP_ERRORSCALCULATOR_H
-#define KERDEP_ERRORSCALCULATOR_H
+#ifndef DEDSTA_ERRORSCALCULATOR_H
+#define DEDSTA_ERRORSCALCULATOR_H
 
 #include <vector>
 
@@ -30,4 +30,4 @@ class ErrorsCalculator {
     double CalculateEuclideanDistance(const std::vector<double> &point_1, const std::vector<double> &point_2);
 };
 
-#endif //KERDEP_ERRORSCALCULATOR_H
+#endif //DEDSTA_ERRORSCALCULATOR_H

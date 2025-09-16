@@ -2,8 +2,8 @@
 // Created by Tomev on 07/02/2021.
 //
 
-#ifndef KERDEP_HARDTHRESHOLDINGSTRATEGY_H
-#define KERDEP_HARDTHRESHOLDINGSTRATEGY_H
+#ifndef DEDSTA_HARDTHRESHOLDINGSTRATEGY_H
+#define DEDSTA_HARDTHRESHOLDINGSTRATEGY_H
 
 #include "ThresholdingStrategyInterface.h"
 
@@ -19,4 +19,4 @@ class HardThresholdingStrategy : public ThresholdingStrategyInterface {
     double threshold_coefficient_ = 0.6; // Hardle's book, page 146, chap 10.3
 };
 
-#endif //KERDEP_HARDTHRESHOLDINGSTRATEGY_H
+#endif //DEDSTA_HARDTHRESHOLDINGSTRATEGY_H

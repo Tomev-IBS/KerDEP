@@ -2,14 +2,14 @@
 // Created by Tomev on 25/01/2021.
 //
 
-#ifndef KERDEP_KERDEPWINDOWEDWDE_H
-#define KERDEP_KERDEPWINDOWEDWDE_H
+#ifndef DEDSTA_DEDSTAWINDOWEDWDE_H
+#define DEDSTA_DEDSTAWINDOWEDWDE_H
 
-#include "kerDepCcWde.h"
+#include "DEDSTACcWde.h"
 
-class KerDEPWindowedWDE : public KerDEP_CC_WDE {
+class DEDSTAWindowedWDE : public DEDSTA_CC_WDE {
   public:
-    KerDEPWindowedWDE(const unsigned int &maximal_number_of_empirical_coefficients,
+    DEDSTAWindowedWDE(const unsigned int &maximal_number_of_empirical_coefficients,
                       const double &weights_modifier_,
                       WaveletDensityEstimator* (*wde_factory_method)(const vector<double> &values_block),
                       const unsigned int &block_size);
@@ -18,6 +18,6 @@ class KerDEPWindowedWDE : public KerDEP_CC_WDE {
 
 };
 
-typedef KerDEPWindowedWDE Windowed_WDE;
+typedef DEDSTAWindowedWDE Windowed_WDE;
 
-#endif //KERDEP_KERDEPWINDOWEDWDE_H
+#endif //DEDSTA_DEDSTAWINDOWEDWDE_H

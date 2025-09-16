@@ -1,7 +1,7 @@
 #ifndef QWTCONTOURPLOTUI_H
 #define QWTCONTOURPLOTUI_H
 
-#include "DESDA.h"
+#include "DEDSTA.h"
 #include <QDateTime>
 
 #include <qwt_plot.h>
@@ -11,7 +11,7 @@ class QwtContourPlotUI
 {
   public:
     QwtContourPlotUI(int *currentStep, const int& imagesPeriod, const int& seed,
-                     DESDA *DESDAAlgorithm, double* L1Error, double* L2Error,
+                     DEDSTA *DEDSTAAlgorithm, double* L1Error, double* L2Error,
                      double* supError, double* modError, double* actual_l1_error, double* actual_l2_error,
                      double* actual_sup_error, double* actual_mod_error, QDateTime* date_time, double* level_density,
                      const QString &experiment_description);
@@ -48,7 +48,7 @@ class QwtContourPlotUI
     QString _mMinString;
     QString experiment_description_;
 
-    DESDA *_DESDAAlgorithm;
+    DEDSTA *_DEDSTAAlgorithm;
 
     void updateLeftColumnText();
     void updateColoredColumnText();

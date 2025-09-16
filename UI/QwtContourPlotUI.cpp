@@ -1,13 +1,13 @@
 #include "QwtContourPlotUI.h"
 
 QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
-                                   const int& seed, DESDA *DESDAAlgorithm,
+                                   const int& seed, DEDSTA *DEDSTAAlgorithm,
                                    double* L1Error, double* L2Error,
                                    double* supError, double* modError, double* actual_l1_error, double* actual_l2_error,
                                    double* actual_sup_error, double* actual_mod_error, QDateTime *date_time, double* level_density,
                                    const QString &experiment_description)
  : _currentStep(currentStep), _L1Error(L1Error), _L2Error(L2Error),
-   _supError(supError), _modError(modError), _DESDAAlgorithm(DESDAAlgorithm), actual_l1_(actual_l1_error),
+   _supError(supError), _modError(modError), _DEDSTAAlgorithm(DEDSTAAlgorithm), actual_l1_(actual_l1_error),
    actual_l2_(actual_l2_error), actual_mod_(actual_mod_error), actual_sup_(actual_sup_error),
    date_time_(date_time), level_density_(level_density), experiment_description_(experiment_description)
 {
@@ -32,9 +32,9 @@ QwtContourPlotUI::QwtContourPlotUI(int *currentStep, const int& imagesPeriod,
   _imagesPeriodString = "iw   = " + QString::number(imagesPeriod) + "\n";
   _seedString         = "seed = " + QString::number(seed) + "\n";
   _levelsString       = "lvls = " + QString::number(*level_density_) + "\n";
-  _mKPSSString        = "mKPSS = " + QString::number(_DESDAAlgorithm->_kpssM) + "\n";
-  _mMaxString         = "m0    = " + QString::number(_DESDAAlgorithm->_maxM) + "\n";
-  _mMinString         = "mmin  = " + QString::number(_DESDAAlgorithm->_minM) + "\n";
+  _mKPSSString        = "mKPSS = " + QString::number(_DEDSTAAlgorithm->_kpssM) + "\n";
+  _mMaxString         = "m0    = " + QString::number(_DEDSTAAlgorithm->_maxM) + "\n";
+  _mMinString         = "mmin  = " + QString::number(_DEDSTAAlgorithm->_minM) + "\n";
 }
 
 void QwtContourPlotUI::attach(QwtPlot *plot)
@@ -96,40 +96,40 @@ void QwtContourPlotUI::updateLeftColumnText()
   //leftColumnText += _levelsString;
   //leftColumnText += _seedString;
   leftColumnText += "\n";
-  leftColumnText += "KPSS      =" + formatNumberForDisplay(_DESDAAlgorithm->getStationarityTestValue()) + "\n";
-  leftColumnText += "sgmKPSS   =" + formatNumberForDisplay(_DESDAAlgorithm->_sgmKPSS) + "\n";
+  leftColumnText += "KPSS      =" + formatNumberForDisplay(_DEDSTAAlgorithm->getStationarityTestValue()) + "\n";
+  leftColumnText += "sgmKPSS   =" + formatNumberForDisplay(_DEDSTAAlgorithm->_sgmKPSS) + "\n";
   leftColumnText += "\n";
   //leftColumnText += _mKPSSString;
   //leftColumnText += _mMaxString;
   //leftColumnText += _mMinString;
-  leftColumnText += "m         = " + QString::number(_DESDAAlgorithm->_m) + "\n";
+  leftColumnText += "m         = " + QString::number(_DEDSTAAlgorithm->_m) + "\n";
   leftColumnText += "\n";
-  //leftColumnText += "beta0 =" + formatNumberForDisplay(_DESDAAlgorithm->_beta0) + "\n";
+  //leftColumnText += "beta0 =" + formatNumberForDisplay(_DEDSTAAlgorithm->_beta0) + "\n";
   //leftColumnText += "\n";
-  leftColumnText += "r         =" + formatNumberForDisplay(_DESDAAlgorithm->_r) + "\n";
-  //leftColumnText += "q         =" + formatNumberForDisplay(_DESDAAlgorithm->_quantileEstimator) + "\n";
-  leftColumnText += "#atypical = " + QString::number(_DESDAAlgorithm->_rareElementsNumber) + "\n";
+  leftColumnText += "r         =" + formatNumberForDisplay(_DEDSTAAlgorithm->_r) + "\n";
+  //leftColumnText += "q         =" + formatNumberForDisplay(_DEDSTAAlgorithm->_quantileEstimator) + "\n";
+  leftColumnText += "#atypical = " + QString::number(_DEDSTAAlgorithm->_rareElementsNumber) + "\n";
   // Statistics, added 7 X 2021
   leftColumnText += "\n";
-  while(_DESDAAlgorithm->statistics_.size() < 2){
-    _DESDAAlgorithm->statistics_.push_back(0);
+  while(_DEDSTAAlgorithm->statistics_.size() < 2){
+    _DEDSTAAlgorithm->statistics_.push_back(0);
   }
-  leftColumnText += "TS_1      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[0]);
+  leftColumnText += "TS_1      =" + formatNumberForDisplay(_DEDSTAAlgorithm->statistics_[0]);
 
   //*
-  if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.3){
+  if(fabs(_DEDSTAAlgorithm->statistics_[0]) >= 0.3){
     leftColumnText += " !";
-  } else if(fabs(_DESDAAlgorithm->statistics_[0]) >= 0.2){
+  } else if(fabs(_DEDSTAAlgorithm->statistics_[0]) >= 0.2){
     leftColumnText += " ?";
   }
   //*/
 
-  leftColumnText += "\nTS_2      =" + formatNumberForDisplay(_DESDAAlgorithm->statistics_[1]);
+  leftColumnText += "\nTS_2      =" + formatNumberForDisplay(_DEDSTAAlgorithm->statistics_[1]);
 
   //*
-  if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.3){
+  if(fabs(_DEDSTAAlgorithm->statistics_[1]) >= 0.3){
     leftColumnText += " !";
-  } else if(fabs(_DESDAAlgorithm->statistics_[1]) >= 0.2){
+  } else if(fabs(_DEDSTAAlgorithm->statistics_[1]) >= 0.2){
     leftColumnText += " ?";
   }
   //*/
@@ -145,10 +145,10 @@ void QwtContourPlotUI::updateLeftColumnText()
   }
 
   /*
-  if(_DESDAAlgorithm->_smoothingParametersVector.size() == 2) {
+  if(_DEDSTAAlgorithm->_smoothingParametersVector.size() == 2) {
     leftColumnText += "\n";
-    leftColumnText += "h1 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[0]) + "\n";
-    leftColumnText += "h2 = " + formatNumberForDisplay(_DESDAAlgorithm->_smoothingParametersVector[1]);
+    leftColumnText += "h1 = " + formatNumberForDisplay(_DEDSTAAlgorithm->_smoothingParametersVector[0]) + "\n";
+    leftColumnText += "h2 = " + formatNumberForDisplay(_DEDSTAAlgorithm->_smoothingParametersVector[1]);
   }
   */
 

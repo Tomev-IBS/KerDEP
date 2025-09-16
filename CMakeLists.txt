@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-project(KerDEP LANGUAGES CXX)
+project(DEDSTA LANGUAGES CXX)
 set(CMAKE_PREFIX_PATH "D:/Qwt-6.1.5/lib/")
 list(PREPEND CMAKE_PREFIX_PATH "k:/Libs/Qt/5.15.2/mingw81_64/lib/\;")
 message("Printing CMAKE_PREFIX_PATH")
@@ -81,7 +81,7 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-add_executable(KerDEP
+add_executable(DEDSTA
         main.cpp
         UI/QwtContourPlotUI.cpp
         UI/plot.cpp
@@ -121,7 +121,7 @@ add_executable(KerDEP
         groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp
         groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp
         groupingThread/kMeansAlgorithm.cpp
-        DESDA.cpp
+        DEDSTA.cpp
         StationarityTests/kpssstationaritytest.cpp
         UI/plotLabel.cpp
         mainwindow.h
@@ -183,7 +183,7 @@ add_executable(KerDEP
         groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h
         groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h
         groupingThread/kMeansAlgorithm.h
-        DESDA.h
+        DEDSTA.h
         StationarityTests/kpssstationaritytest.h
         StationarityTests/i_stationaritytest.h
         UI/plotLabel.h
@@ -211,12 +211,12 @@ add_executable(KerDEP
         Compressed_Cumulative_WDE_Over_Stream/src/TranslatedDilatedWaveletFunction.cpp
         Compressed_Cumulative_WDE_Wrappers/LinearWDE.h
         Compressed_Cumulative_WDE_Wrappers/LinearWDE.cpp
-        Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.cpp
-        Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.h
+        Compressed_Cumulative_WDE_Wrappers/DEDSTACcWde.cpp
+        Compressed_Cumulative_WDE_Wrappers/DEDSTACcWde.h
         Compressed_Cumulative_WDE_Wrappers/math_helpers.h
         Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp
-        Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp
-        Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h
+        Compressed_Cumulative_WDE_Wrappers/DEDSTAWindowedWde.cpp
+        Compressed_Cumulative_WDE_Wrappers/DEDSTAWindowedWde.h
         Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp
         Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h
         Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.cpp
@@ -256,10 +256,10 @@ include_directories(Compressed_Cumulative_WDE_Wrappers/)
 include_directories(SOMKE/include/SOMKE/)
 include_directories(SOMKE/src/)
 
-target_include_directories(KerDEP PUBLIC ${knnl_include})
-target_include_directories(KerDEP PUBLIC ${armadillo_include})
+target_include_directories(DEDSTA PUBLIC ${knnl_include})
+target_include_directories(DEDSTA PUBLIC ${armadillo_include})
 
-target_link_libraries(KerDEP PRIVATE
+target_link_libraries(DEDSTA PRIVATE
         Qt5::Widgets
         Qt5::PrintSupport
         Qt5::Core
