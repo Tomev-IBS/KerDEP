@@ -2,8 +2,8 @@
 // Created by Tomev on 07/02/2021.
 //
 
-#ifndef KERDEP_THRESHOLDINGSTRATEGYINTERFACE_H
-#define KERDEP_THRESHOLDINGSTRATEGYINTERFACE_H
+#ifndef DEDSTA_THRESHOLDINGSTRATEGYINTERFACE_H
+#define DEDSTA_THRESHOLDINGSTRATEGYINTERFACE_H
 
 #include <vector>
 #include <memory>
@@ -18,4 +18,4 @@ class ThresholdingStrategyInterface{
 
 typedef std::shared_ptr<ThresholdingStrategyInterface> ThresholdingStrategyPtr;
 
-#endif //KERDEP_THRESHOLDINGSTRATEGYINTERFACE_H
+#endif //DEDSTA_THRESHOLDINGSTRATEGYINTERFACE_H

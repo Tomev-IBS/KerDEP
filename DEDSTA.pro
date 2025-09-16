@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET      =   KerDEP
+TARGET      =   DEDSTA
 TEMPLATE    =   app
 CONFIG      +=  static
 CONFIG      +=  qwt
@@ -85,8 +85,8 @@ SOURCES     +=  main.cpp\
                 Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/hardThresholdingStrategy.cpp \
                 Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/softThresholdingStrategy.cpp \
                 Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.cpp \
-                Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.cpp \
-                Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.cpp \
+                Compressed_Cumulative_WDE_Wrappers/DEDSTACcWde.cpp \
+                Compressed_Cumulative_WDE_Wrappers/DEDSTAWindowedWde.cpp \
                 Compressed_Cumulative_WDE_Wrappers/math_helpers.cpp \
                 Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.cpp \
                 Reservoir_sampling/textDataReader.cpp \
@@ -134,7 +134,7 @@ SOURCES     +=  main.cpp\
                 groupingThread/kMedoidsAlgorithm/numericalAttributeData.cpp \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.cpp \
                 groupingThread/kMeansAlgorithm.cpp \
-                DESDA.cpp \
+                DEDSTA.cpp \
                 StationarityTests/kpssstationaritytest.cpp \
                 UI/plotLabel.cpp \
                 KDE/WeightedCVBandwidthSelector.cpp
@@ -160,8 +160,8 @@ HEADERS     +=  mainwindow.h \
                 Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/hardThresholdingStrategy.h \
                 Compressed_Cumulative_WDE_Wrappers/ThresholdingStrategies/softThresholdingStrategy.h \
                 Compressed_Cumulative_WDE_Wrappers/WeightedThresholdedWDE.h \
-                Compressed_Cumulative_WDE_Wrappers/kerDepCcWde.h \
-                Compressed_Cumulative_WDE_Wrappers/kerDepWindowedWde.h \
+                Compressed_Cumulative_WDE_Wrappers/DEDSTACcWde.h \
+                Compressed_Cumulative_WDE_Wrappers/DEDSTAWindowedWde.h \
                 Compressed_Cumulative_WDE_Wrappers/math_helpers.h \
                 Compressed_Cumulative_WDE_Wrappers/weightedLinearWde.h \
                 QCustomPlot/qcustomplot.h \
@@ -237,7 +237,7 @@ HEADERS     +=  mainwindow.h \
                 groupingThread/kMedoidsAlgorithm/objectsDistanceMeasure.h \
                 groupingThread/medoidStoringAlgorithm/medoidStoringAlgorithm.h \
                 groupingThread/kMeansAlgorithm.h \
-                DESDA.h \
+                DEDSTA.h \
                 StationarityTests/kpssstationaritytest.h \
                 StationarityTests/i_stationaritytest.h \
                 UI/plotLabel.h \
@@ -248,7 +248,7 @@ FORMS       +=  mainwindow.ui
 DISTFILES   +=  .gitignore \
   .gitmodules \
   .idea/.gitignore \
-  .idea/KerDEP.iml \
+  .idea/DEDSTA.iml \
   .idea/dataSources.local.xml \
   .idea/misc.xml \
   .idea/modules.xml \

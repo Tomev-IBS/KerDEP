@@ -1,5 +1,5 @@
-#ifndef KERDEP_UNIVARIATESTREAMELEMENT_H
-#define KERDEP_UNIVARIATESTREAMELEMENT_H
+#ifndef DEDSTA_UNIVARIATESTREAMELEMENT_H
+#define DEDSTA_UNIVARIATESTREAMELEMENT_H
 
 #include "ClusterKernelsKDE/include/ClusterKernelsKDE/ClusterKernelStreamElement.h"
 
@@ -11,4 +11,4 @@ class UnivariateStreamElement : public ClusterKernelStreamElement {
     Point coordinates_;
 };
 
-#endif //KERDEP_UNIVARIATESTREAMELEMENT_H
+#endif //DEDSTA_UNIVARIATESTREAMELEMENT_H

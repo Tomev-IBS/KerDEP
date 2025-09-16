@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>KerDEP</string>
+   <string>DEDSTA</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -227,7 +227,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_minX">
            <property name="text">
-            <string>-14</string>
+            <string>-5</string>
            </property>
           </widget>
          </item>
@@ -241,7 +241,7 @@
          <item>
           <widget class="QLineEdit" name="lineEdit_maxX">
            <property name="text">
-            <string>54</string>
+            <string>48</string>
            </property>
           </widget>
          </item>
@@ -685,7 +685,7 @@
          <item row="3" column="1">
           <widget class="QCheckBox" name="checkBox_REESEKDE">
            <property name="text">
-            <string>DESDA Estimator (Black)</string>
+            <string>DEDSTA Estimator (Black)</string>
            </property>
            <property name="checked">
             <bool>true</bool>

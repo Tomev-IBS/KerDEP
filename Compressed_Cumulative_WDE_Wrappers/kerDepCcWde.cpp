@@ -2,20 +2,20 @@
 // Created by Tomev on 23/01/2021.
 //
 
-#include "kerDepCcWde.h"
+#include "DEDSTACcWde.h"
 #include "TranslatedDilatedScalingFunction.h"
 
 #include <algorithm>
 
 #include "math_helpers.h"
 
-KerDEP_CC_WDE::KerDEP_CC_WDE(const unsigned int &maximal_number_of_empirical_coefficients,
+DEDSTA_CC_WDE::DEDSTA_CC_WDE(const unsigned int &maximal_number_of_empirical_coefficients,
                              const double &weights_modifier_, WaveletDensityEstimator *(*wde_factory_method)(
                              const vector<double> &), const unsigned int &block_size)
     : CompressedCumulativeWaveletDensityEstimator(maximal_number_of_empirical_coefficients, weights_modifier_,
                                                   wde_factory_method, block_size) { }
 
-void KerDEP_CC_WDE::PerformStep(point *pt) {
+void DEDSTA_CC_WDE::PerformStep(point *pt) {
   if(block_size_ == block.size()){
     block.clear();
   }
@@ -27,7 +27,7 @@ void KerDEP_CC_WDE::PerformStep(point *pt) {
   }
 }
 
-vector<point> KerDEP_CC_WDE::GetErrorDomain() const {
+vector<point> DEDSTA_CC_WDE::GetErrorDomain() const {
 
   if(estimators_.empty()){
     return GetErrorDomainFromBlock();
@@ -36,7 +36,7 @@ vector<point> KerDEP_CC_WDE::GetErrorDomain() const {
   return GetErrorDomainFromCoefficients();
 }
 
-std::vector<double> KerDEP_CC_WDE::GetEstimatorValuesOnDomain(std::vector<point> domain) const {
+std::vector<double> DEDSTA_CC_WDE::GetEstimatorValuesOnDomain(std::vector<point> domain) const {
   vector<double> estimator_values_on_domain = {};
 
   for(const point& pt : domain){
@@ -47,7 +47,7 @@ std::vector<double> KerDEP_CC_WDE::GetEstimatorValuesOnDomain(std::vector<point>
   return estimator_values_on_domain;
 }
 
-unsigned int KerDEP_CC_WDE::GetCurrentCoefficientsNumber() const {
+unsigned int DEDSTA_CC_WDE::GetCurrentCoefficientsNumber() const {
   unsigned int current_coefficients_number = 0;
 
   if(estimators_.empty()){
@@ -61,7 +61,7 @@ unsigned int KerDEP_CC_WDE::GetCurrentCoefficientsNumber() const {
   return current_coefficients_number;
 }
 
-std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
+std::pair<double, double> DEDSTA_CC_WDE::GetEstimatorSupport() const {
 
   if(estimators_.empty()){
     return {0, 0};
@@ -100,7 +100,7 @@ std::pair<double, double> KerDEP_CC_WDE::GetEstimatorSupport() const {
   return support;
 }
 
-vector<point> KerDEP_CC_WDE::GetErrorDomainFromBlock() const {
+vector<point> DEDSTA_CC_WDE::GetErrorDomainFromBlock() const {
 
   vector<point> error_domain = {};
 
@@ -119,7 +119,7 @@ vector<point> KerDEP_CC_WDE::GetErrorDomainFromBlock() const {
   return error_domain;
 }
 
-vector<point> KerDEP_CC_WDE::GetErrorDomainFromCoefficients() const {
+vector<point> DEDSTA_CC_WDE::GetErrorDomainFromCoefficients() const {
 
   vector<point> error_domain = {};
 

@@ -2,8 +2,8 @@
 // Created by tomev on 12/03/2021.
 //
 
-#ifndef KERDEP_SOMKEFIXEDTHRESHOLDMERGINGSTRATEGY_H
-#define KERDEP_SOMKEFIXEDTHRESHOLDMERGINGSTRATEGY_H
+#ifndef DEDSTA_SOMKEFIXEDTHRESHOLDMERGINGSTRATEGY_H
+#define DEDSTA_SOMKEFIXEDTHRESHOLDMERGINGSTRATEGY_H
 
 #include "SOMKE/include/SOMKE/SOMKEMergingStrategy.h"
 
@@ -22,4 +22,4 @@ class SOMKEFixedThresholdMergingStrategy : public SOMKEMergingStrategy {
     double ComputeModifiedDivergenceOfSOMSequenceEntry(const SOMSequenceEntry &entry) const;
 };
 
-#endif //KERDEP_SOMKEFIXEDTHRESHOLDMERGINGSTRATEGY_H
+#endif //DEDSTA_SOMKEFIXEDTHRESHOLDMERGINGSTRATEGY_H

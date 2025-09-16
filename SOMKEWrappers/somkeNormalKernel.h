@@ -2,8 +2,8 @@
 // Created by tomev on 10/03/2021.
 //
 
-#ifndef KERDEP_SOMKENORMALKERNEL_H
-#define KERDEP_SOMKENORMALKERNEL_H
+#ifndef DEDSTA_SOMKENORMALKERNEL_H
+#define DEDSTA_SOMKENORMALKERNEL_H
 
 #include "Kernel.h"
 #include "Functions/Kernels/normalkernel.h"
@@ -13,4 +13,4 @@ class SOMKENormalKernel : public Kernel, normalKernel {
     double GetValue(const Point &pt) override;
 };
 
-#endif //KERDEP_SOMKENORMALKERNEL_H
+#endif //DEDSTA_SOMKENORMALKERNEL_H

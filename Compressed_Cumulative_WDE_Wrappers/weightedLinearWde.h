@@ -2,8 +2,8 @@
 // Created by Tomev on 26/01/2021.
 //
 
-#ifndef KERDEP_WEIGHTEDLINEARWDE_H
-#define KERDEP_WEIGHTEDLINEARWDE_H
+#ifndef DEDSTA_WEIGHTEDLINEARWDE_H
+#define DEDSTA_WEIGHTEDLINEARWDE_H
 
 #include "LinearWDE.h"
 
@@ -28,4 +28,4 @@ class WeightedLinearWDE : public LinearWDE {
 
 };
 
-#endif //KERDEP_WEIGHTEDLINEARWDE_H
+#endif //DEDSTA_WEIGHTEDLINEARWDE_H

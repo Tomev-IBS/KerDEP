@@ -1,4 +1,4 @@
-#include "DESDA.h"
+#include "DEDSTA.h"
 #include "KDE/pluginsmoothingparametercounter.h"
 #include "KDE/WeightedCVBandwidthSelector.h"
 
@@ -11,7 +11,7 @@
 
 # define M_PI           3.14159265358979323846  /* pi */
 
-DESDA::DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
+DEDSTA::DEDSTA(std::shared_ptr<kernelDensityEstimator> estimator,
              std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
              std::shared_ptr<kernelDensityEstimator> enchancedKDE,
              reservoirSamplingAlgorithm *samplingAlgorithm,
@@ -94,7 +94,7 @@ double stdev(const std::vector<double> &v){
   return std::pow(var(v), 0.5);
 }
 
-void DESDA::performStep() {
+void DEDSTA::performStep() {
 
   // Making place for new cluster
   while(_clustersForWindowed.size() >= _maxM) {
@@ -238,7 +238,7 @@ void DESDA::performStep() {
   ++_stepNumber;
 }
 
-void DESDA::updateWeights() {
+void DEDSTA::updateWeights() {
   _examinedClustersWStar.clear();
   auto consideredClusters = getClustersForEstimator();
   auto m = consideredClusters.size();
@@ -255,11 +255,11 @@ void DESDA::updateWeights() {
   }
 }
 
-/** DESDA::updateExaminedClustersIndices
+/** DEDSTA::updateExaminedClustersIndices
  * @brief A function that updates indices of examined clusters. Note that it
  * should be called after m update.
  */
-void DESDA::updateExaminedClustersIndices() {
+void DEDSTA::updateExaminedClustersIndices() {
   auto desiredClustersLocations = {0.2, 0.5, 0.8};
   _examinedClustersIndices.clear();
 
@@ -269,7 +269,7 @@ void DESDA::updateExaminedClustersIndices() {
     _examinedClustersIndices.push_back(round(val * m) - 1);
 }
 
-std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator() {
+std::vector<std::shared_ptr<cluster> > DEDSTA::getClustersForEstimator() {
   std::vector<std::shared_ptr<cluster> > consideredClusters = {};
   int i = 0;
 
@@ -281,17 +281,17 @@ std::vector<std::shared_ptr<cluster> > DESDA::getClustersForEstimator() {
   return consideredClusters;
 }
 
-std::vector<std::shared_ptr<cluster> > DESDA::getClustersForWindowedEstimator() {
+std::vector<std::shared_ptr<cluster> > DEDSTA::getClustersForWindowedEstimator() {
   return _clustersForWindowed;
 }
 
-/** DESDA::enhanceWeightsOfUncommonElements
+/** DEDSTA::enhanceWeightsOfUncommonElements
  * @brief Enhance weights of atypical elements.
  *
  * The method is described in Kulczycki, Kus, Rybotycki 2020
  *
  */
-void DESDA::enhanceWeightsOfUncommonElements() {
+void DEDSTA::enhanceWeightsOfUncommonElements() {
   auto uncommonElements = getAtypicalElements();
   std::vector<double> examinedClustersEnhancedWeights = {};
   std::vector<double> weightsEnhancers = {};
@@ -334,7 +334,7 @@ void DESDA::enhanceWeightsOfUncommonElements() {
   }
 }
 
-void DESDA::countKDEValuesOnClusters() {
+void DEDSTA::countKDEValuesOnClusters() {
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
 
@@ -356,16 +356,16 @@ void DESDA::countKDEValuesOnClusters() {
   }
 }
 
-void DESDA::updatePrognosisParameters() {
+void DEDSTA::updatePrognosisParameters() {
   for(std::shared_ptr<cluster> c : *_clusters)
     c->updatePrediction();
 }
 
-/** @brief DESDA::countDerivativeValuesOnClusters
+/** @brief DEDSTA::countDerivativeValuesOnClusters
  *  Calculates derivative values on points represented by current clusters and
  *  assings them to clusters.
  */
-void DESDA::countDerivativeValuesOnClusters() {
+void DEDSTA::countDerivativeValuesOnClusters() {
   // Get the domain. Formally only m would be needed, but it will not hurt
   // to count on whole domain.
   QVector<std::vector<double>> domain = {};
@@ -386,7 +386,7 @@ void DESDA::countDerivativeValuesOnClusters() {
     (*_clusters)[i]->_currentDerivativeValue = derivativeValues[i];
 }
 
-void DESDA::updateM() {
+void DEDSTA::updateM() {
   if(_sgmKPSS < 0) return;
 
   //_m = round(1.1 * _maxM - (1.1 * _maxM - 0.9 * _minM) * _sgmKPSS);
@@ -396,7 +396,7 @@ void DESDA::updateM() {
   _m = _m > _maxM ? _maxM : _m;
 }
 
-void DESDA::updateMaxAbsDerivativeInCurrentStep() {
+void DEDSTA::updateMaxAbsDerivativeInCurrentStep() {
   auto consideredClusters = getClustersForEstimator();
   _maxAbsDerivativeValueInCurrentStep = 0;
   for(auto c : consideredClusters) {
@@ -408,7 +408,7 @@ void DESDA::updateMaxAbsDerivativeInCurrentStep() {
   }
 }
 
-std::vector<double> DESDA::getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster> > clusters,
+std::vector<double> DEDSTA::getAttributesValuesFromClusters(std::vector<std::shared_ptr<cluster> > clusters,
                                                            int dimension) {
   std::string attribute = (*_samplingAlgorithm->getAttributesList())[dimension];
   std::vector<double> values = {};
@@ -422,7 +422,7 @@ std::vector<double> DESDA::getAttributesValuesFromClusters(std::vector<std::shar
   return values;
 }
 
-double DESDA::getDomainMinValue(const std::vector<double> &values, double h) {
+double DEDSTA::getDomainMinValue(const std::vector<double> &values, double h) {
   if(values.size() == 0) return -5 * h;
 
   double domainMin = values[0];
@@ -434,7 +434,7 @@ double DESDA::getDomainMinValue(const std::vector<double> &values, double h) {
   return domainMin - 5 * h;
 }
 
-double DESDA::getDomainMaxValue(const std::vector<double> &values, double h) {
+double DEDSTA::getDomainMaxValue(const std::vector<double> &values, double h) {
   if(values.size() == 0) return 5 * h;
 
   double domainMax = values[0];
@@ -446,7 +446,7 @@ double DESDA::getDomainMaxValue(const std::vector<double> &values, double h) {
   return domainMax + 5 * h;
 }
 
-QVector<double> DESDA::getErrorDomain(int dimension) {
+QVector<double> DEDSTA::getErrorDomain(int dimension) {
   std::vector<std::shared_ptr<cluster>> currentClusters =
       getClustersForEstimator();
   std::vector<double> attributesValues =
@@ -469,7 +469,7 @@ QVector<double> DESDA::getErrorDomain(int dimension) {
   return domain;
 }
 
-QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
+QVector<double> DEDSTA::getWindowedErrorDomain(int dimension) {
   std::vector<std::shared_ptr<cluster>> currentClusters =
       getClustersForWindowedEstimator();
   std::vector<double> attributesValues =
@@ -488,7 +488,7 @@ QVector<double> DESDA::getWindowedErrorDomain(int dimension) {
   return domain;
 }
 
-std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
+std::vector<double> DEDSTA::calculateH(const std::vector<clusterPtr> &clusters) {
   int dimensionsNumber = _samplingAlgorithm->getAttributesList()->size();
   std::vector<double> smoothingParameters = {};
 
@@ -529,7 +529,7 @@ std::vector<double> DESDA::calculateH(const std::vector<clusterPtr> &clusters) {
   return smoothingParameters;
 }
 
-std::vector<double> DESDA::computeRadialH(const std::vector<clusterPtr> &clusters) const{
+std::vector<double> DEDSTA::computeRadialH(const std::vector<clusterPtr> &clusters) const{
   int dimensionsNumber = _samplingAlgorithm->getAttributesList()->size();
   std::vector<double> smoothingParameters = {};
 
@@ -564,7 +564,7 @@ std::vector<double> DESDA::computeRadialH(const std::vector<clusterPtr> &cluster
   return {counter.compute_bandwidth(data, weights)};
 }
 
-QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension) {
+QVector<double> DEDSTA::getKernelPrognosisDerivativeValues(const QVector<std::vector<double>> *X, int dimension) {
   std::vector<std::shared_ptr<cluster>> currentClusters
       = getClustersForEstimator();
   std::vector<double> prognosisCoefficients = {};
@@ -613,7 +613,7 @@ QVector<double> DESDA::getKernelPrognosisDerivativeValues(const QVector<std::vec
   return kernelPrognosisDerivativeValues;
 }
 
-std::vector<double> DESDA::getEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension) {
+std::vector<double> DEDSTA::getEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension) {
   auto currentClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(currentClusters);
   sigmoidallyEnhanceClustersWeights(&currentClusters);
@@ -650,12 +650,12 @@ std::vector<double> DESDA::getEnhancedKDEValues(const std::vector<std::vector<do
   return enhancedKDEValues;
 }
 
-/** DESDA::getClustersWeights
+/** DEDSTA::getClustersWeights
  * @brief Gets CWeights from given clusters.
  * @param clusters -- clusters to get weights from
  * @return std::vector<double> of weights
  */
-std::vector<double> DESDA::getClustersWeights(const std::vector<std::shared_ptr<cluster> > &clusters) {
+std::vector<double> DEDSTA::getClustersWeights(const std::vector<std::shared_ptr<cluster> > &clusters) {
   std::vector<double> weights = {};
 
   for(auto c : clusters)
@@ -664,11 +664,11 @@ std::vector<double> DESDA::getClustersWeights(const std::vector<std::shared_ptr<
   return weights;
 }
 
-/** DESDA::sigmoidallyEnhanceClustersWeights
+/** DEDSTA::sigmoidallyEnhanceClustersWeights
  * @brief Enhancing weights of considered cluters based on prognosis.
  * @param clusters - clusters to enhance wieghts
  */
-void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster> > *clusters) {
+void DEDSTA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluster> > *clusters) {
   _examinedClustersWStar2.clear();
 
   for(auto index : _examinedClustersIndices)
@@ -689,7 +689,7 @@ void DESDA::sigmoidallyEnhanceClustersWeights(std::vector<std::shared_ptr<cluste
   }
 }
 
-vector<double> DESDA::getWindowKDEValues(const vector<vector<qreal>> *X, int dimension) {
+vector<double> DEDSTA::getWindowKDEValues(const vector<vector<qreal>> *X, int dimension) {
   vector<double> windowKDEValues = {};
   auto currentClusters = getClustersForWindowedEstimator();
 
@@ -723,7 +723,7 @@ vector<double> DESDA::getWindowKDEValues(const vector<vector<qreal>> *X, int dim
   return windowKDEValues;
 }
 
-std::vector<double> DESDA::getKDEValues(const vector<vector<double>> *X, int dimension) {
+std::vector<double> DEDSTA::getKDEValues(const vector<vector<double>> *X, int dimension) {
   std::vector<double> KDEValues = {};
   auto currentClusters = getClustersForEstimator();
   _estimator->setClusters(currentClusters);
@@ -753,7 +753,7 @@ std::vector<double> DESDA::getKDEValues(const vector<vector<double>> *X, int dim
   return KDEValues;
 }
 
-std::vector<double> DESDA::getWeightedKDEValues(const vector<vector<double>> *X, int dimension) {
+std::vector<double> DEDSTA::getWeightedKDEValues(const vector<vector<double>> *X, int dimension) {
   std::vector<double> weightedKDEValues = {};
   auto currentClusters = getClustersForEstimator();
   _estimator->setClusters(currentClusters);
@@ -783,7 +783,7 @@ std::vector<double> DESDA::getWeightedKDEValues(const vector<vector<double>> *X,
   return weightedKDEValues;
 }
 
-double DESDA::getStationarityTestValue() {
+double DEDSTA::getStationarityTestValue() {
   std::vector<double> stationarityTestsValues = {};
   for(auto test: stationarityTests) {
     stationarityTestsValues.push_back(test->getTestsValue());
@@ -792,7 +792,7 @@ double DESDA::getStationarityTestValue() {
   return *std::max_element(stationarityTestsValues.begin(), stationarityTestsValues.end());
 }
 
-void DESDA::prepareEstimatorForContourPlotDrawing() {
+void DEDSTA::prepareEstimatorForContourPlotDrawing() {
   auto currentClusters = getClustersForEstimator();
   _unmodifiedCWeightsOfClusters = getClustersWeights(*_clusters);
 
@@ -803,20 +803,20 @@ void DESDA::prepareEstimatorForContourPlotDrawing() {
   _estimator->setSmoothingParameters({_smoothingParametersVector});
 }
 
-void DESDA::restoreClustersCWeights() {
+void DEDSTA::restoreClustersCWeights() {
   for(int i = 0; i < _clusters->size(); ++i) {
     (*_clusters)[i]->setCWeight(_unmodifiedCWeightsOfClusters[i]);
   }
 }
 
-/** DESDA::getAtypicalElements
+/** DEDSTA::getAtypicalElements
  * @brief Finds and returns vector of atypical elements.
  *
  * Atypical elements are found using Kulczycki-Kruszewski method.
  *
  * @return Vector of atypical/rare/uncommon elements in _clusters.
  */
-std::vector<clusterPtr> DESDA::getAtypicalElements() {
+std::vector<clusterPtr> DEDSTA::getAtypicalElements() {
   auto AKDEValues = getVectorOfAcceleratedKDEValuesOnClusters();
   auto sortedIndicesValues = getSortedAcceleratedKDEValues(AKDEValues);
   recountQuantileEstimatorValue(sortedIndicesValues);
@@ -847,7 +847,7 @@ std::vector<clusterPtr> DESDA::getAtypicalElements() {
   return atypicalElements;
 }
 
-std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters() {
+std::vector<double> DEDSTA::getVectorOfAcceleratedKDEValuesOnClusters() {
   std::vector<double> x;
   auto consideredClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(consideredClusters);
@@ -888,7 +888,7 @@ std::vector<double> DESDA::getVectorOfAcceleratedKDEValuesOnClusters() {
   return AKDEValues;
 }
 
-std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues) {
+std::vector<std::pair<int, double> > DEDSTA::getSortedAcceleratedKDEValues(const std::vector<double> &AKDEValues) {
   // Create pairs containing indexes and values of AKDE
   std::vector<std::pair<int, double>> indexesValues = {};
 
@@ -914,7 +914,7 @@ std::vector<std::pair<int, double> > DESDA::getSortedAcceleratedKDEValues(const 
   return indexesValues;
 }
 
-void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues) {
+void DEDSTA::recountQuantileEstimatorValue(const std::vector<std::pair<int, double> > &sortedIndicesValues) {
   int m = sortedIndicesValues.size();
   double mr = _r * m;
   bool originalShouldConsiderWeights = _estimator->_shouldConsiderWeights;
@@ -960,7 +960,7 @@ void DESDA::recountQuantileEstimatorValue(const std::vector<std::pair<int, doubl
   _estimator->_shouldConsiderWeights = originalShouldConsiderWeights;
 }
 
-std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension) {
+std::vector<double> DEDSTA::getRareElementsEnhancedKDEValues(const std::vector<std::vector<double>> *X, int dimension) {
   std::vector<double> enhancedKDEValues = {};
   auto currentClusters = getClustersForEstimator();
   auto standardWeights = getClustersWeights(currentClusters);
@@ -1008,14 +1008,14 @@ std::vector<double> DESDA::getRareElementsEnhancedKDEValues(const std::vector<st
   return enhancedKDEValues;
 }
 
-/** DESDA::getAtypicalElementsValuesAndDerivatives
+/** DEDSTA::getAtypicalElementsValuesAndDerivatives
  * @brief Returns vector of current atypical elements values and their derivatives.
  *
  * This method assumes 1 dimensional, specifically constructed objects (for now).
  *
  * @return Vector of pairs of atypical elements values and their derivatives.
  */
-QVector<std::pair<std::vector<double>, double>> DESDA::getAtypicalElementsValuesAndDerivatives() {
+QVector<std::pair<std::vector<double>, double>> DEDSTA::getAtypicalElementsValuesAndDerivatives() {
   QVector<std::pair<std::vector<double>, double>> atypicalElementsValuesAndDerivatives = {};
   auto atypicalElements = getAtypicalElements();
 
@@ -1055,7 +1055,7 @@ QVector<std::pair<std::vector<double>, double>> DESDA::getAtypicalElementsValues
   return atypicalElementsValuesAndDerivatives;
 }
 
-vector<double> DESDA::GetPrognosisErrors() {
+vector<double> DEDSTA::GetPrognosisErrors() {
 
   int last_examined_cluster_number = std::min(int(_clustersForWindowed.size()), max_prognosis_error_clusters_);
 
@@ -1068,11 +1068,11 @@ vector<double> DESDA::GetPrognosisErrors() {
   return errors;
 }
 
-double DESDA::ComputePrognosisError(const vector<double> &errors) const {
+double DEDSTA::ComputePrognosisError(const vector<double> &errors) const {
   return average(errors);
 }
 
-double DESDA::ComputeStatistics(const std::vector<double> &errors) const {
+double DEDSTA::ComputeStatistics(const std::vector<double> &errors) const {
   if(errors.size() > 1){
     // DEBUG //
       // qDebug() << "Err:" << errors;

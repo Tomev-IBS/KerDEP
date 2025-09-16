@@ -2,8 +2,8 @@
 // Created by Tomev on 03/02/2021.
 //
 
-#ifndef KERDEP_WEIGHTEDTHRESHOLDEDWDE_H
-#define KERDEP_WEIGHTEDTHRESHOLDEDWDE_H
+#ifndef DEDSTA_WEIGHTEDTHRESHOLDEDWDE_H
+#define DEDSTA_WEIGHTEDTHRESHOLDEDWDE_H
 
 #include "weightedLinearWde.h"
 #include "TranslatedDilatedWaveletFunction.h"
@@ -39,4 +39,4 @@ class WeightedThresholdedWDE : public WeightedLinearWDE {
 
 };
 
-#endif //KERDEP_WEIGHTEDTHRESHOLDEDWDE_H
+#endif //DEDSTA_WEIGHTEDTHRESHOLDEDWDE_H

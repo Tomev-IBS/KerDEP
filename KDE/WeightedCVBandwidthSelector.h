@@ -2,8 +2,8 @@
 // Created by tomev on 1/24/2023.
 //
 
-#ifndef KERDEP_WEIGHTEDCVBANDWIDTHSELECTOR_H
-#define KERDEP_WEIGHTEDCVBANDWIDTHSELECTOR_H
+#ifndef DEDSTA_WEIGHTEDCVBANDWIDTHSELECTOR_H
+#define DEDSTA_WEIGHTEDCVBANDWIDTHSELECTOR_H
 
 #include <armadillo>
 #include <vector>
@@ -30,4 +30,4 @@ class WeightedCVBandwidthSelector {
     static double normal_kernel_squared_convolution_value(const vec &x);
 };
 
-#endif //KERDEP_WEIGHTEDCVBANDWIDTHSELECTOR_H
+#endif //DEDSTA_WEIGHTEDCVBANDWIDTHSELECTOR_H

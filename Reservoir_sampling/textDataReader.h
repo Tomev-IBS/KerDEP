@@ -2,8 +2,8 @@
 // Created by tomev on 15/03/2021.
 //
 
-#ifndef KERDEP_TEXTDATAREADER_H
-#define KERDEP_TEXTDATAREADER_H
+#ifndef DEDSTA_TEXTDATAREADER_H
+#define DEDSTA_TEXTDATAREADER_H
 
 #include <fstream>
 #include "dataReader.h"
@@ -33,4 +33,4 @@ class TextDataReader : public dataReader {
     int dimension_ = 1;
 };
 
-#endif //KERDEP_TEXTDATAREADER_H
+#endif //DEDSTA_TEXTDATAREADER_H

@@ -3,8 +3,8 @@
 // A class that implements multivariate linear binning algorithm, as presented by Wand.
 //
 
-#ifndef KERDEP_LINEARBINNING_H
-#define KERDEP_LINEARBINNING_H
+#ifndef DEDSTA_LINEARBINNING_H
+#define DEDSTA_LINEARBINNING_H
 
 #include <armadillo>
 #include <map>
@@ -35,4 +35,4 @@ class LinearBinning {
 
 };
 
-#endif //KERDEP_LINEARBINNING_H
+#endif //DEDSTA_LINEARBINNING_H

@@ -1,5 +1,5 @@
-#ifndef DESDA_H
-#define DESDA_H
+#ifndef DEDSTA_H
+#define DEDSTA_H
 
 #include <QDebug>
 #include <memory>
@@ -12,10 +12,10 @@
 #include "groupingThread/groupingThread.h"
 #include "StationarityTests/kpssstationaritytest.h"
 
-class DESDA
+class DEDSTA
 {
   public:
-    DESDA(std::shared_ptr<kernelDensityEstimator> estimator,
+    DEDSTA(std::shared_ptr<kernelDensityEstimator> estimator,
           std::shared_ptr<kernelDensityEstimator> estimatorDerivative,
           std::shared_ptr<kernelDensityEstimator> enchancedKDE,
           reservoirSamplingAlgorithm *samplingAlgorithm,
@@ -180,4 +180,4 @@ class DESDA
     };
 };
 
-#endif // DESDA_H
+#endif // DEDSTA_H
